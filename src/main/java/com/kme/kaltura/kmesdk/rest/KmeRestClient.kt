@@ -5,7 +5,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.TimeUnit
 
-class KmeRestClient private constructor() {
+class KmeRestClient {
 
     companion object {
         private var okHttpClient: OkHttpClient? = null
