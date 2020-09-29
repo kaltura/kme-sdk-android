@@ -1,3 +1,3 @@
 package com.kme.kaltura.kmesdk
 
-val koin = KmeSdkApplication.koin
+val koin = KME.koin

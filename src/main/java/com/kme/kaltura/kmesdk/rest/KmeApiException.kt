@@ -1,6 +1,6 @@
 package com.kme.kaltura.kmesdk.rest
 
-sealed class AppException(
+sealed class KmeApiException(
     override val message: String?,
     cause: Throwable? = null,
 ) : Exception(message, cause) {
@@ -8,13 +8,13 @@ sealed class AppException(
     class NetworkException(
         message: String? = null,
         cause: Throwable? = null,
-    ) : AppException(message, cause)
+    ) : KmeApiException(message, cause)
 
     open class HttpException(
         message: String? = null,
         val errorCode: Int,
         cause: Throwable? = null,
-    ) : AppException(message, cause) {
+    ) : KmeApiException(message, cause) {
 
         class ClientException(
             message: String? = null,
@@ -32,11 +32,11 @@ sealed class AppException(
     class ParseJsonException(
         message: String? = null,
         cause: Throwable? = null,
-    ) : AppException(message, cause)
+    ) : KmeApiException(message, cause)
 
     class SomethingBadHappenedException(
         message: String? = null,
         cause: Throwable? = null,
-    ) : AppException(message, cause)
+    ) : KmeApiException(message, cause)
 
 }

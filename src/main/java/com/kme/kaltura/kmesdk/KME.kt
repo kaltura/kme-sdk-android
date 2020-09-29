@@ -1,31 +1,31 @@
 package com.kme.kaltura.kmesdk
 
-import com.kme.kaltura.kmesdk.rest.services.KmeApiService
-import com.kme.kaltura.kmesdk.rest.services.KmeAuthService
-import com.kme.kaltura.kmesdk.rest.services.KmeRoomService
+import com.kme.kaltura.kmesdk.di.controllersModule
+import com.kme.kaltura.kmesdk.di.restModule
+import com.kme.kaltura.kmesdk.rest.controller.IKmeSignInController
+import org.koin.core.Koin
 import org.koin.core.KoinComponent
+import org.koin.dsl.koinApplication
 
 class KME : KoinComponent {
 
-//    val rest: KmeRestClient by koin.inject()
+    val signInController: IKmeSignInController by koin.inject()
 
     companion object {
+        lateinit var koin: Koin
         private lateinit var instance: KME
 
         fun getInstance(): KME {
             if (!::instance.isInitialized) {
+                koin = koinApplication {
+                    modules(restModule)
+                    modules(controllersModule)
+                }.koin
+
                 instance = KME()
             }
             return instance
         }
-    }
-
-    fun getAuthService(): KmeApiService {
-        return KmeAuthService()
-    }
-
-    fun getRoomService(): KmeApiService {
-        return KmeRoomService()
     }
 
 }
