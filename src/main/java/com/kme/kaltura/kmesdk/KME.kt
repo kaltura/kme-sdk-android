@@ -11,17 +11,19 @@ class KME : KoinComponent {
 
     val signInController: IKmeSignInController by koin.inject()
 
+    init {
+        koin = koinApplication {
+            modules(restModule)
+            modules(controllersModule)
+        }.koin
+    }
+
     companion object {
         lateinit var koin: Koin
         private lateinit var instance: KME
 
         fun getInstance(): KME {
             if (!::instance.isInitialized) {
-                koin = koinApplication {
-                    modules(restModule)
-                    modules(controllersModule)
-                }.koin
-
                 instance = KME()
             }
             return instance
