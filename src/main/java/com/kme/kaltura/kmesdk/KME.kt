@@ -1,25 +1,14 @@
 package com.kme.kaltura.kmesdk
 
-import com.kme.kaltura.kmesdk.di.controllersModule
-import com.kme.kaltura.kmesdk.di.restModule
+import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.rest.controller.IKmeSignInController
-import org.koin.core.Koin
-import org.koin.core.KoinComponent
-import org.koin.dsl.koinApplication
+import org.koin.core.inject
 
-class KME : KoinComponent {
+class KME : KmeKoinComponent {
 
-    val signInController: IKmeSignInController by koin.inject()
-
-    init {
-        koin = koinApplication {
-            modules(restModule)
-            modules(controllersModule)
-        }.koin
-    }
+    val signInController: IKmeSignInController by inject()
 
     companion object {
-        lateinit var koin: Koin
         private lateinit var instance: KME
 
         fun getInstance(): KME {
