@@ -16,16 +16,14 @@ interface KmeSignInApiService {
         @Field("SignupForm[email]") email: String,
         @Field("SignupForm[password]") password: String,
         @Field("SignupForm[forceRegister]") forceRegister: Int,
-        @Field("SignupForm[addToMailingList]") addToMailingList: Int,
-        @Field("SignupForm[captchaToken]") captchaToken: String
+        @Field("SignupForm[addToMailingList]") addToMailingList: Int
     ): KmeRegisterResponse
 
     @FormUrlEncoded
     @POST("signin/login")
     suspend fun login(
         @Field("LoginForm[email]") email: String,
-        @Field("LoginForm[password]") password: String,
-        @Field("LoginForm[captchaToken]") captchaToken: String
+        @Field("LoginForm[password]") password: String
     ): KmeLoginResponse
 
     @FormUrlEncoded

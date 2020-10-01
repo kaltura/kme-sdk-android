@@ -23,7 +23,6 @@ class KmeSignInControllerImpl : KmeKoinComponent, IKmeSignInController {
         password: String,
         forceRegister: Int,
         addToMailingList: Int,
-        captchaToken: String,
         success: (response: KmeRegisterResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
@@ -35,8 +34,7 @@ class KmeSignInControllerImpl : KmeKoinComponent, IKmeSignInController {
                         email,
                         password,
                         forceRegister,
-                        addToMailingList,
-                        captchaToken
+                        addToMailingList
                     )
                 },
                 success,
@@ -48,13 +46,12 @@ class KmeSignInControllerImpl : KmeKoinComponent, IKmeSignInController {
     override fun login(
         email: String,
         password: String,
-        captchaToken: String,
         success: (response: KmeLoginResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
         uiScope.launch {
             safeApiCall(
-                { signInApiService.login(email, password, captchaToken) },
+                { signInApiService.login(email, password) },
                 success,
                 error
             )

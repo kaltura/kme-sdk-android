@@ -13,7 +13,6 @@ interface IKmeSignInController {
         password: String,
         forceRegister: Int,
         addToMailingList: Int,
-        captchaToken: String,
         success: (response: KmeRegisterResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )
@@ -21,7 +20,6 @@ interface IKmeSignInController {
     fun login(
         email: String,
         password: String,
-        captchaToken: String,
         success: (response: KmeLoginResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )
