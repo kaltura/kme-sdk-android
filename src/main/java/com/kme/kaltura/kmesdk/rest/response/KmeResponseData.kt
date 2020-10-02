@@ -1,6 +1,6 @@
 package com.kme.kaltura.kmesdk.rest.response
 
-open class KmeResponse {
-    val status : String? = null
+open class KmeResponseData {
+    val message : String? = null
     val code : Int? = null
 }
