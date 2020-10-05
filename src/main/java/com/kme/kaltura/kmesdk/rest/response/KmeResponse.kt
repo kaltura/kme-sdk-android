@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk.rest.response
 import com.google.gson.annotations.SerializedName
 
 open class KmeResponse {
+
     val status: Status? = null
 
     enum class Status(val status: String) {
@@ -12,4 +13,5 @@ open class KmeResponse {
         @SerializedName("error")
         ERROR("error")
     }
+
 }

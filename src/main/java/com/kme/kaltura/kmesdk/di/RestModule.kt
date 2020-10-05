@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.di
 
 import com.google.gson.GsonBuilder
 import com.kme.kaltura.kmesdk.BuildConfig
+import com.kme.kaltura.kmesdk.rest.KmeBooleanTypeAdapter
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeUserApiService
@@ -17,6 +18,8 @@ val restModule = module {
     single {
         GsonBuilder()
             .setLenient()
+            .registerTypeAdapter(Boolean::class.javaObjectType, KmeBooleanTypeAdapter())
+            .registerTypeAdapter(Boolean::class.javaPrimitiveType, KmeBooleanTypeAdapter())
             .create()
     }
     single {

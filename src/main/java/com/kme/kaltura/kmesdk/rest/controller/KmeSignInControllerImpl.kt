@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.rest.controller
 
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
+import com.kme.kaltura.kmesdk.encryptWith
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLogoutResponse
@@ -17,6 +18,10 @@ class KmeSignInControllerImpl : KmeKoinComponent, IKmeSignInController {
     private val signInApiService: KmeSignInApiService by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
+    companion object {
+        const val PASS_ENCRYPT_KEY = "8kjbca328hbvcm,z,123A"
+    }
+
     override fun register(
         fullName: String,
         email: String,
@@ -26,13 +31,14 @@ class KmeSignInControllerImpl : KmeKoinComponent, IKmeSignInController {
         success: (response: KmeRegisterResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
+        val encryptedPassword = password.encryptWith(PASS_ENCRYPT_KEY)
         uiScope.launch {
             safeApiCall(
                 {
                     signInApiService.register(
                         fullName,
                         email,
-                        password,
+                        encryptedPassword,
                         forceRegister,
                         addToMailingList
                     )
@@ -49,9 +55,10 @@ class KmeSignInControllerImpl : KmeKoinComponent, IKmeSignInController {
         success: (response: KmeLoginResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
+        val encryptedPassword = password.encryptWith(PASS_ENCRYPT_KEY)
         uiScope.launch {
             safeApiCall(
-                { signInApiService.login(email, password) },
+                { signInApiService.login(email, encryptedPassword) },
                 success,
                 error
             )
