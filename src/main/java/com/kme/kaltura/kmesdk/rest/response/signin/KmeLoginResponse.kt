@@ -5,12 +5,12 @@ import com.kme.kaltura.kmesdk.rest.response.KmeResponse
 import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 
 data class KmeLoginResponse(
-    var data: KmeLoginData? = null
+    @SerializedName("data") var data: KmeLoginData?
 ) : KmeResponse() {
 
     data class KmeLoginData(
-        var user_id: Long? = null,
-        @SerializedName("access-token") var accessToken: String? = null
+        @SerializedName("user_id") var userId: Long?,
+        @SerializedName("access-token") var accessToken: String?
     ) : KmeResponseData()
 
 }

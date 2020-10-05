@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 open class KmeResponse {
 
+    @SerializedName("status")
     val status: Status? = null
 
     enum class Status(val status: String) {

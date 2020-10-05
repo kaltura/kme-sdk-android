@@ -3,22 +3,18 @@ package com.kme.kaltura.kmesdk.rest.response.user
 import com.google.gson.annotations.SerializedName
 
 data class KmeUserInfoData(
-    var id: Long? = null,
-    @SerializedName("first_name")
-    var firstName: String? = null,
-    @SerializedName("last_name")
-    var lastName: String? = null,
-    var lang: String? = null,
-    var avatar: String? = null,
-    var userCompanies: UserCompanies? = null
+    @SerializedName("id") var id: Long?,
+    @SerializedName("first_name") var firstName: String?,
+    @SerializedName("last_name") var lastName: String?,
+    @SerializedName("lang") var lang: String?,
+    @SerializedName("avatar") var avatar: String?,
+    @SerializedName("userCompanies") var userCompanies: UserCompanies?
 ) {
 
     data class UserCompanies(
-        @SerializedName("owner_company_id")
-        var companyOwnerId: Long? = null,
-        var companies: List<KmeUserCompany>? = null,
-        @SerializedName("active_company_id")
-        var activeCompanyId: Long? = null,
+        @SerializedName("owner_company_id") var companyOwnerId: Long?,
+        @SerializedName("companies") var companies: List<KmeUserCompany>?,
+        @SerializedName("active_company_id") var activeCompanyId: Long?,
     )
 
 }

@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.rest.controller
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
+import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 
 interface IKmeRoomController {
@@ -13,5 +14,15 @@ interface IKmeRoomController {
         success: (response: KmeGetRoomsResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )
+
+    fun getRoomInfo(
+        accessToken: String,
+        alias: String,
+        checkPermission: Int,
+        withFiles: Int,
+        success: (response: KmeGetRoomInfoResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
 
 }

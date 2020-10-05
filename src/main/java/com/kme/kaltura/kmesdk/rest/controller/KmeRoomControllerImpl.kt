@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.rest.controller
 
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.rest.KmeApiException
+import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
@@ -26,6 +27,23 @@ class KmeRoomControllerImpl : KmeKoinComponent, IKmeRoomController {
         uiScope.launch {
             safeApiCall(
                 { roomApiService.getRooms(accessToken, companyId, pages, limit) },
+                success,
+                error
+            )
+        }
+    }
+
+    override fun getRoomInfo(
+        accessToken: String,
+        alias: String,
+        checkPermission: Int,
+        withFiles: Int,
+        success: (response: KmeGetRoomInfoResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        uiScope.launch {
+            safeApiCall(
+                { roomApiService.getRoomInfo(accessToken, alias, checkPermission, withFiles) },
                 success,
                 error
             )

@@ -1,15 +1,16 @@
 package com.kme.kaltura.kmesdk.rest.response.room
 
+import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.rest.response.KmeResponse
 
 data class KmeGetRoomsResponse(
-    val data: KmeRoomsData? = null
+    @SerializedName("data") val data: KmeRoomsData?
 ) : KmeResponse() {
 
     data class KmeRoomsData(
-        val role: String? = null,
-        val rooms: List<KmeRoom>? = null,
-        val total: Long? = null
+        @SerializedName("role") val role: String?,
+        @SerializedName("rooms") val rooms: List<KmeRoom>?,
+        @SerializedName("total") val total: Long?
     )
 
 }
