@@ -11,5 +11,4 @@ interface KmeUserApiService {
         @Query("access-token") accessToken: String
     ): KmeGetUserInfoResponse
 
-
 }
