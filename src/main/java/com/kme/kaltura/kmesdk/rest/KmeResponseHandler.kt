@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.rest
 
+import com.kme.kaltura.kmesdk.rest.response.KmeResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.ConnectException
@@ -12,11 +13,20 @@ suspend fun <T> safeApiCall(
 ) {
     withContext(Dispatchers.IO) {
         try {
-            success(call.invoke())
+            val response = call.invoke()
+
+            if (response is KmeResponse && KmeResponse.Status.ERROR == response.status) {
+                throw KmeApiException.InternalApiException(response)
+            }
+
+            withContext(Dispatchers.Main) {
+                success(response)
+            }
         } catch (e: Throwable) {
             val appException = when (e) {
                 is ConnectException,
                 is UnknownHostException -> KmeApiException.NetworkException(cause = e)
+                is KmeApiException.InternalApiException -> e
                 is KmeApiException.HttpException -> {
                     when (e.errorCode) {
                         in 400..499 -> {
@@ -31,7 +41,9 @@ suspend fun <T> safeApiCall(
                 }
                 else -> KmeApiException.SomethingBadHappenedException(cause = e)
             }
-            error(appException)
+            withContext(Dispatchers.Main) {
+                error(appException)
+            }
         }
     }
 

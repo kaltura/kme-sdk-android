@@ -1,5 +1,7 @@
 package com.kme.kaltura.kmesdk.rest
 
+import com.kme.kaltura.kmesdk.rest.response.KmeResponse
+
 sealed class KmeApiException(
     override val message: String?,
     cause: Throwable? = null,
@@ -28,6 +30,10 @@ sealed class KmeApiException(
             cause: Throwable? = null,
         ) : HttpException(message, errorCode, cause)
     }
+
+    class InternalApiException(
+        errorResponse: KmeResponse
+    ) : KmeApiException(null, null)
 
     class ParseJsonException(
         message: String? = null,
