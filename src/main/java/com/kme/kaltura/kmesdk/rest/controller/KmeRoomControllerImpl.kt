@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.rest.controller
 
-import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
@@ -11,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.inject
 
-class KmeRoomControllerImpl : KmeKoinComponent, IKmeRoomController {
+class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
 
     private val roomApiService: KmeRoomApiService by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)

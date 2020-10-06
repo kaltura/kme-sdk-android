@@ -2,7 +2,9 @@ package com.kme.kaltura.kmesdk.di
 
 import com.google.gson.GsonBuilder
 import com.kme.kaltura.kmesdk.BuildConfig
-import com.kme.kaltura.kmesdk.rest.KmeBooleanTypeAdapter
+import com.kme.kaltura.kmesdk.rest.KmeIntToBooleanTypeAdapter
+import com.kme.kaltura.kmesdk.rest.KmeStringToBooleanTypeAdapter
+import com.kme.kaltura.kmesdk.rest.service.KmeMetadataApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeUserApiService
@@ -18,8 +20,9 @@ val restModule = module {
     single {
         GsonBuilder()
             .setLenient()
-            .registerTypeAdapter(Boolean::class.javaObjectType, KmeBooleanTypeAdapter())
-            .registerTypeAdapter(Boolean::class.javaPrimitiveType, KmeBooleanTypeAdapter())
+            .registerTypeAdapter(Boolean::class.javaObjectType, KmeIntToBooleanTypeAdapter())
+            .registerTypeAdapter(Boolean::class.javaPrimitiveType, KmeIntToBooleanTypeAdapter())
+            .registerTypeAdapter(Boolean::class.javaObjectType, KmeStringToBooleanTypeAdapter())
             .create()
     }
     single {
@@ -48,5 +51,6 @@ val restModule = module {
     single { get<Retrofit>().create(KmeSignInApiService::class.java) }
     single { get<Retrofit>().create(KmeUserApiService::class.java) }
     single { get<Retrofit>().create(KmeRoomApiService::class.java) }
+    single { get<Retrofit>().create(KmeMetadataApiService::class.java) }
 
 }

@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.rest.controller
 
-import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.user.KmeGetUserInfoResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
@@ -10,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.inject
 
-class KmeUserControllerImpl : KmeKoinComponent, IKmeUserController {
+class KmeUserControllerImpl : KmeController(), IKmeUserController  {
 
     private val userApiService: KmeUserApiService by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)

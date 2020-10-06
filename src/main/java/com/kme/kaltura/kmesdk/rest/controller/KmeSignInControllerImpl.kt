@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.rest.controller
 
-import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.encryptWith
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
@@ -13,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.inject
 
-class KmeSignInControllerImpl : KmeKoinComponent, IKmeSignInController {
+class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
 
     private val signInApiService: KmeSignInApiService by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
