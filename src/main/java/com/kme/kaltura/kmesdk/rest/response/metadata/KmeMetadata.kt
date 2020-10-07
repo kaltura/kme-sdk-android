@@ -4,8 +4,8 @@ import com.google.gson.annotations.SerializedName
 
 data class KmeMetadata(
     @SerializedName("version") val version : String?,
-    @SerializedName("legacy_domain") val legacy_domain : String?,
-    @SerializedName("files_url") val files_url : String?,
+    @SerializedName("legacy_domain") val legacyDomain : String?,
+    @SerializedName("files_url") val filesUrl : String?,
     @SerializedName("st_public") val st_public : String?,
     @SerializedName("firstTimeVideo") val firstTimeVideo : String?,
     @SerializedName("callstatsEnabled") val callstatsEnabled : Boolean?,
