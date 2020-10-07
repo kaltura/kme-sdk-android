@@ -5,8 +5,9 @@ import com.kme.kaltura.kmesdk.rest.response.user.KmeGetUserInfoResponse
 
 interface IKmeUserController {
 
+    fun isLoggedIn(): Boolean
+
     fun getUserInformation(
-        accessToken: String,
         success: (response: KmeGetUserInfoResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )

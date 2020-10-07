@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder
 import com.kme.kaltura.kmesdk.BuildConfig
 import com.kme.kaltura.kmesdk.rest.KmeIntToBooleanTypeAdapter
 import com.kme.kaltura.kmesdk.rest.KmeStringToBooleanTypeAdapter
+import com.kme.kaltura.kmesdk.rest.KmeTokenInterceptor
 import com.kme.kaltura.kmesdk.rest.service.KmeMetadataApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService
@@ -26,6 +27,9 @@ val restModule = module {
             .create()
     }
     single {
+        KmeTokenInterceptor(get())
+    }
+    single {
         HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG)
                 HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
@@ -36,6 +40,7 @@ val restModule = module {
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(get<KmeTokenInterceptor>())
             .addInterceptor(get<HttpLoggingInterceptor>())
             .build()
     }
