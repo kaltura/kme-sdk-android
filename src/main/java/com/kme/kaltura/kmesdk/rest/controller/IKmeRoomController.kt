@@ -7,7 +7,6 @@ import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 interface IKmeRoomController {
 
     fun getRooms(
-        accessToken: String,
         companyId: Long,
         pages: Long,
         limit: Long,
@@ -16,7 +15,6 @@ interface IKmeRoomController {
     )
 
     fun getRoomInfo(
-        accessToken: String,
         alias: String,
         checkPermission: Int,
         withFiles: Int,
