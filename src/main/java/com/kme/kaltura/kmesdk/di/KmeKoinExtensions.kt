@@ -15,6 +15,7 @@ object KmeKoinContext {
             androidContext(context)
             modules(restModule)
             modules(controllersModule)
+            modules(preferencesModule)
         }.koin
     }
 

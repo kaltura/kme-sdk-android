@@ -1,6 +1,8 @@
 package com.kme.kaltura.kmesdk.rest.controller
 
 import com.kme.kaltura.kmesdk.encryptWith
+import com.kme.kaltura.kmesdk.prefs.KmePreferencesImpl
+import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLogoutResponse
@@ -15,6 +17,7 @@ import org.koin.core.inject
 class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
 
     private val signInApiService: KmeSignInApiService by inject()
+    private val prefs: KmePreferencesImpl by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     companion object {
@@ -58,7 +61,12 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
         uiScope.launch {
             safeApiCall(
                 { signInApiService.login(email, encryptedPassword) },
-                success,
+                { response ->
+                    response.data?.accessToken?.let { token ->
+                        prefs.putString(KmePrefsKeys.ACCESS_TOKEN, token)
+                    }
+                    success(response)
+                },
                 error
             )
         }

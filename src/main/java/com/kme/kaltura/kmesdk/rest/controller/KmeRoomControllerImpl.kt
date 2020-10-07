@@ -16,7 +16,6 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     override fun getRooms(
-        accessToken: String,
         companyId: Long,
         pages: Long,
         limit: Long,
@@ -25,7 +24,7 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
     ) {
         uiScope.launch {
             safeApiCall(
-                { roomApiService.getRooms(accessToken, companyId, pages, limit) },
+                { roomApiService.getRooms(companyId, pages, limit) },
                 success,
                 error
             )
@@ -33,7 +32,6 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
     }
 
     override fun getRoomInfo(
-        accessToken: String,
         alias: String,
         checkPermission: Int,
         withFiles: Int,
@@ -42,7 +40,7 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
     ) {
         uiScope.launch {
             safeApiCall(
-                { roomApiService.getRoomInfo(accessToken, alias, checkPermission, withFiles) },
+                { roomApiService.getRoomInfo(alias, checkPermission, withFiles) },
                 success,
                 error
             )

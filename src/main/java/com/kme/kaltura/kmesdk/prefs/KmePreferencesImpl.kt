@@ -3,9 +3,7 @@ package com.kme.kaltura.kmesdk.prefs
 import android.content.Context
 import android.content.SharedPreferences
 
-abstract class Prefs(
-    context: Context
-) : IKmePreferences {
+class KmePreferencesImpl(context: Context) : IKmePreferences {
 
     private var sharedPref: SharedPreferences =
         context.getSharedPreferences("KMESDK_PREFERENCES", Context.MODE_PRIVATE)

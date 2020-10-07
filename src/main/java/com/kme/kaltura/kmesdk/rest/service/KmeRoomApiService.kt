@@ -9,7 +9,6 @@ interface KmeRoomApiService {
 
     @GET("room/getRoomListForCompany")
     suspend fun getRooms(
-        @Query("access-token") accessToken: String,
         @Query("company_id") companyId: Long,
         @Query("page_number") pages: Long,
         @Query("limit") limit: Long
@@ -17,7 +16,6 @@ interface KmeRoomApiService {
 
     @GET("room/roomInfoByAlias")
     suspend fun getRoomInfo(
-        @Query("access-token") accessToken: String,
         @Query("alias") alias: String,
         @Query("with_viewed_files") withFiles: Int,
         @Query("check_permission") checkPermission: Int
