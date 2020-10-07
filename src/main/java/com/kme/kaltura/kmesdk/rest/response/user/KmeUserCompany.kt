@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class KmeUserCompany(
     @SerializedName("id") val id: Long?,
     @SerializedName("name") val name: String?,
-    @SerializedName("avatar") val avatar: String?,
+    @SerializedName("avatar") var avatar: String?,
     @SerializedName("allow_add_courses") val allowAddCourses: Boolean?,
     @SerializedName("is_paying_company") val isPayingCompany: Boolean?,
     @SerializedName("recording_reminder_ind") val recordingReminder: Int?,

@@ -4,19 +4,19 @@ interface IKmePreferences {
 
     fun putString(key: String, value: String)
 
-    fun getString(key: String, defaultValue: String): String?
+    fun getString(key: String, defaultValue: String = ""): String?
 
     fun putInt(key: String, value: Int)
 
-    fun getInt(key: String, defaultValue: Int): Int
+    fun getInt(key: String, defaultValue: Int = 0): Int
 
     fun putLong(key: String, value: Long)
 
-    fun getLong(key: String, defaultValue: Long): Long
+    fun getLong(key: String, defaultValue: Long = 0L): Long
 
     fun putBoolean(key: String, value: Boolean)
 
-    fun getBoolean(key: String, defaultValue: Boolean): Boolean
+    fun getBoolean(key: String, defaultValue: Boolean = false): Boolean
 
     fun clearCurrentPrefs(key: String)
 
