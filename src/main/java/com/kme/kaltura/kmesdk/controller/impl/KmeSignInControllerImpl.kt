@@ -21,6 +21,10 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
     private val prefs: IKmePreferences by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
+    companion object {
+        const val PASS_ENCRYPT_KEY = "8kjbca328hbvcm,z,123A"
+    }
+
     override fun register(
         fullName: String,
         email: String,
