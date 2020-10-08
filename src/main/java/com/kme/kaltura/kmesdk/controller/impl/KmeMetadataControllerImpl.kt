@@ -1,5 +1,6 @@
-package com.kme.kaltura.kmesdk.rest.controller
+package com.kme.kaltura.kmesdk.controller.impl
 
+import com.kme.kaltura.kmesdk.controller.IKmeMetadataController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.metadata.GetTranslationsResponse

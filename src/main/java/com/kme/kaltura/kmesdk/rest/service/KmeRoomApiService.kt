@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.rest.service
 
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
+import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -20,5 +21,10 @@ interface KmeRoomApiService {
         @Query("with_viewed_files") withFiles: Int,
         @Query("check_permission") checkPermission: Int
     ): KmeGetRoomInfoResponse
+
+    @GET("room/getWebrtcLiveServer")
+    suspend fun getWebRTCLiveServer(
+        @Query("room_alias") roomAlias: String
+    ): KmeGetWebRTCServerResponse
 
 }

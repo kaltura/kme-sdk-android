@@ -6,11 +6,10 @@ import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import org.koin.core.KoinComponent
 
 class KmeTokenInterceptor(
     private val kmePreferences: IKmePreferences
-) : Interceptor, KoinComponent {
+) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         var request: Request = chain.request()

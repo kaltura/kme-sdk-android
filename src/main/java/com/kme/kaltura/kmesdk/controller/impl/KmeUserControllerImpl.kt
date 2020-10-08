@@ -1,5 +1,6 @@
-package com.kme.kaltura.kmesdk.rest.controller
+package com.kme.kaltura.kmesdk.controller.impl
 
+import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
@@ -11,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.inject
 
-class KmeUserControllerImpl : KmeController(), IKmeUserController  {
+class KmeUserControllerImpl : KmeController(), IKmeUserController {
 
     private val userApiService: KmeUserApiService by inject()
     private val kmePreferences: IKmePreferences by inject()

@@ -1,13 +1,13 @@
 package com.kme.kaltura.kmesdk
 
 import android.content.Context
+import com.kme.kaltura.kmesdk.controller.IKmeMetadataController
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.IKmeSignInController
+import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.KmeKoinContext
 import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.controller.IKmeMetadataController
-import com.kme.kaltura.kmesdk.rest.controller.IKmeRoomController
-import com.kme.kaltura.kmesdk.rest.controller.IKmeSignInController
-import com.kme.kaltura.kmesdk.rest.controller.IKmeUserController
 import org.koin.core.inject
 
 internal var isSDKInitialized = false

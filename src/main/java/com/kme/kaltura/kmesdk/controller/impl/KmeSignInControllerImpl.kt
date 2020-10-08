@@ -1,7 +1,8 @@
-package com.kme.kaltura.kmesdk.rest.controller
+package com.kme.kaltura.kmesdk.controller.impl
 
+import com.kme.kaltura.kmesdk.controller.IKmeSignInController
 import com.kme.kaltura.kmesdk.encryptWith
-import com.kme.kaltura.kmesdk.prefs.KmePreferencesImpl
+import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
@@ -17,12 +18,8 @@ import org.koin.core.inject
 class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
 
     private val signInApiService: KmeSignInApiService by inject()
-    private val prefs: KmePreferencesImpl by inject()
+    private val prefs: IKmePreferences by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
-
-    companion object {
-        const val PASS_ENCRYPT_KEY = "8kjbca328hbvcm,z,123A"
-    }
 
     override fun register(
         fullName: String,
@@ -83,6 +80,10 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
                 error
             )
         }
+    }
+
+    companion object {
+        const val PASS_ENCRYPT_KEY = "8kjbca328hbvcm,z,123A"
     }
 
 }
