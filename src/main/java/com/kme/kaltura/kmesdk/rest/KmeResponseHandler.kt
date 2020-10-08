@@ -23,6 +23,7 @@ suspend fun <T> safeApiCall(
                 success(response)
             }
         } catch (e: Throwable) {
+            e.printStackTrace()
             val appException = when (e) {
                 is ConnectException,
                 is UnknownHostException -> KmeApiException.NetworkException(cause = e)

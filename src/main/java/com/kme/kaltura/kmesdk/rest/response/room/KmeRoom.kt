@@ -8,7 +8,7 @@ data class KmeRoom(
     @SerializedName("is_ondemand") val isOnDemand: Boolean?,
     @SerializedName("summary") val summary: String?,
     @SerializedName("alias") val alias: String?,
-    @SerializedName("avatar") val avatar: String?,
+    @SerializedName("avatar") var avatar: String?,
     @SerializedName("company_id") val companyId: Long?,
     @SerializedName("app_version") val appVersion: String?,
     @SerializedName("status") val status: String?,
