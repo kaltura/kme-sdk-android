@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.rest.controller
+package com.kme.kaltura.kmesdk.controller.impl
 
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.isSDKInitialized

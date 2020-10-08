@@ -1,8 +1,8 @@
-package com.kme.kaltura.kmesdk.rest.controller
+package com.kme.kaltura.kmesdk.controller.impl
 
+import com.kme.kaltura.kmesdk.controller.IKmeSignInController
 import com.kme.kaltura.kmesdk.encryptWith
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
-import com.kme.kaltura.kmesdk.prefs.KmePreferencesImpl
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse

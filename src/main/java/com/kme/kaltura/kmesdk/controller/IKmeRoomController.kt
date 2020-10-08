@@ -1,8 +1,9 @@
-package com.kme.kaltura.kmesdk.rest.controller
+package com.kme.kaltura.kmesdk.controller
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
+import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 
 interface IKmeRoomController {
 
@@ -22,5 +23,10 @@ interface IKmeRoomController {
         error: (exception: KmeApiException) -> Unit
     )
 
+    fun getWebRTCLiveServer(
+        roomAlias: String,
+        success: (response: KmeGetWebRTCServerResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
 
 }

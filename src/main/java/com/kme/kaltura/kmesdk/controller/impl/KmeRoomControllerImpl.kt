@@ -1,8 +1,10 @@
-package com.kme.kaltura.kmesdk.rest.controller
+package com.kme.kaltura.kmesdk.controller.impl
 
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
+import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import kotlinx.coroutines.CoroutineScope
@@ -41,6 +43,20 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         uiScope.launch {
             safeApiCall(
                 { roomApiService.getRoomInfo(alias, checkPermission, withFiles) },
+                success,
+                error
+            )
+        }
+    }
+
+    override fun getWebRTCLiveServer(
+        roomAlias: String,
+        success: (response: KmeGetWebRTCServerResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        uiScope.launch {
+            safeApiCall(
+                { roomApiService.getWebRTCLiveServer(roomAlias) },
                 success,
                 error
             )

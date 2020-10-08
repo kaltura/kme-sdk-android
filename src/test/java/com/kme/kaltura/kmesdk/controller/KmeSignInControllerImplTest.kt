@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.rest.controller
+package com.kme.kaltura.kmesdk.controller
 
 import org.junit.jupiter.api.Test
 
