@@ -14,7 +14,7 @@ data class KmeRoom(
     @SerializedName("status") val status: String?,
     @SerializedName("room_user_role") val roomUserRole: String?,
     @SerializedName("user_role") val userRole: String?,
-    @SerializedName("instructors") val instructors: Instructor?,
+    @SerializedName("instructors") val instructors: Map<String, Instructor>?,
     @SerializedName("type") val type: String?,
     @SerializedName("auto_upload_recordings") val autoUploadRecordings: Boolean?,
     @SerializedName("is_turn_configured") val isTurnConfigured: Boolean?,
@@ -54,7 +54,7 @@ data class KmeRoom(
 ) {
 
     data class Instructor(
-        @SerializedName("value") val value: String?
+        @SerializedName("name") val name: String?
     )
 
     data class CompanyData(
