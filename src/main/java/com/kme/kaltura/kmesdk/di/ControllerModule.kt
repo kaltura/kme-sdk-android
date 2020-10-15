@@ -1,10 +1,8 @@
 package com.kme.kaltura.kmesdk.di
 
 import com.kme.kaltura.kmesdk.controller.*
-import com.kme.kaltura.kmesdk.controller.impl.KmeMetadataControllerImpl
-import com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl
-import com.kme.kaltura.kmesdk.controller.impl.KmeSignInControllerImpl
-import com.kme.kaltura.kmesdk.controller.impl.KmeUserControllerImpl
+import com.kme.kaltura.kmesdk.controller.impl.*
+import com.kme.kaltura.kmesdk.controller.impl.internal.KmeWebSocketControllerImpl
 import org.koin.dsl.module
 
 val controllersModule = module {
@@ -13,5 +11,6 @@ val controllersModule = module {
     single<IKmeUserController> { KmeUserControllerImpl() }
     single<IKmeRoomController> { KmeRoomControllerImpl() }
     single<IKmeMetadataController> { KmeMetadataControllerImpl() }
+    single<IKmeWebSocketController> { KmeWebSocketControllerImpl() }
 
 }

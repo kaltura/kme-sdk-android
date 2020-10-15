@@ -24,6 +24,7 @@ val restModule = module {
             .registerTypeAdapter(Boolean::class.javaObjectType, KmeIntToBooleanTypeAdapter())
             .registerTypeAdapter(Boolean::class.javaPrimitiveType, KmeIntToBooleanTypeAdapter())
             .registerTypeAdapter(Boolean::class.javaObjectType, KmeStringToBooleanTypeAdapter())
+            .registerTypeAdapter(Boolean::class.javaPrimitiveType, KmeStringToBooleanTypeAdapter())
             .create()
     }
     single {
