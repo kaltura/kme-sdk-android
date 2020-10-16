@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.controller.impl
 
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.IKmeWebRTCController
 import com.kme.kaltura.kmesdk.controller.IKmeWebSocketController
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
@@ -8,6 +9,8 @@ import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
+import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
+import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceViewRenderer
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
@@ -21,6 +24,7 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
 
     private val roomApiService: KmeRoomApiService by inject()
     private val webSocketController: IKmeWebSocketController by inject()
+    private val webRTCController: IKmeWebRTCController by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     override fun getRooms(
@@ -110,6 +114,38 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
 
     override fun disconnect() {
         webSocketController.disconnect()
+    }
+
+    override fun createPeerConnection(renderer: KmeSurfaceViewRenderer, listener: IKmePeerConnectionClientEvents) {
+        webRTCController.createPeerConnection(renderer, listener)
+    }
+
+    override fun createOffer() {
+        webRTCController.createOffer()
+    }
+
+    override fun createAnswer() {
+        webRTCController.createAnswer()
+    }
+
+    override fun enableCamera(isEnable: Boolean) {
+        webRTCController.enableCamera(isEnable)
+    }
+
+    override fun enableAudio(isEnable: Boolean) {
+        webRTCController.enableAudio(isEnable)
+    }
+
+    override fun switchCamera() {
+        webRTCController.switchCamera()
+    }
+
+    override fun addRenderer() {
+        webRTCController.addRenderer()
+    }
+
+    override fun disconnectPeerConnection() {
+        webRTCController.disconnectPeerConnection()
     }
 
 }

@@ -19,7 +19,13 @@ enum class KmeMessageEvent(
     CLOSE_WEB_SOCKET("closeWebSocket"),
 
     @SerializedName("roomState", alternate = ["roomstate"])
-    ROOM_STATE("roomState");
+    ROOM_STATE("roomState"),
+
+    @SerializedName("userMediaStateInit", alternate = ["usermediastateinit"])
+    MEDIA_INIT("userMediaStateInit"),
+
+    @SerializedName("startPublishing", alternate = ["startpublishing"])
+    START_PUBLISHING("startPublishing");
 
     override fun toString(): String {
         return moduleName.toLowerCase()

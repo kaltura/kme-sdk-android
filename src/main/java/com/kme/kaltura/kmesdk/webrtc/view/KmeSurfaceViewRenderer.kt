@@ -1,0 +1,7 @@
+package com.kme.kaltura.kmesdk.webrtc.view
+
+import android.content.Context
+import android.util.AttributeSet
+import org.webrtc.SurfaceViewRenderer
+
+class KmeSurfaceViewRenderer(context: Context?, attrs: AttributeSet?) : SurfaceViewRenderer(context, attrs)

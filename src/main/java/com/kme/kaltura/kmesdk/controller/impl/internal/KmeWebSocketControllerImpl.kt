@@ -1,12 +1,10 @@
 package com.kme.kaltura.kmesdk.controller.impl.internal
 
+import android.util.Log
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.IKmeWebSocketController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.ws.*
-import com.kme.kaltura.kmesdk.ws.IKmeWSListener
-import com.kme.kaltura.kmesdk.ws.KmeMessageManager
-import com.kme.kaltura.kmesdk.ws.KmeWebSocketHandler
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import okhttp3.OkHttpClient
@@ -17,6 +15,8 @@ import org.koin.core.inject
 import org.koin.core.qualifier.named
 
 internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketController, IKmeWSListener {
+
+    private val TAG = KmeWebSocketControllerImpl::class.java.canonicalName
 
     private val okHttpClient: OkHttpClient by inject(named("wsOkHttpClient"))
     private val gson: Gson by inject()
@@ -67,7 +67,9 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
     }
 
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
-        webSocket.send(gson.toJson(message))
+        val strMessage = gson.toJson(message)
+        Log.e(TAG, "send: $strMessage")
+        webSocket.send(strMessage)
     }
 
     override fun disconnect() {
