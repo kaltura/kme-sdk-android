@@ -10,7 +10,7 @@ import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
-import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceViewRenderer
+import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
@@ -116,8 +116,12 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         webSocketController.disconnect()
     }
 
-    override fun createPeerConnection(renderer: KmeSurfaceViewRenderer, listener: IKmePeerConnectionClientEvents) {
-        webRTCController.createPeerConnection(renderer, listener)
+    override fun createPeerConnection(
+        localRenderer: KmeSurfaceRendererView,
+        remoteRenderer: KmeSurfaceRendererView,
+        listener: IKmePeerConnectionClientEvents
+    ) {
+        webRTCController.createPeerConnection(localRenderer, remoteRenderer, listener)
     }
 
     override fun createOffer() {

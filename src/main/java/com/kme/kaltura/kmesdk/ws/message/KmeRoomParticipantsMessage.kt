@@ -4,6 +4,13 @@ import com.google.gson.annotations.SerializedName
 
 class KmeRoomParticipantsMessage<T : KmeRoomParticipantsMessage.RoomParticipantsPayload> : KmeMessage<T>() {
 
+    data class ChangeFocusPayload(
+        @SerializedName("company_id") val companyId: Long?,
+        @SerializedName("is_focused") val isFocused: Long?,
+        @SerializedName("room_id") val roomId: Long?,
+        @SerializedName("user_id") val userId: Long?,
+    ) : KmeRoomParticipantsMessage.RoomParticipantsPayload()
+
     data class MediaInitPayload(
         @SerializedName("company_id") val companyId: Long?,
         @SerializedName("live_media_state") val mediaState: String?,

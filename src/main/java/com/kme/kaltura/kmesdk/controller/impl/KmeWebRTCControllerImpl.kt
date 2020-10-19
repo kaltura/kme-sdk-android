@@ -1,7 +1,10 @@
 package com.kme.kaltura.kmesdk.controller.impl
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
+import androidx.core.app.ActivityCompat
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.IKmeWebRTCController
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
@@ -10,8 +13,9 @@ import com.kme.kaltura.kmesdk.webrtc.peerconnection.KmePeerConnectionClient
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.KmePeerConnectionParameters
 import com.kme.kaltura.kmesdk.webrtc.signaling.IKmeSignalingEvents
 import com.kme.kaltura.kmesdk.webrtc.signaling.KmeSignalingParameters
-import com.kme.kaltura.kmesdk.webrtc.view.KmeProxyVideoSink
-import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceViewRenderer
+import com.kme.kaltura.kmesdk.webrtc.view.KmeLocalVideoSink
+import com.kme.kaltura.kmesdk.webrtc.view.KmeRemoteVideoSink
+import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
 import java.util.*
@@ -28,33 +32,38 @@ class KmeWebRTCControllerImpl(
     private lateinit var signalingParameters: KmeSignalingParameters
     private lateinit var listener: IKmePeerConnectionClientEvents
 
-//    private val remoteProxyRenderer: KmeProxyRenderer = KmeProxyRenderer()
-    private val localProxyVideoSink: KmeProxyVideoSink = KmeProxyVideoSink()
-    private var localRenderer: KmeSurfaceViewRenderer? = null
-    private val remoteRenderers: List<VideoRenderer.Callbacks> = ArrayList()
+    private val localVideoSink: KmeLocalVideoSink = KmeLocalVideoSink()
+    private var localRendererView: KmeSurfaceRendererView? = null
 
-    init {
-//        remoteRenderers.toMutableList().add(remoteProxyRenderer)
-    }
+    private val remoteVideoSink: KmeRemoteVideoSink = KmeRemoteVideoSink()
+    private var remoteRendererView: KmeSurfaceRendererView? = null
+    private val remoteRendererViews: MutableList<VideoRenderer.Callbacks> = ArrayList()
 
     // Public PeerConnection API
     override fun createPeerConnection(
-        renderer: KmeSurfaceViewRenderer,
+        localRenderer: KmeSurfaceRendererView,
+        remoteRenderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
     ) {
         Log.d(TAG, "createPeerConnection")
 
+        this.listener = listener
         peerConnectionClient = KmePeerConnectionClient()
 
-        localRenderer = renderer
-        localRenderer?.init(peerConnectionClient?.getRenderContext(), null)
-        localRenderer?.setScalingType(ScalingType.SCALE_ASPECT_FILL)
-        localRenderer?.setEnableHardwareScaler(true)
-        localRenderer?.setMirror(true)
+        localRendererView = localRenderer
+        localRendererView?.init(peerConnectionClient?.getRenderContext(), null)
+        localRendererView?.setScalingType(ScalingType.SCALE_ASPECT_FILL)
+        localRendererView?.setEnableHardwareScaler(true)
+        localRendererView?.setMirror(true)
+        localVideoSink.setTarget(localRendererView)
 
-        localProxyVideoSink.setTarget(localRenderer)
-
-        this.listener = listener
+        remoteRendererView = remoteRenderer
+        remoteRendererView?.init(peerConnectionClient?.getRenderContext(), null)
+        remoteRendererView?.setScalingType(ScalingType.SCALE_ASPECT_FILL)
+        remoteRendererView?.setEnableHardwareScaler(true)
+        remoteRendererView?.setMirror(true)
+        remoteVideoSink.setTarget(remoteRendererView)
+        remoteRendererViews.add(remoteVideoSink)
 
         peerConnectionParameters = KmePeerConnectionParameters()
 
@@ -67,12 +76,17 @@ class KmeWebRTCControllerImpl(
         signalingParameters = KmeSignalingParameters()
 
         var videoCapturer: VideoCapturer? = null
-        if (peerConnectionParameters.videoCallEnabled) {
+        if (peerConnectionParameters.videoCallEnabled &&
+            ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             videoCapturer = createCameraCapturer(context)
         }
         peerConnectionClient?.createPeerConnection(
-            localProxyVideoSink,
-            remoteRenderers,
+            localVideoSink,
+            remoteRendererViews,
             videoCapturer,
             signalingParameters
         )
@@ -99,18 +113,42 @@ class KmeWebRTCControllerImpl(
     }
 
     override fun enableCamera(isEnable: Boolean) {
-        Log.d(TAG, "enableCamera $isEnable")
-        peerConnectionClient?.setVideoEnabled(isEnable)
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d(TAG, "enableCamera $isEnable")
+            peerConnectionClient?.setVideoEnabled(isEnable)
+            return
+        }
+        Log.e(TAG, "Camera usage is not allowed")
     }
 
     override fun enableAudio(isEnable: Boolean) {
-        Log.d(TAG, "enableAudio $isEnable")
-        peerConnectionClient?.setAudioEnabled(isEnable)
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d(TAG, "enableAudio $isEnable")
+            peerConnectionClient?.setAudioEnabled(isEnable)
+            return
+        }
+        Log.e(TAG, "Audio recording usage is not allowed")
     }
 
     override fun switchCamera() {
-        Log.d(TAG, "switchCamera")
-        peerConnectionClient?.switchCamera()
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d(TAG, "switchCamera")
+            peerConnectionClient?.switchCamera()
+            return
+        }
+        Log.e(TAG, "Camera usage is not allowed")
     }
 
     override fun addRenderer() {
@@ -119,12 +157,12 @@ class KmeWebRTCControllerImpl(
 
     override fun disconnectPeerConnection() {
 //        remoteProxyRenderer.setTarget(null)
-        localProxyVideoSink.setTarget(null)
+        localVideoSink.setTarget(null)
 
         // TODO: not sure need this here. Maybe should be a part of client
-        if (localRenderer != null) {
-            localRenderer!!.release()
-            localRenderer = null
+        if (localRendererView != null) {
+            localRendererView!!.release()
+            localRendererView = null
         }
 
         peerConnectionClient?.close()

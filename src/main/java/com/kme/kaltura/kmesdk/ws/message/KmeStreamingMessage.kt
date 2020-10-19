@@ -9,7 +9,7 @@ class KmeStreamingMessage<T : KmeStreamingMessage.StreamingPayload> : KmeMessage
         @SerializedName("room_id") val roomId: Long,
         @SerializedName("sdpOffer") val sdpOffer: SDPOffer,
         @SerializedName("streamType") val streamType: String,
-        @SerializedName("user_id") val userId: Long,
+        @SerializedName("user_id") val userId: String,
     ) : KmeStreamingMessage.StreamingPayload() {
 
         data class SDPOffer(

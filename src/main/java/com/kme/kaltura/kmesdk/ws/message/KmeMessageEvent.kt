@@ -21,6 +21,9 @@ enum class KmeMessageEvent(
     @SerializedName("roomState", alternate = ["roomstate"])
     ROOM_STATE("roomState"),
 
+    @SerializedName("changeUserFocusEvent", alternate = ["changeuserfocusevent"])
+    CHANGE_USER_FOCUS("changeUserFocusEvent"),
+
     @SerializedName("userMediaStateInit", alternate = ["usermediastateinit"])
     MEDIA_INIT("userMediaStateInit"),
 

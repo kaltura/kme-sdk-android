@@ -3,7 +3,7 @@ package com.kme.kaltura.kmesdk.webrtc.view
 import org.webrtc.VideoFrame
 import org.webrtc.VideoSink
 
-class KmeProxyVideoSink : VideoSink {
+class KmeLocalVideoSink : VideoSink {
 
     private var target: VideoSink? = null
 

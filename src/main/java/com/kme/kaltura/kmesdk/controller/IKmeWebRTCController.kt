@@ -1,11 +1,15 @@
 package com.kme.kaltura.kmesdk.controller
 
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
-import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceViewRenderer
+import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 
 interface IKmeWebRTCController {
 
-    fun createPeerConnection(renderer: KmeSurfaceViewRenderer, listener: IKmePeerConnectionClientEvents)
+    fun createPeerConnection(
+        localRenderer: KmeSurfaceRendererView,
+        remoteRenderer: KmeSurfaceRendererView,
+        listener: IKmePeerConnectionClientEvents
+    )
 
     fun createOffer()
 

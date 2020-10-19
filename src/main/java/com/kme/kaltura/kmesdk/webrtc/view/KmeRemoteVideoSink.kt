@@ -3,7 +3,7 @@ package com.kme.kaltura.kmesdk.webrtc.view
 import org.webrtc.VideoRenderer
 import org.webrtc.VideoRenderer.I420Frame
 
-class KmeProxyRenderer : VideoRenderer.Callbacks {
+class KmeRemoteVideoSink : VideoRenderer.Callbacks {
 
     private var target: VideoRenderer.Callbacks? = null
 

@@ -1,7 +1,9 @@
 package com.kme.kaltura.kmesdk.webrtc.peerconnection
 
+import android.Manifest
 import android.content.Context
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import com.kme.kaltura.kmesdk.webrtc.signaling.KmeSignalingParameters
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
@@ -470,6 +472,7 @@ class KmePeerConnectionClient {
         }
     }
 
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     fun setAudioEnabled(enable: Boolean) {
         executor.execute {
             enableAudio = enable
@@ -479,6 +482,7 @@ class KmePeerConnectionClient {
         }
     }
 
+    @RequiresPermission(Manifest.permission.CAMERA)
     fun setVideoEnabled(enable: Boolean) {
         executor.execute {
             renderVideo = enable
@@ -814,6 +818,7 @@ class KmePeerConnectionClient {
         }
     }
 
+    @RequiresPermission(Manifest.permission.CAMERA)
     fun switchCamera() = executor.execute { switchCameraInternal() }
 
     private fun switchCameraInternal() {
