@@ -10,7 +10,13 @@ enum class KmeMessageModule(
     ROOM_INIT("RoomInit"),
 
     @SerializedName("Banners", alternate = ["banners"])
-    BANNERS("Banners");
+    BANNERS("Banners"),
+
+    @SerializedName("RoomParticipants", alternate = ["roomparticipants"])
+    ROOM_PARTICIPANTS("RoomParticipants"),
+
+    @SerializedName("Streaming", alternate = ["streaming"])
+    STREAMING("Streaming");
 
     override fun toString(): String {
         return moduleName.toLowerCase()

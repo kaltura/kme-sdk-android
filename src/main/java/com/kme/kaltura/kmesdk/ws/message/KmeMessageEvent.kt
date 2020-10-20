@@ -48,7 +48,28 @@ enum class KmeMessageEvent(
     SEND_ROOM_PASSWORD("sendRoomPassword"),
 
     @SerializedName("roomPasswordStatusReceived", alternate = ["roompasswordstatusreceived"])
-    ROOM_PASSWORD_STATUS_RECEIVED("roomPasswordStatusReceived");
+    ROOM_PASSWORD_STATUS_RECEIVED("roomPasswordStatusReceived"),
+
+
+    /*
+    * Room Participants
+    * */
+
+    @SerializedName("userMediaStateInit", alternate = ["usermediastateinit"])
+    USER_MEDIA_STATE_INIT("userMediaStateInit"),
+
+    @SerializedName("userMediaStateChanged", alternate = ["usermediastatechanged"])
+    USER_MEDIA_STATE_CHANGED("userMediaStateChanged"),
+
+    @SerializedName("changeUserFocusEvent", alternate = ["changeuserfocusevent"])
+    CHANGE_USER_FOCUS_EVENT("changeUserFocusEvent"),
+
+    /*
+    * Streaming
+    * */
+
+    @SerializedName("userDisconnected", alternate = ["userdisconnected"])
+    USER_DISCONNECTED("userDisconnected");
 
     override fun toString(): String {
         return moduleName.toLowerCase()
