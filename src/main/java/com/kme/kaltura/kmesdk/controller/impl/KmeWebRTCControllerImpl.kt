@@ -43,6 +43,9 @@ class KmeWebRTCControllerImpl(
     override fun createPeerConnection(
         localRenderer: KmeSurfaceRendererView,
         remoteRenderer: KmeSurfaceRendererView,
+        turnUrl: String,
+        turnUser: String,
+        turnCred: String,
         listener: IKmePeerConnectionClientEvents
     ) {
         Log.d(TAG, "createPeerConnection")
@@ -74,6 +77,8 @@ class KmeWebRTCControllerImpl(
         )
 
         signalingParameters = KmeSignalingParameters()
+
+        buildIceServers(turnUrl, turnUser, turnCred)
 
         var videoCapturer: VideoCapturer? = null
         if (peerConnectionParameters.videoCallEnabled &&
@@ -258,5 +263,31 @@ class KmeWebRTCControllerImpl(
         }
         return null
     }
+
+    private fun buildIceServers(turnUrl: String, turnUser: String, turnCred: String) {
+        val turnsUrl = turnUrl.replace("turn:", "turns:")
+        signalingParameters.iceServers.add(
+            buildIceServer("$turnUrl:443?transport=udp", turnUser, turnCred)
+        )
+        signalingParameters.iceServers.add(
+            buildIceServer("$turnUrl:443?transport=tcp", turnUser, turnCred)
+        )
+        signalingParameters.iceServers.add(
+            buildIceServer("$turnsUrl:443?transport=tcp", turnUser, turnCred)
+        )
+        signalingParameters.iceServers.add(
+            buildIceServer("$turnUrl:80?transport=udp", turnUser, turnCred)
+        )
+    }
+
+    private fun buildIceServer(
+        serverUrl: String,
+        serverUser: String,
+        serverCred: String
+    ): PeerConnection.IceServer = PeerConnection.IceServer
+        .builder(serverUrl)
+        .setUsername(serverUser)
+        .setPassword(serverCred)
+        .createIceServer()
 
 }

@@ -119,9 +119,19 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
     override fun createPeerConnection(
         localRenderer: KmeSurfaceRendererView,
         remoteRenderer: KmeSurfaceRendererView,
+        turnUrl: String,
+        turnUser: String,
+        turnCred: String,
         listener: IKmePeerConnectionClientEvents
     ) {
-        webRTCController.createPeerConnection(localRenderer, remoteRenderer, listener)
+        webRTCController.createPeerConnection(
+            localRenderer,
+            remoteRenderer,
+            turnUrl,
+            turnUser,
+            turnCred,
+            listener
+        )
     }
 
     override fun createOffer() {

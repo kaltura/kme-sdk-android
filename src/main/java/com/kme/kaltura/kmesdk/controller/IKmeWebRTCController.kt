@@ -8,6 +8,9 @@ interface IKmeWebRTCController {
     fun createPeerConnection(
         localRenderer: KmeSurfaceRendererView,
         remoteRenderer: KmeSurfaceRendererView,
+        turnUrl: String,
+        turnUser: String,
+        turnCred: String,
         listener: IKmePeerConnectionClientEvents
     )
 

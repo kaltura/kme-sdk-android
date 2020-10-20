@@ -63,7 +63,6 @@ class KmePeerConnectionClient {
     private var preferredVideoCodec: String? = null
 
     private var videoCallEnabled: Boolean = false
-    private var dataChannelEnabled = false
     private var preferIsac = false
     private var videoCapturerStopped = false
     private var isError = false
@@ -107,7 +106,6 @@ class KmePeerConnectionClient {
         this.events = events
 
         videoCallEnabled = peerConnectionParameters.videoCallEnabled
-        dataChannelEnabled = peerConnectionParameters.dataChannelParameters != null
 
         factory = null
         peerConnection = null
@@ -348,6 +346,11 @@ class KmePeerConnectionClient {
                 MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false")
             )
         }
+
+        sdpMediaConstraints?.mandatory?.add(
+            MediaConstraints.KeyValuePair("RtpDataChannels", "true")
+        )
+
     }
 
     private fun createPeerConnectionInternal() {
@@ -362,54 +365,30 @@ class KmePeerConnectionClient {
             )
         }
 
-        signalingParameters?.iceServers?.add(
-            IceServer.builder("turn:frank-prod-webrtc2474odm-turn.newrow.com:443?transport=udp")
-                .setUsername("art")
-                .setPassword("test")
-                .createIceServer()
-        )
-        signalingParameters?.iceServers?.add(
-            IceServer.builder("turn:frank-prod-webrtc2474odm-turn.newrow.com:443?transport=tcp")
-                .setUsername("art")
-                .setPassword("test")
-                .createIceServer()
-        )
-        signalingParameters?.iceServers?.add(
-            IceServer.builder("turns:frank-prod-webrtc2474odm-turn.newrow.com:443?transport=tcp")
-                .setUsername("art")
-                .setPassword("test")
-                .createIceServer()
-        )
-        signalingParameters?.iceServers?.add(
-            IceServer.builder("turn:frank-prod-webrtc2474odm-turn.newrow.com:80?transport=udp")
-                .setUsername("art")
-                .setPassword("test")
-                .createIceServer()
-        )
-
         val rtcConfig = RTCConfiguration(signalingParameters?.iceServers)
-        // TCP candidates are only useful when connecting to a server that supports ICE-TCP.
-        rtcConfig.tcpCandidatePolicy = TcpCandidatePolicy.DISABLED
-        rtcConfig.bundlePolicy = BundlePolicy.MAXBUNDLE
-        rtcConfig.rtcpMuxPolicy = RtcpMuxPolicy.REQUIRE
-        rtcConfig.continualGatheringPolicy = ContinualGatheringPolicy.GATHER_CONTINUALLY
-        // Use ECDSA encryption.
-        rtcConfig.keyType = KeyType.ECDSA
-        // Enable DTLS for normal calls and disable for loopback calls.
-        rtcConfig.enableDtlsSrtp = peerConnectionParameters.loopback
         peerConnection = factory?.createPeerConnection(rtcConfig, pcObserver)
 
-        if (dataChannelEnabled) {
-            val init = DataChannel.Init()
-            init.ordered = peerConnectionParameters.dataChannelParameters?.ordered!!
-            init.negotiated = peerConnectionParameters.dataChannelParameters?.negotiated!!
-            init.maxRetransmits = peerConnectionParameters.dataChannelParameters?.maxRetransmits!!
-            init.maxRetransmitTimeMs =
-                peerConnectionParameters.dataChannelParameters?.maxRetransmitTimeMs!!
-            init.id = peerConnectionParameters.dataChannelParameters?.id!!
-            init.protocol = peerConnectionParameters.dataChannelParameters?.protocol
-            dataChannel = peerConnection?.createDataChannel("ApprtcDemo data", init)
-        }
+        val dataChannelInit: DataChannel.Init = DataChannel.Init()
+        dataChannelInit.ordered = false
+        dataChannelInit.maxRetransmits = 0
+        dataChannel = peerConnection?.createDataChannel("volumeDataChannel", dataChannelInit)
+
+        dataChannel?.registerObserver(object : DataChannel.Observer {
+            override fun onBufferedAmountChange(previousAmount: Long) { }
+
+            override fun onStateChange() { }
+
+            override fun onMessage(buffer: DataChannel.Buffer) {
+                if (buffer.binary) {
+                    return
+                }
+                val data = buffer.data
+                val bytes = ByteArray(data.capacity())
+                data[bytes]
+                val strData = String(bytes, Charset.forName("UTF-8"))
+            }
+        })
+
         isInitiator = false
 
         // Set INFO libjingle logging. NOTE: this _must_ happen while |factory| is alive!
@@ -971,8 +950,6 @@ class KmePeerConnectionClient {
         }
 
         override fun onDataChannel(dc: DataChannel) {
-            if (!dataChannelEnabled) return
-
             dc.registerObserver(object : DataChannel.Observer {
                 override fun onBufferedAmountChange(previousAmount: Long) {
 //                    Log.d(
