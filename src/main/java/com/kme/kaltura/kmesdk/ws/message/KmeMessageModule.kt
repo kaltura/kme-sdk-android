@@ -9,6 +9,9 @@ enum class KmeMessageModule(
     @SerializedName("RoomInit", alternate = ["roominit"])
     ROOM_INIT("RoomInit"),
 
+    @SerializedName("Banners", alternate = ["banners"])
+    BANNERS("Banners");
+
     @SerializedName("RoomParticipants", alternate = ["roomparticipants"])
     ROOM_PARTICIPANTS("RoomParticipants"),
 

@@ -7,6 +7,9 @@ import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.ws.*
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -22,6 +25,7 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
     private val gson: Gson by inject()
     private val webSocketHandler: KmeWebSocketHandler by inject()
     private val messageManager: KmeMessageManager by inject()
+    private val uiScope = CoroutineScope(Dispatchers.Main)
 
     private lateinit var webSocket: WebSocket
 
@@ -51,19 +55,27 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
     }
 
     override fun onOpen(response: Response) {
-        listener.onOpen()
+        uiScope.launch {
+            listener.onOpen()
+        }
     }
 
     override fun onFailure(throwable: Throwable, response: Response?) {
-        listener.onFailure(throwable)
+        uiScope.launch {
+            listener.onFailure(throwable)
+        }
     }
 
     override fun onClosing(code: Int, reason: String) {
-        listener.onClosing(code, reason)
+        uiScope.launch {
+            listener.onClosing(code, reason)
+        }
     }
 
     override fun onClosed(code: Int, reason: String) {
-        listener.onClosed(code, reason)
+        uiScope.launch {
+            listener.onClosed(code, reason)
+        }
     }
 
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
