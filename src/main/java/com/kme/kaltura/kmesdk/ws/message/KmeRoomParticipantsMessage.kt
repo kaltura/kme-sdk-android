@@ -8,7 +8,7 @@ class KmeRoomParticipantsMessage<T : KmeRoomParticipantsMessage.RoomParticipants
         @SerializedName("company_id") val companyId: Long?,
         @SerializedName("is_focused") val isFocused: Long?,
         @SerializedName("room_id") val roomId: Long?,
-        @SerializedName("user_id") val userId: Long?,
+        @SerializedName("user_id") val userId: Long?
     ) : KmeRoomParticipantsMessage.RoomParticipantsPayload()
 
     data class MediaInitPayload(

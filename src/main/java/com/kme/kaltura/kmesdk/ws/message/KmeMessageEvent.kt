@@ -43,9 +43,6 @@ enum class KmeMessageEvent(
     @SerializedName("userMediaStateInit", alternate = ["usermediastateinit"])
     MEDIA_INIT("userMediaStateInit"),
 
-    @SerializedName("startPublishing", alternate = ["startpublishing"])
-    START_PUBLISHING("startPublishing");
-
     /*
     * Banners
     * */
@@ -57,7 +54,18 @@ enum class KmeMessageEvent(
     SEND_ROOM_PASSWORD("sendRoomPassword"),
 
     @SerializedName("roomPasswordStatusReceived", alternate = ["roompasswordstatusreceived"])
-    ROOM_PASSWORD_STATUS_RECEIVED("roomPasswordStatusReceived");
+    ROOM_PASSWORD_STATUS_RECEIVED("roomPasswordStatusReceived"),
+
+
+    /*
+    * Streaming
+    * */
+
+    @SerializedName("startPublishing", alternate = ["startpublishing"])
+    START_PUBLISHING("startPublishing"),
+
+    @SerializedName("sdpAnswerToPublisher", alternate = ["sdpanswertopublisher"])
+    SDP_ANSWER_TO_PUBLISHER("sdpAnswerToPublisher");
 
     override fun toString(): String {
         return moduleName.toLowerCase()
