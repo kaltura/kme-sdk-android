@@ -3,7 +3,9 @@ package com.kme.kaltura.kmesdk.ws.message.module
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason
-import com.kme.kaltura.kmesdk.ws.message.permissions.UserPermissions
+import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
+import com.kme.kaltura.kmesdk.ws.message.permission.KmeUserPermissions
+import com.kme.kaltura.kmesdk.ws.message.type.KmeClassMode
 
 class KmeRoomInitMessage<T : KmeRoomInitMessage.RoomInitPayload> : KmeMessage<T>() {
 
@@ -51,7 +53,7 @@ class KmeRoomInitMessage<T : KmeRoomInitMessage.RoomInitPayload> : KmeMessage<T>
         @SerializedName("city") val city: String,
         @SerializedName("managing_server_id") val managingServerId: Long,
         @SerializedName("out_of_tab_focus") val outOfTabFocus: Boolean,
-        @SerializedName("user_permissions") val userPermissions: UserPermissions,
+        @SerializedName("user_permissions") val userPermissions: KmeUserPermissions,
         @SerializedName("is_moderator") val isModerator: Boolean,
         @SerializedName("is_captioner") val isCaptioner: Boolean,
         @SerializedName("lat") val lat: Double,
@@ -59,11 +61,12 @@ class KmeRoomInitMessage<T : KmeRoomInitMessage.RoomInitPayload> : KmeMessage<T>
     ) : RoomInitPayload()
 
     data class RoomStatePayload(
-        @SerializedName("metaData") val metaData: MetaData?
+        @SerializedName("metaData") val metaData: MetaData?,
+        @SerializedName("participants") val participants: Map<String, KmeParticipant>?,
     ) : RoomInitPayload() {
 
         data class MetaData(
-            @SerializedName("class_mode") val classMode: String? = null,
+            @SerializedName("class_mode") val classMode: KmeClassMode? = null,
             @SerializedName("room_password") val roomPassword: String? = null,
             @SerializedName("room_id") val roomId: Long? = null,
             @SerializedName("company_id") val companyId: Long? = null,
@@ -93,7 +96,7 @@ class KmeRoomInitMessage<T : KmeRoomInitMessage.RoomInitPayload> : KmeMessage<T>
 
     data class NewUserJoinedPayload(
         @SerializedName("country") val country: String? = null,
-        @SerializedName("user_permissions") val userPermissions: UserPermissions? = null,
+        @SerializedName("user_permissions") val userPermissions: KmeUserPermissions? = null,
         @SerializedName("city") val city: String? = null,
         @SerializedName("last_unmute_time") val lastUnmuteTime: Double? = null,
         @SerializedName("device_type") val deviceType: String? = null,

@@ -37,12 +37,6 @@ enum class KmeMessageEvent(
     @SerializedName("roomParticipantsLimitReached", alternate = ["roomparticipantslimitreached"])
     ROOM_PARTICIPANT_LIMIT_REACHED("roomParticipantsLimitReached"),
 
-    @SerializedName("changeUserFocusEvent", alternate = ["changeuserfocusevent"])
-    CHANGE_USER_FOCUS("changeUserFocusEvent"),
-
-    @SerializedName("userMediaStateInit", alternate = ["usermediastateinit"])
-    MEDIA_INIT("userMediaStateInit"),
-
     /*
     * Banners
     * */
@@ -58,6 +52,19 @@ enum class KmeMessageEvent(
 
 
     /*
+    * Room Participants
+    * */
+
+    @SerializedName("userMediaStateInit", alternate = ["usermediastateinit"])
+    USER_MEDIA_STATE_INIT("userMediaStateInit"),
+
+    @SerializedName("userMediaStateChanged", alternate = ["usermediastatechanged"])
+    USER_MEDIA_STATE_CHANGED("userMediaStateChanged"),
+
+    @SerializedName("changeUserFocusEvent", alternate = ["changeuserfocusevent"])
+    CHANGE_USER_FOCUS_EVENT("changeUserFocusEvent"),
+
+    /*
     * Streaming
     * */
 
@@ -65,7 +72,10 @@ enum class KmeMessageEvent(
     START_PUBLISHING("startPublishing"),
 
     @SerializedName("sdpAnswerToPublisher", alternate = ["sdpanswertopublisher"])
-    SDP_ANSWER_TO_PUBLISHER("sdpAnswerToPublisher");
+    SDP_ANSWER_TO_PUBLISHER("sdpAnswerToPublisher"),
+
+    @SerializedName("userDisconnected", alternate = ["userdisconnected"])
+    USER_DISCONNECTED("userDisconnected");
 
     override fun toString(): String {
         return moduleName.toLowerCase()
