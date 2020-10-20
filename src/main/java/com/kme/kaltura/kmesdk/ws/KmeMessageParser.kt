@@ -6,8 +6,13 @@ import com.google.gson.reflect.TypeToken
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomParticipantsMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomParticipantsMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingMessage.*
 
 private const val KEY_NAME = "name"
 
@@ -61,10 +66,22 @@ internal class KmeMessageParser(
                 text.jsonToObject<KmeRoomInitMessage<NewUserJoinedPayload>>()
             }
             KmeMessageEvent.ROOM_HAS_PASSWORD.toString() -> {
-                text.jsonToObject<KmeBannersMessage<KmeBannersMessage.BannersPayload>>()
+                text.jsonToObject<KmeBannersMessage<BannersPayload>>()
             }
             KmeMessageEvent.ROOM_PASSWORD_STATUS_RECEIVED.toString() -> {
-                text.jsonToObject<KmeBannersMessage<KmeBannersMessage.RoomPasswordStatusReceivedPayload>>()
+                text.jsonToObject<KmeBannersMessage<RoomPasswordStatusReceivedPayload>>()
+            }
+            KmeMessageEvent.USER_MEDIA_STATE_INIT.toString() -> {
+                text.jsonToObject<KmeRoomParticipantsMessage<UserMediaStateInitPayload>>()
+            }
+            KmeMessageEvent.USER_MEDIA_STATE_CHANGED.toString() -> {
+                text.jsonToObject<KmeRoomParticipantsMessage<UserMediaStateChangedPayload>>()
+            }
+            KmeMessageEvent.CHANGE_USER_FOCUS_EVENT.toString() -> {
+                text.jsonToObject<KmeRoomParticipantsMessage<ChangeUserFocusEventPayload>>()
+            }
+            KmeMessageEvent.USER_DISCONNECTED.toString() -> {
+                text.jsonToObject<KmeStreamingMessage<UserDisconnectedPayload>>()
             }
 
             else -> null
