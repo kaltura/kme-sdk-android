@@ -1,21 +1,33 @@
-package com.kme.kaltura.kmesdk.ws.message
+package com.kme.kaltura.kmesdk.ws.message.module
 
 import com.google.gson.annotations.SerializedName
+import com.kme.kaltura.kmesdk.ws.message.KmeMessage
+import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason
+import com.kme.kaltura.kmesdk.ws.message.permissions.UserPermissions
 
 class KmeRoomInitMessage<T : KmeRoomInitMessage.RoomInitPayload> : KmeMessage<T>() {
 
     data class JoinRoomPayload(
-        @SerializedName("pay")
-        val pay: String?,
-        @SerializedName("room_id")
-        val roomId: Long?,
-        @SerializedName("company_id")
-        val companyId: Long?
+        @SerializedName("pay") val pay: String?,
+        @SerializedName("room_id") val roomId: Long?,
+        @SerializedName("company_id") val companyId: Long?
     ) : RoomInitPayload()
 
     data class InstructorIsOfflinePayload(
-        @SerializedName("room_id")
-        val roomId: Long?
+        @SerializedName("room_id") val roomId: Long?
+    ) : RoomInitPayload()
+
+    data class AnyInstructorsIsConnectedToRoomPayload(
+        @SerializedName("room_id") val roomId: Long?
+    ) : RoomInitPayload()
+
+    data class RoomAvailableForParticipantPayload(
+        @SerializedName("room_id") val roomId: Long?
+    ) : RoomInitPayload()
+
+    data class RoomParticipantLimitReachedPayload(
+        @SerializedName("room_id") val roomId: Long?,
+        @SerializedName("user_id") val userId: Long?
     ) : RoomInitPayload()
 
     data class JoinedRoomPayload(
@@ -79,10 +91,38 @@ class KmeRoomInitMessage<T : KmeRoomInitMessage.RoomInitPayload> : KmeMessage<T>
 
     }
 
+    data class NewUserJoinedPayload(
+        @SerializedName("country") val country: String? = null,
+        @SerializedName("user_permissions") val userPermissions: UserPermissions? = null,
+        @SerializedName("city") val city: String? = null,
+        @SerializedName("last_unmute_time") val lastUnmuteTime: Double? = null,
+        @SerializedName("device_type") val deviceType: String? = null,
+        @SerializedName("connection_state") val connectionState: String? = null,
+        @SerializedName("join_time") val joinTime: Double? = null,
+        @SerializedName("long") val long: Double? = null,
+        @SerializedName("user_role") val userRole: String? = null,
+        @SerializedName("user_type") val userType: String? = null,
+        @SerializedName("live_media_state") val liveMediaState: String? = null,
+        @SerializedName("browser") val browser: String? = null,
+        @SerializedName("region_name") val regionName: String? = null,
+        @SerializedName("lat") val lat: Double? = null,
+        @SerializedName("managing_server_id") val managingServerId: Long? = null,
+        @SerializedName("out_of_tab_focus") val outOfTabFocus: Boolean? = null,
+        @SerializedName("region_id") val regionId: Long? = null,
+        @SerializedName("time_hand_raised") val timeHandRaised: Double? = null,
+        @SerializedName("avatar") val avatar: String? = null,
+        @SerializedName("is_moderator") val isModerator: Boolean? = null,
+        @SerializedName("webcam_state") val webcamState: String? = null,
+        @SerializedName("full_name") val fullName: String? = null,
+        @SerializedName("is_captioner") val isCaptioner: Boolean? = null,
+        @SerializedName("user_id") val userId: Long? = null,
+        @SerializedName("mic_state") val micState: String? = null
+    ) : RoomInitPayload()
+
     data class CloseWebSocketPayload(
         @SerializedName("room_id") val roomId: Long?,
         @SerializedName("is_instructor") val isInstructor: Boolean,
-        @SerializedName("reason") val reason: String?
+        @SerializedName("reason") val reason: KmeMessageReason?
     ) : RoomInitPayload()
 
     open class RoomInitPayload : Payload()

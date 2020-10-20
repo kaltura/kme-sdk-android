@@ -1,5 +1,7 @@
 package com.kme.kaltura.kmesdk
 
+import com.kme.kaltura.kmesdk.ws.message.KmeMessage
+
 fun String.encryptWith(key: String): String {
     val s = IntArray(256)
     var x: Int
@@ -30,3 +32,9 @@ fun String.encryptWith(key: String): String {
     }
     return result
 }
+
+inline fun <reified T> KmeMessage<*>.toType(): T? =
+    if (this is T)
+        @Suppress("UNCHECKED_CAST")
+        this else
+        null
