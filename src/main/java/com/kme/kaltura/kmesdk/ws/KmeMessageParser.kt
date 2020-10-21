@@ -6,13 +6,14 @@ import com.google.gson.reflect.TypeToken
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersMessage.BannersPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersMessage.RoomPasswordStatusReceivedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomParticipantsMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomParticipantsMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingMessage.UserDisconnectedPayload
 
 private const val KEY_NAME = "name"
 
@@ -37,7 +38,6 @@ internal class KmeMessageParser(
         //Unknown message type
         return parsedMessage
     }
-
 
     private fun parseMessage(name: String, text: String): KmeMessage<KmeMessage.Payload>? {
         return when (name) {
@@ -79,6 +79,9 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.CHANGE_USER_FOCUS_EVENT.toString() -> {
                 text.jsonToObject<KmeRoomParticipantsMessage<ChangeUserFocusEventPayload>>()
+            }
+            KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER.toString() -> {
+                text.jsonToObject<KmeStreamingMessage<KmeStreamingMessage.SdpAnswerToPublisherPayload>>()
             }
             KmeMessageEvent.USER_DISCONNECTED.toString() -> {
                 text.jsonToObject<KmeStreamingMessage<UserDisconnectedPayload>>()

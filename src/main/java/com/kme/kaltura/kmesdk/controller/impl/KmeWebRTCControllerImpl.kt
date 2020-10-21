@@ -117,6 +117,16 @@ class KmeWebRTCControllerImpl(
         }
     }
 
+    override fun setAnswer(sdp: String) {
+        Log.d(TAG, "setAnswer")
+        peerConnectionClient?.setRemoteDescription(
+            SessionDescription(
+                SessionDescription.Type.ANSWER,
+                sdp
+            )
+        )
+    }
+
     override fun enableCamera(isEnable: Boolean) {
         if (ActivityCompat.checkSelfPermission(
                 context,
@@ -165,10 +175,10 @@ class KmeWebRTCControllerImpl(
         localVideoSink.setTarget(null)
 
         // TODO: not sure need this here. Maybe should be a part of client
-        if (localRendererView != null) {
-            localRendererView!!.release()
-            localRendererView = null
-        }
+        localRendererView?.release()
+        localRendererView = null
+        remoteRendererView?.release()
+        remoteRendererView = null
 
         peerConnectionClient?.close()
         peerConnectionClient = null
@@ -219,6 +229,10 @@ class KmeWebRTCControllerImpl(
 
     override fun onIceConnected() {
         listener.onIceConnected()
+    }
+
+    override fun onIceGatheringDone() {
+        listener.onIceGatheringDone()
     }
 
     override fun onIceDisconnected() {

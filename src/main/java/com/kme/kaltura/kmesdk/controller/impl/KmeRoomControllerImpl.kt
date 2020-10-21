@@ -142,6 +142,10 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         webRTCController.createAnswer()
     }
 
+    override fun setAnswer(sdp: String) {
+        webRTCController.setAnswer(sdp)
+    }
+
     override fun enableCamera(isEnable: Boolean) {
         webRTCController.enableCamera(isEnable)
     }

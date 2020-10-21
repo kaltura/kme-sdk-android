@@ -18,6 +18,8 @@ interface IKmeWebRTCController {
 
     fun createAnswer()
 
+    fun setAnswer(sdp: String)
+
     fun enableCamera(isEnable: Boolean)
 
     fun enableAudio(isEnable: Boolean)

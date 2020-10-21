@@ -29,6 +29,11 @@ interface IKmePeerConnectionClientEvents {
     fun onIceConnected()
 
     /**
+     * Callback fired once ice gathering is complete (IceGatheringDone is COMPLETE).
+     */
+    fun onIceGatheringDone()
+
+    /**
      * Callback fired once connection is closed (IceConnectionState is
      * DISCONNECTED).
      */

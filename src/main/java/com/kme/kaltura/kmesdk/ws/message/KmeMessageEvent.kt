@@ -74,6 +74,9 @@ enum class KmeMessageEvent(
     @SerializedName("sdpAnswerToPublisher", alternate = ["sdpanswertopublisher"])
     SDP_ANSWER_TO_PUBLISHER("sdpAnswerToPublisher"),
 
+    @SerializedName("iceGatheringDone", alternate = ["icegatheringdone"])
+    ICE_GATHERING_DONE("iceGatheringDone"),
+
     @SerializedName("userDisconnected", alternate = ["userdisconnected"])
     USER_DISCONNECTED("userDisconnected");
 

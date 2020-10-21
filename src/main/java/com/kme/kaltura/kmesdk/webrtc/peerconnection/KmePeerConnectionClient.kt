@@ -51,7 +51,7 @@ class KmePeerConnectionClient {
     private val sdpObserver: SDPObserver = SDPObserver()
     private val pcObserver: PCObserver = PCObserver()
 
-    private var rootEglBase: EglBase? = null
+    private val rootEglBase: EglBase = EglBase.create()
 
     private var factory: PeerConnectionFactory? = null
     private var peerConnection: PeerConnection? = null
@@ -93,10 +93,6 @@ class KmePeerConnectionClient {
     private var videoHeight = 0
     private var videoFps = 0
 
-    init {
-        rootEglBase = EglBase.create()
-    }
-
     fun createPeerConnectionFactory(
         context: Context,
         peerConnectionParameters: KmePeerConnectionParameters,
@@ -113,7 +109,6 @@ class KmePeerConnectionClient {
         videoCapturerStopped = false
         isError = false
         queuedRemoteCandidates = null
-//        localSdp = SessionDescription(SessionDescription.Type.OFFER, "") // either offer or answer SDP
 
         mediaStream = null
         videoCapturer = null
@@ -124,9 +119,7 @@ class KmePeerConnectionClient {
         enableAudio = true
         localAudioTrack = null
 
-//        executor.execute {
         createPeerConnectionFactoryInternal(context)
-//        }
     }
 
     private fun createPeerConnectionFactoryInternal(context: Context) {
@@ -231,11 +224,11 @@ class KmePeerConnectionClient {
         val decoderFactory: VideoDecoderFactory
         if (peerConnectionParameters.videoCodecHwAcceleration) {
             encoderFactory = DefaultVideoEncoderFactory(
-                rootEglBase?.eglBaseContext,
+                getRenderContext(),
                 true,
                 enableH264HighProfile
             )
-            decoderFactory = DefaultVideoDecoderFactory(rootEglBase?.eglBaseContext)
+            decoderFactory = DefaultVideoDecoderFactory(getRenderContext())
         } else {
             encoderFactory = SoftwareVideoEncoderFactory()
             decoderFactory = SoftwareVideoDecoderFactory()
@@ -248,12 +241,7 @@ class KmePeerConnectionClient {
     }
 
     private fun reportError(errorMessage: String) {
-//        executor.execute {
-//            if (!isError) {
-//                events?.onPeerConnectionError(errorMessage)
-//                isError = true
-//            }
-//        }
+        events?.onPeerConnectionError(errorMessage)
     }
 
     fun createPeerConnection(
@@ -276,7 +264,6 @@ class KmePeerConnectionClient {
     private fun createMediaConstraintsInternal() {
         // Check if there is a camera on device and disable video call if not.
         if (videoCapturer == null) {
-//            Log.w(PeerConnectionClient.TAG, "No camera on device. Switch to audio only call.")
             videoCallEnabled = false
         }
 
@@ -346,11 +333,6 @@ class KmePeerConnectionClient {
                 MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false")
             )
         }
-
-        sdpMediaConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair("RtpDataChannels", "true")
-        )
-
     }
 
     private fun createPeerConnectionInternal() {
@@ -360,9 +342,7 @@ class KmePeerConnectionClient {
 
         queuedRemoteCandidates = ArrayList()
         if (videoCallEnabled) {
-            factory?.setVideoHwAccelerationOptions(
-                rootEglBase?.eglBaseContext, rootEglBase?.eglBaseContext
-            )
+            factory?.setVideoHwAccelerationOptions(getRenderContext(), getRenderContext())
         }
 
         val rtcConfig = RTCConfiguration(signalingParameters?.iceServers)
@@ -475,12 +455,10 @@ class KmePeerConnectionClient {
     }
 
     fun createOffer() {
-//        executor.execute {
-            if (peerConnection != null && !isError) {
-                isInitiator = true
-                peerConnection?.createOffer(sdpObserver, sdpMediaConstraints)
-            }
-//        }
+        if (peerConnection != null && !isError) {
+            isInitiator = true
+            peerConnection?.createOffer(sdpObserver, sdpMediaConstraints)
+        }
     }
 
     fun createAnswer() {
@@ -515,45 +493,31 @@ class KmePeerConnectionClient {
     }
 
     fun setRemoteDescription(sdp: SessionDescription) {
-        executor.execute(Runnable {
-            if (peerConnection == null || isError) {
-                return@Runnable
-            }
+        if (peerConnection == null || isError) {
+            return
+        }
 
-            var sdpDescription = sdp.description
-            if (preferIsac) {
-                sdpDescription = preferCodec(
-                    sdpDescription,
-                    AUDIO_CODEC_ISAC,
-                    true
-                )
-            }
-            if (videoCallEnabled) {
-                sdpDescription = preferCodec(
-                    sdpDescription,
-                    preferredVideoCodec,
-                    false
-                )
-            }
-            if (peerConnectionParameters.audioStartBitrate > 0) {
-                sdpDescription = setStartBitrate(
-                    AUDIO_CODEC_OPUS,
-                    false,
-                    sdpDescription,
-                    peerConnectionParameters.audioStartBitrate
-                )
-            }
+        var sdpDescription = sdp.description
 
-            val sdpRemote = SessionDescription(sdp.type, sdpDescription)
-            peerConnection!!.setRemoteDescription(sdpObserver, sdpRemote)
-        })
+        if (videoCallEnabled) {
+            sdpDescription = preferCodec(
+                sdpDescription,
+                preferredVideoCodec,
+                false
+            )
+        }
+
+        val sdpRemote = SessionDescription(sdp.type, "${sdpDescription.trim()}\r\n")
+        peerConnection!!.setRemoteDescription(sdpObserver, sdpRemote)
+
+        events?.onIceGatheringDone()
     }
 
     fun stopVideoSource() {
         executor.execute {
-            if (videoCapturer != null && !videoCapturerStopped) {
+            if (!videoCapturerStopped) {
                 try {
-                    videoCapturer!!.stopCapture()
+                    videoCapturer?.stopCapture()
                 } catch (e: InterruptedException) {}
                 videoCapturerStopped = true
             }
@@ -562,8 +526,8 @@ class KmePeerConnectionClient {
 
     fun startVideoSource() {
         executor.execute {
-            if (videoCapturer != null && videoCapturerStopped) {
-                videoCapturer!!.startCapture(videoWidth, videoHeight, videoFps)
+            if (videoCapturerStopped) {
+                videoCapturer?.startCapture(videoWidth, videoHeight, videoFps)
                 videoCapturerStopped = false
             }
         }
@@ -616,16 +580,8 @@ class KmePeerConnectionClient {
         }
 
         if (codecRtpMap == null) {
-//            Log.w(
-//                org.appspot.apprtc.PeerConnectionClient.TAG,
-//                "No rtpmap for $codec codec"
-//            )
             return sdpDescription
         }
-//        Log.d(
-//            org.appspot.apprtc.PeerConnectionClient.TAG,
-//            "Found " + codec + " rtpmap " + codecRtpMap + " at " + lines[rtpmapLineIndex]
-//        )
 
         // Check if a=fmtp string already exist in remote SDP for this codec and
         // update it with new bitrate parameter.
@@ -634,19 +590,11 @@ class KmePeerConnectionClient {
         for (i in lines.indices) {
             val codecMatcher = codecPattern.matcher(lines[i])
             if (codecMatcher.matches()) {
-//                Log.d(
-//                    org.appspot.apprtc.PeerConnectionClient.TAG,
-//                    "Found " + codec + " " + lines[i]
-//                )
                 if (isVideoCodec) {
                     lines[i] += "; $VIDEO_CODEC_PARAM_START_BITRATE=$bitrateKbps"
                 } else {
                     lines[i] += "; $AUDIO_CODEC_PARAM_BITRATE=$(bitrateKbps * 1000)"
                 }
-//                Log.d(
-//                    org.appspot.apprtc.PeerConnectionClient.TAG,
-//                    "Update remote SDP line: " + lines[i]
-//                )
                 sdpFormatUpdated = true
                 break
             }
@@ -662,10 +610,6 @@ class KmePeerConnectionClient {
                 } else {
                     "a=fmtp:$codecRtpMap $AUDIO_CODEC_PARAM_BITRATE=$(bitrateKbps * 1000)"
                 }
-//                Log.d(
-//                    org.appspot.apprtc.PeerConnectionClient.TAG,
-//                    "Add remote SDP line: $bitrateSet"
-//                )
                 newSdpDescription.append(bitrateSet).append("\r\n")
             }
         }
@@ -680,10 +624,6 @@ class KmePeerConnectionClient {
         val lines = sdpDescription.split("\r\n".toRegex()).toTypedArray()
         val mLineIndex: Int = findMediaDescriptionLine(isAudio, lines)
         if (mLineIndex == -1) {
-//            Log.w(
-//                org.appspot.apprtc.PeerConnectionClient.TAG,
-//                "No mediaDescription line, so can't prefer $codec"
-//            )
             return sdpDescription
         }
         // A list with all the payload types with name |codec|. The payload types are integers in the
@@ -698,20 +638,13 @@ class KmePeerConnectionClient {
             }
         }
         if (codecPayloadTypes.isEmpty()) {
-//            Log.w(
-//                org.appspot.apprtc.PeerConnectionClient.TAG,
-//                "No payload types with name $codec"
-//            )
             return sdpDescription
         }
         val newMLine: String = movePayloadTypesToFront(
             codecPayloadTypes,
             lines[mLineIndex]
         ) ?: return sdpDescription
-//        Log.d(
-//            org.appspot.apprtc.PeerConnectionClient.TAG,
-//            "Change media description from: " + lines[mLineIndex] + " to " + newMLine
-//        )
+
         lines[mLineIndex] = newMLine
         return joinString(
             Arrays.asList(*lines),
@@ -742,10 +675,6 @@ class KmePeerConnectionClient {
                 .toTypedArray()
         )
         if (origLineParts.size <= 3) {
-//            Log.e(
-//                org.appspot.apprtc.PeerConnectionClient.TAG,
-//                "Wrong SDP media description format: $mLine"
-//            )
             return null
         }
         val header: List<String> = origLineParts.subList(0, 3)
@@ -836,49 +765,38 @@ class KmePeerConnectionClient {
     }
 
     fun close() {
-        if (factory != null && peerConnectionParameters.aecDump) {
+        if (peerConnectionParameters.aecDump) {
             factory?.stopAecDump()
         }
 
-//        statsTimer.cancel()
-        if (dataChannel != null) {
-            dataChannel?.dispose()
-            dataChannel = null
-        }
-        if (peerConnection != null) {
-            peerConnection!!.dispose()
-            peerConnection = null
-        }
+        dataChannel?.dispose()
+        dataChannel = null
 
-        if (audioSource != null) {
-            audioSource?.dispose()
-            audioSource = null
-        }
+        peerConnection?.dispose()
+        peerConnection = null
 
-        if (videoCapturer != null) {
-            try {
-                videoCapturer?.stopCapture()
-            } catch (e: InterruptedException) {
-                throw RuntimeException(e)
-            }
-            videoCapturerStopped = true
-            videoCapturer?.dispose()
-            videoCapturer = null
-        }
+        audioSource?.dispose()
+        audioSource = null
 
-        if (videoSource != null) {
-            videoSource?.dispose()
-            videoSource = null
+        try {
+            videoCapturer?.stopCapture()
+        } catch (e: InterruptedException) {
+            throw RuntimeException(e)
         }
+        videoCapturerStopped = true
+        videoCapturer?.dispose()
+        videoCapturer = null
+
+        videoSource?.dispose()
+        videoSource = null
+
         localRender = null
         remoteRenders = null
 
-        if (factory != null) {
-            factory?.dispose()
-            factory = null
-        }
+        factory?.dispose()
+        factory = null
+
         options = null
-        rootEglBase?.release()
 
         events?.onPeerConnectionClosed()
         PeerConnectionFactory.stopInternalTracingCapture()
@@ -887,7 +805,7 @@ class KmePeerConnectionClient {
     }
 
     fun getRenderContext(): EglBase.Context? {
-        return rootEglBase!!.eglBaseContext
+        return rootEglBase.eglBaseContext
     }
 
     private inner class PCObserver : PeerConnection.Observer {
@@ -901,7 +819,7 @@ class KmePeerConnectionClient {
         }
 
         override fun onSignalingChange(newState: SignalingState) {
-            val test = ""
+
         }
 
         override fun onIceConnectionChange(newState: IceConnectionState) {
@@ -919,11 +837,13 @@ class KmePeerConnectionClient {
         }
 
         override fun onIceGatheringChange(newState: IceGatheringState) {
-            val test = ""
+            if (newState == IceGatheringState.COMPLETE) {
+//                events?.onIceGatheringDone()
+            }
         }
 
         override fun onIceConnectionReceivingChange(receiving: Boolean) {
-            val test = ""
+
         }
 
         override fun onAddStream(stream: MediaStream) {
@@ -952,41 +872,33 @@ class KmePeerConnectionClient {
         override fun onDataChannel(dc: DataChannel) {
             dc.registerObserver(object : DataChannel.Observer {
                 override fun onBufferedAmountChange(previousAmount: Long) {
-//                    Log.d(
-//                        PeerConnectionClient.TAG,
-//                        "Data channel buffered amount changed: " + dc.label() + ": " + dc.state()
-//                    )
+
                 }
 
                 override fun onStateChange() {
-//                    Log.d(
-//                        PeerConnectionClient.TAG,
-//                        "Data channel state changed: " + dc.label() + ": " + dc.state()
-//                    )
+
                 }
 
                 override fun onMessage(buffer: DataChannel.Buffer) {
                     if (buffer.binary) {
-//                        Log.d(PeerConnectionClient.TAG, "Received binary msg over $dc")
                         return
                     }
                     val data = buffer.data
                     val bytes = ByteArray(data.capacity())
                     data[bytes]
                     val strData = String(bytes, Charset.forName("UTF-8"))
-//                    Log.d(PeerConnectionClient.TAG, "Got msg: $strData over $dc")
                 }
             })
         }
 
         override fun onRenegotiationNeeded() {
-            val test = ""
+
             // No need to do anything; AppRTC follows a pre-agreed-upon
             // signaling/negotiation protocol.
         }
 
         override fun onAddTrack(receiver: RtpReceiver, mediaStreams: Array<MediaStream>) {
-            val test = ""
+
         }
     }
 
@@ -994,10 +906,7 @@ class KmePeerConnectionClient {
 
         override fun onCreateSuccess(origSdp: SessionDescription) {
             Log.d(TAG, "onSDPCreateSuccess")
-//            if (localSdp != null) {
-//                reportError("Multiple SDP create.")
-//                return
-//            }
+
             var sdpDescription = origSdp.description
             if (preferIsac) {
                 sdpDescription = preferCodec(
@@ -1016,57 +925,40 @@ class KmePeerConnectionClient {
 //            https://bugs.chromium.org/p/chromium/issues/detail?id=414395&thanks=414395&ts=1410809385
             val sdp = SessionDescription(origSdp.type, "${sdpDescription.trim()}\r\n")
             localSdp = sdp
-//            executor.execute {
-                if (peerConnection != null && !isError) {
-                    peerConnection?.setLocalDescription(this, sdp)
-                }
-//            }
+            if (peerConnection != null && !isError) {
+                peerConnection?.setLocalDescription(this, sdp)
+            }
         }
 
         override fun onSetSuccess() {
             Log.d(TAG, "onSDPSetSuccess")
-//            executor.execute(Runnable {
-                if (peerConnection == null || isError) {
-                    return
-//                    return@Runnable
-                }
-                 if (isInitiator) {
-                    // For offering peer connection we first create offer and set
-                    // local SDP, then after receiving answer set remote SDP.
-                    if (peerConnection?.remoteDescription == null) {
-                        // We've just set our local SDP so time to send it.
-                        events?.onLocalDescription(localSdp)
-                    } else {
-                        // We've just set remote description, so drain remote
-                        // and send local ICE candidates.
-//                        Log.d(
-//                            org.appspot.apprtc.PeerConnectionClient.TAG,
-//                            "Remote SDP set succesfully"
-//                        )
-                        drainCandidates()
-                    }
+            if (peerConnection == null || isError) {
+                return
+            }
+            if (isInitiator) {
+                // For offering peer connection we first create offer and set
+                // local SDP, then after receiving answer set remote SDP.
+                if (peerConnection?.remoteDescription == null) {
+                    // We've just set our local SDP so time to send it.
+                    events?.onLocalDescription(localSdp)
                 } else {
-                    // For answering peer connection we set remote SDP and then
-                    // create answer and set local SDP.
-                    if (peerConnection?.localDescription != null) {
-                        // We've just set our local SDP so time to send it, drain
-                        // remote and send local ICE candidates.
-//                        Log.d(
-//                            org.appspot.apprtc.PeerConnectionClient.TAG,
-//                            "Local SDP set succesfully"
-//                        )
-                        events?.onLocalDescription(localSdp)
-                        drainCandidates()
-                    } else {
-                        // We've just set remote SDP - do nothing for now -
-                        // answer will be created soon.
-//                        Log.d(
-//                            org.appspot.apprtc.PeerConnectionClient.TAG,
-//                            "Remote SDP set succesfully"
-//                        )
-                    }
+                    // We've just set remote description, so drain remote
+                    // and send local ICE candidates.
+                    drainCandidates()
                 }
-//            })
+            } else {
+                // For answering peer connection we set remote SDP and then
+                // create answer and set local SDP.
+                if (peerConnection?.localDescription != null) {
+                    // We've just set our local SDP so time to send it, drain
+                    // remote and send local ICE candidates.
+                    events?.onLocalDescription(localSdp)
+                    drainCandidates()
+                } else {
+                    // We've just set remote SDP - do nothing for now -
+                    // answer will be created soon.
+                }
+            }
         }
 
         override fun onCreateFailure(error: String) {
