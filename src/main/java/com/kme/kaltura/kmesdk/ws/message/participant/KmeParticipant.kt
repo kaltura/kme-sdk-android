@@ -1,12 +1,15 @@
 package com.kme.kaltura.kmesdk.ws.message.participant
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.permission.KmeUserPermissions
 import com.kme.kaltura.kmesdk.ws.message.type.KmeLiveMediaState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlatformType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class KmeParticipant(
 
     @SerializedName("user_id") var userId: Long? = null,
@@ -30,9 +33,9 @@ data class KmeParticipant(
     @SerializedName("managing_server_id") var managingServerId: Long? = null,
     @SerializedName("out_of_tab_focus") var outOfTabFocus: Boolean? = null,
     @SerializedName("user_permissions") var userPermissions: KmeUserPermissions? = null,
-    @SerializedName("is_moderator") var isModerator: Boolean? = null,
-    @SerializedName("is_captioner") var isCaptioner: Boolean? = null,
+    @SerializedName("is_moderator") var isModerator: Boolean?,
+    @SerializedName("is_captioner") var isCaptioner: Boolean?,
     @SerializedName("lat") var lat: Double? = null,
     @SerializedName("long") var long: Double? = null
 
-)
+) : Parcelable
