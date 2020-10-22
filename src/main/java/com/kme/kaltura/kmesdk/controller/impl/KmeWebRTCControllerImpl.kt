@@ -11,11 +11,11 @@ import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEven
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.KmePeerConnectionClient
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.KmePeerConnectionParameters
-import com.kme.kaltura.kmesdk.webrtc.signaling.IKmeSignalingEvents
 import com.kme.kaltura.kmesdk.webrtc.signaling.KmeSignalingParameters
 import com.kme.kaltura.kmesdk.webrtc.view.KmeLocalVideoSink
 import com.kme.kaltura.kmesdk.webrtc.view.KmeRemoteVideoSink
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
+import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
 import java.util.*
@@ -23,7 +23,7 @@ import java.util.*
 class KmeWebRTCControllerImpl(
     private val context: Context,
     private val gson: Gson
-) : IKmeWebRTCController, IKmeSignalingEvents, IKmePeerConnectionEvents {
+) : IKmeWebRTCController, IKmePeerConnectionEvents {
 
     private val TAG = KmeWebRTCControllerImpl::class.java.canonicalName
 
@@ -41,8 +41,8 @@ class KmeWebRTCControllerImpl(
 
     // Public PeerConnection API
     override fun createPeerConnection(
-        localRenderer: KmeSurfaceRendererView,
-        remoteRenderer: KmeSurfaceRendererView,
+        localRenderer: KmeSurfaceRendererView?,
+        remoteRenderer: KmeSurfaceRendererView?,
         turnUrl: String,
         turnUser: String,
         turnCred: String,
@@ -117,14 +117,18 @@ class KmeWebRTCControllerImpl(
         }
     }
 
-    override fun setAnswer(sdp: String) {
-        Log.d(TAG, "setAnswer")
-        peerConnectionClient?.setRemoteDescription(
-            SessionDescription(
-                SessionDescription.Type.ANSWER,
-                sdp
-            )
-        )
+    override fun setRemoteSdp(type: KmeSdpType, sdp: String) {
+        Log.d(TAG, "setRemoteSdp ${type.name}")
+        val sdpType =
+            if (type == KmeSdpType.ANSWER) SessionDescription.Type.ANSWER
+            else SessionDescription.Type.OFFER
+        peerConnectionClient?.setRemoteDescription(SessionDescription(sdpType, sdp))
+
+//        if (!signalingParameters.initiator!!) {
+//            // Create answer. Answer SDP will be sent to offering client in
+//            // PeerConnectionEvents.onLocalDescription event.
+//            peerConnectionClient?.createAnswer()
+//        }
     }
 
     override fun enableCamera(isEnable: Boolean) {
@@ -167,10 +171,12 @@ class KmeWebRTCControllerImpl(
     }
 
     override fun addRenderer() {
+        Log.d(TAG, "addRenderer")
         // TODO: not sure need this here. Maybe should be a part of client
     }
 
     override fun disconnectPeerConnection() {
+        Log.d(TAG, "disconnectPeerConnection")
 //        remoteProxyRenderer.setTarget(null)
         localVideoSink.setTarget(null)
 
@@ -182,32 +188,6 @@ class KmeWebRTCControllerImpl(
 
         peerConnectionClient?.close()
         peerConnectionClient = null
-    }
-
-    // Events coming from server via WS connection
-    override fun onRemoteDescription(sdp: SessionDescription) {
-        peerConnectionClient?.setRemoteDescription(sdp)
-        if (!signalingParameters.initiator!!) {
-            // Create answer. Answer SDP will be sent to offering client in
-            // PeerConnectionEvents.onLocalDescription event.
-            peerConnectionClient?.createAnswer()
-        }
-    }
-
-    override fun onRemoteIceCandidate(candidate: IceCandidate) {
-        peerConnectionClient?.addRemoteIceCandidate(candidate)
-    }
-
-    override fun onRemoteIceCandidatesRemoved(candidates: Array<IceCandidate>) {
-        peerConnectionClient?.removeRemoteIceCandidates(candidates)
-    }
-
-    override fun onChannelClose() {
-        disconnectPeerConnection()
-    }
-
-    override fun onChannelError(description: String) {
-
     }
 
     // Callbacks from PeerConnection internal API to the application

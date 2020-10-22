@@ -83,6 +83,9 @@ internal class KmeMessageParser(
             KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER.toString() -> {
                 text.jsonToObject<KmeStreamingMessage<KmeStreamingMessage.SdpAnswerToPublisherPayload>>()
             }
+            KmeMessageEvent.SDP_OFFER_FOR_VIEWER.toString() -> {
+                text.jsonToObject<KmeStreamingMessage<KmeStreamingMessage.SdpOfferToViewerPayload>>()
+            }
             KmeMessageEvent.USER_DISCONNECTED.toString() -> {
                 text.jsonToObject<KmeStreamingMessage<UserDisconnectedPayload>>()
             }

@@ -8,8 +8,6 @@ import com.kme.kaltura.kmesdk.webrtc.signaling.KmeSignalingParameters
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
 import org.webrtc.voiceengine.WebRtcAudioManager
-import org.webrtc.voiceengine.WebRtcAudioRecord
-import org.webrtc.voiceengine.WebRtcAudioTrack
 import org.webrtc.voiceengine.WebRtcAudioUtils
 import java.nio.charset.Charset
 import java.util.*
@@ -65,7 +63,6 @@ class KmePeerConnectionClient {
     private var videoCallEnabled: Boolean = false
     private var preferIsac = false
     private var videoCapturerStopped = false
-    private var isError = false
     private var queuedRemoteCandidates: MutableList<IceCandidate>? = null
     private lateinit var localSdp: SessionDescription // either offer or answer SDP
     private var mediaStream: MediaStream? = null
@@ -107,7 +104,6 @@ class KmePeerConnectionClient {
         peerConnection = null
         preferIsac = false
         videoCapturerStopped = false
-        isError = false
         queuedRemoteCandidates = null
 
         mediaStream = null
@@ -123,8 +119,6 @@ class KmePeerConnectionClient {
     }
 
     private fun createPeerConnectionFactoryInternal(context: Context) {
-        isError = false
-
         var fieldTrials = ""
         if (peerConnectionParameters.videoFlexfecEnabled) {
             fieldTrials = "$fieldTrials $VIDEO_FLEXFEC_FIELDTRIAL"
@@ -182,43 +176,6 @@ class KmePeerConnectionClient {
             WebRtcAudioUtils.setWebRtcBasedNoiseSuppressor(false)
         }
 
-        WebRtcAudioRecord.setErrorCallback(object :
-            WebRtcAudioRecord.WebRtcAudioRecordErrorCallback {
-            override fun onWebRtcAudioRecordInitError(errorMessage: String) {
-                reportError(errorMessage)
-            }
-
-            override fun onWebRtcAudioRecordStartError(
-                errorCode: WebRtcAudioRecord.AudioRecordStartErrorCode, errorMessage: String
-            ) {
-                reportError(errorMessage)
-            }
-
-            override fun onWebRtcAudioRecordError(errorMessage: String) {
-                reportError(errorMessage)
-            }
-        })
-
-        WebRtcAudioTrack.setErrorCallback(object : WebRtcAudioTrack.ErrorCallback {
-            override fun onWebRtcAudioTrackInitError(
-                errorMessage: String
-            ) {
-                reportError(errorMessage)
-            }
-
-            override fun onWebRtcAudioTrackStartError(
-                errorCode: WebRtcAudioTrack.AudioTrackStartErrorCode, errorMessage: String
-            ) {
-                reportError(errorMessage)
-            }
-
-            override fun onWebRtcAudioTrackError(
-                errorMessage: String
-            ) {
-                reportError(errorMessage)
-            }
-        })
-
         val enableH264HighProfile = VIDEO_CODEC_H264_HIGH == peerConnectionParameters.videoCodec
         val encoderFactory: VideoEncoderFactory
         val decoderFactory: VideoDecoderFactory
@@ -255,10 +212,8 @@ class KmePeerConnectionClient {
         this.videoCapturer = videoCapturer
         this.signalingParameters = signalingParameters
 
-        executor.execute {
-            createMediaConstraintsInternal()
-            createPeerConnectionInternal()
-        }
+        createMediaConstraintsInternal()
+        createPeerConnectionInternal()
     }
 
     private fun createMediaConstraintsInternal() {
@@ -336,7 +291,7 @@ class KmePeerConnectionClient {
     }
 
     private fun createPeerConnectionInternal() {
-        if (factory == null || isError) {
+        if (factory == null) {
             return
         }
 
@@ -354,9 +309,13 @@ class KmePeerConnectionClient {
         dataChannel = peerConnection?.createDataChannel("volumeDataChannel", dataChannelInit)
 
         dataChannel?.registerObserver(object : DataChannel.Observer {
-            override fun onBufferedAmountChange(previousAmount: Long) { }
+            override fun onBufferedAmountChange(previousAmount: Long) {
+                val test = ""
+            }
 
-            override fun onStateChange() { }
+            override fun onStateChange() {
+                val test = ""
+            }
 
             override fun onMessage(buffer: DataChannel.Buffer) {
                 if (buffer.binary) {
@@ -381,6 +340,7 @@ class KmePeerConnectionClient {
 
         mediaStream?.addTrack(createAudioTrack())
         peerConnection?.addStream(mediaStream)
+
         if (videoCallEnabled) {
             findVideoSender()
         }
@@ -433,58 +393,38 @@ class KmePeerConnectionClient {
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     fun setAudioEnabled(enable: Boolean) {
-        executor.execute {
-            enableAudio = enable
-            if (localAudioTrack != null) {
-                localAudioTrack?.setEnabled(enableAudio)
-            }
-        }
+        enableAudio = enable
+        localAudioTrack?.setEnabled(enableAudio)
     }
 
     @RequiresPermission(Manifest.permission.CAMERA)
     fun setVideoEnabled(enable: Boolean) {
-        executor.execute {
-            renderVideo = enable
-            if (localVideoTrack != null) {
-                localVideoTrack?.setEnabled(renderVideo)
-            }
-            if (remoteVideoTrack != null) {
-                remoteVideoTrack?.setEnabled(renderVideo)
-            }
-        }
+        renderVideo = enable
+        localVideoTrack?.setEnabled(renderVideo)
+        remoteVideoTrack?.setEnabled(renderVideo)
     }
 
     fun createOffer() {
-        if (peerConnection != null && !isError) {
-            isInitiator = true
-            peerConnection?.createOffer(sdpObserver, sdpMediaConstraints)
-        }
+        isInitiator = true
+        peerConnection?.createOffer(sdpObserver, sdpMediaConstraints)
     }
 
     fun createAnswer() {
-        executor.execute {
-            if (peerConnection != null && !isError) {
-                isInitiator = false
-                peerConnection?.createAnswer(sdpObserver, sdpMediaConstraints)
-            }
-        }
+        isInitiator = false
+        peerConnection?.createAnswer(sdpObserver, sdpMediaConstraints)
     }
 
     fun addRemoteIceCandidate(candidate: IceCandidate?) {
-        executor.execute {
-            if (peerConnection != null && !isError) {
-                if (queuedRemoteCandidates != null) {
-                    queuedRemoteCandidates?.add(candidate!!)
-                } else {
-                    peerConnection?.addIceCandidate(candidate)
-                }
-            }
+        if (queuedRemoteCandidates != null) {
+            queuedRemoteCandidates?.add(candidate!!)
+        } else {
+            peerConnection?.addIceCandidate(candidate)
         }
     }
 
     fun removeRemoteIceCandidates(candidates: Array<IceCandidate>) {
         executor.execute(Runnable {
-            if (peerConnection == null || isError) {
+            if (peerConnection == null) {
                 return@Runnable
             }
             drainCandidates()
@@ -493,10 +433,6 @@ class KmePeerConnectionClient {
     }
 
     fun setRemoteDescription(sdp: SessionDescription) {
-        if (peerConnection == null || isError) {
-            return
-        }
-
         var sdpDescription = sdp.description
 
         if (videoCallEnabled) {
@@ -508,9 +444,7 @@ class KmePeerConnectionClient {
         }
 
         val sdpRemote = SessionDescription(sdp.type, "${sdpDescription.trim()}\r\n")
-        peerConnection!!.setRemoteDescription(sdpObserver, sdpRemote)
-
-        events?.onIceGatheringDone()
+        peerConnection?.setRemoteDescription(sdpObserver, sdpRemote)
     }
 
     fun stopVideoSource() {
@@ -535,7 +469,7 @@ class KmePeerConnectionClient {
 
     fun setVideoMaxBitrate(maxBitrateKbps: Int?) {
         executor.execute(Runnable {
-            if (peerConnection == null || localVideoSender == null || isError) {
+            if (peerConnection == null || localVideoSender == null) {
                 return@Runnable
             }
             if (localVideoSender == null) {
@@ -731,7 +665,7 @@ class KmePeerConnectionClient {
 
     private fun switchCameraInternal() {
         if (videoCapturer is CameraVideoCapturer) {
-            if (!videoCallEnabled || isError) {
+            if (!videoCallEnabled) {
                 return  // No video is sent or only one camera is available or error happened.
             }
             val cameraVideoCapturer = videoCapturer as CameraVideoCapturer
@@ -758,7 +692,7 @@ class KmePeerConnectionClient {
         height: Int,
         frameRate: Int
     ) {
-        if (!videoCallEnabled || isError || videoCapturer == null) {
+        if (!videoCallEnabled || videoCapturer == null) {
             return
         }
         videoSource?.adaptOutputFormat(width, height, frameRate)
@@ -819,13 +753,16 @@ class KmePeerConnectionClient {
         }
 
         override fun onSignalingChange(newState: SignalingState) {
-
+            val test = ""
         }
 
         override fun onIceConnectionChange(newState: IceConnectionState) {
             when (newState) {
                 IceConnectionState.CONNECTED -> {
                     events?.onIceConnected()
+                }
+                IceConnectionState.COMPLETED -> {
+                    events?.onIceGatheringDone()
                 }
                 IceConnectionState.DISCONNECTED -> {
                     events?.onIceDisconnected()
@@ -843,26 +780,25 @@ class KmePeerConnectionClient {
         }
 
         override fun onIceConnectionReceivingChange(receiving: Boolean) {
-
+            val test = ""
         }
 
         override fun onAddStream(stream: MediaStream) {
-            executor.execute(Runnable {
-                if (peerConnection == null || isError) {
-                    return@Runnable
+            if (peerConnection == null) {
+                return
+            }
+            if (stream.audioTracks.size > 1 || stream.videoTracks.size > 1) {
+                reportError("Weird-looking stream: $stream")
+                return
+            }
+
+            if (stream.videoTracks.size == 1) {
+                remoteVideoTrack = stream.videoTracks[0]
+                remoteVideoTrack?.setEnabled(renderVideo)
+                for (remoteRender in remoteRenders!!) {
+                    remoteVideoTrack?.addRenderer(VideoRenderer(remoteRender))
                 }
-                if (stream.audioTracks.size > 1 || stream.videoTracks.size > 1) {
-                    reportError("Weird-looking stream: $stream")
-                    return@Runnable
-                }
-                if (stream.videoTracks.size == 1) {
-                    remoteVideoTrack = stream.videoTracks[0]
-                    remoteVideoTrack?.setEnabled(renderVideo)
-                    for (remoteRender in remoteRenders!!) {
-                        remoteVideoTrack?.addRenderer(VideoRenderer(remoteRender))
-                    }
-                }
-            })
+            }
         }
 
         override fun onRemoveStream(stream: MediaStream) {
@@ -870,35 +806,17 @@ class KmePeerConnectionClient {
         }
 
         override fun onDataChannel(dc: DataChannel) {
-            dc.registerObserver(object : DataChannel.Observer {
-                override fun onBufferedAmountChange(previousAmount: Long) {
-
-                }
-
-                override fun onStateChange() {
-
-                }
-
-                override fun onMessage(buffer: DataChannel.Buffer) {
-                    if (buffer.binary) {
-                        return
-                    }
-                    val data = buffer.data
-                    val bytes = ByteArray(data.capacity())
-                    data[bytes]
-                    val strData = String(bytes, Charset.forName("UTF-8"))
-                }
-            })
+            val test = ""
         }
 
         override fun onRenegotiationNeeded() {
-
+            val test = ""
             // No need to do anything; AppRTC follows a pre-agreed-upon
             // signaling/negotiation protocol.
         }
 
         override fun onAddTrack(receiver: RtpReceiver, mediaStreams: Array<MediaStream>) {
-
+            val test = ""
         }
     }
 
@@ -925,14 +843,14 @@ class KmePeerConnectionClient {
 //            https://bugs.chromium.org/p/chromium/issues/detail?id=414395&thanks=414395&ts=1410809385
             val sdp = SessionDescription(origSdp.type, "${sdpDescription.trim()}\r\n")
             localSdp = sdp
-            if (peerConnection != null && !isError) {
+            if (peerConnection != null) {
                 peerConnection?.setLocalDescription(this, sdp)
             }
         }
 
         override fun onSetSuccess() {
             Log.d(TAG, "onSDPSetSuccess")
-            if (peerConnection == null || isError) {
+            if (peerConnection == null) {
                 return
             }
             if (isInitiator) {

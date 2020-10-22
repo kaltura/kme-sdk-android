@@ -15,6 +15,7 @@ import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -117,8 +118,8 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
     }
 
     override fun createPeerConnection(
-        localRenderer: KmeSurfaceRendererView,
-        remoteRenderer: KmeSurfaceRendererView,
+        localRenderer: KmeSurfaceRendererView?,
+        remoteRenderer: KmeSurfaceRendererView?,
         turnUrl: String,
         turnUser: String,
         turnCred: String,
@@ -142,8 +143,8 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         webRTCController.createAnswer()
     }
 
-    override fun setAnswer(sdp: String) {
-        webRTCController.setAnswer(sdp)
+    override fun setRemoteSdp(type: KmeSdpType, sdp: String) {
+        webRTCController.setRemoteSdp(type, sdp)
     }
 
     override fun enableCamera(isEnable: Boolean) {
