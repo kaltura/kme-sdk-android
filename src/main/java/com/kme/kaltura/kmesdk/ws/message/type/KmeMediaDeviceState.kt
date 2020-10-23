@@ -3,7 +3,7 @@ package com.kme.kaltura.kmesdk.ws.message.type
 import com.google.gson.annotations.SerializedName
 
 enum class KmeMediaDeviceState(
-   val mediaDeviceState: String
+    val mediaDeviceState: String
 ) {
 
     @SerializedName("DISABLED_LIVE")
@@ -28,6 +28,15 @@ enum class KmeMediaDeviceState(
     DISABLED_NO_PERMISSIONS("DISABLED_NO_PERMISSIONS"),
 
     @SerializedName("LIVE_ERROR")
-    LIVE_ERROR("LIVE_ERROR")
+    LIVE_ERROR("LIVE_ERROR");
+
+    inline fun <reified T : Enum<T>> value(type: String?): T? {
+        if (type == null) return null
+        return try {
+            java.lang.Enum.valueOf(T::class.java, type)
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+    }
 
 }

@@ -23,7 +23,7 @@ class KmeRoomParticipantsMessage<T : KmeRoomParticipantsMessage.ParticipantsPayl
         @SerializedName("room_id") var roomId: Long? = null,
         @SerializedName("company_id") var companyId: Long? = null,
         @SerializedName("media_state_type") var mediaStateType: KmeMediaStateType? = null,
-        @SerializedName("state_value") var stateValue: KmeMediaDeviceState? = null,
+        @SerializedName("state_value") var stateValue: String? = null,
     ) : ParticipantsPayload()
 
     data class ChangeUserFocusEventPayload(

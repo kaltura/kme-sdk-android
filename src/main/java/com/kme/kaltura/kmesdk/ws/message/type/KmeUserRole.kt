@@ -6,13 +6,13 @@ enum class KmeUserRole(
    @SerializedName("user_role") val userRole: String
 ) {
 
-    @SerializedName("INSTRUCTOR")
-    INSTRUCTOR("INSTRUCTOR"),
+    @SerializedName("instructor", alternate = ["INSTRUCTOR"])
+    INSTRUCTOR("instructor"),
 
-    @SerializedName("ADMIN")
-    ADMIN("ADMIN"),
+    @SerializedName("admin", alternate = ["ADMIN"])
+    ADMIN("admin"),
 
-    @SerializedName("OWNER")
-    OWNER("OWNER")
+    @SerializedName("owner", alternate = ["OWNER"])
+    OWNER("owner")
 
 }
