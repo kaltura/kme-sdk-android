@@ -5,6 +5,7 @@ import com.kme.kaltura.kmesdk.BuildConfig
 import com.kme.kaltura.kmesdk.rest.KmeIntToBooleanTypeAdapter
 import com.kme.kaltura.kmesdk.rest.KmeStringToBooleanTypeAdapter
 import com.kme.kaltura.kmesdk.rest.KmeTokenInterceptor
+import com.kme.kaltura.kmesdk.rest.KmeCookieJar
 import com.kme.kaltura.kmesdk.rest.service.KmeMetadataApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService
@@ -41,9 +42,14 @@ val restModule = module {
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
+            .cookieJar(get<KmeCookieJar>())
             .addInterceptor(get<KmeTokenInterceptor>())
             .addInterceptor(get<HttpLoggingInterceptor>())
             .build()
+    }
+
+    single {
+        KmeCookieJar(get())
     }
 
     single {
