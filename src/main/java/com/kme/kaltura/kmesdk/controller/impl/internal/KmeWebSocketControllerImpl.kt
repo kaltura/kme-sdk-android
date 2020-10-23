@@ -4,14 +4,9 @@ import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.IKmeWebSocketController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.ws.*
-import com.kme.kaltura.kmesdk.ws.IKmeWSListener
-import com.kme.kaltura.kmesdk.ws.KmeMessageManager
-import com.kme.kaltura.kmesdk.ws.KmeWebSocketHandler
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -19,20 +14,32 @@ import okhttp3.WebSocket
 import org.koin.core.inject
 import org.koin.core.qualifier.named
 
-internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketController, IKmeWSListener {
+private const val RECONNECTION_ATTEMPTS = 5
+
+internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketController,
+    IKmeWSListener {
 
     private val okHttpClient: OkHttpClient by inject(named("wsOkHttpClient"))
     private val gson: Gson by inject()
     private val webSocketHandler: KmeWebSocketHandler by inject()
     private val messageManager: KmeMessageManager by inject()
-    private val uiScope = CoroutineScope(Dispatchers.Main)
 
-    private lateinit var webSocket: WebSocket
+    private val uiScope = CoroutineScope(Dispatchers.Main)
+    private val reconnectionScope = CoroutineScope(Dispatchers.IO)
+
+    private var webSocket: WebSocket? = null
+
+    private lateinit var request: Request
 
     private lateinit var listener: IKmeWSConnectionListener
-
     private var roomId: Long = 0
+
     private var companyId: Long = 0
+
+    private var reconnectionAttempts = 0
+    private var allowReconnection = true
+
+    private var reconnectionJob: Job? = null
 
     override fun connect(
         url: String,
@@ -45,45 +52,72 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
         this.listener = listener
         this.roomId = roomId
         this.companyId = companyId
+        this.allowReconnection = true
 
-        val request = Request.Builder()
+        request = Request.Builder()
             .url(parseWssUrl(url, companyId, roomId, isReconnect, token))
             .build()
 
         webSocketHandler.listener = this
-        webSocket = okHttpClient.newWebSocket(request, webSocketHandler)
+        webSocket = newWebSocket()
+    }
+
+    private fun newWebSocket() = okHttpClient.newWebSocket(request, webSocketHandler)
+
+    private fun reconnect() {
+        if (allowReconnection && reconnectionAttempts < RECONNECTION_ATTEMPTS) {
+            reconnectionJob?.cancel()
+            reconnectionJob = reconnectionScope.launch {
+                delay(2000)
+                webSocket?.cancel()
+                webSocket = newWebSocket()
+                reconnectionAttempts.inc()
+            }
+        }
     }
 
     override fun onOpen(response: Response) {
+        reconnectionJob?.cancel()
+        reconnectionAttempts = 0
         uiScope.launch {
             listener.onOpen()
         }
     }
 
     override fun onFailure(throwable: Throwable, response: Response?) {
+        reconnect()
         uiScope.launch {
             listener.onFailure(throwable)
         }
     }
 
     override fun onClosing(code: Int, reason: String) {
+        //Status code == 1000 - normal closure, the connection successfully completed
+        if (code != 1000) {
+            reconnect()
+        }
         uiScope.launch {
             listener.onClosing(code, reason)
         }
     }
 
     override fun onClosed(code: Int, reason: String) {
+        reconnectionJob?.cancel()
         uiScope.launch {
             listener.onClosed(code, reason)
         }
     }
 
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
-        webSocket.send(gson.toJson(message))
+        webSocket?.send(gson.toJson(message))
     }
 
     override fun disconnect() {
-        webSocket.cancel()
+        allowReconnection = false
+        reconnectionJob?.cancel()
+        reconnectionJob = null
+        webSocket?.cancel()
+        webSocket = null
         messageManager.removeListeners()
     }
 
