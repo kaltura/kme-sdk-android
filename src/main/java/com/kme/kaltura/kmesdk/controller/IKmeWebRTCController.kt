@@ -17,8 +17,6 @@ interface IKmeWebRTCController {
 
     fun createOffer()
 
-    fun createAnswer()
-
     fun setRemoteSdp(type: KmeSdpType, sdp: String)
 
     fun enableCamera(isEnable: Boolean)

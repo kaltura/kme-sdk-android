@@ -11,7 +11,6 @@ import org.webrtc.voiceengine.WebRtcAudioManager
 import org.webrtc.voiceengine.WebRtcAudioUtils
 import java.nio.charset.Charset
 import java.util.*
-import java.util.concurrent.Executors
 import java.util.regex.Pattern
 
 class KmePeerConnectionClient {
@@ -45,9 +44,9 @@ class KmePeerConnectionClient {
     private val HD_VIDEO_HEIGHT = 720
     private val BPS_IN_KBPS = 1000
 
-    private val executor = Executors.newSingleThreadExecutor()
-    private val sdpObserver: SDPObserver = SDPObserver()
-    private val pcObserver: PCObserver = PCObserver()
+    private val localSdpObserver: LocalSdpObserver = LocalSdpObserver()
+    private val remoteSdpObserver: RemoteSdpObserver = RemoteSdpObserver()
+    private val pcObserver: PeerConnectionObserver = PeerConnectionObserver()
 
     private val rootEglBase: EglBase = EglBase.create()
 
@@ -56,7 +55,6 @@ class KmePeerConnectionClient {
     private var options: PeerConnectionFactory.Options? = null
     private lateinit var peerConnectionParameters: KmePeerConnectionParameters
     private var events: IKmePeerConnectionEvents? = null
-    private var isInitiator = false
 
     private var preferredVideoCodec: String? = null
 
@@ -64,8 +62,9 @@ class KmePeerConnectionClient {
     private var preferIsac = false
     private var videoCapturerStopped = false
     private var queuedRemoteCandidates: MutableList<IceCandidate>? = null
-    private lateinit var localSdp: SessionDescription // either offer or answer SDP
-    private var mediaStream: MediaStream? = null
+    private lateinit var localSdp: SessionDescription
+
+    private var localMediaStream: MediaStream? = null
     private var videoCapturer: VideoCapturer? = null
     private var renderVideo = false
     private var localVideoTrack: VideoTrack? = null
@@ -76,11 +75,9 @@ class KmePeerConnectionClient {
     private var remoteRenders: List<VideoRenderer.Callbacks>? = null
     private var signalingParameters: KmeSignalingParameters? = null
 
-    private var audioSource: AudioSource? = null
-    private var videoSource: VideoSource? = null
+    private var localAudioSource: AudioSource? = null
+    private var localVideoSource: VideoSource? = null
 
-    // enableAudio is set to true if audio should be sent.
-    private var enableAudio = false
     private var localAudioTrack: AudioTrack? = null
     private var audioConstraints: MediaConstraints? = null
     private var sdpMediaConstraints: MediaConstraints? = null
@@ -106,13 +103,12 @@ class KmePeerConnectionClient {
         videoCapturerStopped = false
         queuedRemoteCandidates = null
 
-        mediaStream = null
+        localMediaStream = null
         videoCapturer = null
         renderVideo = true
         localVideoTrack = null
         remoteVideoTrack = null
         localVideoSender = null
-        enableAudio = true
         localAudioTrack = null
 
         createPeerConnectionFactoryInternal(context)
@@ -147,7 +143,7 @@ class KmePeerConnectionClient {
         PeerConnectionFactory.initialize(
             PeerConnectionFactory.InitializationOptions.builder(context)
                 .setFieldTrials(fieldTrials)
-//                .setEnableVideoHwAcceleration(peerConnectionParameters!!.videoCodecHwAcceleration)
+//                .setEnableVideoHwAcceleration(true)
                 .setEnableInternalTracer(true)
                 .createInitializationOptions()
         )
@@ -238,56 +234,30 @@ class KmePeerConnectionClient {
         }
 
         audioConstraints = MediaConstraints()
-        if (peerConnectionParameters.noAudioProcessing) {
-            audioConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair(
-                    AUDIO_ECHO_CANCELLATION_CONSTRAINT,
-                    "false"
-                )
-            )
-            audioConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair(
-                    AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT,
-                    "false"
-                )
-            )
-            audioConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair(
-                    AUDIO_HIGH_PASS_FILTER_CONSTRAINT,
-                    "false"
-                )
-            )
-            audioConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair(
-                    AUDIO_NOISE_SUPPRESSION_CONSTRAINT,
-                    "false"
-                )
-            )
-        }
-
-        if (peerConnectionParameters.enableLevelControl) {
-            audioConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair(
-                    AUDIO_LEVEL_CONTROL_CONSTRAINT,
-                    "true"
-                )
-            )
-        }
+        audioConstraints?.mandatory?.add(
+            MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "false")
+        )
+        audioConstraints?.mandatory?.add(
+            MediaConstraints.KeyValuePair(AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT, "false")
+        )
+        audioConstraints?.mandatory?.add(
+            MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "false")
+        )
+        audioConstraints?.mandatory?.add(
+            MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "false")
+        )
+        audioConstraints?.mandatory?.add(
+            MediaConstraints.KeyValuePair(AUDIO_LEVEL_CONTROL_CONSTRAINT, "true")
+        )
 
         // Create SDP constraints.
         sdpMediaConstraints = MediaConstraints()
         sdpMediaConstraints?.mandatory?.add(
             MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true")
         )
-        if (videoCallEnabled || peerConnectionParameters.loopback) {
-            sdpMediaConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true")
-            )
-        } else {
-            sdpMediaConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false")
-            )
-        }
+        sdpMediaConstraints?.mandatory?.add(
+            MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true")
+        )
     }
 
     private fun createPeerConnectionInternal() {
@@ -328,18 +298,15 @@ class KmePeerConnectionClient {
             }
         })
 
-        isInitiator = false
-
         // Set INFO libjingle logging. NOTE: this _must_ happen while |factory| is alive!
         Logging.enableLogToDebugOutput(Logging.Severity.LS_INFO)
 
-        mediaStream = factory?.createLocalMediaStream("ARDAMS")
+        localMediaStream = factory?.createLocalMediaStream("ARDAMS")
         if (videoCallEnabled) {
-            mediaStream?.addTrack(createVideoTrack(videoCapturer))
+            localMediaStream?.addTrack(createLocalVideoTrack(videoCapturer))
         }
-
-        mediaStream?.addTrack(createAudioTrack())
-        peerConnection?.addStream(mediaStream)
+        localMediaStream?.addTrack(createLocalAudioTrack())
+        peerConnection?.addStream(localMediaStream)
 
         if (videoCallEnabled) {
             findVideoSender()
@@ -364,17 +331,17 @@ class KmePeerConnectionClient {
         Log.d(TAG, "Peer connection created.")
     }
 
-    private fun createAudioTrack(): AudioTrack? {
-        audioSource = factory?.createAudioSource(audioConstraints)
-        localAudioTrack = factory?.createAudioTrack(AUDIO_TRACK_ID, audioSource)
-        localAudioTrack?.setEnabled(enableAudio)
+    private fun createLocalAudioTrack(): AudioTrack? {
+        localAudioSource = factory?.createAudioSource(audioConstraints)
+        localAudioTrack = factory?.createAudioTrack(AUDIO_TRACK_ID, localAudioSource)
+        localAudioTrack?.setEnabled(true)
         return localAudioTrack
     }
 
-    private fun createVideoTrack(capturer: VideoCapturer?): VideoTrack? {
-        videoSource = factory?.createVideoSource(capturer)
+    private fun createLocalVideoTrack(capturer: VideoCapturer?): VideoTrack? {
+        localVideoSource = factory?.createVideoSource(capturer)
         capturer?.startCapture(videoWidth, videoHeight, videoFps)
-        localVideoTrack = factory?.createVideoTrack(VIDEO_TRACK_ID, videoSource)
+        localVideoTrack = factory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)
         localVideoTrack?.setEnabled(renderVideo)
         localVideoTrack?.addSink(localRender)
         return localVideoTrack
@@ -393,8 +360,7 @@ class KmePeerConnectionClient {
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     fun setAudioEnabled(enable: Boolean) {
-        enableAudio = enable
-        localAudioTrack?.setEnabled(enableAudio)
+        localAudioTrack?.setEnabled(enable)
     }
 
     @RequiresPermission(Manifest.permission.CAMERA)
@@ -405,13 +371,11 @@ class KmePeerConnectionClient {
     }
 
     fun createOffer() {
-        isInitiator = true
-        peerConnection?.createOffer(sdpObserver, sdpMediaConstraints)
+        peerConnection?.createOffer(localSdpObserver, sdpMediaConstraints)
     }
 
     fun createAnswer() {
-        isInitiator = false
-        peerConnection?.createAnswer(sdpObserver, sdpMediaConstraints)
+        peerConnection?.createAnswer(localSdpObserver, sdpMediaConstraints)
     }
 
     fun addRemoteIceCandidate(candidate: IceCandidate?) {
@@ -423,13 +387,11 @@ class KmePeerConnectionClient {
     }
 
     fun removeRemoteIceCandidates(candidates: Array<IceCandidate>) {
-        executor.execute(Runnable {
-            if (peerConnection == null) {
-                return@Runnable
-            }
-            drainCandidates()
-            peerConnection?.removeIceCandidates(candidates)
-        })
+        if (peerConnection == null) {
+            return
+        }
+        drainCandidates()
+        peerConnection?.removeIceCandidates(candidates)
     }
 
     fun setRemoteDescription(sdp: SessionDescription) {
@@ -444,111 +406,107 @@ class KmePeerConnectionClient {
         }
 
         val sdpRemote = SessionDescription(sdp.type, "${sdpDescription.trim()}\r\n")
-        peerConnection?.setRemoteDescription(sdpObserver, sdpRemote)
+        peerConnection?.setRemoteDescription(remoteSdpObserver, sdpRemote)
     }
 
     fun stopVideoSource() {
-        executor.execute {
-            if (!videoCapturerStopped) {
-                try {
-                    videoCapturer?.stopCapture()
-                } catch (e: InterruptedException) {}
-                videoCapturerStopped = true
+        if (!videoCapturerStopped) {
+            try {
+                videoCapturer?.stopCapture()
+            } catch (e: InterruptedException) {
+
             }
+            videoCapturerStopped = true
         }
     }
 
     fun startVideoSource() {
-        executor.execute {
-            if (videoCapturerStopped) {
-                videoCapturer?.startCapture(videoWidth, videoHeight, videoFps)
-                videoCapturerStopped = false
-            }
+        if (videoCapturerStopped) {
+            videoCapturer?.startCapture(videoWidth, videoHeight, videoFps)
+            videoCapturerStopped = false
         }
     }
 
     fun setVideoMaxBitrate(maxBitrateKbps: Int?) {
-        executor.execute(Runnable {
-            if (peerConnection == null || localVideoSender == null) {
-                return@Runnable
-            }
-            if (localVideoSender == null) {
-                return@Runnable
-            }
-            val parameters = localVideoSender!!.parameters
-            if (parameters.encodings.size == 0) {
-                return@Runnable
-            }
-            for (encoding in parameters.encodings) {
-                encoding.maxBitrateBps =
-                    if (maxBitrateKbps == null) null else maxBitrateKbps * BPS_IN_KBPS
-            }
+        if (peerConnection == null || localVideoSender == null) {
+            return
+        }
+        if (localVideoSender == null) {
+            return
+        }
+        val parameters = localVideoSender!!.parameters
+        if (parameters.encodings.size == 0) {
+            return
+        }
+        for (encoding in parameters.encodings) {
+            encoding.maxBitrateBps =
+                if (maxBitrateKbps == null) null else maxBitrateKbps * BPS_IN_KBPS
+        }
 
-            if (!localVideoSender!!.setParameters(parameters)) {
-                //TODO handle parameters are not set
-            }
-        })
+        if (!localVideoSender!!.setParameters(parameters)) {
+            //TODO handle parameters are not set
+        }
     }
 
-    private fun setStartBitrate(
-        codec: String,
-        isVideoCodec: Boolean,
-        sdpDescription: String,
-        bitrateKbps: Int
-    ): String? {
-        val lines = sdpDescription.split("\r\n".toRegex()).toTypedArray()
-        var rtpmapLineIndex = -1
-        var sdpFormatUpdated = false
-        var codecRtpMap: String? = null
-        // Search for codec rtpmap in format
-        // a=rtpmap:<payload type> <encoding name>/<clock rate> [/<encoding parameters>]
-        var regex = "^a=rtpmap:(\\d+) $codec(/\\d+)+[\r]?$"
-        var codecPattern = Pattern.compile(regex)
-        for (i in lines.indices) {
-            val codecMatcher = codecPattern.matcher(lines[i])
-            if (codecMatcher.matches()) {
-                codecRtpMap = codecMatcher.group(1)
-                rtpmapLineIndex = i
-                break
-            }
-        }
-
-        if (codecRtpMap == null) {
-            return sdpDescription
-        }
-
-        // Check if a=fmtp string already exist in remote SDP for this codec and
-        // update it with new bitrate parameter.
-        regex = "^a=fmtp:$codecRtpMap \\w+=\\d+.*[\r]?$"
-        codecPattern = Pattern.compile(regex)
-        for (i in lines.indices) {
-            val codecMatcher = codecPattern.matcher(lines[i])
-            if (codecMatcher.matches()) {
-                if (isVideoCodec) {
-                    lines[i] += "; $VIDEO_CODEC_PARAM_START_BITRATE=$bitrateKbps"
-                } else {
-                    lines[i] += "; $AUDIO_CODEC_PARAM_BITRATE=$(bitrateKbps * 1000)"
-                }
-                sdpFormatUpdated = true
-                break
-            }
-        }
-
-        val newSdpDescription = java.lang.StringBuilder()
-        for (i in lines.indices) {
-            newSdpDescription.append(lines[i]).append("\r\n")
-            // Append new a=fmtp line if no such line exist for a codec.
-            if (!sdpFormatUpdated && i == rtpmapLineIndex) {
-                val bitrateSet: String = if (isVideoCodec) {
-                    "a=fmtp:$codecRtpMap $VIDEO_CODEC_PARAM_START_BITRATE=$bitrateKbps"
-                } else {
-                    "a=fmtp:$codecRtpMap $AUDIO_CODEC_PARAM_BITRATE=$(bitrateKbps * 1000)"
-                }
-                newSdpDescription.append(bitrateSet).append("\r\n")
-            }
-        }
-        return newSdpDescription.toString()
-    }
+//    private fun setStartBitrate(
+//        codec: String,
+//        isVideoCodec: Boolean,
+//        sdpDescription: String,
+//        bitrateKbps: Int
+//    ): String? {
+//        val lines = sdpDescription.split("\r\n".toRegex()).toTypedArray()
+//        var rtpmapLineIndex = -1
+//        var sdpFormatUpdated = false
+//        var codecRtpMap: String? = null
+//        // Search for codec rtpmap in format
+//        // a=rtpmap:<payload type> <encoding name>/<clock rate> [/<encoding parameters>]
+//        var regex = "^a=rtpmap:(\\d+) $codec(/\\d+)+[\r]?$"
+//        var codecPattern = Pattern.compile(regex)
+//        for (i in lines.indices) {
+//            val codecMatcher = codecPattern.matcher(lines[i])
+//            if (codecMatcher.matches()) {
+//                codecRtpMap = codecMatcher.group(1)
+//                rtpmapLineIndex = i
+//                break
+//            }
+//        }
+//
+//        if (codecRtpMap == null) {
+//            return sdpDescription
+//        }
+//
+//        // Check if a=fmtp string already exist in remote SDP for this codec and
+//        // update it with new bitrate parameter.
+//        regex = "^a=fmtp:$codecRtpMap \\w+=\\d+.*[\r]?$"
+//        codecPattern = Pattern.compile(regex)
+//        for (i in lines.indices) {
+//            val codecMatcher = codecPattern.matcher(lines[i])
+//            if (codecMatcher.matches()) {
+//                if (isVideoCodec) {
+//                    lines[i] += "; $VIDEO_CODEC_PARAM_START_BITRATE=$bitrateKbps"
+//                } else {
+//                    lines[i] += "; $AUDIO_CODEC_PARAM_BITRATE=$(bitrateKbps * 1000)"
+//                }
+//                sdpFormatUpdated = true
+//                break
+//            }
+//        }
+//
+//        val newSdpDescription = java.lang.StringBuilder()
+//        for (i in lines.indices) {
+//            newSdpDescription.append(lines[i]).append("\r\n")
+//            // Append new a=fmtp line if no such line exist for a codec.
+//            if (!sdpFormatUpdated && i == rtpmapLineIndex) {
+//                val bitrateSet: String = if (isVideoCodec) {
+//                    "a=fmtp:$codecRtpMap $VIDEO_CODEC_PARAM_START_BITRATE=$bitrateKbps"
+//                } else {
+//                    "a=fmtp:$codecRtpMap $AUDIO_CODEC_PARAM_BITRATE=$(bitrateKbps * 1000)"
+//                }
+//                newSdpDescription.append(bitrateSet).append("\r\n")
+//            }
+//        }
+//        return newSdpDescription.toString()
+//    }
 
     private fun preferCodec(
         sdpDescription: String,
@@ -661,9 +619,7 @@ class KmePeerConnectionClient {
     }
 
     @RequiresPermission(Manifest.permission.CAMERA)
-    fun switchCamera() = executor.execute { switchCameraInternal() }
-
-    private fun switchCameraInternal() {
+    fun switchCamera() {
         if (videoCapturer is CameraVideoCapturer) {
             if (!videoCallEnabled) {
                 return  // No video is sent or only one camera is available or error happened.
@@ -673,21 +629,7 @@ class KmePeerConnectionClient {
         }
     }
 
-    fun changeCaptureFormat(
-        width: Int,
-        height: Int,
-        framerate: Int
-    ) {
-        executor.execute {
-            changeCaptureFormatInternal(
-                width,
-                height,
-                framerate
-            )
-        }
-    }
-
-    private fun changeCaptureFormatInternal(
+    private fun changeCaptureFormat(
         width: Int,
         height: Int,
         frameRate: Int
@@ -695,7 +637,7 @@ class KmePeerConnectionClient {
         if (!videoCallEnabled || videoCapturer == null) {
             return
         }
-        videoSource?.adaptOutputFormat(width, height, frameRate)
+        localVideoSource?.adaptOutputFormat(width, height, frameRate)
     }
 
     fun close() {
@@ -709,8 +651,8 @@ class KmePeerConnectionClient {
         peerConnection?.dispose()
         peerConnection = null
 
-        audioSource?.dispose()
-        audioSource = null
+        localAudioSource?.dispose()
+        localAudioSource = null
 
         try {
             videoCapturer?.stopCapture()
@@ -721,8 +663,8 @@ class KmePeerConnectionClient {
         videoCapturer?.dispose()
         videoCapturer = null
 
-        videoSource?.dispose()
-        videoSource = null
+        localVideoSource?.dispose()
+        localVideoSource = null
 
         localRender = null
         remoteRenders = null
@@ -742,7 +684,7 @@ class KmePeerConnectionClient {
         return rootEglBase.eglBaseContext
     }
 
-    private inner class PCObserver : PeerConnection.Observer {
+    private inner class PeerConnectionObserver : PeerConnection.Observer {
 
         override fun onIceCandidate(candidate: IceCandidate) {
             events?.onIceCandidate(candidate)
@@ -774,9 +716,7 @@ class KmePeerConnectionClient {
         }
 
         override fun onIceGatheringChange(newState: IceGatheringState) {
-            if (newState == IceGatheringState.COMPLETE) {
-//                events?.onIceGatheringDone()
-            }
+            val test = ""
         }
 
         override fun onIceConnectionReceivingChange(receiving: Boolean) {
@@ -784,9 +724,6 @@ class KmePeerConnectionClient {
         }
 
         override fun onAddStream(stream: MediaStream) {
-            if (peerConnection == null) {
-                return
-            }
             if (stream.audioTracks.size > 1 || stream.videoTracks.size > 1) {
                 reportError("Weird-looking stream: $stream")
                 return
@@ -811,8 +748,6 @@ class KmePeerConnectionClient {
 
         override fun onRenegotiationNeeded() {
             val test = ""
-            // No need to do anything; AppRTC follows a pre-agreed-upon
-            // signaling/negotiation protocol.
         }
 
         override fun onAddTrack(receiver: RtpReceiver, mediaStreams: Array<MediaStream>) {
@@ -820,10 +755,10 @@ class KmePeerConnectionClient {
         }
     }
 
-    private inner class SDPObserver : SdpObserver {
+    private inner class LocalSdpObserver : SdpObserver {
 
         override fun onCreateSuccess(origSdp: SessionDescription) {
-            Log.d(TAG, "onSDPCreateSuccess")
+            Log.d(TAG, "LocalSdpObserver onSDPCreateSuccess")
 
             var sdpDescription = origSdp.description
             if (preferIsac) {
@@ -840,51 +775,44 @@ class KmePeerConnectionClient {
                     false
                 )
             }
+
 //            https://bugs.chromium.org/p/chromium/issues/detail?id=414395&thanks=414395&ts=1410809385
             val sdp = SessionDescription(origSdp.type, "${sdpDescription.trim()}\r\n")
             localSdp = sdp
-            if (peerConnection != null) {
-                peerConnection?.setLocalDescription(this, sdp)
-            }
+            peerConnection?.setLocalDescription(this, sdp)
         }
 
         override fun onSetSuccess() {
-            Log.d(TAG, "onSDPSetSuccess")
-            if (peerConnection == null) {
-                return
-            }
-            if (isInitiator) {
-                // For offering peer connection we first create offer and set
-                // local SDP, then after receiving answer set remote SDP.
-                if (peerConnection?.remoteDescription == null) {
-                    // We've just set our local SDP so time to send it.
-                    events?.onLocalDescription(localSdp)
-                } else {
-                    // We've just set remote description, so drain remote
-                    // and send local ICE candidates.
-                    drainCandidates()
-                }
-            } else {
-                // For answering peer connection we set remote SDP and then
-                // create answer and set local SDP.
-                if (peerConnection?.localDescription != null) {
-                    // We've just set our local SDP so time to send it, drain
-                    // remote and send local ICE candidates.
-                    events?.onLocalDescription(localSdp)
-                    drainCandidates()
-                } else {
-                    // We've just set remote SDP - do nothing for now -
-                    // answer will be created soon.
-                }
-            }
+            Log.d(TAG, "LocalSdpObserver onSDPSetSuccess")
+            events?.onLocalDescription(localSdp)
         }
 
         override fun onCreateFailure(error: String) {
-            Log.e(TAG, "onSDPCreateFailure")
+            Log.e(TAG, "LocalSdpObserver onSDPCreateFailure")
         }
 
         override fun onSetFailure(error: String) {
-            Log.e(TAG, "onSDPSetFailure")
+            Log.e(TAG, "LocalSdpObserver onSDPSetFailure")
+        }
+    }
+
+    private inner class RemoteSdpObserver : SdpObserver {
+
+        override fun onCreateSuccess(origSdp: SessionDescription) {
+            Log.d(TAG, "RemoteSdpObserver onCreateSuccess")
+        }
+
+        override fun onSetSuccess() {
+            Log.d(TAG, "RemoteSdpObserver onSDPSetSuccess")
+            peerConnection?.createAnswer(localSdpObserver, sdpMediaConstraints)
+        }
+
+        override fun onCreateFailure(error: String) {
+            Log.e(TAG, "RemoteSdpObserver onSDPCreateFailure")
+        }
+
+        override fun onSetFailure(error: String) {
+            Log.e(TAG, "RemoteSdpObserver onSDPSetFailure")
         }
     }
 

@@ -139,10 +139,6 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         webRTCController.createOffer()
     }
 
-    override fun createAnswer() {
-        webRTCController.createAnswer()
-    }
-
     override fun setRemoteSdp(type: KmeSdpType, sdp: String) {
         webRTCController.setRemoteSdp(type, sdp)
     }

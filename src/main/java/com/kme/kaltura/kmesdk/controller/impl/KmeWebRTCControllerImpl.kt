@@ -89,6 +89,7 @@ class KmeWebRTCControllerImpl(
         ) {
             videoCapturer = createCameraCapturer(context)
         }
+
         peerConnectionClient?.createPeerConnection(
             localVideoSink,
             remoteRendererViews,
@@ -99,22 +100,7 @@ class KmeWebRTCControllerImpl(
 
     override fun createOffer() {
         Log.d(TAG, "createOffer")
-        if (signalingParameters.initiator!!) {
-            peerConnectionClient?.createOffer()
-        }
-    }
-
-    override fun createAnswer() {
-        Log.d(TAG, "createAnswer")
-        if (signalingParameters.offerSdp != null) {
-            peerConnectionClient?.setRemoteDescription(signalingParameters.offerSdp!!)
-            peerConnectionClient?.createAnswer()
-        }
-        if (signalingParameters.iceCandidates != null) {
-            for (iceCandidate in signalingParameters.iceCandidates!!) {
-                peerConnectionClient?.addRemoteIceCandidate(iceCandidate)
-            }
-        }
+        peerConnectionClient?.createOffer()
     }
 
     override fun setRemoteSdp(type: KmeSdpType, sdp: String) {
@@ -123,12 +109,6 @@ class KmeWebRTCControllerImpl(
             if (type == KmeSdpType.ANSWER) SessionDescription.Type.ANSWER
             else SessionDescription.Type.OFFER
         peerConnectionClient?.setRemoteDescription(SessionDescription(sdpType, sdp))
-
-//        if (!signalingParameters.initiator!!) {
-//            // Create answer. Answer SDP will be sent to offering client in
-//            // PeerConnectionEvents.onLocalDescription event.
-//            peerConnectionClient?.createAnswer()
-//        }
     }
 
     override fun enableCamera(isEnable: Boolean) {
