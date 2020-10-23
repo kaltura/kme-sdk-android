@@ -1,7 +1,6 @@
 package com.kme.kaltura.kmesdk.controller.impl.internal
 
 import android.util.Log
-import android.util.Log
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.IKmeWebSocketController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController

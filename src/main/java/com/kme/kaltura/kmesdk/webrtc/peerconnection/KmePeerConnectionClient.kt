@@ -11,7 +11,6 @@ import org.webrtc.voiceengine.WebRtcAudioManager
 import org.webrtc.voiceengine.WebRtcAudioUtils
 import java.nio.charset.Charset
 import java.util.*
-import java.util.regex.Pattern
 
 class KmePeerConnectionClient {
 
@@ -143,7 +142,7 @@ class KmePeerConnectionClient {
         PeerConnectionFactory.initialize(
             PeerConnectionFactory.InitializationOptions.builder(context)
                 .setFieldTrials(fieldTrials)
-//                .setEnableVideoHwAcceleration(true)
+                .setEnableVideoHwAcceleration(true)
                 .setEnableInternalTracer(true)
                 .createInitializationOptions()
         )
@@ -235,16 +234,16 @@ class KmePeerConnectionClient {
 
         audioConstraints = MediaConstraints()
         audioConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "false")
+            MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "true")
         )
         audioConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair(AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT, "false")
+            MediaConstraints.KeyValuePair(AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT, "true")
         )
         audioConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "false")
+            MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "true")
         )
         audioConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "false")
+            MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "true")
         )
         audioConstraints?.mandatory?.add(
             MediaConstraints.KeyValuePair(AUDIO_LEVEL_CONTROL_CONSTRAINT, "true")
@@ -312,23 +311,7 @@ class KmePeerConnectionClient {
             findVideoSender()
         }
 
-//        if (peerConnectionParameters?.aecDump!!) {
-//            try {
-//                val aecDumpFileDescriptor = ParcelFileDescriptor.open(
-//                    File(
-//                        Environment.getExternalStorageDirectory().path
-//                                + File.separator + "Download/audio.aecdump"
-//                    ),
-//                    (ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
-//                            or ParcelFileDescriptor.MODE_TRUNCATE)
-//                )
-//                factory?.startAecDump(aecDumpFileDescriptor.fd, -1)
-//            } catch (e: IOException) {
-//                Log.e(PeerConnectionClient.TAG, "Can not open aecdump file", e)
-//            }
-//        }
         events?.onPeerConnectionCreated()
-        Log.d(TAG, "Peer connection created.")
     }
 
     private fun createLocalAudioTrack(): AudioTrack? {
@@ -395,18 +378,7 @@ class KmePeerConnectionClient {
     }
 
     fun setRemoteDescription(sdp: SessionDescription) {
-        var sdpDescription = sdp.description
-
-        if (videoCallEnabled) {
-            sdpDescription = preferCodec(
-                sdpDescription,
-                preferredVideoCodec,
-                false
-            )
-        }
-
-        val sdpRemote = SessionDescription(sdp.type, "${sdpDescription.trim()}\r\n")
-        peerConnection?.setRemoteDescription(remoteSdpObserver, sdpRemote)
+        peerConnection?.setRemoteDescription(remoteSdpObserver, sdp)
     }
 
     fun stopVideoSource() {
@@ -446,167 +418,6 @@ class KmePeerConnectionClient {
         if (!localVideoSender!!.setParameters(parameters)) {
             //TODO handle parameters are not set
         }
-    }
-
-//    private fun setStartBitrate(
-//        codec: String,
-//        isVideoCodec: Boolean,
-//        sdpDescription: String,
-//        bitrateKbps: Int
-//    ): String? {
-//        val lines = sdpDescription.split("\r\n".toRegex()).toTypedArray()
-//        var rtpmapLineIndex = -1
-//        var sdpFormatUpdated = false
-//        var codecRtpMap: String? = null
-//        // Search for codec rtpmap in format
-//        // a=rtpmap:<payload type> <encoding name>/<clock rate> [/<encoding parameters>]
-//        var regex = "^a=rtpmap:(\\d+) $codec(/\\d+)+[\r]?$"
-//        var codecPattern = Pattern.compile(regex)
-//        for (i in lines.indices) {
-//            val codecMatcher = codecPattern.matcher(lines[i])
-//            if (codecMatcher.matches()) {
-//                codecRtpMap = codecMatcher.group(1)
-//                rtpmapLineIndex = i
-//                break
-//            }
-//        }
-//
-//        if (codecRtpMap == null) {
-//            return sdpDescription
-//        }
-//
-//        // Check if a=fmtp string already exist in remote SDP for this codec and
-//        // update it with new bitrate parameter.
-//        regex = "^a=fmtp:$codecRtpMap \\w+=\\d+.*[\r]?$"
-//        codecPattern = Pattern.compile(regex)
-//        for (i in lines.indices) {
-//            val codecMatcher = codecPattern.matcher(lines[i])
-//            if (codecMatcher.matches()) {
-//                if (isVideoCodec) {
-//                    lines[i] += "; $VIDEO_CODEC_PARAM_START_BITRATE=$bitrateKbps"
-//                } else {
-//                    lines[i] += "; $AUDIO_CODEC_PARAM_BITRATE=$(bitrateKbps * 1000)"
-//                }
-//                sdpFormatUpdated = true
-//                break
-//            }
-//        }
-//
-//        val newSdpDescription = java.lang.StringBuilder()
-//        for (i in lines.indices) {
-//            newSdpDescription.append(lines[i]).append("\r\n")
-//            // Append new a=fmtp line if no such line exist for a codec.
-//            if (!sdpFormatUpdated && i == rtpmapLineIndex) {
-//                val bitrateSet: String = if (isVideoCodec) {
-//                    "a=fmtp:$codecRtpMap $VIDEO_CODEC_PARAM_START_BITRATE=$bitrateKbps"
-//                } else {
-//                    "a=fmtp:$codecRtpMap $AUDIO_CODEC_PARAM_BITRATE=$(bitrateKbps * 1000)"
-//                }
-//                newSdpDescription.append(bitrateSet).append("\r\n")
-//            }
-//        }
-//        return newSdpDescription.toString()
-//    }
-
-    private fun preferCodec(
-        sdpDescription: String,
-        codec: String?,
-        isAudio: Boolean
-    ): String? {
-        val lines = sdpDescription.split("\r\n".toRegex()).toTypedArray()
-        val mLineIndex: Int = findMediaDescriptionLine(isAudio, lines)
-        if (mLineIndex == -1) {
-            return sdpDescription
-        }
-        // A list with all the payload types with name |codec|. The payload types are integers in the
-        // range 96-127, but they are stored as strings here.
-        val codecPayloadTypes: MutableList<String> = ArrayList()
-        // a=rtpmap:<payload type> <encoding name>/<clock rate> [/<encoding parameters>]
-        val codecPattern = Pattern.compile("^a=rtpmap:(\\d+) $codec(/\\d+)+[\r]?$")
-        for (line in lines) {
-            val codecMatcher = codecPattern.matcher(line)
-            if (codecMatcher.matches()) {
-                codecPayloadTypes.add(codecMatcher.group(1))
-            }
-        }
-        if (codecPayloadTypes.isEmpty()) {
-            return sdpDescription
-        }
-        val newMLine: String = movePayloadTypesToFront(
-            codecPayloadTypes,
-            lines[mLineIndex]
-        ) ?: return sdpDescription
-
-        lines[mLineIndex] = newMLine
-        return joinString(
-            Arrays.asList(*lines),
-            "\r\n",
-            true
-        )
-    }
-
-    /** Returns the line number containing "m=audio|video", or -1 if no such line exists.  */
-    private fun findMediaDescriptionLine(isAudio: Boolean, sdpLines: Array<String>): Int {
-        val mediaDescription = if (isAudio) "m=audio " else "m=video "
-        for (i in sdpLines.indices) {
-            if (sdpLines[i].startsWith(mediaDescription)) {
-                return i
-            }
-        }
-        return -1
-    }
-
-    private fun movePayloadTypesToFront(
-        preferredPayloadTypes: List<String>,
-        mLine: String
-    ): String? {
-        // The format of the media description line should be: m=<media> <port> <proto> <fmt> ...
-        val origLineParts = listOf(
-            *mLine
-                .split(" ".toRegex())
-                .toTypedArray()
-        )
-        if (origLineParts.size <= 3) {
-            return null
-        }
-        val header: List<String> = origLineParts.subList(0, 3)
-        val unpreferredPayloadTypes: MutableList<String> = ArrayList(
-            origLineParts.subList(
-                3,
-                origLineParts.size
-            )
-        )
-        unpreferredPayloadTypes.removeAll(preferredPayloadTypes)
-        // Reconstruct the line with |preferredPayloadTypes| moved to the beginning of the payload
-        // types.
-        val newLineParts: MutableList<String> = ArrayList()
-        newLineParts.addAll(header)
-        newLineParts.addAll(preferredPayloadTypes)
-        newLineParts.addAll(unpreferredPayloadTypes)
-        return joinString(
-            newLineParts,
-            " ",
-            false
-        )
-    }
-
-    private fun joinString(
-        s: Iterable<CharSequence?>,
-        delimiter: String,
-        delimiterAtEnd: Boolean
-    ): String? {
-        val iter = s.iterator()
-        if (!iter.hasNext()) {
-            return ""
-        }
-        val buffer = StringBuilder(iter.next())
-        while (iter.hasNext()) {
-            buffer.append(delimiter).append(iter.next())
-        }
-        if (delimiterAtEnd) {
-            buffer.append(delimiter)
-        }
-        return buffer.toString()
     }
 
     private fun drainCandidates() {
@@ -757,27 +568,8 @@ class KmePeerConnectionClient {
 
     private inner class LocalSdpObserver : SdpObserver {
 
-        override fun onCreateSuccess(origSdp: SessionDescription) {
+        override fun onCreateSuccess(sdp: SessionDescription) {
             Log.d(TAG, "LocalSdpObserver onSDPCreateSuccess")
-
-            var sdpDescription = origSdp.description
-            if (preferIsac) {
-                sdpDescription = preferCodec(
-                    sdpDescription,
-                    AUDIO_CODEC_ISAC,
-                    true
-                )
-            }
-            if (videoCallEnabled) {
-                sdpDescription = preferCodec(
-                    sdpDescription,
-                    preferredVideoCodec,
-                    false
-                )
-            }
-
-//            https://bugs.chromium.org/p/chromium/issues/detail?id=414395&thanks=414395&ts=1410809385
-            val sdp = SessionDescription(origSdp.type, "${sdpDescription.trim()}\r\n")
             localSdp = sdp
             peerConnection?.setLocalDescription(this, sdp)
         }
