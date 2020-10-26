@@ -5,12 +5,12 @@ interface IKmePeerConnectionClientEvents {
     /**
      * Callback fired once peerConnection instance created
      */
-    fun onPeerConnectionCreated()
+    fun onPeerConnectionCreated(userId: Long)
 
     /**
      * Callback fired once local SDP is created and set.
      */
-    fun onLocalDescription(sdp: String, type: String)
+    fun onLocalDescription(userId: Long, mediaServerId: Long, sdp: String, type: String)
 
     /**
      * Callback fired once local Ice candidate is generated.
@@ -31,7 +31,7 @@ interface IKmePeerConnectionClientEvents {
     /**
      * Callback fired once ice gathering is complete (IceGatheringDone is COMPLETE).
      */
-    fun onIceGatheringDone()
+    fun onIceGatheringDone(userId: Long, mediaServerId: Long, )
 
     /**
      * Callback fired once connection is closed (IceConnectionState is

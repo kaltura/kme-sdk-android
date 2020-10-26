@@ -2,31 +2,32 @@ package com.kme.kaltura.kmesdk.controller
 
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
-import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
 
 interface IKmeWebRTCController {
 
-    fun createPeerConnection(
-        localRenderer: KmeSurfaceRendererView?,
-        remoteRenderer: KmeSurfaceRendererView?,
+    fun setTurnServer(
         turnUrl: String,
         turnUser: String,
-        turnCred: String,
+        turnCred: String
+    )
+
+    fun addPublisherPeerConnection(
+        userId: Long,
+        renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
     )
 
-    fun createOffer()
+    fun addViewerPeerConnection(
+        userId: Long,
+        mediaServerId: Long,
+        renderer: KmeSurfaceRendererView,
+        listener: IKmePeerConnectionClientEvents
+    )
 
-    fun setRemoteSdp(type: KmeSdpType, sdp: String)
+    fun getPublisherConnection() : IKmePeerConnectionController
 
-    fun enableCamera(isEnable: Boolean)
+    fun getViewerConnection(userId: Long) : IKmePeerConnectionController
 
-    fun enableAudio(isEnable: Boolean)
-
-    fun switchCamera()
-
-    fun addRenderer()
-
-    fun disconnectPeerConnection()
+    fun disconnectAllConnections()
 
 }

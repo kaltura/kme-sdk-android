@@ -53,6 +53,7 @@ class KmeStreamingMessage<T : KmeStreamingMessage.StreamingPayload> :
         @SerializedName("mediaServerIP") var mediaServerIP: String? = null,
         @SerializedName("plugin") var plugin: String? = null,
         @SerializedName("sdpOffer") var sdpOffer: String? = null,
+        @SerializedName("requestedUserIdStream") var requestedUserIdStream: Long? = null,
         @SerializedName("user_id") var userId: String? = null
     ) : StreamingPayload()
 

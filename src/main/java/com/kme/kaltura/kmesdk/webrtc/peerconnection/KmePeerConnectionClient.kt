@@ -2,7 +2,6 @@ package com.kme.kaltura.kmesdk.webrtc.peerconnection
 
 import android.Manifest
 import android.content.Context
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.kme.kaltura.kmesdk.webrtc.signaling.KmeSignalingParameters
 import org.webrtc.*
@@ -13,8 +12,6 @@ import java.nio.charset.Charset
 import java.util.*
 
 class KmePeerConnectionClient {
-
-    private val TAG = KmePeerConnectionClient::class.java.canonicalName
 
     private val VIDEO_TRACK_ID = "ARDAMSv0"
     private val AUDIO_TRACK_ID = "ARDAMSa0"
@@ -65,7 +62,7 @@ class KmePeerConnectionClient {
 
     private var localMediaStream: MediaStream? = null
     private var videoCapturer: VideoCapturer? = null
-    private var renderVideo = false
+    private var renderVideo = true
     private var localVideoTrack: VideoTrack? = null
     private var remoteVideoTrack: VideoTrack? = null
     private var localVideoSender: RtpSender? = null
@@ -96,24 +93,6 @@ class KmePeerConnectionClient {
 
         videoCallEnabled = peerConnectionParameters.videoCallEnabled
 
-        factory = null
-        peerConnection = null
-        preferIsac = false
-        videoCapturerStopped = false
-        queuedRemoteCandidates = null
-
-        localMediaStream = null
-        videoCapturer = null
-        renderVideo = true
-        localVideoTrack = null
-        remoteVideoTrack = null
-        localVideoSender = null
-        localAudioTrack = null
-
-        createPeerConnectionFactoryInternal(context)
-    }
-
-    private fun createPeerConnectionFactoryInternal(context: Context) {
         var fieldTrials = ""
         if (peerConnectionParameters.videoFlexfecEnabled) {
             fieldTrials = "$fieldTrials $VIDEO_FLEXFEC_FIELDTRIAL"
@@ -197,7 +176,7 @@ class KmePeerConnectionClient {
     }
 
     fun createPeerConnection(
-        localRender: VideoSink,
+        localRender: VideoSink?,
         remoteRenders: List<VideoRenderer.Callbacks>?,
         videoCapturer: VideoCapturer?,
         signalingParameters: KmeSignalingParameters?
@@ -301,7 +280,7 @@ class KmePeerConnectionClient {
         Logging.enableLogToDebugOutput(Logging.Severity.LS_INFO)
 
         localMediaStream = factory?.createLocalMediaStream("ARDAMS")
-        if (videoCallEnabled) {
+        if (videoCallEnabled && videoCapturer != null) {
             localMediaStream?.addTrack(createLocalVideoTrack(videoCapturer))
         }
         localMediaStream?.addTrack(createLocalAudioTrack())
@@ -326,7 +305,7 @@ class KmePeerConnectionClient {
         capturer?.startCapture(videoWidth, videoHeight, videoFps)
         localVideoTrack = factory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)
         localVideoTrack?.setEnabled(renderVideo)
-        localVideoTrack?.addSink(localRender)
+        localRender?.let { localVideoTrack?.addSink(it) }
         return localVideoTrack
     }
 
@@ -431,10 +410,10 @@ class KmePeerConnectionClient {
 
     @RequiresPermission(Manifest.permission.CAMERA)
     fun switchCamera() {
+        if (!videoCallEnabled || videoCapturer == null) {
+            return  // No video is sent or only one camera is available or error happened.
+        }
         if (videoCapturer is CameraVideoCapturer) {
-            if (!videoCallEnabled) {
-                return  // No video is sent or only one camera is available or error happened.
-            }
             val cameraVideoCapturer = videoCapturer as CameraVideoCapturer
             cameraVideoCapturer.switchCamera(null)
         }
@@ -480,8 +459,11 @@ class KmePeerConnectionClient {
         localRender = null
         remoteRenders = null
 
-        factory?.dispose()
-        factory = null
+        // avoid to dispose factory multiple times
+        if (signalingParameters?.isPublisher!!) {
+            factory?.dispose()
+            factory = null
+        }
 
         options = null
 
@@ -543,8 +525,10 @@ class KmePeerConnectionClient {
             if (stream.videoTracks.size == 1) {
                 remoteVideoTrack = stream.videoTracks[0]
                 remoteVideoTrack?.setEnabled(renderVideo)
-                for (remoteRender in remoteRenders!!) {
-                    remoteVideoTrack?.addRenderer(VideoRenderer(remoteRender))
+                remoteRenders?.let {
+                    for (remoteRender in it) {
+                        remoteVideoTrack?.addRenderer(VideoRenderer(remoteRender))
+                    }
                 }
             }
         }
@@ -569,43 +553,32 @@ class KmePeerConnectionClient {
     private inner class LocalSdpObserver : SdpObserver {
 
         override fun onCreateSuccess(sdp: SessionDescription) {
-            Log.d(TAG, "LocalSdpObserver onSDPCreateSuccess")
             localSdp = sdp
             peerConnection?.setLocalDescription(this, sdp)
         }
 
         override fun onSetSuccess() {
-            Log.d(TAG, "LocalSdpObserver onSDPSetSuccess")
             events?.onLocalDescription(localSdp)
         }
 
-        override fun onCreateFailure(error: String) {
-            Log.e(TAG, "LocalSdpObserver onSDPCreateFailure")
-        }
+        override fun onCreateFailure(error: String) {}
 
-        override fun onSetFailure(error: String) {
-            Log.e(TAG, "LocalSdpObserver onSDPSetFailure")
-        }
+        override fun onSetFailure(error: String) {}
     }
 
     private inner class RemoteSdpObserver : SdpObserver {
 
-        override fun onCreateSuccess(origSdp: SessionDescription) {
-            Log.d(TAG, "RemoteSdpObserver onCreateSuccess")
-        }
+        override fun onCreateSuccess(origSdp: SessionDescription) {}
 
         override fun onSetSuccess() {
-            Log.d(TAG, "RemoteSdpObserver onSDPSetSuccess")
-            peerConnection?.createAnswer(localSdpObserver, sdpMediaConstraints)
+            if (!signalingParameters?.isPublisher!!) {
+                peerConnection?.createAnswer(localSdpObserver, sdpMediaConstraints)
+            }
         }
 
-        override fun onCreateFailure(error: String) {
-            Log.e(TAG, "RemoteSdpObserver onSDPCreateFailure")
-        }
+        override fun onCreateFailure(error: String) {}
 
-        override fun onSetFailure(error: String) {
-            Log.e(TAG, "RemoteSdpObserver onSDPSetFailure")
-        }
+        override fun onSetFailure(error: String) {}
     }
 
 }

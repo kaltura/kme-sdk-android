@@ -1,7 +1,7 @@
 package com.kme.kaltura.kmesdk.controller.impl
 
+import com.kme.kaltura.kmesdk.controller.IKmePeerConnectionController
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.IKmeWebRTCController
 import com.kme.kaltura.kmesdk.controller.IKmeWebSocketController
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
@@ -15,7 +15,6 @@ import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
-import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,8 +24,13 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
 
     private val roomApiService: KmeRoomApiService by inject()
     private val webSocketController: IKmeWebSocketController by inject()
-    private val webRTCController: IKmeWebRTCController by inject()
+    private val publisherPeerConnection: IKmePeerConnectionController by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
+
+    private var peerConnections: MutableMap<Long, IKmePeerConnectionController> = mutableMapOf()
+    private lateinit var turnUrl: String
+    private lateinit var turnUser: String
+    private lateinit var turnCred: String
 
     override fun getRooms(
         companyId: Long,
@@ -117,50 +121,50 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         webSocketController.disconnect()
     }
 
-    override fun createPeerConnection(
-        localRenderer: KmeSurfaceRendererView?,
-        remoteRenderer: KmeSurfaceRendererView?,
+    override fun setTurnServer(
         turnUrl: String,
         turnUser: String,
-        turnCred: String,
+        turnCred: String
+    ) {
+        this.turnUrl = turnUrl
+        this.turnUser = turnUser
+        this.turnCred = turnCred
+    }
+
+    override fun addPublisherPeerConnection(
+        userId: Long,
+        renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
     ) {
-        webRTCController.createPeerConnection(
-            localRenderer,
-            remoteRenderer,
-            turnUrl,
-            turnUser,
-            turnCred,
-            listener
-        )
+        publisherPeerConnection.setTurnServer(turnUrl, turnUser, turnCred)
+        publisherPeerConnection.setLocalRenderer(renderer)
+        publisherPeerConnection.createPeerConnection(true, userId, listener)
+        peerConnections[userId] = publisherPeerConnection
     }
 
-    override fun createOffer() {
-        webRTCController.createOffer()
+    override fun addViewerPeerConnection(
+        userId: Long,
+        mediaServerId: Long,
+        renderer: KmeSurfaceRendererView,
+        listener: IKmePeerConnectionClientEvents
+    ) {
+        val viewerPeerConnection: IKmePeerConnectionController by inject()
+        viewerPeerConnection.setTurnServer(turnUrl, turnUser, turnCred)
+        viewerPeerConnection.setRemoteRenderer(renderer)
+        viewerPeerConnection.createPeerConnection(false, userId, mediaServerId, listener)
+        peerConnections[userId] = viewerPeerConnection
     }
 
-    override fun setRemoteSdp(type: KmeSdpType, sdp: String) {
-        webRTCController.setRemoteSdp(type, sdp)
+    override fun getPublisherConnection(): IKmePeerConnectionController {
+        return publisherPeerConnection
     }
 
-    override fun enableCamera(isEnable: Boolean) {
-        webRTCController.enableCamera(isEnable)
+    override fun getViewerConnection(userId: Long): IKmePeerConnectionController {
+        return peerConnections.getValue(userId)
     }
 
-    override fun enableAudio(isEnable: Boolean) {
-        webRTCController.enableAudio(isEnable)
-    }
-
-    override fun switchCamera() {
-        webRTCController.switchCamera()
-    }
-
-    override fun addRenderer() {
-        webRTCController.addRenderer()
-    }
-
-    override fun disconnectPeerConnection() {
-        webRTCController.disconnectPeerConnection()
+    override fun disconnectAllConnections() {
+        peerConnections.forEach { (_, connection) -> connection.disconnectPeerConnection() }
     }
 
 }
