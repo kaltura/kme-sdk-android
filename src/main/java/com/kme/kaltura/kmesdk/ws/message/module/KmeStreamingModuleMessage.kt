@@ -2,11 +2,8 @@ package com.kme.kaltura.kmesdk.ws.message.module
 
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
-import com.kme.kaltura.kmesdk.ws.message.type.KmeLiveMediaState
-import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
-import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 
-class KmeStreamingMessage<T : KmeStreamingMessage.StreamingPayload> :
+class KmeStreamingModuleMessage<T : KmeStreamingModuleMessage.StreamingPayload> :
     KmeMessage<T>() {
 
     data class UserDisconnectedPayload(

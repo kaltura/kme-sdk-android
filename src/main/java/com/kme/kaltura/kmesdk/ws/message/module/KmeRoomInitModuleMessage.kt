@@ -7,7 +7,7 @@ import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.permission.KmeUserPermissions
 import com.kme.kaltura.kmesdk.ws.message.type.KmeClassMode
 
-class KmeRoomInitMessage<T : KmeRoomInitMessage.RoomInitPayload> : KmeMessage<T>() {
+class KmeRoomInitModuleMessage<T : KmeRoomInitModuleMessage.RoomInitPayload> : KmeMessage<T>() {
 
     data class JoinRoomPayload(
         @SerializedName("pay") val pay: String?,

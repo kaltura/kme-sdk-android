@@ -3,7 +3,7 @@ package com.kme.kaltura.kmesdk.ws.message.module
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 
-class KmeBannersMessage<T : KmeBannersMessage.BannersPayload> : KmeMessage<T>() {
+class KmeBannersModuleMessage<T : KmeBannersModuleMessage.BannersPayload> : KmeMessage<T>() {
 
     data class SendRoomPasswordPayload(
         @SerializedName("room_id") var roomId: Long? = null,

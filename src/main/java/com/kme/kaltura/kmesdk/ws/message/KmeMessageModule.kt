@@ -15,6 +15,9 @@ enum class KmeMessageModule(
     @SerializedName("RoomParticipants", alternate = ["roomparticipants"])
     ROOM_PARTICIPANTS("RoomParticipants"),
 
+    @SerializedName("Chat", alternate = ["chat"])
+    CHAT("Chat"),
+
     @SerializedName("Streaming", alternate = ["streaming"])
     STREAMING("Streaming");
 

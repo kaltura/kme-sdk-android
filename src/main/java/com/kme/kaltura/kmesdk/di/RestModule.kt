@@ -54,7 +54,7 @@ val restModule = module {
 
     single {
         Retrofit.Builder()
-            .baseUrl("https://smart.newrow.com/backend/")
+            .baseUrl(BuildConfig.API_URL)
             .client(get())
             .addConverterFactory(GsonConverterFactory.create(get()))
             .build()

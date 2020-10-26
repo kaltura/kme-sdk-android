@@ -5,14 +5,12 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
-import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersMessage.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitMessage.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomParticipantsMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomParticipantsMessage.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 
 private const val KEY_NAME = "name"
 
@@ -42,48 +40,53 @@ internal class KmeMessageParser(
     private fun parseMessage(name: String, text: String): KmeMessage<KmeMessage.Payload>? {
         return when (name) {
             KmeMessageEvent.INSTRUCTOR_IS_OFFLINE.toString() -> {
-                text.jsonToObject<KmeRoomInitMessage<InstructorIsOfflinePayload>>()
+                text.jsonToObject<KmeRoomInitModuleMessage<InstructorIsOfflinePayload>>()
             }
             KmeMessageEvent.ANY_INSTRUCTORS_IS_CONNECTED_TO_ROOM.toString() -> {
-                text.jsonToObject<KmeRoomInitMessage<AnyInstructorsIsConnectedToRoomPayload>>()
+                text.jsonToObject<KmeRoomInitModuleMessage<AnyInstructorsIsConnectedToRoomPayload>>()
             }
             KmeMessageEvent.JOINED_ROOM.toString() -> {
-                text.jsonToObject<KmeRoomInitMessage<JoinedRoomPayload>>()
+                text.jsonToObject<KmeRoomInitModuleMessage<JoinedRoomPayload>>()
             }
             KmeMessageEvent.ROOM_STATE.toString() -> {
-                text.jsonToObject<KmeRoomInitMessage<RoomStatePayload>>()
+                text.jsonToObject<KmeRoomInitModuleMessage<RoomStatePayload>>()
             }
             KmeMessageEvent.ROOM_AVAILABLE_FOR_PARTICIPANT.toString() -> {
-                text.jsonToObject<KmeRoomInitMessage<RoomAvailableForParticipantPayload>>()
+                text.jsonToObject<KmeRoomInitModuleMessage<RoomAvailableForParticipantPayload>>()
             }
             KmeMessageEvent.ROOM_PARTICIPANT_LIMIT_REACHED.toString() -> {
-                text.jsonToObject<KmeRoomInitMessage<RoomParticipantLimitReachedPayload>>()
+                text.jsonToObject<KmeRoomInitModuleMessage<RoomParticipantLimitReachedPayload>>()
             }
             KmeMessageEvent.CLOSE_WEB_SOCKET.toString() -> {
-                text.jsonToObject<KmeRoomInitMessage<CloseWebSocketPayload>>()
+                text.jsonToObject<KmeRoomInitModuleMessage<CloseWebSocketPayload>>()
             }
             KmeMessageEvent.NEW_USER_JOINED.toString() -> {
-                text.jsonToObject<KmeRoomInitMessage<NewUserJoinedPayload>>()
+                text.jsonToObject<KmeRoomInitModuleMessage<NewUserJoinedPayload>>()
             }
             KmeMessageEvent.ROOM_HAS_PASSWORD.toString() -> {
-                text.jsonToObject<KmeBannersMessage<BannersPayload>>()
+                text.jsonToObject<KmeBannersModuleMessage<BannersPayload>>()
             }
             KmeMessageEvent.ROOM_PASSWORD_STATUS_RECEIVED.toString() -> {
-                text.jsonToObject<KmeBannersMessage<RoomPasswordStatusReceivedPayload>>()
+                text.jsonToObject<KmeBannersModuleMessage<RoomPasswordStatusReceivedPayload>>()
             }
             KmeMessageEvent.USER_MEDIA_STATE_INIT.toString() -> {
-                text.jsonToObject<KmeRoomParticipantsMessage<UserMediaStateInitPayload>>()
+                text.jsonToObject<KmeParticipantsModuleMessage<UserMediaStateInitPayload>>()
             }
             KmeMessageEvent.USER_MEDIA_STATE_CHANGED.toString() -> {
-                text.jsonToObject<KmeRoomParticipantsMessage<UserMediaStateChangedPayload>>()
+                text.jsonToObject<KmeParticipantsModuleMessage<UserMediaStateChangedPayload>>()
             }
             KmeMessageEvent.CHANGE_USER_FOCUS_EVENT.toString() -> {
-                text.jsonToObject<KmeRoomParticipantsMessage<ChangeUserFocusEventPayload>>()
+                text.jsonToObject<KmeParticipantsModuleMessage<ChangeUserFocusEventPayload>>()
             }
             KmeMessageEvent.USER_DISCONNECTED.toString() -> {
-                text.jsonToObject<KmeStreamingMessage<UserDisconnectedPayload>>()
+                text.jsonToObject<KmeStreamingModuleMessage<UserDisconnectedPayload>>()
             }
-
+            KmeMessageEvent.RECEIVE_CONVERSATIONS.toString() -> {
+                text.jsonToObject<KmeChatModuleMessage<ReceiveConversationsPayload>>()
+            }
+            KmeMessageEvent.LOAD_MESSAGES.toString() -> {
+                text.jsonToObject<KmeChatModuleMessage<LoadMessagesPayload>>()
+            }
             else -> null
         }
     }
