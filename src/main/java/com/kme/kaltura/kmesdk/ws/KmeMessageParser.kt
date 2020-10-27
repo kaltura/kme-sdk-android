@@ -6,10 +6,12 @@ import com.google.gson.reflect.TypeToken
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.LoadMessagesPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.ReceiveConversationsPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 
 private const val KEY_NAME = "name"
@@ -78,13 +80,13 @@ internal class KmeMessageParser(
                 text.jsonToObject<KmeParticipantsModuleMessage<ChangeUserFocusEventPayload>>()
             }
             KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER.toString() -> {
-                text.jsonToObject<KmeStreamingMessage<KmeStreamingMessage.SdpAnswerToPublisherPayload>>()
+                text.jsonToObject<KmeStreamingModuleMessage<SdpAnswerToPublisherPayload>>()
             }
             KmeMessageEvent.USER_STARTED_TO_PUBLISH.toString() -> {
-                text.jsonToObject<KmeStreamingMessage<KmeStreamingMessage.StartedPublishPayload>>()
+                text.jsonToObject<KmeStreamingModuleMessage<StartedPublishPayload>>()
             }
             KmeMessageEvent.SDP_OFFER_FOR_VIEWER.toString() -> {
-                text.jsonToObject<KmeStreamingMessage<KmeStreamingMessage.SdpOfferToViewerPayload>>()
+                text.jsonToObject<KmeStreamingModuleMessage<SdpOfferToViewerPayload>>()
             }
             KmeMessageEvent.USER_DISCONNECTED.toString() -> {
                 text.jsonToObject<KmeStreamingModuleMessage<UserDisconnectedPayload>>()
