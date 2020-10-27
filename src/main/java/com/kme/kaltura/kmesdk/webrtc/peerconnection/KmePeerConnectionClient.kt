@@ -6,6 +6,7 @@ import androidx.annotation.RequiresPermission
 import com.kme.kaltura.kmesdk.webrtc.signaling.KmeSignalingParameters
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
+import org.webrtc.audio.JavaAudioDeviceModule.builder
 import org.webrtc.voiceengine.WebRtcAudioManager
 import org.webrtc.voiceengine.WebRtcAudioUtils
 import java.nio.charset.Charset
@@ -21,33 +22,29 @@ class KmePeerConnectionClient {
 
     private var factory: PeerConnectionFactory? = null
     private var peerConnection: PeerConnection? = null
-    private var options: PeerConnectionFactory.Options? = null
     private lateinit var peerConnectionParameters: KmePeerConnectionParameters
     private var events: IKmePeerConnectionEvents? = null
 
-    private var preferredVideoCodec: String? = null
-
-    private var videoCallEnabled: Boolean = false
-    private var preferIsac = false
     private var videoCapturerStopped = false
+    private var renderVideo = true
+
+    private var signalingParameters: KmeSignalingParameters? = null
     private var queuedRemoteCandidates: MutableList<IceCandidate>? = null
     private lateinit var localSdp: SessionDescription
 
-    private var localMediaStream: MediaStream? = null
     private var videoCapturer: VideoCapturer? = null
-    private var renderVideo = true
+    private var surfaceTextureHelper: SurfaceTextureHelper? = null
+
     private var localVideoTrack: VideoTrack? = null
-    private var remoteVideoTrack: VideoTrack? = null
-    private var localVideoSender: RtpSender? = null
-
-    private var localRender: VideoSink? = null
-    private var remoteRenders: List<VideoRenderer.Callbacks>? = null
-    private var signalingParameters: KmeSignalingParameters? = null
-
-    private var localAudioSource: AudioSource? = null
-    private var localVideoSource: VideoSource? = null
-
     private var localAudioTrack: AudioTrack? = null
+    private var localVideoSource: VideoSource? = null
+    private var localAudioSource: AudioSource? = null
+    private var localVideoSender: RtpSender? = null
+    private lateinit var localVideoSink: VideoSink
+
+    private var remoteVideoTrack: VideoTrack? = null
+    private lateinit var remoteVideoSink: VideoSink
+
     private var audioConstraints: MediaConstraints? = null
     private var sdpMediaConstraints: MediaConstraints? = null
     private var dataChannel: DataChannel? = null
@@ -60,8 +57,6 @@ class KmePeerConnectionClient {
         this.peerConnectionParameters = peerConnectionParameters
         this.events = events
 
-        videoCallEnabled = peerConnectionParameters.videoCallEnabled
-
         var fieldTrials = ""
         if (peerConnectionParameters.videoFlexfecEnabled) {
             fieldTrials = "$fieldTrials $VIDEO_FLEXFEC_FIELDTRIAL"
@@ -73,52 +68,29 @@ class KmePeerConnectionClient {
         }
         fieldTrials = "$fieldTrials $VIDEO_FRAME_EMIT_FIELDTRIAL"
 
-        if (videoCallEnabled) {
-            preferredVideoCodec = when (peerConnectionParameters.videoCodec) {
-                VIDEO_CODEC_VP8 -> VIDEO_CODEC_VP8
-                VIDEO_CODEC_VP9 -> VIDEO_CODEC_VP9
-                VIDEO_CODEC_H264_BASELINE -> VIDEO_CODEC_H264
-                VIDEO_CODEC_H264_HIGH -> {
-                    // TODO(magjed): Strip High from SDP when selecting Baseline instead of using field trial.
-                    fieldTrials = "$fieldTrials $VIDEO_H264_HIGH_PROFILE_FIELDTRIAL"
-                    VIDEO_CODEC_H264
-                }
-                else -> VIDEO_CODEC_VP8
-            }
-        }
-
         PeerConnectionFactory.initialize(
             PeerConnectionFactory.InitializationOptions.builder(context)
                 .setFieldTrials(fieldTrials)
-                .setEnableVideoHwAcceleration(true)
                 .setEnableInternalTracer(true)
                 .createInitializationOptions()
         )
 
-        // Check if ISAC is used by default.
-        preferIsac = peerConnectionParameters.audioCodec == AUDIO_CODEC_ISAC
-
-        WebRtcAudioManager.setBlacklistDeviceForOpenSLESUsage(!peerConnectionParameters.useOpenSLES)
-        WebRtcAudioUtils.setWebRtcBasedAcousticEchoCanceler(peerConnectionParameters.disableBuiltInAEC)
-        WebRtcAudioUtils.setWebRtcBasedAutomaticGainControl(peerConnectionParameters.disableBuiltInAGC)
-        WebRtcAudioUtils.setWebRtcBasedNoiseSuppressor(peerConnectionParameters.disableBuiltInNS)
+        WebRtcAudioManager.setBlacklistDeviceForOpenSLESUsage(true)
+        WebRtcAudioUtils.setWebRtcBasedAcousticEchoCanceler(false)
+        WebRtcAudioUtils.setWebRtcBasedAutomaticGainControl(false)
+        WebRtcAudioUtils.setWebRtcBasedNoiseSuppressor(false)
 
         val enableH264HighProfile = VIDEO_CODEC_H264_HIGH == peerConnectionParameters.videoCodec
-        val encoderFactory: VideoEncoderFactory
-        val decoderFactory: VideoDecoderFactory
-        if (peerConnectionParameters.videoCodecHwAcceleration) {
-            encoderFactory = DefaultVideoEncoderFactory(
-                getRenderContext(),
-                true,
-                enableH264HighProfile
-            )
-            decoderFactory = DefaultVideoDecoderFactory(getRenderContext())
-        } else {
-            encoderFactory = SoftwareVideoEncoderFactory()
-            decoderFactory = SoftwareVideoDecoderFactory()
-        }
+        val encoderFactory = DefaultVideoEncoderFactory(
+            getRenderContext(),
+            true,
+            enableH264HighProfile
+        )
+        val decoderFactory = DefaultVideoDecoderFactory(getRenderContext())
 
         factory = PeerConnectionFactory.builder()
+            .setAudioDeviceModule(builder(context)
+                .createAudioDeviceModule())
             .setVideoEncoderFactory(encoderFactory)
             .setVideoDecoderFactory(decoderFactory)
             .createPeerConnectionFactory()
@@ -129,26 +101,22 @@ class KmePeerConnectionClient {
     }
 
     fun createPeerConnection(
-        localRender: VideoSink?,
-        remoteRenders: List<VideoRenderer.Callbacks>?,
+        context: Context,
+        localVideoSink: VideoSink,
+        remoteVideoSink: VideoSink,
         videoCapturer: VideoCapturer?,
         signalingParameters: KmeSignalingParameters?
     ) {
-        this.localRender = localRender
-        this.remoteRenders = remoteRenders
+        this.localVideoSink = localVideoSink
+        this.remoteVideoSink = remoteVideoSink
         this.videoCapturer = videoCapturer
         this.signalingParameters = signalingParameters
 
         createMediaConstraints()
-        createPeerConnection()
+        createPeerConnection(context)
     }
 
     private fun createMediaConstraints() {
-        // Check if there is a camera on device and disable video call if not.
-        if (videoCapturer == null) {
-            videoCallEnabled = false
-        }
-
         audioConstraints = MediaConstraints()
         audioConstraints?.mandatory?.add(
             MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "true")
@@ -166,7 +134,6 @@ class KmePeerConnectionClient {
             MediaConstraints.KeyValuePair(AUDIO_LEVEL_CONTROL_CONSTRAINT, "true")
         )
 
-        // Create SDP constraints.
         sdpMediaConstraints = MediaConstraints()
         sdpMediaConstraints?.mandatory?.add(
             MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true")
@@ -176,15 +143,12 @@ class KmePeerConnectionClient {
         )
     }
 
-    private fun createPeerConnection() {
+    private fun createPeerConnection(context: Context) {
         if (factory == null) {
             return
         }
 
         queuedRemoteCandidates = ArrayList()
-        if (videoCallEnabled) {
-            factory?.setVideoHwAccelerationOptions(getRenderContext(), getRenderContext())
-        }
 
         val rtcConfig = RTCConfiguration(signalingParameters?.iceServers)
         peerConnection = factory?.createPeerConnection(rtcConfig, pcObserver)
@@ -217,14 +181,17 @@ class KmePeerConnectionClient {
         // Set INFO libjingle logging. NOTE: this _must_ happen while |factory| is alive!
         Logging.enableLogToDebugOutput(Logging.Severity.LS_INFO)
 
-        localMediaStream = factory?.createLocalMediaStream("ARDAMS")
-        if (videoCallEnabled && videoCapturer != null) {
-            localMediaStream?.addTrack(createLocalVideoTrack(videoCapturer))
+        val mediaStreamLabels = listOf("ARDAMS")
+        if (videoCapturer != null) {
+            peerConnection?.addTrack(
+                createLocalVideoTrack(context, videoCapturer),
+                mediaStreamLabels
+            )
         }
-        localMediaStream?.addTrack(createLocalAudioTrack())
-        peerConnection?.addStream(localMediaStream)
 
-        if (videoCallEnabled) {
+        peerConnection?.addTrack(createLocalAudioTrack(), mediaStreamLabels)
+
+        if (videoCapturer != null) {
             findVideoSender()
         }
 
@@ -238,12 +205,17 @@ class KmePeerConnectionClient {
         return localAudioTrack
     }
 
-    private fun createLocalVideoTrack(capturer: VideoCapturer?): VideoTrack? {
-        localVideoSource = factory?.createVideoSource(capturer)
-        capturer?.startCapture(VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS)
+    private fun createLocalVideoTrack(context: Context, capturer: VideoCapturer?): VideoTrack? {
+        capturer?.let {
+            surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", getRenderContext())
+            localVideoSource = factory?.createVideoSource(it.isScreencast)
+            it.initialize(surfaceTextureHelper, context, localVideoSource?.capturerObserver)
+            it.startCapture(VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS)
+        }
+
         localVideoTrack = factory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)
         localVideoTrack?.setEnabled(renderVideo)
-        localRender?.let { localVideoTrack?.addSink(it) }
+        localVideoTrack?.addSink(localVideoSink)
         return localVideoTrack
     }
 
@@ -348,7 +320,7 @@ class KmePeerConnectionClient {
 
     @RequiresPermission(Manifest.permission.CAMERA)
     fun switchCamera() {
-        if (!videoCallEnabled || videoCapturer == null) {
+        if (videoCapturer == null) {
             return  // No video is sent or only one camera is available or error happened.
         }
         if (videoCapturer is CameraVideoCapturer) {
@@ -362,17 +334,13 @@ class KmePeerConnectionClient {
         height: Int,
         frameRate: Int
     ) {
-        if (!videoCallEnabled || videoCapturer == null) {
+        if (videoCapturer == null) {
             return
         }
         localVideoSource?.adaptOutputFormat(width, height, frameRate)
     }
 
     fun close() {
-        if (peerConnectionParameters.aecDump) {
-            factory?.stopAecDump()
-        }
-
         dataChannel?.dispose()
         dataChannel = null
 
@@ -394,16 +362,14 @@ class KmePeerConnectionClient {
         localVideoSource?.dispose()
         localVideoSource = null
 
-        localRender = null
-        remoteRenders = null
+        surfaceTextureHelper?.dispose()
+        surfaceTextureHelper = null
 
         // avoid to dispose factory multiple times
         if (signalingParameters?.isPublisher!!) {
             factory?.dispose()
             factory = null
         }
-
-        options = null
 
         events?.onPeerConnectionClosed()
         PeerConnectionFactory.stopInternalTracingCapture()
@@ -463,11 +429,7 @@ class KmePeerConnectionClient {
             if (stream.videoTracks.size == 1) {
                 remoteVideoTrack = stream.videoTracks[0]
                 remoteVideoTrack?.setEnabled(renderVideo)
-                remoteRenders?.let {
-                    for (remoteRender in it) {
-                        remoteVideoTrack?.addRenderer(VideoRenderer(remoteRender))
-                    }
-                }
+                remoteVideoTrack?.addSink(remoteVideoSink)
             }
         }
 

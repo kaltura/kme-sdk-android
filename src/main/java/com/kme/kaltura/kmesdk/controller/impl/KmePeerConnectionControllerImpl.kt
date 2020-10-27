@@ -11,12 +11,10 @@ import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.KmePeerConnectionClient
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.KmePeerConnectionParameters
 import com.kme.kaltura.kmesdk.webrtc.signaling.KmeSignalingParameters
-import com.kme.kaltura.kmesdk.webrtc.view.KmeLocalVideoSink
-import com.kme.kaltura.kmesdk.webrtc.view.KmeRemoteVideoSink
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
+import com.kme.kaltura.kmesdk.webrtc.view.KmeVideoSink
 import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
 import org.webrtc.*
-import java.util.*
 
 class KmePeerConnectionControllerImpl(
     private val context: Context,
@@ -28,12 +26,12 @@ class KmePeerConnectionControllerImpl(
     private lateinit var signalingParameters: KmeSignalingParameters
     private lateinit var listener: IKmePeerConnectionClientEvents
 
-    private val localVideoSink: KmeLocalVideoSink = KmeLocalVideoSink()
+    private val localVideoSink: KmeVideoSink = KmeVideoSink()
     private var localRendererView: KmeSurfaceRendererView? = null
 
-    private val remoteVideoSink: KmeRemoteVideoSink = KmeRemoteVideoSink()
+    private val remoteVideoSink: KmeVideoSink = KmeVideoSink()
     private var remoteRendererView: KmeSurfaceRendererView? = null
-    private val remoteRendererViews: MutableList<VideoRenderer.Callbacks> = ArrayList()
+
     private var isPublisher = false
     private var userId = 0L
     private var mediaServerId = 0L
@@ -77,7 +75,6 @@ class KmePeerConnectionControllerImpl(
             it.setEnableHardwareScaler(true)
             it.setMirror(true)
             remoteVideoSink.setTarget(it)
-            remoteRendererViews.add(remoteVideoSink)
         }
 
         peerConnectionParameters = KmePeerConnectionParameters()
@@ -100,8 +97,9 @@ class KmePeerConnectionControllerImpl(
         }
 
         peerConnectionClient?.createPeerConnection(
+            context,
             localVideoSink,
-            remoteRendererViews,
+            remoteVideoSink,
             videoCapturer,
             signalingParameters
         )

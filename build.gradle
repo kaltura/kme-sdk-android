@@ -56,6 +56,5 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit2_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit2_version"
 
-    api 'org.webrtc:google-webrtc:1.0.22672'
-//    implementation 'org.webrtc:google-webrtc:1.0.32006'
+    api 'org.webrtc:google-webrtc:1.0.32006'
 }
