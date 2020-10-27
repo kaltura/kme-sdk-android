@@ -1,7 +1,10 @@
 package com.kme.kaltura.kmesdk.rest.response.user
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class KmeUserCompany(
     @SerializedName("id") val id: Long?,
     @SerializedName("name") val name: String?,
@@ -20,13 +23,15 @@ data class KmeUserCompany(
 //    @SerializedName("settings_v2") val settingsV2: Long?,
 //    @SerializedName("extras") val extras: Long?,
     @SerializedName("custom_order_id") val customOrderId: Long?
-) {
+) : Parcelable {
 
+    @Parcelize
     data class Branding(
         @SerializedName("background_color") val backgroundColor: String?,
         @SerializedName("text_color") val textColor: String?
-    )
+    ) : Parcelable
 
+    @Parcelize
     data class FeatureFlags(
         @SerializedName("data_channel") val dataChannel: Boolean?,
         @SerializedName("ice_negotiation_flow") val iceNegotiationFlow: Boolean?,
@@ -40,6 +45,6 @@ data class KmeUserCompany(
         @SerializedName("ios_safari_stuck_video_watchdog") val iosSafariStuckVideoWatchdog: Boolean?,
         @SerializedName("phone_bridge") val phoneBridge: Boolean?,
         @SerializedName("youtube_search") val youtubeSearch: Boolean?,
-    )
+    ) : Parcelable
 
 }

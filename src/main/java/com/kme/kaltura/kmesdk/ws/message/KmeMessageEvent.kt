@@ -90,7 +90,20 @@ enum class KmeMessageEvent(
     ICE_GATHERING_DONE("iceGatheringDone"),
 
     @SerializedName("userDisconnected", alternate = ["userdisconnected"])
-    USER_DISCONNECTED("userDisconnected");
+    USER_DISCONNECTED("userDisconnected"),
+
+    /*
+    * Chat
+    * */
+
+    @SerializedName("loadConversations", alternate = ["loadconversations"])
+    LOAD_CONVERSATIONS("loadConversations"),
+
+    @SerializedName("loadMessages", alternate = ["loadmessages"])
+    LOAD_MESSAGES("loadMessages"),
+
+    @SerializedName("receiveSystemConversations", alternate = ["receivesystemconversations"])
+    RECEIVE_CONVERSATIONS("receiveSystemConversations");
 
     override fun toString(): String {
         return moduleName.toLowerCase()

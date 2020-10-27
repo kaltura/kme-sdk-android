@@ -3,7 +3,7 @@ package com.kme.kaltura.kmesdk.ws.message.module
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 
-class KmeStreamingMessage<T : KmeStreamingMessage.StreamingPayload> :
+class KmeStreamingModuleMessage<T : KmeStreamingModuleMessage.StreamingPayload> :
     KmeMessage<T>() {
 
     data class StartPublishingPayload(
