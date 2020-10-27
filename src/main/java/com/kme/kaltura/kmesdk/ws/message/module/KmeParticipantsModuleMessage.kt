@@ -6,7 +6,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeLiveMediaState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 
-class KmeRoomParticipantsMessage<T : KmeRoomParticipantsMessage.ParticipantsPayload> :
+class KmeParticipantsModuleMessage<T : KmeParticipantsModuleMessage.ParticipantsPayload> :
     KmeMessage<T>() {
 
     data class UserMediaStateInitPayload(
