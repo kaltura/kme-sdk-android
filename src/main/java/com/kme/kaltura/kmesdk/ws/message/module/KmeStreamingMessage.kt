@@ -54,7 +54,7 @@ class KmeStreamingMessage<T : KmeStreamingMessage.StreamingPayload> :
         @SerializedName("plugin") var plugin: String? = null,
         @SerializedName("sdpOffer") var sdpOffer: String? = null,
         @SerializedName("requestedUserIdStream") var requestedUserIdStream: Long? = null,
-        @SerializedName("user_id") var userId: String? = null
+        @SerializedName("user_id") var userId: Long? = null
     ) : StreamingPayload()
 
     data class IceGatheringPublishDonePayload(

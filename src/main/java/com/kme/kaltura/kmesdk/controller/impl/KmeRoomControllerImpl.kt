@@ -144,14 +144,13 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
 
     override fun addViewerPeerConnection(
         userId: Long,
-        mediaServerId: Long,
         renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
     ) {
         val viewerPeerConnection: IKmePeerConnectionController by inject()
         viewerPeerConnection.setTurnServer(turnUrl, turnUser, turnCred)
         viewerPeerConnection.setRemoteRenderer(renderer)
-        viewerPeerConnection.createPeerConnection(false, userId, mediaServerId, listener)
+        viewerPeerConnection.createPeerConnection(false, userId, listener)
         peerConnections[userId] = viewerPeerConnection
     }
 

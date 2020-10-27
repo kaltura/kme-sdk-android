@@ -22,13 +22,6 @@ interface IKmePeerConnectionController {
         listener: IKmePeerConnectionClientEvents
     )
 
-    fun createPeerConnection(
-        isPublisher: Boolean,
-        userId: Long,
-        mediaServerId: Long,
-        listener: IKmePeerConnectionClientEvents
-    )
-
     fun setMediaServerId(mediaServerId: Long)
 
     fun createOffer()

@@ -61,24 +61,6 @@ class KmePeerConnectionControllerImpl(
         this.userId = userId
         this.listener = listener
 
-        createConnection()
-    }
-
-    override fun createPeerConnection(
-        isPublisher: Boolean,
-        userId: Long,
-        mediaServerId: Long,
-        listener: IKmePeerConnectionClientEvents
-    ) {
-        this.isPublisher = isPublisher
-        this.userId = userId
-        this.mediaServerId = mediaServerId
-        this.listener = listener
-
-        createConnection()
-    }
-
-    private fun createConnection() {
         peerConnectionClient = KmePeerConnectionClient()
 
         localRendererView?.let {

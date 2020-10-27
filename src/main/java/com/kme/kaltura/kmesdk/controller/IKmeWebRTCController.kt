@@ -19,7 +19,6 @@ interface IKmeWebRTCController {
 
     fun addViewerPeerConnection(
         userId: Long,
-        mediaServerId: Long,
         renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
     )

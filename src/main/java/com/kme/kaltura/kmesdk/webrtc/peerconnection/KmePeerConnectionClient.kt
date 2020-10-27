@@ -13,33 +13,6 @@ import java.util.*
 
 class KmePeerConnectionClient {
 
-    private val VIDEO_TRACK_ID = "ARDAMSv0"
-    private val AUDIO_TRACK_ID = "ARDAMSa0"
-    private val VIDEO_TRACK_TYPE = "video"
-    private val VIDEO_CODEC_VP8 = "VP8"
-    private val VIDEO_CODEC_VP9 = "VP9"
-    private val VIDEO_CODEC_H264 = "H264"
-    private val VIDEO_CODEC_H264_BASELINE = "H264 Baseline"
-    private val VIDEO_CODEC_H264_HIGH = "H264 High"
-    private val AUDIO_CODEC_OPUS = "opus"
-    private val AUDIO_CODEC_ISAC = "ISAC"
-    private val VIDEO_CODEC_PARAM_START_BITRATE = "x-google-start-bitrate"
-    private val VIDEO_FLEXFEC_FIELDTRIAL = "WebRTC-FlexFEC-03-Advertised/Enabled/WebRTC-FlexFEC-03/Enabled/"
-    private val VIDEO_VP8_INTEL_HW_ENCODER_FIELDTRIAL = "WebRTC-IntelVP8/Enabled/"
-    private val VIDEO_H264_HIGH_PROFILE_FIELDTRIAL = "WebRTC-H264HighProfile/Enabled/"
-    private val DISABLE_WEBRTC_AGC_FIELDTRIAL = "WebRTC-Audio-MinimizeResamplingOnMobile/Enabled/"
-    private val VIDEO_FRAME_EMIT_FIELDTRIAL: String = "VideoFrameEmit/Enabled/"
-    private val AUDIO_CODEC_PARAM_BITRATE = "maxaveragebitrate"
-    private val AUDIO_ECHO_CANCELLATION_CONSTRAINT = "googEchoCancellation"
-    private val AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT = "googAutoGainControl"
-    private val AUDIO_HIGH_PASS_FILTER_CONSTRAINT = "googHighpassFilter"
-    private val AUDIO_NOISE_SUPPRESSION_CONSTRAINT = "googNoiseSuppression"
-    private val AUDIO_LEVEL_CONTROL_CONSTRAINT = "levelControl"
-    private val DTLS_SRTP_KEY_AGREEMENT_CONSTRAINT = "DtlsSrtpKeyAgreement"
-    private val HD_VIDEO_WIDTH = 1280
-    private val HD_VIDEO_HEIGHT = 720
-    private val BPS_IN_KBPS = 1000
-
     private val localSdpObserver: LocalSdpObserver = LocalSdpObserver()
     private val remoteSdpObserver: RemoteSdpObserver = RemoteSdpObserver()
     private val pcObserver: PeerConnectionObserver = PeerConnectionObserver()
@@ -78,10 +51,6 @@ class KmePeerConnectionClient {
     private var audioConstraints: MediaConstraints? = null
     private var sdpMediaConstraints: MediaConstraints? = null
     private var dataChannel: DataChannel? = null
-
-    private var videoWidth = 0
-    private var videoHeight = 0
-    private var videoFps = 0
 
     fun createPeerConnectionFactory(
         context: Context,
@@ -129,26 +98,10 @@ class KmePeerConnectionClient {
         // Check if ISAC is used by default.
         preferIsac = peerConnectionParameters.audioCodec == AUDIO_CODEC_ISAC
 
-        if (!peerConnectionParameters.useOpenSLES) {
-            WebRtcAudioManager.setBlacklistDeviceForOpenSLESUsage(true)
-        } else {
-            WebRtcAudioManager.setBlacklistDeviceForOpenSLESUsage(false)
-        }
-        if (peerConnectionParameters.disableBuiltInAEC) {
-            WebRtcAudioUtils.setWebRtcBasedAcousticEchoCanceler(true)
-        } else {
-            WebRtcAudioUtils.setWebRtcBasedAcousticEchoCanceler(false)
-        }
-        if (peerConnectionParameters.disableBuiltInAGC) {
-            WebRtcAudioUtils.setWebRtcBasedAutomaticGainControl(true)
-        } else {
-            WebRtcAudioUtils.setWebRtcBasedAutomaticGainControl(false)
-        }
-        if (peerConnectionParameters.disableBuiltInNS) {
-            WebRtcAudioUtils.setWebRtcBasedNoiseSuppressor(true)
-        } else {
-            WebRtcAudioUtils.setWebRtcBasedNoiseSuppressor(false)
-        }
+        WebRtcAudioManager.setBlacklistDeviceForOpenSLESUsage(!peerConnectionParameters.useOpenSLES)
+        WebRtcAudioUtils.setWebRtcBasedAcousticEchoCanceler(peerConnectionParameters.disableBuiltInAEC)
+        WebRtcAudioUtils.setWebRtcBasedAutomaticGainControl(peerConnectionParameters.disableBuiltInAGC)
+        WebRtcAudioUtils.setWebRtcBasedNoiseSuppressor(peerConnectionParameters.disableBuiltInNS)
 
         val enableH264HighProfile = VIDEO_CODEC_H264_HIGH == peerConnectionParameters.videoCodec
         val encoderFactory: VideoEncoderFactory
@@ -186,29 +139,14 @@ class KmePeerConnectionClient {
         this.videoCapturer = videoCapturer
         this.signalingParameters = signalingParameters
 
-        createMediaConstraintsInternal()
-        createPeerConnectionInternal()
+        createMediaConstraints()
+        createPeerConnection()
     }
 
-    private fun createMediaConstraintsInternal() {
+    private fun createMediaConstraints() {
         // Check if there is a camera on device and disable video call if not.
         if (videoCapturer == null) {
             videoCallEnabled = false
-        }
-
-        if (videoCallEnabled) {
-            videoWidth = peerConnectionParameters.videoWidth
-            videoHeight = peerConnectionParameters.videoHeight
-            videoFps = peerConnectionParameters.videoFps
-
-            if (videoWidth == 0 || videoHeight == 0) {
-                videoWidth = HD_VIDEO_WIDTH
-                videoHeight = HD_VIDEO_HEIGHT
-            }
-
-            if (videoFps == 0) {
-                videoFps = 30
-            }
         }
 
         audioConstraints = MediaConstraints()
@@ -238,7 +176,7 @@ class KmePeerConnectionClient {
         )
     }
 
-    private fun createPeerConnectionInternal() {
+    private fun createPeerConnection() {
         if (factory == null) {
             return
         }
@@ -302,7 +240,7 @@ class KmePeerConnectionClient {
 
     private fun createLocalVideoTrack(capturer: VideoCapturer?): VideoTrack? {
         localVideoSource = factory?.createVideoSource(capturer)
-        capturer?.startCapture(videoWidth, videoHeight, videoFps)
+        capturer?.startCapture(VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS)
         localVideoTrack = factory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)
         localVideoTrack?.setEnabled(renderVideo)
         localRender?.let { localVideoTrack?.addSink(it) }
@@ -373,7 +311,7 @@ class KmePeerConnectionClient {
 
     fun startVideoSource() {
         if (videoCapturerStopped) {
-            videoCapturer?.startCapture(videoWidth, videoHeight, videoFps)
+            videoCapturer?.startCapture(VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS)
             videoCapturerStopped = false
         }
     }
@@ -579,6 +517,36 @@ class KmePeerConnectionClient {
         override fun onCreateFailure(error: String) {}
 
         override fun onSetFailure(error: String) {}
+    }
+
+    companion object {
+        private const val VIDEO_TRACK_ID = "ARDAMSv0"
+        private const val AUDIO_TRACK_ID = "ARDAMSa0"
+        private const val VIDEO_TRACK_TYPE = "video"
+        private const val VIDEO_CODEC_VP8 = "VP8"
+        private const val VIDEO_CODEC_VP9 = "VP9"
+        private const val VIDEO_CODEC_H264 = "H264"
+        private const val VIDEO_CODEC_H264_BASELINE = "H264 Baseline"
+        private const val VIDEO_CODEC_H264_HIGH = "H264 High"
+        private const val AUDIO_CODEC_OPUS = "opus"
+        private const val AUDIO_CODEC_ISAC = "ISAC"
+        private const val VIDEO_CODEC_PARAM_START_BITRATE = "x-google-start-bitrate"
+        private const val VIDEO_FLEXFEC_FIELDTRIAL = "WebRTC-FlexFEC-03-Advertised/Enabled/WebRTC-FlexFEC-03/Enabled/"
+        private const val VIDEO_VP8_INTEL_HW_ENCODER_FIELDTRIAL = "WebRTC-IntelVP8/Enabled/"
+        private const val VIDEO_H264_HIGH_PROFILE_FIELDTRIAL = "WebRTC-H264HighProfile/Enabled/"
+        private const val DISABLE_WEBRTC_AGC_FIELDTRIAL = "WebRTC-Audio-MinimizeResamplingOnMobile/Enabled/"
+        private const val VIDEO_FRAME_EMIT_FIELDTRIAL: String = "VideoFrameEmit/Enabled/"
+        private const val AUDIO_CODEC_PARAM_BITRATE = "maxaveragebitrate"
+        private const val AUDIO_ECHO_CANCELLATION_CONSTRAINT = "googEchoCancellation"
+        private const val AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT = "googAutoGainControl"
+        private const val AUDIO_HIGH_PASS_FILTER_CONSTRAINT = "googHighpassFilter"
+        private const val AUDIO_NOISE_SUPPRESSION_CONSTRAINT = "googNoiseSuppression"
+        private const val AUDIO_LEVEL_CONTROL_CONSTRAINT = "levelControl"
+        private const val DTLS_SRTP_KEY_AGREEMENT_CONSTRAINT = "DtlsSrtpKeyAgreement"
+        private const val VIDEO_WIDTH = 1280
+        private const val VIDEO_HEIGHT = 720
+        private const val VIDEO_FPS = 30
+        private const val BPS_IN_KBPS = 1000
     }
 
 }
