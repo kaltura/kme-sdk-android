@@ -78,11 +78,17 @@ enum class KmeMessageEvent(
     @SerializedName("loadConversations", alternate = ["loadconversations"])
     LOAD_CONVERSATIONS("loadConversations"),
 
+    @SerializedName("receiveSystemConversations", alternate = ["receivesystemconversations"])
+    RECEIVE_CONVERSATIONS("receiveSystemConversations"),
+
     @SerializedName("loadMessages", alternate = ["loadmessages"])
     LOAD_MESSAGES("loadMessages"),
 
-    @SerializedName("receiveSystemConversations", alternate = ["receivesystemconversations"])
-    RECEIVE_CONVERSATIONS("receiveSystemConversations");
+    @SerializedName("receiveMessage", alternate = ["receivemessage"])
+    RECEIVE_MESSAGE("receiveMessage"),
+
+    @SerializedName("sendMessage", alternate = ["sendmessage"])
+    SEND_MESSAGE("sendMessage");
 
     override fun toString(): String {
         return moduleName.toLowerCase()

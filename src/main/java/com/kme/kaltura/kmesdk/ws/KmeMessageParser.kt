@@ -87,6 +87,9 @@ internal class KmeMessageParser(
             KmeMessageEvent.LOAD_MESSAGES.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<LoadMessagesPayload>>()
             }
+            KmeMessageEvent.RECEIVE_MESSAGE.toString() -> {
+                text.jsonToObject<KmeChatModuleMessage<ReceiveMessagePayload>>()
+            }
             else -> null
         }
     }
