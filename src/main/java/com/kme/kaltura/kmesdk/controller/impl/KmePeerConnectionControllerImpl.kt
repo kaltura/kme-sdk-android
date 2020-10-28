@@ -9,8 +9,6 @@ import com.kme.kaltura.kmesdk.controller.IKmePeerConnectionController
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.KmePeerConnectionClient
-import com.kme.kaltura.kmesdk.webrtc.peerconnection.KmePeerConnectionParameters
-import com.kme.kaltura.kmesdk.webrtc.signaling.KmeSignalingParameters
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.webrtc.view.KmeVideoSink
 import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
@@ -22,8 +20,7 @@ class KmePeerConnectionControllerImpl(
 ) : IKmePeerConnectionController, IKmePeerConnectionEvents {
 
     private var peerConnectionClient: KmePeerConnectionClient? = null
-    private lateinit var peerConnectionParameters: KmePeerConnectionParameters
-    private lateinit var signalingParameters: KmeSignalingParameters
+    private var iceServers: MutableList<PeerConnection.IceServer> = mutableListOf()
     private lateinit var listener: IKmePeerConnectionClientEvents
 
     private val localVideoSink: KmeVideoSink = KmeVideoSink()
@@ -38,8 +35,7 @@ class KmePeerConnectionControllerImpl(
 
     // Public PeerConnection API
     override fun setTurnServer(turnUrl: String, turnUser: String, turnCred: String) {
-        signalingParameters = KmeSignalingParameters()
-        buildIceServers(turnUrl, turnUser, turnCred)
+        iceServers = buildIceServers(turnUrl, turnUser, turnCred)
     }
 
     override fun setLocalRenderer(localRenderer: KmeSurfaceRendererView) {
@@ -77,15 +73,10 @@ class KmePeerConnectionControllerImpl(
             remoteVideoSink.setTarget(it)
         }
 
-        peerConnectionParameters = KmePeerConnectionParameters()
-
         peerConnectionClient?.createPeerConnectionFactory(
             context,
-            peerConnectionParameters,
             this
         )
-
-        signalingParameters.isPublisher = isPublisher
 
         var videoCapturer: VideoCapturer? = null
         if (isPublisher && ActivityCompat.checkSelfPermission(
@@ -101,7 +92,8 @@ class KmePeerConnectionControllerImpl(
             localVideoSink,
             remoteVideoSink,
             videoCapturer,
-            signalingParameters
+            isPublisher,
+            iceServers
         )
     }
 
@@ -234,20 +226,23 @@ class KmePeerConnectionControllerImpl(
         return null
     }
 
-    private fun buildIceServers(turnUrl: String, turnUser: String, turnCred: String) {
+    private fun buildIceServers(turnUrl: String, turnUser: String, turnCred: String) : MutableList<PeerConnection.IceServer> {
+        val iceServers: MutableList<PeerConnection.IceServer> = mutableListOf()
         val turnsUrl = turnUrl.replace("turn:", "turns:")
-        signalingParameters.iceServers.add(
+
+        iceServers.add(
             buildIceServer("$turnUrl:443?transport=udp", turnUser, turnCred)
         )
-        signalingParameters.iceServers.add(
+        iceServers.add(
             buildIceServer("$turnUrl:443?transport=tcp", turnUser, turnCred)
         )
-        signalingParameters.iceServers.add(
+        iceServers.add(
             buildIceServer("$turnsUrl:443?transport=tcp", turnUser, turnCred)
         )
-        signalingParameters.iceServers.add(
+        iceServers.add(
             buildIceServer("$turnUrl:80?transport=udp", turnUser, turnCred)
         )
+        return iceServers
     }
 
     private fun buildIceServer(

@@ -3,7 +3,6 @@ package com.kme.kaltura.kmesdk.webrtc.peerconnection
 import android.Manifest
 import android.content.Context
 import androidx.annotation.RequiresPermission
-import com.kme.kaltura.kmesdk.webrtc.signaling.KmeSignalingParameters
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
 import org.webrtc.audio.JavaAudioDeviceModule.builder
@@ -22,13 +21,13 @@ class KmePeerConnectionClient {
 
     private var factory: PeerConnectionFactory? = null
     private var peerConnection: PeerConnection? = null
-    private lateinit var peerConnectionParameters: KmePeerConnectionParameters
+    private var iceServers: MutableList<IceServer> = mutableListOf()
+    private var isPublisher = false
     private var events: IKmePeerConnectionEvents? = null
 
     private var videoCapturerStopped = false
     private var renderVideo = true
 
-    private var signalingParameters: KmeSignalingParameters? = null
     private var queuedRemoteCandidates: MutableList<IceCandidate>? = null
     private lateinit var localSdp: SessionDescription
 
@@ -51,21 +50,11 @@ class KmePeerConnectionClient {
 
     fun createPeerConnectionFactory(
         context: Context,
-        peerConnectionParameters: KmePeerConnectionParameters,
         events: IKmePeerConnectionEvents
     ) {
-        this.peerConnectionParameters = peerConnectionParameters
         this.events = events
 
-        var fieldTrials = ""
-        if (peerConnectionParameters.videoFlexfecEnabled) {
-            fieldTrials = "$fieldTrials $VIDEO_FLEXFEC_FIELDTRIAL"
-        }
-        fieldTrials = "$fieldTrials $VIDEO_VP8_INTEL_HW_ENCODER_FIELDTRIAL"
-
-        if (peerConnectionParameters.disableWebRtcAGCAndHPF) {
-            fieldTrials = "$fieldTrials $DISABLE_WEBRTC_AGC_FIELDTRIAL"
-        }
+        var fieldTrials = VIDEO_VP8_INTEL_HW_ENCODER_FIELDTRIAL
         fieldTrials = "$fieldTrials $VIDEO_FRAME_EMIT_FIELDTRIAL"
 
         PeerConnectionFactory.initialize(
@@ -80,17 +69,15 @@ class KmePeerConnectionClient {
         WebRtcAudioUtils.setWebRtcBasedAutomaticGainControl(false)
         WebRtcAudioUtils.setWebRtcBasedNoiseSuppressor(false)
 
-        val enableH264HighProfile = VIDEO_CODEC_H264_HIGH == peerConnectionParameters.videoCodec
         val encoderFactory = DefaultVideoEncoderFactory(
             getRenderContext(),
             true,
-            enableH264HighProfile
+            false
         )
         val decoderFactory = DefaultVideoDecoderFactory(getRenderContext())
 
         factory = PeerConnectionFactory.builder()
-            .setAudioDeviceModule(builder(context)
-                .createAudioDeviceModule())
+            .setAudioDeviceModule(builder(context).createAudioDeviceModule())
             .setVideoEncoderFactory(encoderFactory)
             .setVideoDecoderFactory(decoderFactory)
             .createPeerConnectionFactory()
@@ -105,12 +92,14 @@ class KmePeerConnectionClient {
         localVideoSink: VideoSink,
         remoteVideoSink: VideoSink,
         videoCapturer: VideoCapturer?,
-        signalingParameters: KmeSignalingParameters?
+        isPublisher: Boolean,
+        iceServers: MutableList<IceServer>
     ) {
         this.localVideoSink = localVideoSink
         this.remoteVideoSink = remoteVideoSink
         this.videoCapturer = videoCapturer
-        this.signalingParameters = signalingParameters
+        this.isPublisher = isPublisher
+        this.iceServers = iceServers
 
         createMediaConstraints()
         createPeerConnection(context)
@@ -150,7 +139,7 @@ class KmePeerConnectionClient {
 
         queuedRemoteCandidates = ArrayList()
 
-        val rtcConfig = RTCConfiguration(signalingParameters?.iceServers)
+        val rtcConfig = RTCConfiguration(iceServers)
         peerConnection = factory?.createPeerConnection(rtcConfig, pcObserver)
 
         val dataChannelInit: DataChannel.Init = DataChannel.Init()
@@ -366,7 +355,7 @@ class KmePeerConnectionClient {
         surfaceTextureHelper = null
 
         // avoid to dispose factory multiple times
-        if (signalingParameters?.isPublisher!!) {
+        if (isPublisher) {
             factory?.dispose()
             factory = null
         }
@@ -471,7 +460,7 @@ class KmePeerConnectionClient {
         override fun onCreateSuccess(origSdp: SessionDescription) {}
 
         override fun onSetSuccess() {
-            if (!signalingParameters?.isPublisher!!) {
+            if (!isPublisher) {
                 peerConnection?.createAnswer(localSdpObserver, sdpMediaConstraints)
             }
         }
