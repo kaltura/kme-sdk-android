@@ -25,7 +25,7 @@ interface IKmeWebRTCController {
 
     fun getPublisherConnection() : IKmePeerConnectionController
 
-    fun getViewerConnection(userId: Long) : IKmePeerConnectionController
+    fun getPeerConnection(userId: Long) : IKmePeerConnectionController
 
     fun disconnectAllConnections()
 
