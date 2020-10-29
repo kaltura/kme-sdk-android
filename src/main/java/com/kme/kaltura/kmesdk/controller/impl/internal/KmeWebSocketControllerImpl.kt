@@ -71,7 +71,7 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
         if (allowReconnection && reconnectionAttempts < RECONNECTION_ATTEMPTS) {
             reconnectionJob?.cancel()
             reconnectionJob = reconnectionScope.launch {
-                delay(2000)
+                delay(5000)
                 webSocket?.cancel()
                 webSocket = newWebSocket()
                 reconnectionAttempts.inc()
