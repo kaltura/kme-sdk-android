@@ -24,8 +24,10 @@ class KmeChatModuleMessage<T : KmeChatModuleMessage.ChatPayload> :
         @SerializedName("room_id") var roomId: Long? = null,
         @SerializedName("company_id") var companyId: Long? = null
     ) : ChatPayload() {
-        @SerializedName("load_type") var loadType: KmeLoadType? = null
-
+        @SerializedName("load_type")
+        var loadType: KmeLoadType? = null
+        @SerializedName("from_date")
+        var fromMessageId: String? = null
         @SerializedName("messages")
         val messages: List<KmeChatMessage>? = null
     }
