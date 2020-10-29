@@ -68,6 +68,27 @@ enum class KmeMessageEvent(
     * Streaming
     * */
 
+    @SerializedName("startPublishing", alternate = ["startpublishing"])
+    START_PUBLISHING("startPublishing"),
+
+    @SerializedName("startViewing", alternate = ["startviewing"])
+    START_VIEWING("startViewing"),
+
+    @SerializedName("userStartedToPublish", alternate = ["userstartedtopublish"])
+    USER_STARTED_TO_PUBLISH("userStartedToPublish"),
+
+    @SerializedName("sdpAnswerToPublisher", alternate = ["sdpanswertopublisher"])
+    SDP_ANSWER_TO_PUBLISHER("sdpAnswerToPublisher"),
+
+    @SerializedName("sdpOfferForViewer", alternate = ["sdpofferforviewer"])
+    SDP_OFFER_FOR_VIEWER("sdpOfferForViewer"),
+
+    @SerializedName("forwardSdpAnswerFromViewer", alternate = ["forwardsdpanswerfromviewer"])
+    FORWARD_SDP_ANSWER_FROM_VIEWER("forwardSdpAnswerFromViewer"),
+
+    @SerializedName("iceGatheringDone", alternate = ["icegatheringdone"])
+    ICE_GATHERING_DONE("iceGatheringDone"),
+
     @SerializedName("userDisconnected", alternate = ["userdisconnected"])
     USER_DISCONNECTED("userDisconnected"),
 

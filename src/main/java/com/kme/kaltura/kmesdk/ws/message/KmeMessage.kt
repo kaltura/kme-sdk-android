@@ -13,6 +13,9 @@ open class KmeMessage<T : KmeMessage.Payload> {
     @SerializedName("type")
     var type: KmeMessageEventType? = null
 
+    @SerializedName("constraint")
+    var constraint: List<String>? = null
+
     @SerializedName("payload")
     var payload: T? = null
 

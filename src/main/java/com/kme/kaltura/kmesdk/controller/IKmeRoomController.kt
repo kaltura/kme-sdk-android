@@ -5,7 +5,7 @@ import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 
-interface IKmeRoomController : IKmeWebSocketController {
+interface IKmeRoomController : IKmeWebSocketController, IKmeWebRTCController {
 
     fun getRooms(
         companyId: Long,
