@@ -109,7 +109,13 @@ enum class KmeMessageEvent(
     RECEIVE_MESSAGE("receiveMessage"),
 
     @SerializedName("sendMessage", alternate = ["sendmessage"])
-    SEND_MESSAGE("sendMessage");
+    SEND_MESSAGE("sendMessage"),
+
+    @SerializedName("deleteMessage", alternate = ["deletemessage"])
+    DELETE_MESSAGE("deleteMessage"),
+
+    @SerializedName("deletedMessage", alternate = ["deletedmessage"])
+    DELETED_MESSAGE("deletedMessage");
 
     override fun toString(): String {
         return moduleName.toLowerCase()
