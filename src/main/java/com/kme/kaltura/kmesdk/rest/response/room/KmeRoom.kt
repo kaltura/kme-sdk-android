@@ -8,13 +8,16 @@ data class KmeRoom(
     @SerializedName("is_ondemand") val isOnDemand: Boolean?,
     @SerializedName("summary") val summary: String?,
     @SerializedName("alias") val alias: String?,
-    @SerializedName("avatar") val avatar: String?,
+    @SerializedName("avatar") var avatar: String?,
+    @SerializedName("company_avatar") val companyAvatar: String?,
     @SerializedName("company_id") val companyId: Long?,
+    @SerializedName("company_name") val companyName: String?,
     @SerializedName("app_version") val appVersion: String?,
     @SerializedName("status") val status: String?,
     @SerializedName("room_user_role") val roomUserRole: String?,
     @SerializedName("user_role") val userRole: String?,
-    @SerializedName("instructors") val instructors: Instructor?,
+    @SerializedName("is_user_moderator") val isUserModerator: String?,
+    @SerializedName("instructors") val instructors: Map<String, Instructor>?,
     @SerializedName("type") val type: String?,
     @SerializedName("auto_upload_recordings") val autoUploadRecordings: Boolean?,
     @SerializedName("is_turn_configured") val isTurnConfigured: Boolean?,
@@ -32,8 +35,8 @@ data class KmeRoom(
     @SerializedName("playlist_migrate_status") val playlistMigrateStatus: String?,
     @SerializedName("whiteboard_migrate_status") val whiteboardMigrateStatus: String?,
     @SerializedName("chat_migrate_status") val chatMigrateStatus: String?,
-    @SerializedName("settings") val settings: String?,
-    @SerializedName("settings_v2") val settingsV2: String?,
+//    @SerializedName("settings") val settings: String?,
+//    @SerializedName("settings_v2") val settingsV2: String?,
     @SerializedName("description") val description: String?,
     @SerializedName("license_id") val licenseId: Int?,
     @SerializedName("max_guests") val maxGuests: Int?,
@@ -50,11 +53,12 @@ data class KmeRoom(
     @SerializedName("date_created") val dateCreated: String?,
     @SerializedName("deleted") val deleted: String?,
     @SerializedName("conference_id") val conferenceId: String?,
+    @SerializedName("conference_token_url") val conferenceTokenUrl: String?,
     @SerializedName("companyData") val companyData: CompanyData?
 ) {
 
     data class Instructor(
-        @SerializedName("value") val value: String?
+        @SerializedName("name") val name: String?
     )
 
     data class CompanyData(
