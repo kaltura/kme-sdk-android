@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk.ws
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
+import com.kme.kaltura.kmesdk.rest.response.metadata.KmeMetadata
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.*
@@ -97,7 +98,16 @@ internal class KmeMessageParser(
                 text.jsonToObject<KmeChatModuleMessage<LoadMessagesPayload>>()
             }
             KmeMessageEvent.RECEIVE_MESSAGE.toString() -> {
-                text.jsonToObject<KmeChatModuleMessage<ReceiveMessagePayload>>()
+                val message = text.jsonToObject<KmeChatModuleMessage<ReceiveMessagePayload>>()
+                val kmeChatModuleMessage =
+                    message as KmeChatModuleMessage<ReceiveMessagePayload>
+
+                kmeChatModuleMessage.payload?.metadata?.let {
+                    kmeChatModuleMessage.payload?.parsedMetadata =
+                        gson.fromJson(it, KmeMetadata::class.java)
+                }
+
+                return message
             }
             KmeMessageEvent.DELETED_MESSAGE.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<DeleteMessagePayload>>()
