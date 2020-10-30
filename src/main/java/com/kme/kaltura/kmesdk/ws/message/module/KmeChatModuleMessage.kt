@@ -26,8 +26,10 @@ class KmeChatModuleMessage<T : KmeChatModuleMessage.ChatPayload> :
     ) : ChatPayload() {
         @SerializedName("load_type")
         var loadType: KmeLoadType? = null
+
         @SerializedName("from_date")
         var fromMessageId: String? = null
+
         @SerializedName("messages")
         val messages: List<KmeChatMessage>? = null
     }
@@ -54,6 +56,14 @@ class KmeChatModuleMessage<T : KmeChatModuleMessage.ChatPayload> :
         @SerializedName("message_metadata") val metadata: String? = null,
         @SerializedName("timestamp") val timestamp: Long? = null,
         @SerializedName("user") val user: KmeUserInfoData? = null
+    ) : ChatPayload()
+
+    data class DeleteMessagePayload(
+        @SerializedName("conversation_id") var conversationId: String? = null,
+        @SerializedName("message_id") var messageId: String? = null,
+        @SerializedName("ack_id") var ackId: String? = null,
+        @SerializedName("room_id") var roomId: Long? = null,
+        @SerializedName("company_id") var companyId: Long? = null
     ) : ChatPayload()
 
     open class ChatPayload : Payload()

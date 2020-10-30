@@ -8,8 +8,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.LoadMessagesPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.ReceiveConversationsPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
@@ -99,6 +98,9 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.RECEIVE_MESSAGE.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<ReceiveMessagePayload>>()
+            }
+            KmeMessageEvent.DELETED_MESSAGE.toString() -> {
+                text.jsonToObject<KmeChatModuleMessage<DeleteMessagePayload>>()
             }
             else -> null
         }
