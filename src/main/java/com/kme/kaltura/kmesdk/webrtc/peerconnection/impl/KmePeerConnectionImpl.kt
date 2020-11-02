@@ -1,17 +1,20 @@
-package com.kme.kaltura.kmesdk.webrtc.peerconnection
+package com.kme.kaltura.kmesdk.webrtc.peerconnection.impl
 
 import android.Manifest
 import android.content.Context
 import androidx.annotation.RequiresPermission
+import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnection
+import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
 import org.webrtc.audio.JavaAudioDeviceModule.builder
 import org.webrtc.voiceengine.WebRtcAudioManager
 import org.webrtc.voiceengine.WebRtcAudioUtils
+import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util.*
 
-class KmePeerConnectionClient {
+class KmePeerConnectionImpl : IKmePeerConnection {
 
     private val localSdpObserver: LocalSdpObserver = LocalSdpObserver()
     private val remoteSdpObserver: RemoteSdpObserver = RemoteSdpObserver()
@@ -46,9 +49,9 @@ class KmePeerConnectionClient {
 
     private var audioConstraints: MediaConstraints? = null
     private var sdpMediaConstraints: MediaConstraints? = null
-    private var dataChannel: DataChannel? = null
+    private var volumeDataChannel: DataChannel? = null
 
-    fun createPeerConnectionFactory(
+    override fun createPeerConnectionFactory(
         context: Context,
         events: IKmePeerConnectionEvents
     ) {
@@ -83,11 +86,7 @@ class KmePeerConnectionClient {
             .createPeerConnectionFactory()
     }
 
-    private fun reportError(errorMessage: String) {
-        events?.onPeerConnectionError(errorMessage)
-    }
-
-    fun createPeerConnection(
+    override fun createPeerConnection(
         context: Context,
         localVideoSink: VideoSink,
         remoteVideoSink: VideoSink,
@@ -142,30 +141,10 @@ class KmePeerConnectionClient {
         val rtcConfig = RTCConfiguration(iceServers)
         peerConnection = factory?.createPeerConnection(rtcConfig, pcObserver)
 
-        val dataChannelInit: DataChannel.Init = DataChannel.Init()
-        dataChannelInit.ordered = false
-        dataChannelInit.maxRetransmits = 0
-        dataChannel = peerConnection?.createDataChannel("volumeDataChannel", dataChannelInit)
-
-        dataChannel?.registerObserver(object : DataChannel.Observer {
-            override fun onBufferedAmountChange(previousAmount: Long) {
-                val test = ""
-            }
-
-            override fun onStateChange() {
-                val test = ""
-            }
-
-            override fun onMessage(buffer: DataChannel.Buffer) {
-                if (buffer.binary) {
-                    return
-                }
-                val data = buffer.data
-                val bytes = ByteArray(data.capacity())
-                data[bytes]
-                val strData = String(bytes, Charset.forName("UTF-8"))
-            }
-        })
+        val volumeInit: DataChannel.Init = DataChannel.Init()
+        volumeInit.ordered = false
+        volumeInit.maxRetransmits = 0
+        volumeDataChannel = peerConnection?.createDataChannel("volumeDataChannel", volumeInit)
 
         // Set INFO libjingle logging. NOTE: this _must_ happen while |factory| is alive!
         Logging.enableLogToDebugOutput(Logging.Severity.LS_INFO)
@@ -220,26 +199,26 @@ class KmePeerConnectionClient {
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    fun setAudioEnabled(enable: Boolean) {
+    override fun setAudioEnabled(enable: Boolean) {
         localAudioTrack?.setEnabled(enable)
     }
 
     @RequiresPermission(Manifest.permission.CAMERA)
-    fun setVideoEnabled(enable: Boolean) {
+    override fun setVideoEnabled(enable: Boolean) {
         renderVideo = enable
         localVideoTrack?.setEnabled(renderVideo)
         remoteVideoTrack?.setEnabled(renderVideo)
     }
 
-    fun createOffer() {
+    override fun createOffer() {
         peerConnection?.createOffer(localSdpObserver, sdpMediaConstraints)
     }
 
-    fun createAnswer() {
+    override fun createAnswer() {
         peerConnection?.createAnswer(localSdpObserver, sdpMediaConstraints)
     }
 
-    fun addRemoteIceCandidate(candidate: IceCandidate?) {
+    override fun addRemoteIceCandidate(candidate: IceCandidate?) {
         if (queuedRemoteCandidates != null) {
             queuedRemoteCandidates?.add(candidate!!)
         } else {
@@ -247,7 +226,7 @@ class KmePeerConnectionClient {
         }
     }
 
-    fun removeRemoteIceCandidates(candidates: Array<IceCandidate>) {
+    override fun removeRemoteIceCandidates(candidates: Array<IceCandidate>) {
         if (peerConnection == null) {
             return
         }
@@ -255,11 +234,11 @@ class KmePeerConnectionClient {
         peerConnection?.removeIceCandidates(candidates)
     }
 
-    fun setRemoteDescription(sdp: SessionDescription) {
+    override fun setRemoteDescription(sdp: SessionDescription) {
         peerConnection?.setRemoteDescription(remoteSdpObserver, sdp)
     }
 
-    fun stopVideoSource() {
+    override fun stopVideoSource() {
         if (!videoCapturerStopped) {
             try {
                 videoCapturer?.stopCapture()
@@ -270,7 +249,7 @@ class KmePeerConnectionClient {
         }
     }
 
-    fun startVideoSource() {
+    override fun startVideoSource() {
         if (videoCapturerStopped) {
             videoCapturer?.startCapture(VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS)
             videoCapturerStopped = false
@@ -308,13 +287,21 @@ class KmePeerConnectionClient {
     }
 
     @RequiresPermission(Manifest.permission.CAMERA)
-    fun switchCamera() {
+    override fun switchCamera() {
         if (videoCapturer == null) {
             return  // No video is sent or only one camera is available or error happened.
         }
         if (videoCapturer is CameraVideoCapturer) {
             val cameraVideoCapturer = videoCapturer as CameraVideoCapturer
             cameraVideoCapturer.switchCamera(null)
+        }
+    }
+
+    override fun setAudioAmplitude(bringToFront: Boolean, value: Int) {
+        volumeDataChannel?.let {
+            val data = (if (bringToFront) "1" else "0") + ",$value"
+            val buffer: ByteBuffer = ByteBuffer.wrap(data.toByteArray())
+            it.send(DataChannel.Buffer(buffer, false))
         }
     }
 
@@ -329,9 +316,9 @@ class KmePeerConnectionClient {
         localVideoSource?.adaptOutputFormat(width, height, frameRate)
     }
 
-    fun close() {
-        dataChannel?.dispose()
-        dataChannel = null
+    override fun close() {
+        volumeDataChannel?.dispose()
+        volumeDataChannel = null
 
         peerConnection?.dispose()
         peerConnection = null
@@ -366,7 +353,7 @@ class KmePeerConnectionClient {
         events = null
     }
 
-    fun getRenderContext(): EglBase.Context? {
+    override fun getRenderContext(): EglBase.Context? {
         return rootEglBase.eglBaseContext
     }
 
@@ -396,8 +383,9 @@ class KmePeerConnectionClient {
                     events?.onIceDisconnected()
                 }
                 IceConnectionState.FAILED -> {
-                    reportError("ICE connection failed.")
+                    events?.onPeerConnectionError("ICE connection failed.")
                 }
+                else -> {}
             }
         }
 
@@ -411,7 +399,6 @@ class KmePeerConnectionClient {
 
         override fun onAddStream(stream: MediaStream) {
             if (stream.audioTracks.size > 1 || stream.videoTracks.size > 1) {
-                reportError("Weird-looking stream: $stream")
                 return
             }
 
@@ -426,8 +413,26 @@ class KmePeerConnectionClient {
             remoteVideoTrack = null
         }
 
-        override fun onDataChannel(dc: DataChannel) {
-            val test = ""
+        override fun onDataChannel(dataChannel: DataChannel) {
+            dataChannel.registerObserver(object : DataChannel.Observer {
+
+                override fun onBufferedAmountChange(previousAmount: Long) {}
+
+                override fun onStateChange() {}
+
+                override fun onMessage(buffer: DataChannel.Buffer) {
+                    if (buffer.binary) {
+                        return
+                    }
+                    val byteBuffer = buffer.data
+                    val bytes = ByteArray(byteBuffer.capacity())
+                    byteBuffer[bytes]
+
+                    val volumeData = String(bytes, Charset.forName("UTF-8"))
+                        .split(",")
+                    events?.onUserSpeaking(volumeData[0] == "1")
+                }
+            })
         }
 
         override fun onRenegotiationNeeded() {
