@@ -158,8 +158,8 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         return publisherPeerConnection
     }
 
-    override fun getPeerConnection(userId: Long): IKmePeerConnectionController {
-        return peerConnections.getValue(userId)
+    override fun getPeerConnection(userId: Long): IKmePeerConnectionController? {
+        return peerConnections.getOrDefault(userId, null)
     }
 
     override fun disconnectAllConnections() {

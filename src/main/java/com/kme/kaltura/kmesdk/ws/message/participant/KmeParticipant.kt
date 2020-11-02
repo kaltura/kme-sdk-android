@@ -36,6 +36,9 @@ data class KmeParticipant(
     @SerializedName("is_moderator") var isModerator: Boolean?,
     @SerializedName("is_captioner") var isCaptioner: Boolean?,
     @SerializedName("lat") var lat: Double? = null,
-    @SerializedName("long") var long: Double? = null
+    @SerializedName("long") var long: Double? = null,
+
+//    Local
+    var isSpeaking: Boolean = false
 
 ) : Parcelable

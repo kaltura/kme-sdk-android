@@ -38,6 +38,11 @@ interface IKmePeerConnectionEvents {
     fun onIceGatheringDone()
 
     /**
+     * Callback fired to indicate current talking user
+     */
+    fun onUserSpeaking(isSpeaking: Boolean)
+
+    /**
      * Callback fired once connection is closed (IceConnectionState is
      * DISCONNECTED).
      */
