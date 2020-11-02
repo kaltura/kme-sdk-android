@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.ws.message
 
 import com.google.gson.annotations.SerializedName
+import com.kme.kaltura.kmesdk.ws.message.type.KmeConstraint
 
 open class KmeMessage<T : KmeMessage.Payload> {
 
@@ -14,7 +15,7 @@ open class KmeMessage<T : KmeMessage.Payload> {
     var type: KmeMessageEventType? = null
 
     @SerializedName("constraint")
-    var constraint: List<String>? = null
+    var constraint: List<KmeConstraint>? = null
 
     @SerializedName("payload")
     var payload: T? = null

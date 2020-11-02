@@ -99,6 +99,9 @@ internal class KmeMessageParser(
             KmeMessageEvent.RECEIVE_MESSAGE.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<ReceiveMessagePayload>>()
             }
+            KmeMessageEvent.DELETED_MESSAGE.toString() -> {
+                text.jsonToObject<KmeChatModuleMessage<DeleteMessagePayload>>()
+            }
             else -> null
         }
     }
