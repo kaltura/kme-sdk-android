@@ -31,7 +31,12 @@ interface IKmePeerConnectionClientEvents {
     /**
      * Callback fired once ice gathering is complete (IceGatheringDone is COMPLETE).
      */
-    fun onIceGatheringDone(userId: Long, mediaServerId: Long, )
+    fun onIceGatheringDone(userId: Long, mediaServerId: Long)
+
+    /**
+     * Callback fired to indicate current talking user
+     */
+    fun onUserSpeaking(userId: Long, isSpeaking: Boolean)
 
     /**
      * Callback fired once connection is closed (IceConnectionState is
