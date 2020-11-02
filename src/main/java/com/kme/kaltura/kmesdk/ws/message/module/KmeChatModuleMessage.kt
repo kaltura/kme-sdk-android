@@ -60,7 +60,7 @@ class KmeChatModuleMessage<T : KmeChatModuleMessage.ChatPayload> :
         @SerializedName("timestamp") val timestamp: Long? = null,
         @SerializedName("user") val user: KmeUserInfoData? = null
     ) : ChatPayload() {
-        var parsedMetadata: KmeMetadata? = null
+        var parsedMetadata: KmeChatMessage.Metadata? = null
     }
 
     data class DeleteMessagePayload(

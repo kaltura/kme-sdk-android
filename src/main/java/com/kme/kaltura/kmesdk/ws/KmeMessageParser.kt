@@ -3,9 +3,9 @@ package com.kme.kaltura.kmesdk.ws
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
-import com.kme.kaltura.kmesdk.rest.response.metadata.KmeMetadata
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.chat.KmeChatMessage
 import com.kme.kaltura.kmesdk.ws.message.module.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
@@ -38,6 +38,7 @@ internal class KmeMessageParser(
         return parsedMessage
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun parseMessage(name: String, text: String): KmeMessage<KmeMessage.Payload>? {
         return when (name) {
             KmeMessageEvent.INSTRUCTOR_IS_OFFLINE.toString() -> {
@@ -95,19 +96,28 @@ internal class KmeMessageParser(
                 text.jsonToObject<KmeChatModuleMessage<ReceiveConversationsPayload>>()
             }
             KmeMessageEvent.LOAD_MESSAGES.toString() -> {
-                text.jsonToObject<KmeChatModuleMessage<LoadMessagesPayload>>()
+                val messages = text.jsonToObject<KmeChatModuleMessage<LoadMessagesPayload>>()
+                        as KmeChatModuleMessage<LoadMessagesPayload>?
+
+                messages?.payload?.messages?.forEach { message ->
+                    message.metadata?.let {
+                        message.parsedMetadata =
+                            gson.fromJson(it, KmeChatMessage.Metadata::class.java)
+                    }
+                }
+
+                return messages as KmeMessage<KmeMessage.Payload>?
             }
             KmeMessageEvent.RECEIVE_MESSAGE.toString() -> {
                 val message = text.jsonToObject<KmeChatModuleMessage<ReceiveMessagePayload>>()
-                val kmeChatModuleMessage =
-                    message as KmeChatModuleMessage<ReceiveMessagePayload>
+                        as KmeChatModuleMessage<ReceiveMessagePayload>?
 
-                kmeChatModuleMessage.payload?.metadata?.let {
-                    kmeChatModuleMessage.payload?.parsedMetadata =
-                        gson.fromJson(it, KmeMetadata::class.java)
+                message?.payload?.metadata?.let {
+                    message.payload?.parsedMetadata =
+                        gson.fromJson(it, KmeChatMessage.Metadata::class.java)
                 }
 
-                return message
+                return message as KmeMessage<KmeMessage.Payload>?
             }
             KmeMessageEvent.DELETED_MESSAGE.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<DeleteMessagePayload>>()
