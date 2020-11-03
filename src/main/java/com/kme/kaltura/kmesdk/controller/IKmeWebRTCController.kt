@@ -5,6 +5,7 @@ import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 
 interface IKmeWebRTCController {
 
+    // Peer connections
     fun setTurnServer(
         turnUrl: String,
         turnUser: String,
@@ -28,5 +29,8 @@ interface IKmeWebRTCController {
     fun getPeerConnection(userId: Long) : IKmePeerConnectionController?
 
     fun disconnectAllConnections()
+
+    // Audio
+    fun enableSpeakerphone(isEnable: Boolean)
 
 }
