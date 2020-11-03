@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.ws.message.module
 
 import com.google.gson.annotations.SerializedName
+import com.kme.kaltura.kmesdk.rest.response.metadata.KmeMetadata
 import com.kme.kaltura.kmesdk.rest.response.user.KmeUserInfoData
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.chat.KmeChatMessage
@@ -39,12 +40,14 @@ class KmeChatModuleMessage<T : KmeChatModuleMessage.ChatPayload> :
         @SerializedName("room_id") var roomId: Long? = null,
         @SerializedName("company_id") var companyId: Long? = null,
         @SerializedName("message") var message: String? = null,
-        @SerializedName("user") var user: User? = null
+        @SerializedName("user") var user: User? = null,
+        @SerializedName("message_metadata") var metadata: KmeChatMessage? = null,
     ) : ChatPayload() {
 
         data class User(
             @SerializedName("id") var userId: Long? = null,
             @SerializedName("name") var name: String? = null,
+            @SerializedName("avatar") var avatar: String? = null,
         )
 
     }
@@ -56,7 +59,9 @@ class KmeChatModuleMessage<T : KmeChatModuleMessage.ChatPayload> :
         @SerializedName("message_metadata") val metadata: String? = null,
         @SerializedName("timestamp") val timestamp: Long? = null,
         @SerializedName("user") val user: KmeUserInfoData? = null
-    ) : ChatPayload()
+    ) : ChatPayload() {
+        var parsedMetadata: KmeChatMessage.Metadata? = null
+    }
 
     data class DeleteMessagePayload(
         @SerializedName("conversation_id") var conversationId: String? = null,

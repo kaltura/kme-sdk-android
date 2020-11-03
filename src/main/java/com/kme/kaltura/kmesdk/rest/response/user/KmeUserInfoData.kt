@@ -6,12 +6,13 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class KmeUserInfoData(
-    @SerializedName("id") var id: Long?,
-    @SerializedName("first_name") var firstName: String?,
-    @SerializedName("last_name") var lastName: String?,
-    @SerializedName("lang") var lang: String?,
-    @SerializedName("avatar") var avatar: String?,
-    @SerializedName("userCompanies") var userCompanies: UserCompanies?
+    @SerializedName("id") var id: Long? = null,
+    @SerializedName("first_name") var firstName: String? = null,
+    @SerializedName("last_name") var lastName: String? = null,
+    @SerializedName("name") var fullName: String? = null,
+    @SerializedName("lang") var lang: String? = null,
+    @SerializedName("avatar") var avatar: String? = null,
+    @SerializedName("userCompanies") var userCompanies: UserCompanies? = null
 ) : Parcelable {
 
     @Parcelize
