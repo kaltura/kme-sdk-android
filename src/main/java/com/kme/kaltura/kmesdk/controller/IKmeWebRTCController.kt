@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.controller
 
+import com.kme.kaltura.kmesdk.webrtc.audio.KmeAudioDevice
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 
@@ -31,6 +32,6 @@ interface IKmeWebRTCController {
     fun disconnectAllConnections()
 
     // Audio
-    fun enableSpeakerphone(isEnable: Boolean)
+    fun setAudioDevice(device: KmeAudioDevice)
 
 }

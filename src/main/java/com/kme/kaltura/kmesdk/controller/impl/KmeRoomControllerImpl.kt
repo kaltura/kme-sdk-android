@@ -10,6 +10,7 @@ import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.webrtc.audio.IKmeAudioManager
+import com.kme.kaltura.kmesdk.webrtc.audio.KmeAudioDevice
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -89,6 +90,7 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         listener: IKmeWSConnectionListener
     ) {
         webSocketController.connect(url, companyId, roomId, isReconnect, token, listener)
+        audioManager.start()
     }
 
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
@@ -165,12 +167,12 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
     }
 
     override fun disconnectAllConnections() {
-        audioManager.close()
+        audioManager.stop()
         peerConnections.forEach { (_, connection) -> connection.disconnectPeerConnection() }
     }
 
-    override fun enableSpeakerphone(isEnable: Boolean) {
-        audioManager.enableSpeakerphone(isEnable)
+    override fun setAudioDevice(device: KmeAudioDevice) {
+        audioManager.setAudioDevice(device)
     }
 
 }
