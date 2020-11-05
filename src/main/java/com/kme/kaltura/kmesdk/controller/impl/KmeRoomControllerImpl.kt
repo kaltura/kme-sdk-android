@@ -1,20 +1,22 @@
 package com.kme.kaltura.kmesdk.controller.impl
 
-import com.kme.kaltura.kmesdk.controller.IKmePeerConnectionController
-import com.kme.kaltura.kmesdk.controller.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.IKmeWebSocketController
+import com.kme.kaltura.kmesdk.controller.*
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
+import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
+import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
+import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,12 +27,20 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
     private val roomApiService: KmeRoomApiService by inject()
     private val webSocketController: IKmeWebSocketController by inject()
     private val publisherPeerConnection: IKmePeerConnectionController by inject()
+    private val messageManager: KmeMessageManager by inject()
+    private val userController: IKmeUserController by inject()
+    private val roomSettingsController: IKmeRoomSettingsController by inject()
+
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     private var peerConnections: MutableMap<Long, IKmePeerConnectionController> = mutableMapOf()
+
     private lateinit var turnUrl: String
     private lateinit var turnUser: String
     private lateinit var turnCred: String
+
+    override var roomSettings: KmeWebRTCServer? = null
+        private set
 
     override fun getRooms(
         companyId: Long,
@@ -72,8 +82,14 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         uiScope.launch {
             safeApiCall(
                 { roomApiService.getWebRTCLiveServer(roomAlias) },
-                success,
-                error
+                success = {
+                    roomSettings = it.data
+                    success(it)
+                },
+                error = {
+                    roomSettings = null
+                    error(it)
+                }
             )
         }
     }
@@ -86,6 +102,12 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         token: String,
         listener: IKmeWSConnectionListener
     ) {
+        messageManager.listen(
+            currentParticipantHandler,
+            KmeMessageEvent.ROOM_STATE
+        )
+        roomSettingsController.subscribe()
+
         webSocketController.connect(url, companyId, roomId, isReconnect, token, listener)
     }
 
@@ -117,8 +139,20 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         webSocketController.removeListeners()
     }
 
-    override fun disconnect() {
-        webSocketController.disconnect()
+    private val currentParticipantHandler = object : IKmeMessageListener {
+        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
+            if (KmeMessageEvent.ROOM_STATE == message.name) {
+                val stateMessage: KmeRoomInitModuleMessage<KmeRoomInitModuleMessage.RoomStatePayload>? =
+                    message.toType()
+                val participantsList =
+                    stateMessage?.payload?.participants?.values?.toMutableList()
+
+                val currentUserId = userController.getCurrentUserInfo()?.id
+
+                userController.currentParticipant =
+                    participantsList?.find { kmeParticipant -> kmeParticipant.userId == currentUserId }
+            }
+        }
     }
 
     override fun setTurnServer(
@@ -160,6 +194,10 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
 
     override fun getPeerConnection(userId: Long): IKmePeerConnectionController? {
         return peerConnections.getOrDefault(userId, null)
+    }
+
+    override fun disconnect() {
+        webSocketController.disconnect()
     }
 
     override fun disconnectAllConnections() {
