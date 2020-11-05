@@ -115,7 +115,14 @@ enum class KmeMessageEvent(
     DELETE_MESSAGE("deleteMessage"),
 
     @SerializedName("deletedMessage", alternate = ["deletedmessage"])
-    DELETED_MESSAGE("deletedMessage");
+    DELETED_MESSAGE("deletedMessage"),
+
+    /*
+    * Room Settings
+    * */
+
+    @SerializedName("moduleDefaultSettingsChanged", alternate = ["moduledefaultsettingschanged"])
+    ROOM_SETTINGS_CHANGED("moduleDefaultSettingsChanged");
 
     override fun toString(): String {
         return moduleName.toLowerCase()
