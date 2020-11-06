@@ -10,6 +10,8 @@ import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.SetParticipantModerator
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.permission.KmeUserPermissions
@@ -26,29 +28,42 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
     override fun subscribe() {
         messageManager.listen(
             roomSettingsHandler,
-            KmeMessageEvent.ROOM_SETTINGS_CHANGED
+            KmeMessageEvent.ROOM_SETTINGS_CHANGED,
+            KmeMessageEvent.SET_PARTICIPANT_MODERATOR
         )
     }
 
     private val roomSettingsHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-            if (KmeMessageEvent.ROOM_SETTINGS_CHANGED == message.name) {
-                val settingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload>? =
-                    message.toType()
-                val settingsPayload = settingsMessage?.payload
+            when (message.name) {
+                KmeMessageEvent.ROOM_SETTINGS_CHANGED -> {
+                    val settingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload>? =
+                        message.toType()
+                    val settingsPayload = settingsMessage?.payload
 
-                val currentParticipant = when (settingsPayload?.moduleName) {
-                    KmePermissionModule.CHAT_MODULE -> {
-                        handleChatSetting(
-                            settingsPayload.permissionsKey,
-                            settingsPayload.permissionsValue
-                        )
+                    val currentParticipant = when (settingsPayload?.moduleName) {
+                        KmePermissionModule.CHAT_MODULE -> {
+                            handleChatSetting(
+                                settingsPayload.permissionsKey,
+                                settingsPayload.permissionsValue
+                            )
+                        }
+                        else -> null
                     }
-                    else -> null
-                }
 
-                if (currentParticipant != null) {
-                    userController.currentParticipant = currentParticipant
+                    if (currentParticipant != null) {
+                        userController.currentParticipant = currentParticipant
+                    }
+                }
+                KmeMessageEvent.SET_PARTICIPANT_MODERATOR -> {
+                    val settingsMessage: KmeParticipantsModuleMessage<SetParticipantModerator>? =
+                        message.toType()
+                    val currentParticipant = handleModeratorSetting(settingsMessage)
+                    if (currentParticipant != null) {
+                        userController.currentParticipant = currentParticipant
+                    }
+                }
+                else -> {
                 }
             }
         }
@@ -81,6 +96,17 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
             chatModule.defaultSettings = chatSettings
             userPermissions.chatModule = chatModule
             currentParticipant.userPermissions = userPermissions
+        }
+
+        return currentParticipant
+    }
+
+    private fun handleModeratorSetting(
+        settingsMessage: KmeParticipantsModuleMessage<SetParticipantModerator>?
+    ): KmeParticipant? {
+        val currentParticipant = userController.currentParticipant
+        if (currentParticipant != null) {
+            currentParticipant.isModerator = settingsMessage?.payload?.isModerator
         }
 
         return currentParticipant
