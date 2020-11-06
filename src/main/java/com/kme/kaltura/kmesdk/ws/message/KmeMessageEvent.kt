@@ -64,6 +64,9 @@ enum class KmeMessageEvent(
     @SerializedName("changeUserFocusEvent", alternate = ["changeuserfocusevent"])
     CHANGE_USER_FOCUS_EVENT("changeUserFocusEvent"),
 
+    @SerializedName("setParticipantModerator", alternate = ["setparticipantmoderator"])
+    SET_PARTICIPANT_MODERATOR("setParticipantModerator"),
+
     /*
     * Streaming
     * */
