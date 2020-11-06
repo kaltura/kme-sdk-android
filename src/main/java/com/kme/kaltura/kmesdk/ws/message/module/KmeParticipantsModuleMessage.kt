@@ -33,5 +33,12 @@ class KmeParticipantsModuleMessage<T : KmeParticipantsModuleMessage.Participants
         @SerializedName("is_focused") var isFocused: Boolean? = null
     ) : ParticipantsPayload()
 
+    data class SetParticipantModerator(
+        @SerializedName("target_user_id") var targetUserId: Long? = null,
+        @SerializedName("room_id") var roomId: Long? = null,
+        @SerializedName("company_id") var companyId: Long? = null,
+        @SerializedName("is_moderator") var isModerator: Boolean? = null
+    ) : ParticipantsPayload()
+
     open class ParticipantsPayload : Payload()
 }
