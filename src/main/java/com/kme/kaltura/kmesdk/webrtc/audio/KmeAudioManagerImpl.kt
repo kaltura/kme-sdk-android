@@ -16,7 +16,8 @@ class KmeAudioManagerImpl(
     
     enum class AudioManagerState { UNINITIALIZED, PREINITIALIZED, RUNNING }
 
-    private var audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private var audioManager: AudioManager =
+        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     private var listener: AudioManagerListener? = null
     private var state: AudioManagerState? = null
@@ -188,7 +189,8 @@ class KmeAudioManagerImpl(
 
         audioDevices = newAudioDevices
         if (bluetoothManager.getState() === KmeBluetoothManager.State.HEADSET_UNAVAILABLE &&
-            userSelectedAudioDevice == KmeAudioDevice.BLUETOOTH) {
+            userSelectedAudioDevice == KmeAudioDevice.BLUETOOTH
+        ) {
             userSelectedAudioDevice = KmeAudioDevice.NONE
         }
 
@@ -204,7 +206,7 @@ class KmeAudioManagerImpl(
                     (userSelectedAudioDevice == KmeAudioDevice.NONE || userSelectedAudioDevice == KmeAudioDevice.BLUETOOTH))
 
         val needBluetoothAudioStop =
-            ((bluetoothManager.getState() === KmeBluetoothManager.State.SCO_CONNECTED || bluetoothManager?.getState() === KmeBluetoothManager.State.SCO_CONNECTING) &&
+            ((bluetoothManager.getState() === KmeBluetoothManager.State.SCO_CONNECTED || bluetoothManager.getState() === KmeBluetoothManager.State.SCO_CONNECTING) &&
                     (userSelectedAudioDevice != KmeAudioDevice.NONE && userSelectedAudioDevice != KmeAudioDevice.BLUETOOTH))
 
         if (needBluetoothAudioStop) {

@@ -10,6 +10,7 @@ val controllersModule = module {
     single<IKmeSignInController> { KmeSignInControllerImpl() }
     single<IKmeUserController> { KmeUserControllerImpl() }
     single<IKmeRoomController> { KmeRoomControllerImpl() }
+    single<IKmeAudioController> { KmeAudioControllerImpl() }
     single<IKmeMetadataController> { KmeMetadataControllerImpl() }
     single<IKmeWebSocketController> { KmeWebSocketControllerImpl() }
 
