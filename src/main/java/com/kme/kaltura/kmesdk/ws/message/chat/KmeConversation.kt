@@ -15,4 +15,6 @@ data class KmeConversation(
     @SerializedName("is_system") val isSystem: Boolean? = null,
     @SerializedName("unreadMessages") val unreadMessages: Int? = null
 
-) : Parcelable
+) : Parcelable {
+    var hasAccess = false
+}

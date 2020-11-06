@@ -9,7 +9,7 @@ data class KmeGetRoomsResponse(
 
     data class KmeRoomsData(
         @SerializedName("role") val role: String?,
-        @SerializedName("rooms") val rooms: List<KmeRoom>?,
+        @SerializedName("rooms") val rooms: List<KmeBaseRoom>?,
         @SerializedName("total") val total: Long?
     )
 

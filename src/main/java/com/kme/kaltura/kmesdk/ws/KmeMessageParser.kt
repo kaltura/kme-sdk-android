@@ -12,6 +12,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPass
 import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 
 private const val KEY_NAME = "name"
@@ -121,6 +122,9 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.DELETED_MESSAGE.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<DeleteMessagePayload>>()
+            }
+            KmeMessageEvent.ROOM_SETTINGS_CHANGED.toString() -> {
+                text.jsonToObject<KmeRoomSettingsModuleMessage<RoomSettingsChangedPayload>>()
             }
             else -> null
         }
