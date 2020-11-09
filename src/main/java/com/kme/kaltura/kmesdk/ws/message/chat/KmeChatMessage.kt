@@ -14,6 +14,7 @@ data class KmeChatMessage(
     @SerializedName("message_metadata") val metadata: String? = null,
     @SerializedName("timestamp") val timestamp: Long? = null,
     @SerializedName("user") var user: KmeUserInfoData? = null,
+    @SerializedName("reply_all") var replyAll: Boolean? = null,
     var parsedMetadata: Metadata? = null
 ) : Parcelable {
 
