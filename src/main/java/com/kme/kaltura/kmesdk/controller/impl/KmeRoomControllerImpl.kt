@@ -202,6 +202,7 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
 
     override fun disconnectAllConnections() {
         peerConnections.forEach { (_, connection) -> connection.disconnectPeerConnection() }
+        peerConnections.clear()
     }
 
 }
