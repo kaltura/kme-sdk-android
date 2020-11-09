@@ -99,6 +99,12 @@ internal class KmeMessageParser(
             KmeMessageEvent.RECEIVE_CONVERSATIONS.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<ReceiveConversationsPayload>>()
             }
+            KmeMessageEvent.GOT_CONVERSATION.toString() -> {
+                text.jsonToObject<KmeChatModuleMessage<GotConversationPayload>>()
+            }
+            KmeMessageEvent.CREATE_DM_CONVERSATION.toString() -> {
+                text.jsonToObject<KmeChatModuleMessage<CreatedDmConversationPayload>>()
+            }
             KmeMessageEvent.LOAD_MESSAGES.toString() -> {
                 val messages = text.jsonToObject<KmeChatModuleMessage<LoadMessagesPayload>>()
                         as KmeChatModuleMessage<LoadMessagesPayload>?

@@ -120,6 +120,15 @@ enum class KmeMessageEvent(
     @SerializedName("deletedMessage", alternate = ["deletedmessage"])
     DELETED_MESSAGE("deletedMessage"),
 
+    @SerializedName("createDMConversation", alternate = ["createdmconversation"])
+    CREATE_DM_CONVERSATION("createDMConversation"),
+
+    @SerializedName("getDMConversation", alternate = ["getdmconversation"])
+    GET_CONVERSATION("getDMConversation"),
+
+    @SerializedName("gotDMConversation", alternate = ["gotdmconversation"])
+    GOT_CONVERSATION("gotDMConversation"),
+
     /*
     * Room Settings
     * */
