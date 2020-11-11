@@ -1,10 +1,10 @@
 package com.kme.kaltura.kmesdk.ws.message.module
 
 import com.google.gson.annotations.SerializedName
+import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
-import com.kme.kaltura.kmesdk.ws.message.permission.KmeUserPermissions
 import com.kme.kaltura.kmesdk.ws.message.type.KmeClassMode
 
 class KmeRoomInitModuleMessage<T : KmeRoomInitModuleMessage.RoomInitPayload> : KmeMessage<T>() {
@@ -53,7 +53,7 @@ class KmeRoomInitModuleMessage<T : KmeRoomInitModuleMessage.RoomInitPayload> : K
         @SerializedName("city") val city: String,
         @SerializedName("managing_server_id") val managingServerId: Long,
         @SerializedName("out_of_tab_focus") val outOfTabFocus: Boolean,
-        @SerializedName("user_permissions") val userPermissions: KmeUserPermissions,
+        @SerializedName("user_permissions") val userPermissions: KmeSettingsV2,
         @SerializedName("is_moderator") val isModerator: Boolean,
         @SerializedName("is_captioner") val isCaptioner: Boolean,
         @SerializedName("lat") val lat: Double,
@@ -96,7 +96,7 @@ class KmeRoomInitModuleMessage<T : KmeRoomInitModuleMessage.RoomInitPayload> : K
 
     data class NewUserJoinedPayload(
         @SerializedName("country") val country: String? = null,
-        @SerializedName("user_permissions") val userPermissions: KmeUserPermissions? = null,
+        @SerializedName("user_permissions") val userPermissions: KmeSettingsV2? = null,
         @SerializedName("city") val city: String? = null,
         @SerializedName("last_unmute_time") val lastUnmuteTime: Double? = null,
         @SerializedName("device_type") val deviceType: String? = null,

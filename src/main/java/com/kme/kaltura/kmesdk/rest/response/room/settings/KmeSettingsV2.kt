@@ -1,50 +1,53 @@
 package com.kme.kaltura.kmesdk.rest.response.room.settings
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class KmeSettingsV2(
     @SerializedName("company_settings")
-    val companySettings: KmeCompanySettings? = null,
+    var companySettings: KmeCompanySettings? = null,
 
     @SerializedName("general")
-    val general: KmeGeneral? = null,
+    var general: KmeGeneral? = null,
 
     @SerializedName("chat_module")
-    val chatModule: KmeChatModule? = null,
+    var chatModule: KmeChatModule? = null,
 
     @SerializedName("recording_module")
-    val recordingModule: KmeRecordingModule? = null,
+    var recordingModule: KmeRecordingModule? = null,
 
     @SerializedName("participants_module")
-    val participantsModule: KmeParticipantsModule? = null,
+    var participantsModule: KmeParticipantsModule? = null,
 
     @SerializedName("notes_module")
-    val notesModule: KmeNotesModule? = null,
+    var notesModule: KmeNotesModule? = null,
 
     @SerializedName("playlist_module")
-    val playlistModule: KmePlaylistModule? = null,
+    var playlistModule: KmePlaylistModule? = null,
 
     @SerializedName("whiteboard_module")
-    val whiteboardModule: KmeWhiteboardModule? = null,
+    var whiteboardModule: KmeWhiteboardModule? = null,
 
     @SerializedName("screen_share_module")
-    val screenShareModule: KmeScreenShareModule? = null,
+    var screenShareModule: KmeScreenShareModule? = null,
 
     @SerializedName("youtube_module")
-    val youtubeModule: KmeYoutubeModule? = null,
+    var youtubeModule: KmeYoutubeModule? = null,
 
     @SerializedName("breakout_module")
-    val breakoutModule: KmeBreakoutModule? = null,
+    var breakoutModule: KmeBreakoutModule? = null,
 
     @SerializedName("quiz_module")
-    val quizModule: KmeQuizModule? = null,
+    var quizModule: KmeQuizModule? = null,
 
     @SerializedName("files_module")
-    val filesModule: KmeFilesModule? = null,
+    var filesModule: KmeFilesModule? = null,
 
     @SerializedName("close_captioning_module")
-    val closeCaptioningModule: KmeCloseCaptioningModule? = null,
+    var closeCaptioningModule: KmeCloseCaptioningModule? = null,
 
     @SerializedName("room_access_module")
-    val roomAccessModule: KmeRoomAccessModule? = null
-)
+    var roomAccessModule: KmeRoomAccessModule? = null
+) : Parcelable

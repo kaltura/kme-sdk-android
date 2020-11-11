@@ -1,7 +1,10 @@
 package com.kme.kaltura.kmesdk.rest.response.room.settings
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class KmeGeneral(
     @SerializedName("show_invite")
     val showInvite: String? = null,
@@ -116,4 +119,4 @@ data class KmeGeneral(
 
     @SerializedName("user_timeout")
     val userTimeout: String? = null
-)
+) : Parcelable

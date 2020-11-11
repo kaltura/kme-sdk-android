@@ -5,6 +5,7 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeChatModule
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeDefaultSettings
+import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.KmeMessageManager
@@ -14,7 +15,6 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.SetParticipantModerator
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
-import com.kme.kaltura.kmesdk.ws.message.permission.KmeUserPermissions
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionModule
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
@@ -75,7 +75,7 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
     ): KmeParticipant? {
         val currentParticipant = userController.currentParticipant
         if (currentParticipant != null) {
-            val userPermissions = currentParticipant.userPermissions ?: KmeUserPermissions()
+            val userPermissions = currentParticipant.userPermissions ?: KmeSettingsV2()
             val chatModule = userPermissions.chatModule ?: KmeChatModule()
             val chatSettings = chatModule.defaultSettings ?: KmeDefaultSettings()
 

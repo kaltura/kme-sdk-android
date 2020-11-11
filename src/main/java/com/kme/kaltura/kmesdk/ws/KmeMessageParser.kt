@@ -102,7 +102,7 @@ internal class KmeMessageParser(
             KmeMessageEvent.GOT_CONVERSATION.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<GotConversationPayload>>()
             }
-            KmeMessageEvent.CREATE_DM_CONVERSATION.toString() -> {
+            KmeMessageEvent.CREATED_DM_CONVERSATION.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<CreatedDmConversationPayload>>()
             }
             KmeMessageEvent.LOAD_MESSAGES.toString() -> {
