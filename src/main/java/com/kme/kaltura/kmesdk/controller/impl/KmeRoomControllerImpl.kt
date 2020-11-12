@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.controller.impl
 
+import android.util.Log
 import com.kme.kaltura.kmesdk.controller.*
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
@@ -102,6 +103,12 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         token: String,
         listener: IKmeWSConnectionListener
     ) {
+        if (isConnected()) {
+            Log.e("TAG", "disconnected")
+            disconnect()
+            disconnectAllConnections()
+        }
+
         messageManager.listen(
             currentParticipantHandler,
             KmeMessageEvent.ROOM_STATE
@@ -110,6 +117,8 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
 
         webSocketController.connect(url, companyId, roomId, isReconnect, token, listener)
     }
+
+    override fun isConnected(): Boolean = webSocketController.isConnected()
 
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
         webSocketController.send(message)

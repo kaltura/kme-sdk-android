@@ -7,6 +7,8 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 
 interface IKmeWebSocketController {
 
+    fun isConnected(): Boolean
+
     fun connect(
         url: String,
         companyId: Long,

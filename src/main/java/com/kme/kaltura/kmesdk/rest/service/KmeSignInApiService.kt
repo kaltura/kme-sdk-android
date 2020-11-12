@@ -27,6 +27,15 @@ interface KmeSignInApiService {
     ): KmeLoginResponse
 
     @FormUrlEncoded
+    @POST("signin/guest")
+    suspend fun guest(
+        @Field("Guest[name]") name: String,
+        @Field("Guest[email]") email: String,
+        @Field("Guest[room_alias]") roomAlias: String,
+        @Field("room_alias") roomAliasField: String
+    ): KmeLoginResponse
+
+    @FormUrlEncoded
     @POST("signin/logout")
     suspend fun logout(): KmeLogoutResponse
 
