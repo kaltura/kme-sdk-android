@@ -16,6 +16,15 @@ enum class KmeMessageEvent(
     @SerializedName("instructorIsOffLine", alternate = ["instructorisoffline"])
     INSTRUCTOR_IS_OFFLINE("instructorIsOffLine"),
 
+    @SerializedName("awaitInstructorApproval", alternate = ["awaitinstructorapproval"])
+    AWAIT_INSTRUCTOR_APPROVAL("awaitInstructorApproval"),
+
+    @SerializedName("userApprovedByInstructor", alternate = ["userapprovedbyinstructor"])
+    USER_APPROVED_BY_INSTRUCTOR("userApprovedByInstructor"),
+
+    @SerializedName("userRejectedByInstructor", alternate = ["userrejectedbyinstructor"])
+    USER_REJECTED_BY_INSTRUCTOR("userRejectedByInstructor"),
+
     @SerializedName("anyInstructorsConnectedToRoom", alternate = ["anyinstructorsconnectedtoroom"])
     ANY_INSTRUCTORS_IS_CONNECTED_TO_ROOM("anyInstructorsConnectedToRoom"),
 

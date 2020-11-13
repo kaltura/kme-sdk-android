@@ -156,7 +156,7 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
                 val participantsList =
                     stateMessage?.payload?.participants?.values?.toMutableList()
 
-                val currentUserId = userController.getCurrentUserInfo()?.id
+                val currentUserId = userController.getCurrentUserInfo()?.getUserId()
 
                 userController.currentParticipant =
                     participantsList?.find { kmeParticipant -> kmeParticipant.userId == currentUserId }
