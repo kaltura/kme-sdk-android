@@ -2,23 +2,25 @@ package com.kme.kaltura.kmesdk.di
 
 import com.google.gson.GsonBuilder
 import com.kme.kaltura.kmesdk.BuildConfig
+import com.kme.kaltura.kmesdk.R
+import com.kme.kaltura.kmesdk.rest.KmeCookieJar
 import com.kme.kaltura.kmesdk.rest.KmeIntToBooleanTypeAdapter
 import com.kme.kaltura.kmesdk.rest.KmeStringToBooleanTypeAdapter
 import com.kme.kaltura.kmesdk.rest.KmeTokenInterceptor
-import com.kme.kaltura.kmesdk.rest.KmeCookieJar
 import com.kme.kaltura.kmesdk.rest.service.KmeMetadataApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeUserApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.net.HttpURLConnection
 import java.util.concurrent.TimeUnit
 
 val restModule = module {
-
     single {
         GsonBuilder()
             .setLenient()
@@ -54,7 +56,7 @@ val restModule = module {
 
     single {
         Retrofit.Builder()
-            .baseUrl(BuildConfig.API_URL)
+            .baseUrl("https://${androidContext().getString(R.string.api_url)}/backend/")
             .client(get())
             .addConverterFactory(GsonConverterFactory.create(get()))
             .build()

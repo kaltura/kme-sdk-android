@@ -120,7 +120,8 @@ class KmePeerConnectionControllerImpl(
     }
 
     private fun startMeasure() {
-        soundMeter?.start()
+        //FIXME crash
+//        soundMeter?.start()
         meterHandler.post(soundMeasureRunnable)
     }
 

@@ -16,6 +16,12 @@ interface IKmeUserController {
         error: (exception: KmeApiException) -> Unit
     )
 
+    fun getUserInformation(
+        roomAlias: String,
+        success: (response: KmeGetUserInfoResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
     fun getCurrentUserInfo(): KmeUserInfoData?
 
 }

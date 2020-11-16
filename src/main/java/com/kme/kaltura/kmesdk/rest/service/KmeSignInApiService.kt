@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.rest.service
 
+import com.kme.kaltura.kmesdk.rest.response.signin.KmeGuestLoginResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLogoutResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeRegisterResponse
@@ -25,6 +26,15 @@ interface KmeSignInApiService {
         @Field("LoginForm[email]") email: String,
         @Field("LoginForm[password]") password: String
     ): KmeLoginResponse
+
+    @FormUrlEncoded
+    @POST("signin/guest")
+    suspend fun guest(
+        @Field("Guest[name]") name: String,
+        @Field("Guest[email]") email: String,
+        @Field("Guest[room_alias]") roomAlias: String,
+        @Field("room_alias") roomAliasField: String
+    ): KmeGuestLoginResponse
 
     @FormUrlEncoded
     @POST("signin/logout")

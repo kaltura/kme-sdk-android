@@ -16,7 +16,7 @@ class KmeCookieJar(
         if (url.toString().contains("fe/metadata")) {
             prefs.putString(KmePrefsKeys.COOKIE, cookieList.joinToString(";"))
         }
-        cookies.clear()
+//        cookies.clear()
         cookies.addAll(cookieList)
     }
 

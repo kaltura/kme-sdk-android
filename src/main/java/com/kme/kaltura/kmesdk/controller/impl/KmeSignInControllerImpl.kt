@@ -5,6 +5,7 @@ import com.kme.kaltura.kmesdk.encryptWith
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
+import com.kme.kaltura.kmesdk.rest.response.signin.KmeGuestLoginResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLogoutResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeRegisterResponse
@@ -64,6 +65,22 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
                     }
                     success(response)
                 },
+                error
+            )
+        }
+    }
+
+    override fun guest(
+        name: String,
+        email: String,
+        roomAlias: String,
+        success: (response: KmeGuestLoginResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        uiScope.launch {
+            safeApiCall(
+                { signInApiService.guest(name, email, roomAlias, roomAlias) },
+                success,
                 error
             )
         }

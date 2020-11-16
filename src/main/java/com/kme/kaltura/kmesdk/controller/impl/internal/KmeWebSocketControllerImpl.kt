@@ -41,6 +41,7 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
 
     private var reconnectionAttempts = 0
     private var allowReconnection = true
+    private var isSocketConnected = false
 
     private var reconnectionJob: Job? = null
 
@@ -79,7 +80,10 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
         }
     }
 
+    override fun isConnected() = isSocketConnected
+
     override fun onOpen(response: Response) {
+        isSocketConnected = true
         reconnectionJob?.cancel()
         reconnectionAttempts = 0
         uiScope.launch {
@@ -88,6 +92,7 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
     }
 
     override fun onFailure(throwable: Throwable, response: Response?) {
+        isSocketConnected = false
         reconnect()
         uiScope.launch {
             listener.onFailure(throwable)
@@ -95,6 +100,7 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
     }
 
     override fun onClosing(code: Int, reason: String) {
+        isSocketConnected = false
         //Status code == 1000 - normal closure, the connection successfully completed
         if (code != 1000) {
             reconnect()
@@ -105,6 +111,7 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
     }
 
     override fun onClosed(code: Int, reason: String) {
+        isSocketConnected = false
         reconnectionJob?.cancel()
         uiScope.launch {
             listener.onClosed(code, reason)
