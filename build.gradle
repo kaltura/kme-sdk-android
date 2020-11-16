@@ -18,11 +18,11 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
-            buildConfigField "String", "API_URL", '"https://stagingsmart.newrow.com/backend/"'
+            resValue "string", "api_url", 'stagingsmart.newrow.com'
         }
         release {
             minifyEnabled false
-            buildConfigField "String", "API_URL", '"https://smart.newrow.com/backend/"'
+            resValue "string", "api_url", 'smart.newrow.com'
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

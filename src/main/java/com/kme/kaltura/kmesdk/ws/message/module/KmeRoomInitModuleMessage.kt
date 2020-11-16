@@ -32,6 +32,12 @@ class KmeRoomInitModuleMessage<T : KmeRoomInitModuleMessage.RoomInitPayload> : K
         @SerializedName("user_id") val userId: Long?
     ) : RoomInitPayload()
 
+    data class ApprovalPayload(
+        @SerializedName("room_id") val roomId: Long?,
+        @SerializedName("user_id") val userId: Long?,
+        @SerializedName("amount_waiting") val amountWaiting: Long?
+    ) : RoomInitPayload()
+
     data class JoinedRoomPayload(
         @SerializedName("user_id") val userId: Long?,
         @SerializedName("region_id") val regionId: Long,

@@ -48,6 +48,26 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
         }
     }
 
+    override fun getUserInformation(
+        roomAlias: String,
+        success: (response: KmeGetUserInfoResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        uiScope.launch {
+            safeApiCall(
+                { userApiService.getUserInfo(roomAlias) },
+                success = {
+                    currentUserInfo = it.data
+                    success(it)
+                },
+                error = {
+                    currentUserInfo = null
+                    error(it)
+                }
+            )
+        }
+    }
+
     override fun getCurrentUserInfo() = currentUserInfo
 
 }
