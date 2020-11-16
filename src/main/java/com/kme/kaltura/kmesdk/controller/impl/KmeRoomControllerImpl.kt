@@ -113,6 +113,7 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
             currentParticipantHandler,
             KmeMessageEvent.ROOM_STATE
         )
+
         roomSettingsController.subscribe()
 
         webSocketController.connect(url, companyId, roomId, isReconnect, token, listener)
@@ -158,8 +159,12 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
 
                 val currentUserId = userController.getCurrentUserInfo()?.getUserId()
 
-                userController.currentParticipant =
+                val currentParticipant =
                     participantsList?.find { kmeParticipant -> kmeParticipant.userId == currentUserId }
+
+                currentParticipant?.userPermissions = roomSettings?.roomInfo?.settingsV2
+
+                userController.currentParticipant = currentParticipant
             }
         }
     }
