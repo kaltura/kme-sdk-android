@@ -25,4 +25,6 @@ interface IKmeUserController {
 
     fun getCurrentUserInfo(): KmeUserInfoData?
 
+    fun logout()
+
 }
