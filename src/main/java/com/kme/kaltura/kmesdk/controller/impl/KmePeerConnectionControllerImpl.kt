@@ -201,7 +201,12 @@ class KmePeerConnectionControllerImpl(
     }
 
     override fun onLocalDescription(sdp: SessionDescription) {
-        listener?.onLocalDescription(userId, mediaServerId, sdp.description, sdp.type.name.toLowerCase())
+        listener?.onLocalDescription(
+            userId,
+            mediaServerId,
+            sdp.description,
+            sdp.type.name.toLowerCase()
+        )
     }
 
     override fun onIceCandidate(candidate: IceCandidate) {
@@ -268,7 +273,11 @@ class KmePeerConnectionControllerImpl(
         return null
     }
 
-    private fun buildIceServers(turnUrl: String, turnUser: String, turnCred: String) : MutableList<PeerConnection.IceServer> {
+    private fun buildIceServers(
+        turnUrl: String,
+        turnUser: String,
+        turnCred: String
+    ): MutableList<PeerConnection.IceServer> {
         val iceServers: MutableList<PeerConnection.IceServer> = mutableListOf()
         val turnsUrl = turnUrl.replace("turn:", "turns:")
 
