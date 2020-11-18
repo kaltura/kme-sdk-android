@@ -146,7 +146,13 @@ enum class KmeMessageEvent(
     * */
 
     @SerializedName("moduleDefaultSettingsChanged", alternate = ["moduledefaultsettingschanged"])
-    ROOM_SETTINGS_CHANGED("moduleDefaultSettingsChanged");
+    ROOM_SETTINGS_CHANGED("moduleDefaultSettingsChanged"),
+
+    @SerializedName("forceSessionEnd", alternate = ["forcesessionend"])
+    FORCE_SESSION_END("forceSessionEnd"),
+
+    @SerializedName("userLeaveSession", alternate = ["userleavesession"])
+    USER_LEAVE_SESSION("userLeaveSession");
 
     override fun toString(): String {
         return moduleName.toLowerCase()
