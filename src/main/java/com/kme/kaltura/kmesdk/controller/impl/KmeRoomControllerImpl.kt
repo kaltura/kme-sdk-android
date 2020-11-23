@@ -104,7 +104,6 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         listener: IKmeWSConnectionListener
     ) {
         if (isConnected()) {
-            Log.e("TAG", "disconnected")
             disconnect()
             disconnectAllConnections()
         }
@@ -115,7 +114,6 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
         )
 
         roomSettingsController.subscribe()
-
         webSocketController.connect(url, companyId, roomId, isReconnect, token, listener)
     }
 
@@ -164,7 +162,7 @@ class KmeRoomControllerImpl : KmeController(), IKmeRoomController {
 
                 currentParticipant?.userPermissions = roomSettings?.roomInfo?.settingsV2
 
-                userController.currentParticipant = currentParticipant
+                userController.updateParticipant(currentParticipant)
             }
         }
     }

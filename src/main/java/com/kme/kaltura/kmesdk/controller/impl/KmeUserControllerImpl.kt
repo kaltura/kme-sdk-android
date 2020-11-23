@@ -21,8 +21,7 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     private var currentUserInfo: KmeUserInfoData? = null
-
-    override var currentParticipant: KmeParticipant? = null
+    private var currentParticipant: KmeParticipant? = null
 
     override fun isLoggedIn(): Boolean {
         return !kmePreferences.getString(KmePrefsKeys.ACCESS_TOKEN, "").isNullOrEmpty()
@@ -68,6 +67,12 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
     }
 
     override fun getCurrentUserInfo() = currentUserInfo
+
+    override fun getCurrentParticipant() = currentParticipant
+
+    override fun updateParticipant(participant: KmeParticipant?) {
+        this.currentParticipant = participant
+    }
 
     override fun logout() {
         currentUserInfo = null

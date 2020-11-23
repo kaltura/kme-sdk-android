@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.controller.impl.internal
 
+import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeRoomSettingsController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
@@ -52,7 +53,7 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
                     }
 
                     if (currentParticipant != null) {
-                        userController.currentParticipant = currentParticipant
+                        userController.updateParticipant(currentParticipant)
                     }
                 }
                 KmeMessageEvent.SET_PARTICIPANT_MODERATOR -> {
@@ -60,7 +61,8 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
                         message.toType()
                     val currentParticipant = handleModeratorSetting(settingsMessage)
                     if (currentParticipant != null) {
-                        userController.currentParticipant = currentParticipant
+                        userController.updateParticipant(currentParticipant)
+                        Log.e("TAG", "updateParticipant" )
                     }
                 }
                 else -> {
@@ -73,7 +75,7 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
         key: KmePermissionKey?,
         value: KmePermissionValue?
     ): KmeParticipant? {
-        val currentParticipant = userController.currentParticipant
+        val currentParticipant = userController.getCurrentParticipant()
         if (currentParticipant != null) {
             val userPermissions = currentParticipant.userPermissions ?: KmeSettingsV2()
             val chatModule = userPermissions.chatModule ?: KmeChatModule()
@@ -104,7 +106,7 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
     private fun handleModeratorSetting(
         settingsMessage: KmeParticipantsModuleMessage<SetParticipantModerator>?
     ): KmeParticipant? {
-        val currentParticipant = userController.currentParticipant
+        val currentParticipant = userController.getCurrentParticipant()
         if (currentParticipant != null) {
             currentParticipant.isModerator = settingsMessage?.payload?.isModerator
         }
