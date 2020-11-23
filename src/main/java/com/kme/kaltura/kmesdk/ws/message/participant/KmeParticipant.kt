@@ -2,7 +2,7 @@ package com.kme.kaltura.kmesdk.ws.message.participant
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
-import com.kme.kaltura.kmesdk.ws.message.permission.KmeUserPermissions
+import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 import com.kme.kaltura.kmesdk.ws.message.type.KmeLiveMediaState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlatformType
@@ -32,7 +32,7 @@ data class KmeParticipant(
     @SerializedName("city") var city: String? = null,
     @SerializedName("managing_server_id") var managingServerId: Long? = null,
     @SerializedName("out_of_tab_focus") var outOfTabFocus: Boolean? = null,
-    @SerializedName("user_permissions") var userPermissions: KmeUserPermissions? = null,
+    @SerializedName("user_permissions") var userPermissions: KmeSettingsV2? = null,
     @SerializedName("is_moderator") var isModerator: Boolean?,
     @SerializedName("is_captioner") var isCaptioner: Boolean?,
     @SerializedName("lat") var lat: Double? = null,

@@ -1,8 +1,11 @@
 package com.kme.kaltura.kmesdk.rest.response.room.settings
 
+import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class KmeCloseCaptioningModule(
     @SerializedName("is_active")
     @Expose
@@ -15,4 +18,4 @@ data class KmeCloseCaptioningModule(
     @SerializedName("default_settings")
     @Expose
     val defaultSettings: KmeDefaultSettings? = null
-)
+) : Parcelable

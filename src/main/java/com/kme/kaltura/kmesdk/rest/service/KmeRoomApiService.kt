@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk.rest.service
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
+import com.kme.kaltura.kmesdk.ws.message.type.KmePlatformType
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -24,7 +25,8 @@ interface KmeRoomApiService {
 
     @GET("room/getWebrtcLiveServer")
     suspend fun getWebRTCLiveServer(
-        @Query("room_alias") roomAlias: String
+        @Query("room_alias") roomAlias: String,
+        @Query("device_type") deviceType: KmePlatformType = KmePlatformType.MOBILE
     ): KmeGetWebRTCServerResponse
 
 }

@@ -12,7 +12,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPass
 import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 
 private const val KEY_NAME = "name"
@@ -60,6 +60,11 @@ internal class KmeMessageParser(
             KmeMessageEvent.ROOM_PARTICIPANT_LIMIT_REACHED.toString() -> {
                 text.jsonToObject<KmeRoomInitModuleMessage<RoomParticipantLimitReachedPayload>>()
             }
+            KmeMessageEvent.AWAIT_INSTRUCTOR_APPROVAL.toString(),
+            KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR.toString(),
+            KmeMessageEvent.USER_APPROVED_BY_INSTRUCTOR.toString() -> {
+                text.jsonToObject<KmeRoomInitModuleMessage<ApprovalPayload>>()
+            }
             KmeMessageEvent.CLOSE_WEB_SOCKET.toString() -> {
                 text.jsonToObject<KmeRoomInitModuleMessage<CloseWebSocketPayload>>()
             }
@@ -98,6 +103,12 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.RECEIVE_CONVERSATIONS.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<ReceiveConversationsPayload>>()
+            }
+            KmeMessageEvent.GOT_CONVERSATION.toString() -> {
+                text.jsonToObject<KmeChatModuleMessage<GotConversationPayload>>()
+            }
+            KmeMessageEvent.CREATED_DM_CONVERSATION.toString() -> {
+                text.jsonToObject<KmeChatModuleMessage<CreatedDmConversationPayload>>()
             }
             KmeMessageEvent.LOAD_MESSAGES.toString() -> {
                 val messages = text.jsonToObject<KmeChatModuleMessage<LoadMessagesPayload>>()

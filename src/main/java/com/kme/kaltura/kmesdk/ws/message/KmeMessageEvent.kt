@@ -16,6 +16,15 @@ enum class KmeMessageEvent(
     @SerializedName("instructorIsOffLine", alternate = ["instructorisoffline"])
     INSTRUCTOR_IS_OFFLINE("instructorIsOffLine"),
 
+    @SerializedName("awaitInstructorApproval", alternate = ["awaitinstructorapproval"])
+    AWAIT_INSTRUCTOR_APPROVAL("awaitInstructorApproval"),
+
+    @SerializedName("userApprovedByInstructor", alternate = ["userapprovedbyinstructor"])
+    USER_APPROVED_BY_INSTRUCTOR("userApprovedByInstructor"),
+
+    @SerializedName("userRejectedByInstructor", alternate = ["userrejectedbyinstructor"])
+    USER_REJECTED_BY_INSTRUCTOR("userRejectedByInstructor"),
+
     @SerializedName("anyInstructorsConnectedToRoom", alternate = ["anyinstructorsconnectedtoroom"])
     ANY_INSTRUCTORS_IS_CONNECTED_TO_ROOM("anyInstructorsConnectedToRoom"),
 
@@ -120,12 +129,30 @@ enum class KmeMessageEvent(
     @SerializedName("deletedMessage", alternate = ["deletedmessage"])
     DELETED_MESSAGE("deletedMessage"),
 
+    @SerializedName("createDMConversation", alternate = ["createdmconversation"])
+    CREATE_DM_CONVERSATION("createDMConversation"),
+
+    @SerializedName("createdDMConversation", alternate = ["createddmconversation"])
+    CREATED_DM_CONVERSATION("createdDMConversation"),
+
+    @SerializedName("getDMConversation", alternate = ["getdmconversation"])
+    GET_CONVERSATION("getDMConversation"),
+
+    @SerializedName("gotDMConversation", alternate = ["gotdmconversation"])
+    GOT_CONVERSATION("gotDMConversation"),
+
     /*
     * Room Settings
     * */
 
     @SerializedName("moduleDefaultSettingsChanged", alternate = ["moduledefaultsettingschanged"])
-    ROOM_SETTINGS_CHANGED("moduleDefaultSettingsChanged");
+    ROOM_SETTINGS_CHANGED("moduleDefaultSettingsChanged"),
+
+    @SerializedName("forceSessionEnd", alternate = ["forcesessionend"])
+    FORCE_SESSION_END("forceSessionEnd"),
+
+    @SerializedName("userLeaveSession", alternate = ["userleavesession"])
+    USER_LEAVE_SESSION("userLeaveSession");
 
     override fun toString(): String {
         return moduleName.toLowerCase()

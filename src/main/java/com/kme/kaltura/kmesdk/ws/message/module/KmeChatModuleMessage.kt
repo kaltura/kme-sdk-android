@@ -1,7 +1,6 @@
 package com.kme.kaltura.kmesdk.ws.message.module
 
 import com.google.gson.annotations.SerializedName
-import com.kme.kaltura.kmesdk.rest.response.metadata.KmeMetadata
 import com.kme.kaltura.kmesdk.rest.response.user.KmeUserInfoData
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.chat.KmeChatMessage
@@ -43,13 +42,11 @@ class KmeChatModuleMessage<T : KmeChatModuleMessage.ChatPayload> :
         @SerializedName("user") var user: User? = null,
         @SerializedName("message_metadata") var metadata: KmeChatMessage? = null,
     ) : ChatPayload() {
-
         data class User(
             @SerializedName("id") var userId: Long? = null,
             @SerializedName("name") var name: String? = null,
             @SerializedName("avatar") var avatar: String? = null,
         )
-
     }
 
     data class ReceiveMessagePayload(
@@ -69,6 +66,26 @@ class KmeChatModuleMessage<T : KmeChatModuleMessage.ChatPayload> :
         @SerializedName("ack_id") var ackId: String? = null,
         @SerializedName("room_id") var roomId: Long? = null,
         @SerializedName("company_id") var companyId: Long? = null
+    ) : ChatPayload()
+
+    data class CreateDmConversationPayload(
+        @SerializedName("target_user_id") var targetUserId: Long? = null,
+        @SerializedName("room_id") var roomId: Long? = null,
+        @SerializedName("company_id") var companyId: Long? = null
+    ) : ChatPayload()
+
+    data class CreatedDmConversationPayload(
+        @SerializedName("conversation") val conversation: KmeConversation? = null
+    ) : ChatPayload()
+
+    data class GetConversationPayload(
+        @SerializedName("conversation_id") var conversationId: String? = null,
+        @SerializedName("room_id") var roomId: Long? = null,
+        @SerializedName("company_id") var companyId: Long? = null
+    ) : ChatPayload()
+
+    data class GotConversationPayload(
+        @SerializedName("conversation") val conversation: KmeConversation? = null
     ) : ChatPayload()
 
     open class ChatPayload : Payload()

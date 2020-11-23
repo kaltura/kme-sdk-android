@@ -12,6 +12,12 @@ enum class KmeUserRole(
     @SerializedName("admin", alternate = ["ADMIN"])
     ADMIN("admin"),
 
+    @SerializedName("student", alternate = ["STUDENT"])
+    STUDENT("student"),
+
+    @SerializedName("guest", alternate = ["GUEST"])
+    GUEST("guest"),
+
     @SerializedName("owner", alternate = ["OWNER"])
     OWNER("owner")
 
