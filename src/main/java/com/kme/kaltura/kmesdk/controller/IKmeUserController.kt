@@ -8,7 +8,9 @@ import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 
 interface IKmeUserController {
 
-    var currentParticipant: KmeParticipant?
+    fun getCurrentParticipant(): KmeParticipant?
+
+    fun updateParticipant(participant: KmeParticipant?)
 
     fun isLoggedIn(): Boolean
 
