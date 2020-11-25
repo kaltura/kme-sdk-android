@@ -82,7 +82,7 @@ class KmePeerConnectionControllerImpl(
                 videoCapturer = createCameraCapturer(context)
             }
 
-            soundMeter = KmeSoundAmplitudeMeter()
+            soundMeter = KmeSoundAmplitudeMeter(context)
         } else {
             remoteRendererView?.let {
                 it.init(peerConnectionClient?.getRenderContext(), null)
@@ -120,8 +120,7 @@ class KmePeerConnectionControllerImpl(
     }
 
     private fun startMeasure() {
-        //FIXME crash
-//        soundMeter?.start()
+        soundMeter?.start()
         meterHandler.post(soundMeasureRunnable)
     }
 
