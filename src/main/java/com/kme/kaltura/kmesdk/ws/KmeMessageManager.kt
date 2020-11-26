@@ -1,11 +1,13 @@
 package com.kme.kaltura.kmesdk.ws
 
+import android.util.Log
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.collections.LinkedHashSet
 
 internal class KmeMessageManager {
 
