@@ -499,8 +499,8 @@ class KmePeerConnectionImpl : IKmePeerConnection {
         private const val AUDIO_NOISE_SUPPRESSION_CONSTRAINT = "googNoiseSuppression"
         private const val AUDIO_LEVEL_CONTROL_CONSTRAINT = "levelControl"
         private const val DTLS_SRTP_KEY_AGREEMENT_CONSTRAINT = "DtlsSrtpKeyAgreement"
-        private const val VIDEO_WIDTH = 1280
-        private const val VIDEO_HEIGHT = 720
+        private const val VIDEO_WIDTH = 720 /*1280*/
+        private const val VIDEO_HEIGHT = 480 /*720*/
         private const val VIDEO_FPS = 30
         private const val BPS_IN_KBPS = 1000
     }
