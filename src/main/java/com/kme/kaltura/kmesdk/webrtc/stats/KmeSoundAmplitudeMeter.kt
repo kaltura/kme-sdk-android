@@ -1,53 +1,55 @@
 package com.kme.kaltura.kmesdk.webrtc.stats
 
-import android.content.Context
-import android.media.MediaRecorder
-import android.os.Environment.DIRECTORY_MUSIC
-import java.io.File
+import android.os.Handler
+import android.os.Looper
+import com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl
+import org.webrtc.PeerConnection
 
 class KmeSoundAmplitudeMeter(
-    val context: Context
+    private val peerConnection: PeerConnection,
+    private var soundAmplitudeListener: KmeSoundAmplitudeListener?
 ) {
 
-    private var mRecorder: MediaRecorder? = null
-    private var rootFolder: File? = null
+    private var meterHandler = Handler(Looper.getMainLooper())
+    private val soundMeasureRunnable = Runnable { measureAmplitude() }
 
-    fun start() {
-        rootFolder = context.getExternalFilesDir(DIRECTORY_MUSIC)
-        val filePath = rootFolder?.toURI() ?: return
-
-        val dir = File(filePath)
-        if (!dir.exists()) {
-            dir.mkdirs()
-        }
-
-        if (mRecorder == null) {
-            mRecorder = MediaRecorder()
-        }
-
-        mRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
-        mRecorder?.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-        mRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-        mRecorder?.setOutputFile("$dir/$TMP_FILE_NAME")
-        mRecorder?.prepare()
-        mRecorder?.start()
+    fun startMeasure() {
+        meterHandler.post(soundMeasureRunnable)
     }
 
-    fun stop() {
-        mRecorder?.let {
-            it.stop()
-            it.release()
-            File(rootFolder?.toString() + "/$TMP_FILE_NAME").delete()
-        }
-        mRecorder = null
+    fun stopMeasure() {
+        meterHandler.removeCallbacks(soundMeasureRunnable)
+        soundAmplitudeListener?.onAmplitudeMeasured(false, 0.0)
     }
 
-    fun getAmplitude(): Int {
-        return mRecorder?.maxAmplitude ?: 0
+    private fun measureAmplitude() {
+        peerConnection.getStats {
+            it.statsMap?.forEach { statObject ->
+                if (statObject.value.type == STATISTICS_MEDIA_SOURCE_KEY &&
+                    statObject.value.members.containsKey(STATISTICS_TRACK_ID_KEY) &&
+                    statObject.value.members.containsKey(STATISTICS_AUDIO_LEVEL_KEY) &&
+                    statObject.value.members.getValue(STATISTICS_TRACK_ID_KEY) == KmePeerConnectionImpl.AUDIO_TRACK_ID
+                ) {
+                    val value = statObject.value.members.getValue(STATISTICS_AUDIO_LEVEL_KEY)
+                    val amplitude = "%.3f".format(value).replace(",", ".").toDouble()
+                    val bringToFront = amplitude > SOUND_METER_VALUE_TO_DETECT
+                    soundAmplitudeListener?.onAmplitudeMeasured(bringToFront, amplitude)
+                    return@getStats
+                }
+            }
+        }
+        meterHandler.postDelayed(soundMeasureRunnable, SOUND_METER_DELAY)
     }
 
     companion object {
-        private const val TMP_FILE_NAME = "tmp.3gp"
+
+        private const val SOUND_METER_DELAY: Long = 500
+        private const val SOUND_METER_VALUE_TO_DETECT: Double = 0.01
+
+        private const val STATISTICS_MEDIA_SOURCE_KEY = "media-source"
+        private const val STATISTICS_TRACK_ID_KEY = "trackIdentifier"
+        private const val STATISTICS_AUDIO_LEVEL_KEY = "audioLevel"
+
     }
 
 }
