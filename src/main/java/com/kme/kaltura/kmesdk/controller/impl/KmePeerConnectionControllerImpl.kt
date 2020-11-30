@@ -11,7 +11,6 @@ import com.kme.kaltura.kmesdk.controller.IKmePeerConnectionController
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl
-import com.kme.kaltura.kmesdk.webrtc.stats.KmeSoundAmplitudeMeter
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.webrtc.view.KmeVideoSink
 import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
@@ -32,9 +31,7 @@ class KmePeerConnectionControllerImpl(
     private val remoteVideoSink: KmeVideoSink = KmeVideoSink()
     private var remoteRendererView: KmeSurfaceRendererView? = null
 
-    private var soundMeter: KmeSoundAmplitudeMeter? = null
-    private var meterHandler = Handler()
-    private var meterReporter = Handler(Looper.getMainLooper())
+    private var soundMeterReporter = Handler(Looper.getMainLooper())
 
     private var isPublisher = false
     private var userId = 0L
@@ -81,8 +78,6 @@ class KmePeerConnectionControllerImpl(
             ) {
                 videoCapturer = createCameraCapturer(context)
             }
-
-            soundMeter = KmeSoundAmplitudeMeter()
         } else {
             remoteRendererView?.let {
                 it.init(peerConnectionClient?.getRenderContext(), null)
@@ -104,31 +99,8 @@ class KmePeerConnectionControllerImpl(
         )
     }
 
-    private val soundMeasureRunnable = Runnable { measureSound() }
-
     private fun reportUserSpeakingRunnable(isSpeaking: Boolean) = Runnable {
         listener?.onUserSpeaking(userId, isSpeaking)
-    }
-
-    private fun measureSound() {
-        soundMeter?.getAmplitude()?.let {
-            val bringToFront = it > SOUND_METER_VALUE_TO_DETECT
-            meterReporter.post(reportUserSpeakingRunnable(bringToFront))
-            peerConnectionClient?.setAudioAmplitude(bringToFront, it)
-        }
-        meterHandler.postDelayed(soundMeasureRunnable, SOUND_METER_DELAY)
-    }
-
-    private fun startMeasure() {
-        //FIXME crash
-//        soundMeter?.start()
-        meterHandler.post(soundMeasureRunnable)
-    }
-
-    private fun stopMeasure() {
-        meterHandler.removeCallbacks(soundMeasureRunnable)
-        soundMeter?.stop()
-        meterReporter.post(reportUserSpeakingRunnable(false))
     }
 
     override fun setMediaServerId(mediaServerId: Long) {
@@ -162,7 +134,6 @@ class KmePeerConnectionControllerImpl(
                 Manifest.permission.RECORD_AUDIO
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            if (isEnable) startMeasure() else stopMeasure()
             peerConnectionClient?.setAudioEnabled(isEnable)
         }
     }
@@ -178,8 +149,6 @@ class KmePeerConnectionControllerImpl(
     }
 
     override fun disconnectPeerConnection() {
-        stopMeasure()
-
         localVideoSink.setTarget(null)
         remoteVideoSink.setTarget(null)
 
@@ -222,12 +191,11 @@ class KmePeerConnectionControllerImpl(
     }
 
     override fun onIceGatheringDone() {
-        if (isPublisher) startMeasure()
         listener?.onIceGatheringDone(userId, mediaServerId)
     }
 
     override fun onUserSpeaking(isSpeaking: Boolean) {
-        meterReporter.post(reportUserSpeakingRunnable(isSpeaking))
+        soundMeterReporter.post(reportUserSpeakingRunnable(isSpeaking))
     }
 
     override fun onIceDisconnected() {
@@ -305,12 +273,5 @@ class KmePeerConnectionControllerImpl(
         .setUsername(serverUser)
         .setPassword(serverCred)
         .createIceServer()
-
-    companion object {
-
-        private const val SOUND_METER_DELAY: Long = 500
-        private const val SOUND_METER_VALUE_TO_DETECT = 1200
-
-    }
 
 }

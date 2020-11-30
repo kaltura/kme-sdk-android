@@ -5,6 +5,8 @@ import android.content.Context
 import androidx.annotation.RequiresPermission
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnection
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
+import com.kme.kaltura.kmesdk.webrtc.stats.KmeSoundAmplitudeListener
+import com.kme.kaltura.kmesdk.webrtc.stats.KmeSoundAmplitudeMeter
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
 import org.webrtc.audio.JavaAudioDeviceModule.builder
@@ -14,7 +16,7 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util.*
 
-class KmePeerConnectionImpl : IKmePeerConnection {
+class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
 
     private val localSdpObserver: LocalSdpObserver = LocalSdpObserver()
     private val remoteSdpObserver: RemoteSdpObserver = RemoteSdpObserver()
@@ -24,6 +26,7 @@ class KmePeerConnectionImpl : IKmePeerConnection {
 
     private var factory: PeerConnectionFactory? = null
     private var peerConnection: PeerConnection? = null
+    private var soundAmplitudeMeter: KmeSoundAmplitudeMeter? = null
     private var iceServers: MutableList<IceServer> = mutableListOf()
     private var isPublisher = false
     private var events: IKmePeerConnectionEvents? = null
@@ -141,29 +144,31 @@ class KmePeerConnectionImpl : IKmePeerConnection {
         val rtcConfig = RTCConfiguration(iceServers)
         peerConnection = factory?.createPeerConnection(rtcConfig, pcObserver)
 
-        val volumeInit: DataChannel.Init = DataChannel.Init()
-        volumeInit.ordered = false
-        volumeInit.maxRetransmits = 0
-        volumeDataChannel = peerConnection?.createDataChannel("volumeDataChannel", volumeInit)
+        peerConnection?.let {
+            val volumeInit: DataChannel.Init = DataChannel.Init()
+            volumeInit.ordered = false
+            volumeInit.maxRetransmits = 0
+            volumeDataChannel = it.createDataChannel("volumeDataChannel", volumeInit)
 
-        // Set INFO libjingle logging. NOTE: this _must_ happen while |factory| is alive!
-        Logging.enableLogToDebugOutput(Logging.Severity.LS_INFO)
+            // Set INFO libjingle logging. NOTE: this _must_ happen while |factory| is alive!
+            Logging.enableLogToDebugOutput(Logging.Severity.LS_INFO)
 
-        val mediaStreamLabels = listOf("ARDAMS")
-        if (videoCapturer != null) {
-            peerConnection?.addTrack(
-                createLocalVideoTrack(context, videoCapturer),
-                mediaStreamLabels
-            )
+            val mediaStreamLabels = listOf("ARDAMS")
+            if (videoCapturer != null) {
+                it.addTrack(
+                    createLocalVideoTrack(context, videoCapturer),
+                    mediaStreamLabels
+                )
+            }
+
+            it.addTrack(createLocalAudioTrack(), mediaStreamLabels)
+
+            if (videoCapturer != null) findVideoSender()
+
+            if (isPublisher) soundAmplitudeMeter = KmeSoundAmplitudeMeter(it, this)
+
+            events?.onPeerConnectionCreated()
         }
-
-        peerConnection?.addTrack(createLocalAudioTrack(), mediaStreamLabels)
-
-        if (videoCapturer != null) {
-            findVideoSender()
-        }
-
-        events?.onPeerConnectionCreated()
     }
 
     private fun createLocalAudioTrack(): AudioTrack? {
@@ -200,6 +205,9 @@ class KmePeerConnectionImpl : IKmePeerConnection {
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     override fun setAudioEnabled(enable: Boolean) {
+        if (isPublisher) {
+            if (enable) soundAmplitudeMeter?.startMeasure() else soundAmplitudeMeter?.stopMeasure()
+        }
         localAudioTrack?.setEnabled(enable)
     }
 
@@ -297,14 +305,6 @@ class KmePeerConnectionImpl : IKmePeerConnection {
         }
     }
 
-    override fun setAudioAmplitude(bringToFront: Boolean, value: Int) {
-        volumeDataChannel?.let {
-            val data = (if (bringToFront) "1" else "0") + ",$value"
-            val buffer: ByteBuffer = ByteBuffer.wrap(data.toByteArray())
-            it.send(DataChannel.Buffer(buffer, false))
-        }
-    }
-
     private fun changeCaptureFormat(
         width: Int,
         height: Int,
@@ -345,6 +345,9 @@ class KmePeerConnectionImpl : IKmePeerConnection {
         if (isPublisher) {
             factory?.dispose()
             factory = null
+
+            soundAmplitudeMeter?.stopMeasure()
+            soundAmplitudeMeter = null
         }
 
         events?.onPeerConnectionClosed()
@@ -355,6 +358,16 @@ class KmePeerConnectionImpl : IKmePeerConnection {
 
     override fun getRenderContext(): EglBase.Context? {
         return rootEglBase.eglBaseContext
+    }
+
+    override fun onAmplitudeMeasured(bringToFront: Boolean, amplitude: Double) {
+        events?.onUserSpeaking(bringToFront)
+
+        volumeDataChannel?.let {
+            val data = (if (bringToFront) "1" else "0") + ",$amplitude"
+            val buffer: ByteBuffer = ByteBuffer.wrap(data.toByteArray())
+            it.send(DataChannel.Buffer(buffer, false))
+        }
     }
 
     private inner class PeerConnectionObserver : PeerConnection.Observer {
@@ -377,6 +390,7 @@ class KmePeerConnectionImpl : IKmePeerConnection {
                     events?.onIceConnected()
                 }
                 IceConnectionState.COMPLETED -> {
+                    if (isPublisher) soundAmplitudeMeter?.startMeasure()
                     events?.onIceGatheringDone()
                 }
                 IceConnectionState.DISCONNECTED -> {
@@ -476,8 +490,9 @@ class KmePeerConnectionImpl : IKmePeerConnection {
     }
 
     companion object {
+        const val AUDIO_TRACK_ID = "ARDAMSa0"
+
         private const val VIDEO_TRACK_ID = "ARDAMSv0"
-        private const val AUDIO_TRACK_ID = "ARDAMSa0"
         private const val VIDEO_TRACK_TYPE = "video"
         private const val VIDEO_CODEC_VP8 = "VP8"
         private const val VIDEO_CODEC_VP9 = "VP9"
@@ -499,8 +514,8 @@ class KmePeerConnectionImpl : IKmePeerConnection {
         private const val AUDIO_NOISE_SUPPRESSION_CONSTRAINT = "googNoiseSuppression"
         private const val AUDIO_LEVEL_CONTROL_CONSTRAINT = "levelControl"
         private const val DTLS_SRTP_KEY_AGREEMENT_CONSTRAINT = "DtlsSrtpKeyAgreement"
-        private const val VIDEO_WIDTH = 1280
-        private const val VIDEO_HEIGHT = 720
+        private const val VIDEO_WIDTH = 720 /*1280*/
+        private const val VIDEO_HEIGHT = 480 /*720*/
         private const val VIDEO_FPS = 30
         private const val BPS_IN_KBPS = 1000
     }

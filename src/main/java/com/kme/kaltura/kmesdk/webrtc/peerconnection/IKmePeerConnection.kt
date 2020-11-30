@@ -39,8 +39,6 @@ interface IKmePeerConnection {
 
     fun switchCamera()
 
-    fun setAudioAmplitude(bringToFront: Boolean, value: Int)
-
     fun close()
 
     fun getRenderContext(): EglBase.Context?
