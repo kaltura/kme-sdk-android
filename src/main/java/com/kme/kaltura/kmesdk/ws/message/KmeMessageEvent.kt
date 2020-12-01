@@ -76,6 +76,9 @@ enum class KmeMessageEvent(
     @SerializedName("setParticipantModerator", alternate = ["setparticipantmoderator"])
     SET_PARTICIPANT_MODERATOR("setParticipantModerator"),
 
+    @SerializedName("userHandRaised", alternate = ["userhandraised"])
+    USER_HAND_RAISED("userHandRaised"),
+
     /*
     * Streaming
     * */

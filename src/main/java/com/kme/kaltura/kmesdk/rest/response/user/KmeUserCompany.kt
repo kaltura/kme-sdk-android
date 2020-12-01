@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.rest.response.user
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -13,7 +14,7 @@ data class KmeUserCompany(
     @SerializedName("is_paying_company") val isPayingCompany: Boolean?,
     @SerializedName("recording_reminder_ind") val recordingReminder: Int?,
     @SerializedName("max_rooms") val maxRooms: Int?,
-    @SerializedName("role") val role: String?,
+    @SerializedName("role") val role: KmeUserRole? = null,
     @SerializedName("playlist_room_id") val playlistRoomId: String?,
     @SerializedName("quizzes_room_id") val quizzesRoomId: String?,
     @SerializedName("branding") val branding: Branding?,

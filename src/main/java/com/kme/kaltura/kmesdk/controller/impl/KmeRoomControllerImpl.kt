@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.controller.impl
 
-import android.util.Log
 import com.kme.kaltura.kmesdk.controller.*
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse

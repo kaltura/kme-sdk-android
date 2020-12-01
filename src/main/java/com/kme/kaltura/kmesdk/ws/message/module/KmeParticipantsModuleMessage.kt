@@ -40,5 +40,13 @@ class KmeParticipantsModuleMessage<T : KmeParticipantsModuleMessage.Participants
         @SerializedName("is_moderator") var isModerator: Boolean? = null
     ) : ParticipantsPayload()
 
+    data class UserRaiseHandPayload(
+        @SerializedName("user_id") var userId: Long? = null,
+        @SerializedName("room_id") var roomId: Long? = null,
+        @SerializedName("company_id") var companyId: Long? = null,
+        @SerializedName("isRaise") var isRaise: Boolean? = null,
+        @SerializedName("target_user_id") var targetUserId: Long? = null,
+    ) : ParticipantsPayload()
+
     open class ParticipantsPayload : Payload()
 }
