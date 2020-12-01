@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.controller.impl.internal
 
-import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeRoomSettingsController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
@@ -62,7 +61,6 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
                     val currentParticipant = handleModeratorSetting(settingsMessage)
                     if (currentParticipant != null) {
                         userController.updateParticipant(currentParticipant)
-                        Log.e("TAG", "updateParticipant" )
                     }
                 }
                 else -> {

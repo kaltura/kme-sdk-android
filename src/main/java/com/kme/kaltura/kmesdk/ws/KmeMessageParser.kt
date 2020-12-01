@@ -89,6 +89,9 @@ internal class KmeMessageParser(
             KmeMessageEvent.SET_PARTICIPANT_MODERATOR.toString() -> {
                 text.jsonToObject<KmeParticipantsModuleMessage<SetParticipantModerator>>()
             }
+            KmeMessageEvent.USER_HAND_RAISED.toString() -> {
+                text.jsonToObject<KmeParticipantsModuleMessage<UserRaiseHandPayload>>()
+            }
             KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER.toString() -> {
                 text.jsonToObject<KmeStreamingModuleMessage<SdpAnswerToPublisherPayload>>()
             }

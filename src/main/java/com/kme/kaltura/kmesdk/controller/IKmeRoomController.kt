@@ -4,12 +4,8 @@ import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
-import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
-import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 
 interface IKmeRoomController : IKmeWebSocketController, IKmeWebRTCController {
-
-    val roomSettings: KmeWebRTCServer?
 
     fun getRooms(
         companyId: Long,
