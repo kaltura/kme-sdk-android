@@ -22,7 +22,6 @@ object KmeKoinContext {
     }
 
     fun init(appContext: Context) {
-        check(!::context.isInitialized) { "Context is already initialized!" }
         context = appContext.applicationContext
     }
 
