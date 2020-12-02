@@ -53,6 +53,10 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
         token: String,
         listener: IKmeWSConnectionListener
     ) {
+        if (isConnected()) {
+            disconnect()
+        }
+
         this.listener = listener
         this.roomId = roomId
         this.companyId = companyId
@@ -96,6 +100,9 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
         reconnect()
         uiScope.launch {
             listener.onFailure(throwable)
+        }
+        if (!allowReconnection) {
+            onClosed(1000, "")
         }
     }
 

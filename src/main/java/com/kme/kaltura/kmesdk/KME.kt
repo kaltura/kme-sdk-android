@@ -1,7 +1,6 @@
 package com.kme.kaltura.kmesdk
 
 import android.content.Context
-import android.util.Log
 import com.kme.kaltura.kmesdk.controller.*
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.KmeKoinContext
@@ -38,12 +37,15 @@ class KME : KmeKoinComponent {
         success: () -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
-        if (isSDKInitialized) error(Exception("SDK already initialized!"))
-
         KmeKoinContext.init(context)
 
         metadataController.fetchMetadata(success = {
             isSDKInitialized = true
+
+            if (roomController.isConnected()) {
+                roomController.disconnect()
+            }
+
             success()
         }, error = {
             error(it)
