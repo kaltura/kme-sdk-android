@@ -1,12 +1,9 @@
 package com.kme.kaltura.kmesdk.controller
 
-import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 
 interface IKmeWebRTCController {
-
-    val roomSettings: KmeWebRTCServer?
 
     // Peer connections
     fun setTurnServer(
