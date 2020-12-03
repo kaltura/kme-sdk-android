@@ -48,5 +48,10 @@ class KmeParticipantsModuleMessage<T : KmeParticipantsModuleMessage.Participants
         @SerializedName("target_user_id") var targetUserId: Long? = null,
     ) : ParticipantsPayload()
 
+    data class AllUsersHandPutPayload(
+        @SerializedName("room_id") var roomId: Long? = null,
+        @SerializedName("company_id") var companyId: Long? = null
+    ) : ParticipantsPayload()
+
     open class ParticipantsPayload : Payload()
 }

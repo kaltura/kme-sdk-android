@@ -28,7 +28,7 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
     override fun subscribe() {
         messageManager.listen(
             roomSettingsHandler,
-            KmeMessageEvent.ROOM_SETTINGS_CHANGED,
+            KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED,
             KmeMessageEvent.SET_PARTICIPANT_MODERATOR
         )
     }
@@ -36,8 +36,8 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
     private val roomSettingsHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
-                KmeMessageEvent.ROOM_SETTINGS_CHANGED -> {
-                    val settingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload>? =
+                KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED -> {
+                    val settingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload>? =
                         message.toType()
                     val settingsPayload = settingsMessage?.payload
 
@@ -58,9 +58,14 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
                 KmeMessageEvent.SET_PARTICIPANT_MODERATOR -> {
                     val settingsMessage: KmeParticipantsModuleMessage<SetParticipantModerator>? =
                         message.toType()
-                    val currentParticipant = handleModeratorSetting(settingsMessage)
-                    if (currentParticipant != null) {
-                        userController.updateParticipant(currentParticipant)
+
+                    val userId = settingsMessage?.payload?.targetUserId
+                    val isModerator = settingsMessage?.payload?.isModerator
+                    if (userId != null && isModerator != null) {
+                        val currentParticipant = handleModeratorSetting(userId, isModerator)
+                        if (currentParticipant != null) {
+                            userController.updateParticipant(currentParticipant)
+                        }
                     }
                 }
                 else -> {
@@ -102,14 +107,15 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
     }
 
     private fun handleModeratorSetting(
-        settingsMessage: KmeParticipantsModuleMessage<SetParticipantModerator>?
+        userId: Long,
+        isModerator: Boolean
     ): KmeParticipant? {
         val currentParticipant = userController.getCurrentParticipant()
-        if (currentParticipant != null) {
-            currentParticipant.isModerator = settingsMessage?.payload?.isModerator
+        if (currentParticipant != null && userId == currentParticipant.userId) {
+            currentParticipant.isModerator = isModerator
+            return currentParticipant
         }
-
-        return currentParticipant
+        return null
     }
 
 }

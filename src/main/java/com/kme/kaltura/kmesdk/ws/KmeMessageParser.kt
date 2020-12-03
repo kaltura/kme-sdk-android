@@ -12,6 +12,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPass
 import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 
@@ -140,9 +141,16 @@ internal class KmeMessageParser(
             KmeMessageEvent.DELETED_MESSAGE.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<DeleteMessagePayload>>()
             }
+            KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED.toString() -> {
+                text.jsonToObject<KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload>>()
+            }
             KmeMessageEvent.ROOM_SETTINGS_CHANGED.toString() -> {
                 text.jsonToObject<KmeRoomSettingsModuleMessage<RoomSettingsChangedPayload>>()
             }
+            KmeMessageEvent.ROOM_SETTINGS_CHANGED.toString() -> {
+                text.jsonToObject<KmeParticipantsModuleMessage<AllUsersHandPutPayload>>()
+            }
+
             else -> null
         }
     }

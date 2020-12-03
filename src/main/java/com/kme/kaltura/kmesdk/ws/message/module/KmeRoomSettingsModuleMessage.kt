@@ -10,7 +10,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 class KmeRoomSettingsModuleMessage<T : KmeRoomSettingsModuleMessage.SettingsPayload> :
     KmeMessage<T>() {
 
-    data class RoomSettingsChangedPayload(
+    data class RoomDefaultSettingsChangedPayload(
         @SerializedName("user_id") var userId: Long? = null,
         @SerializedName("room_id") var roomId: Long? = null,
         @SerializedName("permissionsValue") var permissionsValue: KmePermissionValue? = null,
@@ -28,6 +28,13 @@ class KmeRoomSettingsModuleMessage<T : KmeRoomSettingsModuleMessage.SettingsPayl
         @SerializedName("room_id") var roomId: Long? = null,
         @SerializedName("company_id") var companyId: Long? = null,
         @SerializedName("reason") var reason: KmeMessageReason? = null
+    ) : SettingsPayload()
+
+    data class RoomSettingsChangedPayload(
+        @SerializedName("user_id") var userId: Long? = null,
+        @SerializedName("room_id") var roomId: Long? = null,
+        @SerializedName("roomSettingValue") var roomSettingValue: KmePermissionValue? = null,
+        @SerializedName("changedRoomSetting") var changedRoomSetting: KmePermissionKey? = null
     ) : SettingsPayload()
 
     open class SettingsPayload : Payload()

@@ -149,7 +149,13 @@ enum class KmeMessageEvent(
     * */
 
     @SerializedName("moduleDefaultSettingsChanged", alternate = ["moduledefaultsettingschanged"])
-    ROOM_SETTINGS_CHANGED("moduleDefaultSettingsChanged"),
+    ROOM_DEFAULT_SETTINGS_CHANGED("moduleDefaultSettingsChanged"),
+
+    @SerializedName("roomSettingsChanged", alternate = ["roomsettingschanged"])
+    ROOM_SETTINGS_CHANGED("roomSettingsChanged"),
+
+    @SerializedName("makeAllUsersHandPut", alternate = ["makeallusershandput"])
+    MAKE_ALL_USERS_HAND_PUT("makeAllUsersHandPut"),
 
     @SerializedName("forceSessionEnd", alternate = ["forcesessionend"])
     FORCE_SESSION_END("forceSessionEnd"),
