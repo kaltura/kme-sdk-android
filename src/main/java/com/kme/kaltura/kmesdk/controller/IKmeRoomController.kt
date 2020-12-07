@@ -5,6 +5,8 @@ import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
+import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 
 interface IKmeRoomController : IKmeWebSocketController, IKmeWebRTCController {
 
@@ -31,5 +33,23 @@ interface IKmeRoomController : IKmeWebSocketController, IKmeWebRTCController {
         success: (response: KmeGetWebRTCServerResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )
+
+    fun addListener(listener: IKmeMessageListener)
+
+    fun addListener(event: KmeMessageEvent, listener: IKmeMessageListener)
+
+    fun listen(
+        listener: IKmeMessageListener,
+        vararg events: KmeMessageEvent
+    )
+
+    fun remove(
+        listener: IKmeMessageListener,
+        vararg events: KmeMessageEvent
+    )
+
+    fun removeListener(listener: IKmeMessageListener)
+
+    fun removeListeners()
 
 }

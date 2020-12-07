@@ -140,30 +140,6 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
         messageManager.removeListeners()
     }
 
-    override fun addListener(listener: IKmeMessageListener) {
-        messageManager.addListener(listener)
-    }
-
-    override fun addListener(event: KmeMessageEvent, listener: IKmeMessageListener) {
-        messageManager.addListener(event, listener)
-    }
-
-    override fun listen(listener: IKmeMessageListener, vararg events: KmeMessageEvent) {
-        messageManager.listen(listener, *events)
-    }
-
-    override fun remove(listener: IKmeMessageListener, vararg events: KmeMessageEvent) {
-        messageManager.remove(listener, *events)
-    }
-
-    override fun removeListener(listener: IKmeMessageListener) {
-        messageManager.removeListener(listener)
-    }
-
-    override fun removeListeners() {
-        messageManager.removeListeners()
-    }
-
     private fun parseWssUrl(
         url: String,
         companyId: Long,

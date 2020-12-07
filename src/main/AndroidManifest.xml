@@ -16,7 +16,7 @@
 
     <application>
         <service
-            android:name=".service.RoomService"
+            android:name=".service.KmeRoomService"
             android:enabled="true"
             android:exported="false"
             android:stopWithTask="true" />
