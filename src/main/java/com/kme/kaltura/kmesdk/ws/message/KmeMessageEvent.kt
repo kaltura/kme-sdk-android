@@ -79,6 +79,9 @@ enum class KmeMessageEvent(
     @SerializedName("userHandRaised", alternate = ["userhandraised"])
     USER_HAND_RAISED("userHandRaised"),
 
+    @SerializedName("makeAllUsersHandPut", alternate = ["makeallusershandput"])
+    MAKE_ALL_USERS_HAND_PUT("makeAllUsersHandPut"),
+
     /*
     * Streaming
     * */
@@ -153,9 +156,6 @@ enum class KmeMessageEvent(
 
     @SerializedName("roomSettingsChanged", alternate = ["roomsettingschanged"])
     ROOM_SETTINGS_CHANGED("roomSettingsChanged"),
-
-    @SerializedName("makeAllUsersHandPut", alternate = ["makeallusershandput"])
-    MAKE_ALL_USERS_HAND_PUT("makeAllUsersHandPut"),
 
     @SerializedName("forceSessionEnd", alternate = ["forcesessionend"])
     FORCE_SESSION_END("forceSessionEnd"),

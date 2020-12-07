@@ -7,7 +7,8 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.chat.KmeChatMessage
 import com.kme.kaltura.kmesdk.ws.message.module.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.InitActiveContentPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
@@ -94,6 +95,9 @@ internal class KmeMessageParser(
             KmeMessageEvent.USER_HAND_RAISED.toString() -> {
                 text.jsonToObject<KmeParticipantsModuleMessage<UserRaiseHandPayload>>()
             }
+            KmeMessageEvent.MAKE_ALL_USERS_HAND_PUT.toString() -> {
+                text.jsonToObject<KmeParticipantsModuleMessage<AllUsersHandPutPayload>>()
+            }
             KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER.toString() -> {
                 text.jsonToObject<KmeStreamingModuleMessage<SdpAnswerToPublisherPayload>>()
             }
@@ -148,9 +152,6 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.ROOM_SETTINGS_CHANGED.toString() -> {
                 text.jsonToObject<KmeRoomSettingsModuleMessage<RoomSettingsChangedPayload>>()
-            }
-            KmeMessageEvent.ROOM_SETTINGS_CHANGED.toString() -> {
-                text.jsonToObject<KmeParticipantsModuleMessage<AllUsersHandPutPayload>>()
             }
 
             KmeMessageEvent.INIT_ACTIVE_CONTENT.toString() -> {
