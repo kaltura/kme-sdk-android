@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.rest
 
+import com.kaltura.playkit.utils.NativeCookieJarBridge
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import okhttp3.Cookie
@@ -16,8 +17,9 @@ class KmeCookieJar(
         if (url.toString().contains("fe/metadata")) {
             prefs.putString(KmePrefsKeys.COOKIE, cookieList.joinToString(";"))
         }
-//        cookies.clear()
         cookies.addAll(cookieList)
+
+//        NativeCookieJarBridge.sharedCookieJar.saveFromResponse(url, cookies)
     }
 
     override fun loadForRequest(url: HttpUrl): List<Cookie> =

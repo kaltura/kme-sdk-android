@@ -161,7 +161,18 @@ enum class KmeMessageEvent(
     FORCE_SESSION_END("forceSessionEnd"),
 
     @SerializedName("userLeaveSession", alternate = ["userleavesession"])
-    USER_LEAVE_SESSION("userLeaveSession");
+    USER_LEAVE_SESSION("userLeaveSession"),
+
+    /*
+    * Active Content
+    * */
+
+
+    @SerializedName("initActiveContent", alternate = ["initactivecontent"])
+    INIT_ACTIVE_CONTENT("initActiveContent"),
+
+    @SerializedName("setActiveContent", alternate = ["setactivecontent"])
+    SET_ACTIVE_CONTENT("setActiveContent");
 
     override fun toString(): String {
         return moduleName.toLowerCase()

@@ -20,24 +20,6 @@ interface IKmeWebSocketController {
 
     fun send(message: KmeMessage<out KmeMessage.Payload>)
 
-    fun addListener(listener: IKmeMessageListener)
-
-    fun addListener(event: KmeMessageEvent, listener: IKmeMessageListener)
-
-    fun listen(
-        listener: IKmeMessageListener,
-        vararg events: KmeMessageEvent
-    )
-
-    fun remove(
-        listener: IKmeMessageListener,
-        vararg events: KmeMessageEvent
-    )
-
-    fun removeListener(listener: IKmeMessageListener)
-
-    fun removeListeners()
-
     fun disconnect()
 
 }

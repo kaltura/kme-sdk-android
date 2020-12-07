@@ -3,16 +3,13 @@ package com.kme.kaltura.kmesdk.controller.impl
 import android.content.ComponentName
 import android.content.Context
 import android.content.Context.BIND_ADJUST_WITH_ACTIVITY
-import android.content.Context.BIND_AUTO_CREATE
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmePeerConnectionController
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeRoomSettingsController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
-import com.kme.kaltura.kmesdk.controller.*
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
@@ -20,7 +17,7 @@ import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
-import com.kme.kaltura.kmesdk.service.RoomService
+import com.kme.kaltura.kmesdk.service.KmeRoomService
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
@@ -50,7 +47,7 @@ class KmeRoomControllerImpl(
     override var roomSettings: KmeWebRTCServer? = null
         private set
 
-    private var roomService: RoomService? = null
+    private var roomService: KmeRoomService? = null
 
     private var companyId: Long = 0
     private var roomId: Long = 0
@@ -66,7 +63,7 @@ class KmeRoomControllerImpl(
 
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            val binder: RoomService.RoomServiceBinder = service as RoomService.RoomServiceBinder
+            val binder: KmeRoomService.RoomServiceBinder = service as KmeRoomService.RoomServiceBinder
             roomService = binder.service
             roomService?.setTurnServer(turnUrl, turnUser, turnCred)
             roomService?.connect(url, companyId, roomId, isReconnect, token, listener)
@@ -154,6 +151,8 @@ class KmeRoomControllerImpl(
         this.isReconnect = isReconnect
         this.token = token
 
+        val intent = Intent(context, KmeRoomService::class.java)
+
         this.listener = object : IKmeWSConnectionListener {
             override fun onOpen() {
 
@@ -176,13 +175,20 @@ class KmeRoomControllerImpl(
             }
 
             override fun onClosed(code: Int, reason: String) {
-                context.unbindService(serviceConnection)
+                stopService()
                 listener.onClosed(code, reason)
             }
         }
 
-        val intent = Intent(context, RoomService::class.java)
-        context.bindService(intent, serviceConnection, BIND_AUTO_CREATE)
+        context.startService(intent)
+        context.bindService(intent, serviceConnection, BIND_ADJUST_WITH_ACTIVITY)
+    }
+
+    private fun stopService() {
+        val intent = Intent(context, KmeRoomService::class.java)
+        context.unbindService(serviceConnection)
+        context.stopService(intent)
+        roomService = null
     }
 
     private val currentParticipantHandler = object : IKmeMessageListener {
@@ -212,27 +218,27 @@ class KmeRoomControllerImpl(
     }
 
     override fun addListener(listener: IKmeMessageListener) {
-        roomService?.addListener(listener)
+        messageManager.addListener(listener)
     }
 
     override fun addListener(event: KmeMessageEvent, listener: IKmeMessageListener) {
-        roomService?.addListener(event, listener)
+        messageManager.addListener(event, listener)
     }
 
     override fun listen(listener: IKmeMessageListener, vararg events: KmeMessageEvent) {
-        roomService?.listen(listener, *events)
+        messageManager.listen(listener, *events)
     }
 
     override fun remove(listener: IKmeMessageListener, vararg events: KmeMessageEvent) {
-        roomService?.remove(listener, *events)
+        messageManager.remove(listener, *events)
     }
 
     override fun removeListener(listener: IKmeMessageListener) {
-        roomService?.removeListener(listener)
+        messageManager.removeListener(listener)
     }
 
     override fun removeListeners() {
-        roomService?.removeListeners()
+        messageManager.removeListeners()
     }
 
     override fun setTurnServer(

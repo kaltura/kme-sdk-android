@@ -11,13 +11,11 @@ import com.kme.kaltura.kmesdk.controller.IKmeWebSocketController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
-import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
-import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import org.koin.android.ext.android.inject
 
-class RoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKmeWebRTCController {
+class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKmeWebRTCController {
 
     private val binder: IBinder = RoomServiceBinder()
 
@@ -38,6 +36,10 @@ class RoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKmeWe
         startForeground(ROOM_NOTIFICATION_ID, notification)
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_NOT_STICKY
+    }
+
     override fun connect(
         url: String,
         companyId: Long,
@@ -53,30 +55,6 @@ class RoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKmeWe
 
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
         webSocketController.send(message)
-    }
-
-    override fun addListener(listener: IKmeMessageListener) {
-        webSocketController.addListener(listener)
-    }
-
-    override fun addListener(event: KmeMessageEvent, listener: IKmeMessageListener) {
-        webSocketController.addListener(event, listener)
-    }
-
-    override fun listen(listener: IKmeMessageListener, vararg events: KmeMessageEvent) {
-        webSocketController.listen(listener, *events)
-    }
-
-    override fun remove(listener: IKmeMessageListener, vararg events: KmeMessageEvent) {
-        webSocketController.remove(listener, *events)
-    }
-
-    override fun removeListener(listener: IKmeMessageListener) {
-        webSocketController.removeListener(listener)
-    }
-
-    override fun removeListeners() {
-        webSocketController.removeListeners()
     }
 
     override fun setTurnServer(
@@ -143,8 +121,8 @@ class RoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKmeWe
     }
 
     inner class RoomServiceBinder : Binder() {
-        val service: RoomService
-            get() = this@RoomService
+        val service: KmeRoomService
+            get() = this@KmeRoomService
     }
 
 }

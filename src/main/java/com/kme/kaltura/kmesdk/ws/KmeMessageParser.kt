@@ -7,6 +7,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.chat.KmeChatMessage
 import com.kme.kaltura.kmesdk.ws.message.module.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
@@ -141,6 +142,7 @@ internal class KmeMessageParser(
             KmeMessageEvent.DELETED_MESSAGE.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<DeleteMessagePayload>>()
             }
+
             KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED.toString() -> {
                 text.jsonToObject<KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload>>()
             }
@@ -151,6 +153,12 @@ internal class KmeMessageParser(
                 text.jsonToObject<KmeParticipantsModuleMessage<AllUsersHandPutPayload>>()
             }
 
+            KmeMessageEvent.INIT_ACTIVE_CONTENT.toString() -> {
+                text.jsonToObject<KmeActiveContentModuleMessage<InitActiveContentPayload>>()
+            }
+            KmeMessageEvent.SET_ACTIVE_CONTENT.toString() -> {
+                text.jsonToObject<KmeActiveContentModuleMessage<SetActiveContentPayload>>()
+            }
             else -> null
         }
     }
