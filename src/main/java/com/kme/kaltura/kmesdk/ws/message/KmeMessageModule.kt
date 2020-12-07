@@ -21,6 +21,9 @@ enum class KmeMessageModule(
     @SerializedName("RoomSettings", alternate = ["roomsettings"])
     ROOM_SETTINGS("RoomSettings"),
 
+    @SerializedName("ActiveContent", alternate = ["activecontent"])
+    ACTIVE_CONTENT("ActiveContent"),
+
     @SerializedName("Streaming", alternate = ["streaming"])
     STREAMING("Streaming");
 
