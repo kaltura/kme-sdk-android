@@ -161,12 +161,27 @@ enum class KmeMessageEvent(
     * Active Content
     * */
 
-
     @SerializedName("initActiveContent", alternate = ["initactivecontent"])
     INIT_ACTIVE_CONTENT("initActiveContent"),
 
     @SerializedName("setActiveContent", alternate = ["setactivecontent"])
-    SET_ACTIVE_CONTENT("setActiveContent");
+    SET_ACTIVE_CONTENT("setActiveContent"),
+
+    /*
+    * Video
+    * */
+
+    @SerializedName("playerPlaying", alternate = ["playerplaying"])
+    PLAYER_PLAYING("playerPlaying"),
+
+    @SerializedName("playerPaused", alternate = ["playerpaused"])
+    PLAYER_PAUSED("playerPaused"),
+
+    @SerializedName("playerShouldSeekTo", alternate = ["playershouldseekto"])
+    PLAYER_SEEK_TO("playerShouldSeekTo"),
+
+    @SerializedName("syncPlayerState", alternate = ["syncplayerstate"])
+    SYNC_PLAYER_STATE("syncPlayerState");
 
     override fun toString(): String {
         return moduleName.toLowerCase()
