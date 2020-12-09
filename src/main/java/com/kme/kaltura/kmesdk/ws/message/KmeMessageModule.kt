@@ -24,6 +24,9 @@ enum class KmeMessageModule(
     @SerializedName("ActiveContent", alternate = ["activecontent"])
     ACTIVE_CONTENT("ActiveContent"),
 
+    @SerializedName("Video", alternate = ["video"])
+    VIDEO("Video"),
+
     @SerializedName("Streaming", alternate = ["streaming"])
     STREAMING("Streaming");
 

@@ -11,8 +11,6 @@ class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveCont
 
     data class SetActiveContentPayload(val metadata: Metadata) : ActiveContentPayload()
 
-    data class InitActiveContentPayload(val metadata: Metadata) : ActiveContentPayload()
-
     open class ActiveContentPayload : Payload() {
         @Parcelize
         data class Metadata(

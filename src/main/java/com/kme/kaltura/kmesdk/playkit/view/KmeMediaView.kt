@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.view
+package com.kme.kaltura.kmesdk.playkit.view
 
 import android.content.Context
 import android.util.AttributeSet
