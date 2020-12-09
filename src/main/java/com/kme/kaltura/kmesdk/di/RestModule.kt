@@ -7,17 +7,13 @@ import com.kme.kaltura.kmesdk.rest.KmeCookieJar
 import com.kme.kaltura.kmesdk.rest.KmeIntToBooleanTypeAdapter
 import com.kme.kaltura.kmesdk.rest.KmeStringToBooleanTypeAdapter
 import com.kme.kaltura.kmesdk.rest.KmeTokenInterceptor
-import com.kme.kaltura.kmesdk.rest.service.KmeMetadataApiService
-import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
-import com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService
-import com.kme.kaltura.kmesdk.rest.service.KmeUserApiService
+import com.kme.kaltura.kmesdk.rest.service.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.net.HttpURLConnection
 import java.util.concurrent.TimeUnit
 
 val restModule = module {
@@ -65,6 +61,7 @@ val restModule = module {
     single { get<Retrofit>().create(KmeSignInApiService::class.java) }
     single { get<Retrofit>().create(KmeUserApiService::class.java) }
     single { get<Retrofit>().create(KmeRoomApiService::class.java) }
+    single { get<Retrofit>().create(KmeChatApiService::class.java) }
     single { get<Retrofit>().create(KmeMetadataApiService::class.java) }
 
 }

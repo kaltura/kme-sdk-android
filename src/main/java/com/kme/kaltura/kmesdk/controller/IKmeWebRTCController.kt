@@ -28,6 +28,8 @@ interface IKmeWebRTCController {
 
     fun getPeerConnection(userId: Long) : IKmePeerConnectionController?
 
+    fun disconnectPeerConnection(userId: Long)
+
     fun disconnectAllConnections()
 
 }

@@ -14,6 +14,7 @@ class KME : KmeKoinComponent {
     val signInController: IKmeSignInController by inject()
     val userController: IKmeUserController by inject()
     val roomController: IKmeRoomController by inject()
+    val chatController: IKmeChatController by inject()
     val audioController: IKmeAudioController by inject()
 
     private val prefs: IKmePreferences by inject()

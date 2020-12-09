@@ -32,7 +32,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.inject
 
-
 class KmeRoomControllerImpl(
     private val context: Context
 ) : KmeController(), IKmeRoomController {
@@ -217,6 +216,10 @@ class KmeRoomControllerImpl(
         roomService?.send(message)
     }
 
+    override fun disconnect() {
+        roomService?.disconnect()
+    }
+
     override fun addListener(listener: IKmeMessageListener) {
         messageManager.addListener(listener)
     }
@@ -275,8 +278,8 @@ class KmeRoomControllerImpl(
         return roomService?.getPeerConnection(userId)
     }
 
-    override fun disconnect() {
-        roomService?.disconnect()
+    override fun disconnectPeerConnection(userId: Long) {
+        roomService?.disconnectPeerConnection(userId)
     }
 
     override fun disconnectAllConnections() {
