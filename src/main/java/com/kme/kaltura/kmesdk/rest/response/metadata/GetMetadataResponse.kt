@@ -4,5 +4,6 @@ import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.rest.response.KmeResponse
 
 data class GetMetadataResponse(
-    @SerializedName("data") val data: KmeMetadata?
+    @SerializedName("data")
+    override val data: KmeMetadata?
 ) : KmeResponse()

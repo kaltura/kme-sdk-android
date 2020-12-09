@@ -33,7 +33,7 @@ sealed class KmeApiException(
 
     class InternalApiException(
         errorResponse: KmeResponse
-    ) : KmeApiException(null, null)
+    ) : KmeApiException(errorResponse.data?.message, null)
 
     class ParseJsonException(
         message: String? = null,

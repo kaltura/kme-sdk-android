@@ -5,7 +5,7 @@ import com.kme.kaltura.kmesdk.rest.response.KmeResponse
 import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 
 data class KmeGuestLoginResponse(
-    @SerializedName("data") var data: KmeGuestLoginData?
+    @SerializedName("data") override val data: KmeGuestLoginData?
 ) : KmeResponse() {
 
     data class KmeGuestLoginData(

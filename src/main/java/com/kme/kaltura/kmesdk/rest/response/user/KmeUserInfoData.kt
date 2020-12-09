@@ -1,9 +1,8 @@
 package com.kme.kaltura.kmesdk.rest.response.user
 
 import android.os.Parcelable
-import android.util.Log
 import com.google.gson.annotations.SerializedName
-import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
+import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -16,7 +15,7 @@ data class KmeUserInfoData(
     @SerializedName("lang") var lang: String? = null,
     @SerializedName("avatar") var avatar: String? = null,
     @SerializedName("userCompanies") var userCompanies: UserCompanies? = null
-) : Parcelable {
+) : KmeResponseData(), Parcelable {
 
     fun getUserId(): Long? = id ?: guestId
 
