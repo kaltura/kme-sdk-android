@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.rest.response.room
 
 import com.google.gson.annotations.SerializedName
+import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 
 data class KmeWebRTCServer(
     @SerializedName("WSS_URL") val wssUrl: String?,
@@ -18,7 +19,7 @@ data class KmeWebRTCServer(
     @SerializedName("show_welcome_message") val showWelcomeMessage: Int?,
     @SerializedName("redis-key") val redisKey: String?,
     @SerializedName("token") val token: String?
-) {
+) : KmeResponseData() {
 
     data class CallStats(
         @SerializedName("app_id") val appId: String?,
