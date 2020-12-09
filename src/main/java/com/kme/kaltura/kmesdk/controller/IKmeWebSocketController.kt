@@ -1,9 +1,7 @@
 package com.kme.kaltura.kmesdk.controller
 
-import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
-import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 
 interface IKmeWebSocketController {
 

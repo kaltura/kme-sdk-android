@@ -17,6 +17,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.*
 
 private const val KEY_NAME = "name"
 
@@ -153,12 +154,21 @@ internal class KmeMessageParser(
             KmeMessageEvent.ROOM_SETTINGS_CHANGED.toString() -> {
                 text.jsonToObject<KmeRoomSettingsModuleMessage<RoomSettingsChangedPayload>>()
             }
-
-            KmeMessageEvent.INIT_ACTIVE_CONTENT.toString() -> {
-                text.jsonToObject<KmeActiveContentModuleMessage<InitActiveContentPayload>>()
-            }
+            KmeMessageEvent.INIT_ACTIVE_CONTENT.toString(),
             KmeMessageEvent.SET_ACTIVE_CONTENT.toString() -> {
                 text.jsonToObject<KmeActiveContentModuleMessage<SetActiveContentPayload>>()
+            }
+            KmeMessageEvent.SYNC_PLAYER_STATE.toString() -> {
+                text.jsonToObject<KmeVideoModuleMessage<SyncPlayerStatePayload>>()
+            }
+            KmeMessageEvent.PLAYER_PLAYING.toString() -> {
+                text.jsonToObject<KmeVideoModuleMessage<VideoPayload>>()
+            }
+            KmeMessageEvent.PLAYER_PAUSED.toString() -> {
+                text.jsonToObject<KmeVideoModuleMessage<VideoPayload>>()
+            }
+            KmeMessageEvent.PLAYER_SEEK_TO.toString() -> {
+                text.jsonToObject<KmeVideoModuleMessage<VideoPayload>>()
             }
             else -> null
         }

@@ -2,7 +2,9 @@ package com.kme.kaltura.kmesdk.rest.response
 
 import com.google.gson.annotations.SerializedName
 
-open class KmeResponse {
+abstract class KmeResponse {
+
+    abstract val data: KmeResponseData?
 
     @SerializedName("status")
     val status: Status? = null

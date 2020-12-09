@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.rest.response.metadata
 
 import com.google.gson.annotations.SerializedName
+import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 
 data class KmeMetadata(
     @SerializedName("version") val version : String?,
@@ -13,7 +14,7 @@ data class KmeMetadata(
     @SerializedName("availableLanguages") val availableLanguages : List<Language>?,
     @SerializedName("rtcSamplesAmount") val rtcSamplesAmount : Int?,
     @SerializedName("rtcSamplesInterval") val rtcSamplesInterval : Int?
-) {
+) : KmeResponseData() {
 
     data class Language(
         @SerializedName("language_id") val languageId : String,
