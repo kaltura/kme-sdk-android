@@ -7,7 +7,6 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.chat.KmeChatMessage
 import com.kme.kaltura.kmesdk.ws.message.module.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.InitActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload

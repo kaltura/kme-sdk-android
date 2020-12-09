@@ -5,5 +5,5 @@ import com.kme.kaltura.kmesdk.rest.response.KmeResponse
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 
 data class KmeChangeRoomSettingsResponse(
-    @SerializedName("data") val data: KmeSettingsV2
+    @SerializedName("data")  override val data: KmeSettingsV2
 ) : KmeResponse()
