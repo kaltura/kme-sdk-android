@@ -9,6 +9,7 @@ import com.kme.kaltura.kmesdk.rest.response.user.KmeUserInfoData
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeUserApiService
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
+import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,6 +26,27 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
 
     override fun isLoggedIn(): Boolean {
         return !kmePreferences.getString(KmePrefsKeys.ACCESS_TOKEN, "").isNullOrEmpty()
+    }
+
+    override fun isAdminFor(companyId: Long): Boolean {
+        getCurrentUserInfo()?.userCompanies?.companies?.find {
+            it.id == companyId
+        }?.let {
+            return (it.role == KmeUserRole.INSTRUCTOR ||
+                    it.role == KmeUserRole.ADMIN ||
+                    it.role == KmeUserRole.OWNER)
+        }
+        return false
+    }
+
+    override fun isModerator(): Boolean {
+        getCurrentParticipant()?.let {
+            return it.userRole == KmeUserRole.INSTRUCTOR ||
+                    it.userRole == KmeUserRole.ADMIN ||
+                    it.userRole == KmeUserRole.OWNER ||
+                    it.isModerator == true
+        }
+        return false
     }
 
     override fun getUserInformation(

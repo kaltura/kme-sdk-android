@@ -57,6 +57,13 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
         webSocketController.send(message)
     }
 
+    override fun disconnect() {
+        disconnectAllConnections()
+        webSocketController.disconnect()
+        stopForeground(true)
+        stopSelf()
+    }
+
     override fun setTurnServer(
         turnUrl: String,
         turnUser: String,
@@ -98,11 +105,9 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
         return peerConnections.getOrDefault(userId, null)
     }
 
-    override fun disconnect() {
-        disconnectAllConnections()
-        webSocketController.disconnect()
-        stopForeground(true)
-        stopSelf()
+    override fun disconnectPeerConnection(userId: Long) {
+        peerConnections[userId]?.disconnectPeerConnection()
+        peerConnections.remove(userId)
     }
 
     override fun disconnectAllConnections() {

@@ -2,7 +2,6 @@ package com.kme.kaltura.kmesdk.ws.message.module
 
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
-import com.kme.kaltura.kmesdk.ws.message.type.KmeLiveMediaState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 
@@ -13,7 +12,7 @@ class KmeParticipantsModuleMessage<T : KmeParticipantsModuleMessage.Participants
         @SerializedName("user_id") var userId: Long? = null,
         @SerializedName("room_id") var roomId: Long? = null,
         @SerializedName("company_id") var companyId: Long? = null,
-        @SerializedName("live_media_state") var liveMediaState: KmeLiveMediaState? = null,
+        @SerializedName("live_media_state") var liveMediaState: KmeMediaDeviceState? = null,
         @SerializedName("mic_state") var micState: KmeMediaDeviceState? = null,
         @SerializedName("webcam_state") var webcamState: KmeMediaDeviceState? = null
     ) : ParticipantsPayload()
@@ -23,7 +22,7 @@ class KmeParticipantsModuleMessage<T : KmeParticipantsModuleMessage.Participants
         @SerializedName("room_id") var roomId: Long? = null,
         @SerializedName("company_id") var companyId: Long? = null,
         @SerializedName("media_state_type") var mediaStateType: KmeMediaStateType? = null,
-        @SerializedName("state_value") var stateValue: String? = null,
+        @SerializedName("state_value") var stateValue: KmeMediaDeviceState? = null,
     ) : ParticipantsPayload()
 
     data class ChangeUserFocusEventPayload(
@@ -46,6 +45,11 @@ class KmeParticipantsModuleMessage<T : KmeParticipantsModuleMessage.Participants
         @SerializedName("company_id") var companyId: Long? = null,
         @SerializedName("isRaise") var isRaise: Boolean? = null,
         @SerializedName("target_user_id") var targetUserId: Long? = null,
+    ) : ParticipantsPayload()
+
+    data class AllUsersHandPutPayload(
+        @SerializedName("room_id") var roomId: Long? = null,
+        @SerializedName("company_id") var companyId: Long? = null
     ) : ParticipantsPayload()
 
     open class ParticipantsPayload : Payload()

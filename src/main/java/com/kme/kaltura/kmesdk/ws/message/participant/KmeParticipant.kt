@@ -3,7 +3,6 @@ package com.kme.kaltura.kmesdk.ws.message.participant
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
-import com.kme.kaltura.kmesdk.ws.message.type.KmeLiveMediaState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlatformType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
@@ -21,7 +20,7 @@ data class KmeParticipant(
     @SerializedName("region_name") var regionName: String? = null,
     @SerializedName("join_time") var joinTime: Long? = null,
     @SerializedName("connection_state") var connectionState: String? = null,
-    @SerializedName("live_media_state") var liveMediaState: KmeLiveMediaState? = null,
+    @SerializedName("live_media_state") var liveMediaState: KmeMediaDeviceState? = null,
     @SerializedName("webcam_state") var webcamState: KmeMediaDeviceState? = null,
     @SerializedName("mic_state") var micState: KmeMediaDeviceState? = null,
     @SerializedName("time_hand_raised") var timeHandRaised: Long? = null,

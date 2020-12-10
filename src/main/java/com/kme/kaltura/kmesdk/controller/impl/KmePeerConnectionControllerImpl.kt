@@ -3,8 +3,6 @@ package com.kme.kaltura.kmesdk.controller.impl
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Handler
-import android.os.Looper
 import androidx.core.app.ActivityCompat
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.IKmePeerConnectionController
@@ -30,8 +28,6 @@ class KmePeerConnectionControllerImpl(
 
     private val remoteVideoSink: KmeVideoSink = KmeVideoSink()
     private var remoteRendererView: KmeSurfaceRendererView? = null
-
-    private var soundMeterReporter = Handler(Looper.getMainLooper())
 
     private var isPublisher = false
     private var userId = 0L
@@ -97,10 +93,6 @@ class KmePeerConnectionControllerImpl(
             isPublisher,
             iceServers
         )
-    }
-
-    private fun reportUserSpeakingRunnable(isSpeaking: Boolean) = Runnable {
-        listener?.onUserSpeaking(userId, isSpeaking)
     }
 
     override fun setMediaServerId(mediaServerId: Long) {
@@ -195,7 +187,7 @@ class KmePeerConnectionControllerImpl(
     }
 
     override fun onUserSpeaking(isSpeaking: Boolean) {
-        soundMeterReporter.post(reportUserSpeakingRunnable(isSpeaking))
+        listener?.onUserSpeaking(userId, isSpeaking)
     }
 
     override fun onIceDisconnected() {

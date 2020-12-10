@@ -27,6 +27,15 @@ enum class KmeMediaDeviceState(
     @SerializedName("DISABLED_NO_PERMISSIONS")
     DISABLED_NO_PERMISSIONS("DISABLED_NO_PERMISSIONS"),
 
+    @SerializedName("DISABLED")
+    DISABLED("DISABLED"),
+
+    @SerializedName("LIVE_INIT")
+    LIVE_INIT("LIVE_INIT"),
+
+    @SerializedName("LIVE_SUCCESS")
+    LIVE_SUCCESS("LIVE_SUCCESS"),
+
     @SerializedName("LIVE_ERROR")
     LIVE_ERROR("LIVE_ERROR");
 

@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.rest.response.room.settings
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -61,10 +62,10 @@ data class KmeGeneral(
     val classMode: String? = null,
 
     @SerializedName("mute_all_mics")
-    val muteAllMics: String? = null,
+    val muteAllMics: KmePermissionValue? = null,
 
     @SerializedName("mute_all_cams")
-    val muteAllCams: String? = null,
+    val muteAllCams: KmePermissionValue? = null,
 
     @SerializedName("use_ice_lite")
     val useIceLite: String? = null,

@@ -7,8 +7,7 @@ import com.kme.kaltura.kmesdk.ws.message.chat.KmeChatMessage
 import com.kme.kaltura.kmesdk.ws.message.chat.KmeConversation
 import com.kme.kaltura.kmesdk.ws.message.type.KmeLoadType
 
-class KmeChatModuleMessage<T : KmeChatModuleMessage.ChatPayload> :
-    KmeMessage<T>() {
+class KmeChatModuleMessage<T : KmeChatModuleMessage.ChatPayload> : KmeMessage<T>() {
 
     data class LoadConversationPayload(
         @SerializedName("room_id") var roomId: Long? = null,

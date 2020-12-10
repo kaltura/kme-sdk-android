@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.rest.response.room.settings
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -50,4 +51,4 @@ data class KmeSettingsV2(
 
     @SerializedName("room_access_module")
     var roomAccessModule: KmeRoomAccessModule? = null
-) : Parcelable
+) : KmeResponseData(), Parcelable

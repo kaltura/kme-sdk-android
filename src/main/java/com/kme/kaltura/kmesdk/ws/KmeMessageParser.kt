@@ -7,12 +7,13 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.chat.KmeChatMessage
 import com.kme.kaltura.kmesdk.ws.message.module.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.*
@@ -94,6 +95,9 @@ internal class KmeMessageParser(
             KmeMessageEvent.USER_HAND_RAISED.toString() -> {
                 text.jsonToObject<KmeParticipantsModuleMessage<UserRaiseHandPayload>>()
             }
+            KmeMessageEvent.MAKE_ALL_USERS_HAND_PUT.toString() -> {
+                text.jsonToObject<KmeParticipantsModuleMessage<AllUsersHandPutPayload>>()
+            }
             KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER.toString() -> {
                 text.jsonToObject<KmeStreamingModuleMessage<SdpAnswerToPublisherPayload>>()
             }
@@ -141,6 +145,10 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.DELETED_MESSAGE.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<DeleteMessagePayload>>()
+            }
+
+            KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED.toString() -> {
+                text.jsonToObject<KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload>>()
             }
             KmeMessageEvent.ROOM_SETTINGS_CHANGED.toString() -> {
                 text.jsonToObject<KmeRoomSettingsModuleMessage<RoomSettingsChangedPayload>>()

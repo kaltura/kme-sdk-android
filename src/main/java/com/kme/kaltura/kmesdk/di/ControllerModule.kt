@@ -12,6 +12,7 @@ val controllersModule = module {
     single<IKmeSignInController> { KmeSignInControllerImpl() }
     single<IKmeUserController> { KmeUserControllerImpl() }
     single<IKmeRoomController> { KmeRoomControllerImpl(androidContext()) }
+    single<IKmeChatController> { KmeChatControllerImpl() }
     single<IKmeAudioController> { KmeAudioControllerImpl() }
     single<IKmeMetadataController> { KmeMetadataControllerImpl() }
     single<IKmeWebSocketController> { KmeWebSocketControllerImpl() }

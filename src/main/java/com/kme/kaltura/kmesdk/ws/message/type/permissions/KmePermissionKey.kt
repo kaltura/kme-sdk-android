@@ -22,6 +22,12 @@ enum class KmePermissionKey(value: String) {
     @SerializedName("start_private_chat")
     START_PRIVATE_CHAT("start_private_chat"),
 
+    @SerializedName("mute_all_cams")
+    MUTE_ALL_CAMS("mute_all_cams"),
+
+    @SerializedName("mute_all_mics")
+    MUTE_ALL_MICS("mute_all_mics"),
+
     @SerializedName("browser_focus_video_overlay")
     BROWSER_FOCUS_VIDEO_OVERLAY("browser_focus_video_overlay"),
 
