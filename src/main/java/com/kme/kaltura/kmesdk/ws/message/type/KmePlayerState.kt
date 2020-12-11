@@ -6,22 +6,25 @@ enum class KmePlayerState(
     @SerializedName("player_state") val playerState: String
 ) {
 
-    @SerializedName("PLAY")
+    @SerializedName("PLAY", alternate = ["play"])
     PLAY("PLAY"),
 
-    @SerializedName("PLAYING")
+    @SerializedName("PLAYING", alternate = ["playing"])
     PLAYING("PLAYING"),
 
-    @SerializedName("PAUSED")
+    @SerializedName("PAUSED", alternate = ["paused"])
     PAUSED("PAUSED"),
 
-    @SerializedName("ENDED")
+    @SerializedName("ENDED", alternate = ["ended"])
     ENDED("ENDED"),
 
-    @SerializedName("SEEK_TO")
+    @SerializedName("STOP", alternate = ["stop"])
+    STOP("STOP"),
+
+    @SerializedName("SEEK_TO", alternate = ["seek_to"])
     SEEK_TO("SEEK_TO"),
 
-    @SerializedName("PAUSE")
+    @SerializedName("PAUSE", alternate = ["pause"])
     PAUSE("PAUSE")
 
 }
