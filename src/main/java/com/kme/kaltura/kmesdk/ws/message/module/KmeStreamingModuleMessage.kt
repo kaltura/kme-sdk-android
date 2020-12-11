@@ -15,16 +15,16 @@ class KmeStreamingModuleMessage<T : KmeStreamingModuleMessage.StreamingPayload> 
     ) : StreamingPayload()
 
     data class StartedPublishPayload(
-        @SerializedName("room_id") val sdpOffer: Long? = null,
-        @SerializedName("user_id") val userId: String? = null,
-        @SerializedName("managingRoomServerId") val managingRoomServerId: Long? = null
+        @SerializedName("room_id") val roomId: Long,
+        @SerializedName("user_id") val userId: String,
+        @SerializedName("managingRoomServerId") val managingRoomServerId: Long
     ) : StreamingPayload()
 
     data class StartViewingPayload(
         @SerializedName("room_id") val sdpOffer: Long? = null,
         @SerializedName("user_id") val userId: Long? = null,
         @SerializedName("company_id") val companyId: Long? = null,
-        @SerializedName("requestedUserIdStream") val requestedUserIdStream: Long? = null,
+        @SerializedName("requestedUserIdStream") val requestedUserIdStream: String? = null,
         @SerializedName("streamType") val streamType: String? = null
     ) : StreamingPayload()
 
@@ -81,7 +81,7 @@ class KmeStreamingModuleMessage<T : KmeStreamingModuleMessage.StreamingPayload> 
         @SerializedName("room_id") var roomId: Long? = null
     ) : StreamingPayload()
 
-    open class StreamingPayload : Payload() {
+    open class StreamingPayload : KmeMessage.Payload() {
         data class SDP(
             @SerializedName("type") val type: String? = null,
             @SerializedName("sdp") val sdp: String? = null

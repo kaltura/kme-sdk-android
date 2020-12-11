@@ -187,7 +187,17 @@ enum class KmeMessageEvent(
     PLAYER_SEEK_TO("playerShouldSeekTo"),
 
     @SerializedName("syncPlayerState", alternate = ["syncplayerstate"])
-    SYNC_PLAYER_STATE("syncPlayerState");
+    SYNC_PLAYER_STATE("syncPlayerState"),
+
+    /*
+    * Share Desktop
+    * */
+
+    @SerializedName("desktopShareStateUpdated", alternate = ["desktopsharestateupdated"])
+    DESKTOP_SHARE_STATE_UPDATED("desktopShareStateUpdated"),
+
+    @SerializedName("desktopShareQualityUpdated", alternate = ["desktopsharequalityupdated"])
+    DESKTOP_SHARE_QUALITY_UPDATED("desktopShareQualityUpdated");
 
     override fun toString(): String {
         return moduleName.toLowerCase()

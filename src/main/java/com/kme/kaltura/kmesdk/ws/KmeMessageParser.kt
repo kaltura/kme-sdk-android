@@ -11,12 +11,15 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.Se
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.DesktopShareQualityUpdatedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.DesktopShareStateUpdatedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.SyncPlayerStatePayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPayload
 
 private const val KEY_NAME = "name"
 
@@ -153,10 +156,12 @@ internal class KmeMessageParser(
             KmeMessageEvent.ROOM_SETTINGS_CHANGED.toString() -> {
                 text.jsonToObject<KmeRoomSettingsModuleMessage<RoomSettingsChangedPayload>>()
             }
+
             KmeMessageEvent.INIT_ACTIVE_CONTENT.toString(),
             KmeMessageEvent.SET_ACTIVE_CONTENT.toString() -> {
                 text.jsonToObject<KmeActiveContentModuleMessage<SetActiveContentPayload>>()
             }
+
             KmeMessageEvent.SYNC_PLAYER_STATE.toString() -> {
                 text.jsonToObject<KmeVideoModuleMessage<SyncPlayerStatePayload>>()
             }
@@ -169,6 +174,14 @@ internal class KmeMessageParser(
             KmeMessageEvent.PLAYER_SEEK_TO.toString() -> {
                 text.jsonToObject<KmeVideoModuleMessage<VideoPayload>>()
             }
+
+            KmeMessageEvent.DESKTOP_SHARE_STATE_UPDATED.toString() -> {
+                text.jsonToObject<KmeDesktopShareModuleMessage<DesktopShareStateUpdatedPayload>>()
+            }
+            KmeMessageEvent.DESKTOP_SHARE_QUALITY_UPDATED.toString() -> {
+                text.jsonToObject<KmeDesktopShareModuleMessage<DesktopShareQualityUpdatedPayload>>()
+            }
+
             else -> null
         }
     }

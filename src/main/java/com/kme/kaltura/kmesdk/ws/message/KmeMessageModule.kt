@@ -28,7 +28,10 @@ enum class KmeMessageModule(
     VIDEO("Video"),
 
     @SerializedName("Streaming", alternate = ["streaming"])
-    STREAMING("Streaming");
+    STREAMING("Streaming"),
+
+    @SerializedName("DesktopShare", alternate = ["desktopshare"])
+    DESKTOP_SHARE("DesktopShare");
 
     override fun toString(): String {
         return moduleName.toLowerCase()
