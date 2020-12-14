@@ -43,7 +43,7 @@ class KmeStreamingModuleMessage<T : KmeStreamingModuleMessage.StreamingPayload> 
         @SerializedName("company_id") val companyId: Long? = null,
         @SerializedName("plugin") var plugin: String? = null,
         @SerializedName("sdpAnswer") var sdpAnswer: SDP? = null,
-        @SerializedName("requestedUserIdStream") var requestedUserIdStream: Long? = null,
+        @SerializedName("requestedUserIdStream") var requestedUserIdStream: String? = null,
         @SerializedName("mediaServerId") var mediaServerId: Long? = null,
         @SerializedName("streamType") var streamType: String? = null
     ) : StreamingPayload()
@@ -53,7 +53,7 @@ class KmeStreamingModuleMessage<T : KmeStreamingModuleMessage.StreamingPayload> 
         @SerializedName("mediaServerIP") var mediaServerIP: String? = null,
         @SerializedName("plugin") var plugin: String? = null,
         @SerializedName("sdpOffer") var sdpOffer: String? = null,
-        @SerializedName("requestedUserIdStream") var requestedUserIdStream: Long? = null,
+        @SerializedName("requestedUserIdStream") var requestedUserIdStream: String? = null,
         @SerializedName("user_id") var userId: Long? = null
     ) : StreamingPayload()
 
@@ -72,7 +72,7 @@ class KmeStreamingModuleMessage<T : KmeStreamingModuleMessage.StreamingPayload> 
         @SerializedName("company_id") var companyId: Long? = null,
         @SerializedName("mediaServerId") var mediaServerId: Long? = null,
         @SerializedName("plugin") var plugin: String? = null,
-        @SerializedName("requestedUserIdStream") var requestedUserIdStream: Long? = null,
+        @SerializedName("requestedUserIdStream") var requestedUserIdStream: String? = null,
         @SerializedName("streamType") var streamType: String? = null
     ) : StreamingPayload()
 

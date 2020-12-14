@@ -193,6 +193,9 @@ enum class KmeMessageEvent(
     * Share Desktop
     * */
 
+    @SerializedName("initDesktopShareOnRoomInit", alternate = ["initdesktopsshareonroominit"])
+    DESKTOP_SHARE_INIT_ON_ROOM_INIT("initDesktopShareOnRoomInit"),
+
     @SerializedName("desktopShareStateUpdated", alternate = ["desktopsharestateupdated"])
     DESKTOP_SHARE_STATE_UPDATED("desktopShareStateUpdated"),
 

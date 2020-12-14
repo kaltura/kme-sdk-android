@@ -255,31 +255,31 @@ class KmeRoomControllerImpl(
     }
 
     override fun addPublisherPeerConnection(
-        userId: Long,
+        requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
-    ) {
-        roomService?.addPublisherPeerConnection(userId, renderer, listener)
+    ) : IKmePeerConnectionController? {
+        return roomService?.addPublisherPeerConnection(requestedUserIdStream, renderer, listener)
     }
 
     override fun addViewerPeerConnection(
-        userId: Long,
+        requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
-    ) {
-        roomService?.addViewerPeerConnection(userId, renderer, listener)
+    ) : IKmePeerConnectionController? {
+        return roomService?.addViewerPeerConnection(requestedUserIdStream, renderer, listener)
     }
 
     override fun getPublisherConnection(): IKmePeerConnectionController? {
         return roomService?.getPublisherConnection()
     }
 
-    override fun getPeerConnection(userId: Long): IKmePeerConnectionController? {
-        return roomService?.getPeerConnection(userId)
+    override fun getPeerConnection(requestedUserIdStream: String): IKmePeerConnectionController? {
+        return roomService?.getPeerConnection(requestedUserIdStream)
     }
 
-    override fun disconnectPeerConnection(userId: Long) {
-        roomService?.disconnectPeerConnection(userId)
+    override fun disconnectPeerConnection(requestedUserIdStream: String) {
+        roomService?.disconnectPeerConnection(requestedUserIdStream)
     }
 
     override fun disconnectAllConnections() {
