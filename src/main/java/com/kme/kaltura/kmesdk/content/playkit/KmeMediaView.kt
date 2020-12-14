@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.playkit.view
+package com.kme.kaltura.kmesdk.content.playkit
 
 import android.content.Context
 import android.util.AttributeSet
@@ -9,19 +9,13 @@ import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
 import com.kme.kaltura.kmesdk.R
 
-class KmeMediaView : FrameLayout {
+class KmeMediaView @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : FrameLayout(context, attrs, defStyleAttr) {
 
     lateinit var player: KalturaPlayer
 
     private lateinit var config: Config
-
-    constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
-    )
 
     fun init(config: Config) {
         this.config = config
