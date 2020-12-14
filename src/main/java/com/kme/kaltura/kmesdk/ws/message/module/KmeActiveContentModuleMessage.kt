@@ -19,6 +19,8 @@ class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveCont
             @SerializedName("caller") val caller: String? = null,
             @SerializedName("activeItem") val activeItem: String? = null,
             @SerializedName("src") val src: String? = null,
+            @SerializedName("file_id") val fileId: String? = null,
+            @SerializedName("video_url") val videoUrl: String? = null,
             @SerializedName("play_state") val playState: String? = null
         ) : Parcelable
 
