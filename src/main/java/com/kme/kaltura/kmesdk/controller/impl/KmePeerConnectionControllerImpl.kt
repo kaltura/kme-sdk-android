@@ -30,7 +30,7 @@ class KmePeerConnectionControllerImpl(
     private var remoteRendererView: KmeSurfaceRendererView? = null
 
     private var isPublisher = false
-    private var userId = 0L
+    private var requestedUserIdStream = ""
     private var mediaServerId = 0L
 
     // Public PeerConnection API
@@ -48,11 +48,11 @@ class KmePeerConnectionControllerImpl(
 
     override fun createPeerConnection(
         isPublisher: Boolean,
-        userId: Long,
+        requestedUserIdStream: String,
         listener: IKmePeerConnectionClientEvents
     ) {
         this.isPublisher = isPublisher
-        this.userId = userId
+        this.requestedUserIdStream = requestedUserIdStream
         this.listener = listener
 
         peerConnectionClient = KmePeerConnectionImpl()
@@ -79,7 +79,7 @@ class KmePeerConnectionControllerImpl(
                 it.init(peerConnectionClient?.getRenderContext(), null)
                 it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
                 it.setEnableHardwareScaler(true)
-                it.setMirror(true)
+                it.setMirror(false)
                 remoteVideoSink.setTarget(it)
             }
         }
@@ -158,12 +158,12 @@ class KmePeerConnectionControllerImpl(
 
     // Callbacks from PeerConnection internal API to the application
     override fun onPeerConnectionCreated() {
-        listener?.onPeerConnectionCreated(userId)
+        listener?.onPeerConnectionCreated(requestedUserIdStream)
     }
 
     override fun onLocalDescription(sdp: SessionDescription) {
         listener?.onLocalDescription(
-            userId,
+            requestedUserIdStream,
             mediaServerId,
             sdp.description,
             sdp.type.name.toLowerCase()
@@ -183,11 +183,11 @@ class KmePeerConnectionControllerImpl(
     }
 
     override fun onIceGatheringDone() {
-        listener?.onIceGatheringDone(userId, mediaServerId)
+        listener?.onIceGatheringDone(requestedUserIdStream, mediaServerId)
     }
 
     override fun onUserSpeaking(isSpeaking: Boolean) {
-        listener?.onUserSpeaking(userId, isSpeaking)
+        listener?.onUserSpeaking(requestedUserIdStream, isSpeaking)
     }
 
     override fun onIceDisconnected() {

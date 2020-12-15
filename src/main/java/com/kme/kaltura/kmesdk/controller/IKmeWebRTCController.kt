@@ -5,7 +5,6 @@ import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 
 interface IKmeWebRTCController {
 
-    // Peer connections
     fun setTurnServer(
         turnUrl: String,
         turnUser: String,
@@ -13,22 +12,22 @@ interface IKmeWebRTCController {
     )
 
     fun addPublisherPeerConnection(
-        userId: Long,
+        requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
-    )
+    ) : IKmePeerConnectionController?
 
     fun addViewerPeerConnection(
-        userId: Long,
+        requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
-    )
+    ) : IKmePeerConnectionController?
 
     fun getPublisherConnection() : IKmePeerConnectionController?
 
-    fun getPeerConnection(userId: Long) : IKmePeerConnectionController?
+    fun getPeerConnection(requestedUserIdStream: String) : IKmePeerConnectionController?
 
-    fun disconnectPeerConnection(userId: Long)
+    fun disconnectPeerConnection(requestedUserIdStream: String)
 
     fun disconnectAllConnections()
 

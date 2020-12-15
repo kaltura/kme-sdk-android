@@ -26,9 +26,9 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
     private lateinit var turnUser: String
     private lateinit var turnCred: String
 
-    private var peerConnections: MutableMap<Long, IKmePeerConnectionController> = mutableMapOf()
+    private var peerConnections: MutableMap<String, IKmePeerConnectionController> = mutableMapOf()
 
-    override fun onBind(intent: Intent?): IBinder? = binder
+    override fun onBind(intent: Intent?): IBinder = binder
 
     override fun onCreate() {
         super.onCreate()
@@ -75,39 +75,45 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
     }
 
     override fun addPublisherPeerConnection(
-        userId: Long,
+        requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
-    ) {
+    ) : IKmePeerConnectionController? {
+        peerConnections[requestedUserIdStream]?.let { return null }
+
         publisherPeerConnection.setTurnServer(turnUrl, turnUser, turnCred)
         publisherPeerConnection.setLocalRenderer(renderer)
-        publisherPeerConnection.createPeerConnection(true, userId, listener)
-        peerConnections[userId] = publisherPeerConnection
+        publisherPeerConnection.createPeerConnection(true, requestedUserIdStream, listener)
+        peerConnections[requestedUserIdStream] = publisherPeerConnection
+        return publisherPeerConnection
     }
 
     override fun addViewerPeerConnection(
-        userId: Long,
+        requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
-    ) {
+    ) : IKmePeerConnectionController? {
+        peerConnections[requestedUserIdStream]?.let { return null }
+
         val viewerPeerConnection: IKmePeerConnectionController by inject()
         viewerPeerConnection.setTurnServer(turnUrl, turnUser, turnCred)
         viewerPeerConnection.setRemoteRenderer(renderer)
-        viewerPeerConnection.createPeerConnection(false, userId, listener)
-        peerConnections[userId] = viewerPeerConnection
+        viewerPeerConnection.createPeerConnection(false, requestedUserIdStream, listener)
+        peerConnections[requestedUserIdStream] = viewerPeerConnection
+        return viewerPeerConnection
     }
 
     override fun getPublisherConnection(): IKmePeerConnectionController? {
         return publisherPeerConnection
     }
 
-    override fun getPeerConnection(userId: Long): IKmePeerConnectionController? {
-        return peerConnections.getOrDefault(userId, null)
+    override fun getPeerConnection(requestedUserIdStream: String): IKmePeerConnectionController? {
+        return peerConnections.getOrDefault(requestedUserIdStream, null)
     }
 
-    override fun disconnectPeerConnection(userId: Long) {
-        peerConnections[userId]?.disconnectPeerConnection()
-        peerConnections.remove(userId)
+    override fun disconnectPeerConnection(requestedUserIdStream: String) {
+        peerConnections[requestedUserIdStream]?.disconnectPeerConnection()
+        peerConnections.remove(requestedUserIdStream)
     }
 
     override fun disconnectAllConnections() {
