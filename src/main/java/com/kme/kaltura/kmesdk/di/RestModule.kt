@@ -61,6 +61,7 @@ val restModule = module {
     single { get<Retrofit>().create(KmeSignInApiService::class.java) }
     single { get<Retrofit>().create(KmeUserApiService::class.java) }
     single { get<Retrofit>().create(KmeRoomApiService::class.java) }
+    single { get<Retrofit>().create(KmeRoomNotesApiService::class.java) }
     single { get<Retrofit>().create(KmeChatApiService::class.java) }
     single { get<Retrofit>().create(KmeMetadataApiService::class.java) }
 
