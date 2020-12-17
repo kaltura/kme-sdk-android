@@ -31,7 +31,10 @@ enum class KmeMessageModule(
     SLIDES_PLAYER("SlidesPlayer"),
 
     @SerializedName("Streaming", alternate = ["streaming"])
-    STREAMING("Streaming");
+    STREAMING("Streaming"),
+
+    @SerializedName("DesktopShare", alternate = ["desktopshare"])
+    DESKTOP_SHARE("DesktopShare");
 
     override fun toString(): String {
         return moduleName.toLowerCase()

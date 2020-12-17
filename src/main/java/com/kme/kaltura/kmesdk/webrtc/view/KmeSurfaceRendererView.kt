@@ -6,5 +6,5 @@ import org.webrtc.SurfaceViewRenderer
 
 class KmeSurfaceRendererView(context: Context?, attrs: AttributeSet?) :
     SurfaceViewRenderer(context, attrs) {
-    var rendererId: Long? = 0L // equivalent for userId
+//    var rendererId: Long? = 0L // equivalent for userId
 }

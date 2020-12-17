@@ -18,7 +18,7 @@ interface IKmePeerConnectionController {
 
     fun createPeerConnection(
         isPublisher: Boolean,
-        userId: Long,
+        requestedUserIdStream: String,
         listener: IKmePeerConnectionClientEvents
     )
 

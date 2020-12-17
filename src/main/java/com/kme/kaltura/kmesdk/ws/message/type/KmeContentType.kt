@@ -31,6 +31,9 @@ enum class KmeContentType(
     SLIDES("slides"),
 
     @SerializedName("quizResult")
-    QUIZ_RESULT("quizResult")
+    QUIZ_RESULT("quizResult"),
+
+    @SerializedName("desktop_share")
+    DESKTOP_SHARE("desktop_share")
 
 }
