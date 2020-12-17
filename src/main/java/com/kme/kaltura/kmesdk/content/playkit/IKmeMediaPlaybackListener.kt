@@ -1,7 +1,6 @@
-package com.kme.kaltura.kmesdk.playkit
+package com.kme.kaltura.kmesdk.content.playkit
 
 import com.kaltura.playkit.PKEvent
-import com.kme.kaltura.kmesdk.playkit.view.KmeMediaView
 
 interface IKmeMediaPlaybackListener {
 
