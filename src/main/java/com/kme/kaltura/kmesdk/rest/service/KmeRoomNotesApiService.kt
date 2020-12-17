@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.rest.service
 
+import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeDeleteRoomNoteResponse
 import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeGetRoomNotesResponse
 import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeRoomNoteDownloadUrlResponse
 import retrofit2.http.*
@@ -19,5 +20,12 @@ interface KmeRoomNotesApiService {
         @Field("note_id") noteId: Long,
         @Field("saveToFiles") saveToFiles: Boolean
     ): KmeRoomNoteDownloadUrlResponse
+
+    @FormUrlEncoded
+    @POST("note/delete")
+    suspend fun deleteRoomNote(
+        @Field("room_id") roomId: Long,
+        @Field("note_id") noteId: Long
+    ): KmeDeleteRoomNoteResponse
 
 }
