@@ -11,6 +11,7 @@ import com.kme.kaltura.kmesdk.rest.service.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -58,6 +59,19 @@ val restModule = module {
             .build()
     }
 
+    single(
+        named("Downloader")
+    ) {
+        Retrofit.Builder()
+            .baseUrl("https://${androidContext().getString(R.string.api_url)}/backend/")
+            .client(OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .build())
+            .build()
+    }
+
     single { get<Retrofit>().create(KmeSignInApiService::class.java) }
     single { get<Retrofit>().create(KmeUserApiService::class.java) }
     single { get<Retrofit>().create(KmeRoomApiService::class.java) }
@@ -65,4 +79,5 @@ val restModule = module {
     single { get<Retrofit>().create(KmeChatApiService::class.java) }
     single { get<Retrofit>().create(KmeMetadataApiService::class.java) }
 
+    single { get<Retrofit>(named("Downloader")).create(KmeFileLoaderApiService::class.java) }
 }
