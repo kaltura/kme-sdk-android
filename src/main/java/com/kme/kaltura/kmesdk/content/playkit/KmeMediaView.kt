@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.playkit.view
+package com.kme.kaltura.kmesdk.content.playkit
 
 import android.content.Context
 import android.util.AttributeSet
@@ -8,9 +8,6 @@ import com.kaltura.playkit.player.PKHttpClientManager
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
 import com.kme.kaltura.kmesdk.R
-import com.kme.kaltura.kmesdk.playkit.IKmeMediaPlaybackListener
-import com.kme.kaltura.kmesdk.playkit.asKalturaEvent
-import com.kme.kaltura.kmesdk.playkit.isEnded
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
@@ -19,24 +16,18 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTube
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import java.util.concurrent.TimeUnit
 
-class KmeMediaView : FrameLayout, IKmeMediaPlaybackListener {
+class KmeMediaView @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : FrameLayout(context, attrs, defStyleAttr), IKmeMediaPlaybackListener {
 
     private lateinit var config: Config
-    private var kalturaPlayer: KalturaPlayer? = null
 
+    private var kalturaPlayer: KalturaPlayer? = null
     private var messageBus: MessageBus? = null
     private var youtubePlayer: YouTubePlayer? = null
     private var youtubePlayerView: YouTubePlayerView? = null
     private var youtubeTracker: YouTubePlayerTracker? = null
     private var youtubePlayerListener: AbstractYouTubePlayerListener? = null
-
-    constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
-    )
 
     override fun init(config: Config) {
         removeAllViews()

@@ -18,21 +18,6 @@ enum class KmeContentType(
     @SerializedName("document")
     DOCUMENT("document"),
 
-    @SerializedName("pdf")
-    PDF("pdf"),
-
-    @SerializedName("ppt")
-    PPT("ppt"),
-
-    @SerializedName("doc")
-    DOC("doc"),
-
-    @SerializedName("xls")
-    XLS("xls"),
-
-    @SerializedName("txt")
-    TXT("txt"),
-
     @SerializedName("kaltura")
     KALTURA("kaltura"),
 
@@ -42,8 +27,8 @@ enum class KmeContentType(
     @SerializedName("quiz")
     QUIZ("quiz"),
 
-    @SerializedName("slide")
-    SLIDE("slide"),
+    @SerializedName("slides")
+    SLIDES("slides"),
 
     @SerializedName("quizResult")
     QUIZ_RESULT("quizResult"),

@@ -174,6 +174,13 @@ enum class KmeMessageEvent(
     SET_ACTIVE_CONTENT("setActiveContent"),
 
     /*
+    * Slides Player
+    * */
+
+    @SerializedName("slideChanged", alternate = ["slideChanged"])
+    SLIDE_CHANGED("slideChanged"),
+
+    /*
     * Video
     * */
 
