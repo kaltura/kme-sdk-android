@@ -1,6 +1,14 @@
 package com.kme.kaltura.kmesdk
 
+import android.graphics.drawable.Drawable
+import android.webkit.URLUtil
+import android.widget.ImageView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
+import com.bumptech.glide.load.model.GlideUrl
+import com.bumptech.glide.load.model.LazyHeaders
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
+import org.koin.core.context.KoinContextHandler
 
 fun String.encryptWith(key: String): String {
     val s = IntArray(256)
@@ -38,3 +46,38 @@ inline fun <reified T> KmeMessage<*>.toType(): T? =
         @Suppress("UNCHECKED_CAST")
         this else
         null
+
+internal fun ImageView?.glide(
+    imageUrl: String?,
+    cookie: String?,
+    fileUrl: String?,
+    func: (RequestBuilder<Drawable>.() -> RequestBuilder<Drawable>)? = null
+) {
+    if (this == null) return
+    Glide.with(this).load(generateGlideUrl(imageUrl, cookie, fileUrl))
+        .apply {
+            func?.let { it() }
+        }
+        .into(this)
+}
+
+internal fun generateGlideUrl(url: String?, cookie: String?, fileUrl: String?): GlideUrl? {
+    return if (url.isNullOrEmpty()) {
+        null
+    } else {
+        var filesUrl = url
+
+        if (!URLUtil.isValidUrl(url)) {
+            fileUrl?.let {
+                filesUrl = it.plus(url)
+            }
+        }
+
+        GlideUrl(
+            filesUrl,
+            LazyHeaders.Builder()
+                .addHeader("Cookie", cookie ?: "")
+                .build()
+        )
+    }
+}
