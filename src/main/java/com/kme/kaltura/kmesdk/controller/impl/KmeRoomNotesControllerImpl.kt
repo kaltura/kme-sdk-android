@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Environment
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.downloadFile
+import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeDeleteRoomNoteResponse
 import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeGetRoomNotesResponse
 import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeRoomNoteDownloadUrlResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
@@ -21,7 +22,7 @@ class KmeRoomNotesControllerImpl(
 ) : KmeController(), IKmeRoomNotesController {
 
     private val roomNotesApiService: KmeRoomNotesApiService by inject()
-    private val loaderApiService: KmeFileLoaderApiService by inject()
+    private val fileLoaderApiService: KmeFileLoaderApiService by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     override fun getRoomNotes(
@@ -67,8 +68,23 @@ class KmeRoomNotesControllerImpl(
             )
 
             downloadFile(
-                { loaderApiService.downloadFile(url) },
+                { fileLoaderApiService.downloadFile(url) },
                 FileOutputStream(outputFile),
+                success,
+                error
+            )
+        }
+    }
+
+    override fun deleteRoomNote(
+        roomId: Long,
+        noteId: Long,
+        success: (response: KmeDeleteRoomNoteResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        uiScope.launch {
+            safeApiCall(
+                { roomNotesApiService.deleteRoomNote(roomId, noteId) },
                 success,
                 error
             )
