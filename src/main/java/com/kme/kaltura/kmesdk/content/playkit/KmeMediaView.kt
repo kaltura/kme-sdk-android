@@ -56,6 +56,7 @@ class KmeMediaView @JvmOverloads constructor(
     private fun setupYoutubePlayer() {
         messageBus = MessageBus()
         youtubePlayerView = YouTubePlayerView(context).apply {
+            enableBackgroundPlayback(false)
             getPlayerUiController().showUi(false)
             getPlayerUiController().showMenuButton(false)
             getPlayerUiController().showYouTubeButton(false)
