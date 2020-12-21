@@ -15,8 +15,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.Des
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.DesktopShareStateUpdatedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.CreateNotePayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.DeleteNotePayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
@@ -155,6 +154,9 @@ internal class KmeMessageParser(
 
             KmeMessageEvent.ROOM_NOTE_CREATED.toString() -> {
                 text.jsonToObject<KmeRoomNotesMessage<CreateNotePayload>>()
+            }
+            KmeMessageEvent.ROOM_NOTE_RENAMED.toString() -> {
+                text.jsonToObject<KmeRoomNotesMessage<RenameNotePayload>>()
             }
             KmeMessageEvent.ROOM_NOTE_DELETED.toString() -> {
                 text.jsonToObject<KmeRoomNotesMessage<DeleteNotePayload>>()
