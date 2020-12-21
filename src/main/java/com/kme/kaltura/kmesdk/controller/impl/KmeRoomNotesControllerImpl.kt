@@ -6,6 +6,7 @@ import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.downloadFile
 import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeDeleteRoomNoteResponse
 import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeGetRoomNotesResponse
+import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeRoomNoteCreateResponse
 import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeRoomNoteDownloadUrlResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeFileLoaderApiService
@@ -50,6 +51,21 @@ class KmeRoomNotesControllerImpl(
         uiScope.launch {
             safeApiCall(
                 { roomNotesApiService.getDownloadRoomNoteUrl(roomId, noteId, saveToFiles) },
+                success,
+                error
+            )
+        }
+    }
+
+    override fun createRoomNote(
+        companyId: Long,
+        roomId: Long,
+        success: (response: KmeRoomNoteCreateResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        uiScope.launch {
+            safeApiCall(
+                { roomNotesApiService.createRoomNote(companyId, roomId) },
                 success,
                 error
             )
