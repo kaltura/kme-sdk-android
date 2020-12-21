@@ -157,6 +157,9 @@ enum class KmeMessageEvent(
     @SerializedName("sendRename", alternate = ["sendrename"])
     ROOM_NOTE_RENAMED("sendRename"),
 
+    @SerializedName("broadcastNoteToAll", alternate = ["broadcastnotetoall"])
+    BROADCAST_ROOM_NOTE_TO_ALL("broadcastNoteToAll"),
+
     @SerializedName("sendDeletedNote", alternate = ["senddeletedmote"])
     ROOM_NOTE_DELETED("sendDeletedNote"),
 

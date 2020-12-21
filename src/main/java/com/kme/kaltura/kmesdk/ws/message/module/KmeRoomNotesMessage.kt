@@ -21,13 +21,7 @@ class KmeRoomNotesMessage<T : KmeRoomNotesMessage.NotesPayload> : KmeMessage<T>(
         @SerializedName("id") val id: Long? = null
     )
 
-    data class RenameNotePayload(
-        @SerializedName("roomId") val roomId: Long? = null,
-        @SerializedName("companyId") val companyId: Long? = null,
-        @SerializedName("eventData") val eventData: NoteEventData? = null
-    ) : NotesPayload()
-
-    data class DeleteNotePayload(
+    data class NotePayload(
         @SerializedName("roomId") val roomId: Long? = null,
         @SerializedName("companyId") val companyId: Long? = null,
         @SerializedName("eventData") val eventData: NoteEventData? = null
@@ -35,6 +29,7 @@ class KmeRoomNotesMessage<T : KmeRoomNotesMessage.NotesPayload> : KmeMessage<T>(
 
     data class NoteEventData(
         @SerializedName("noteId") val noteId: String? = null,
+        @SerializedName("noteName") val noteName: String? = null,
         @SerializedName("noteNewName") val noteNewName: String? = null
     )
 
