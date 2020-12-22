@@ -148,6 +148,22 @@ enum class KmeMessageEvent(
     GOT_CONVERSATION("gotDMConversation"),
 
     /*
+    * Room Notes
+    * */
+
+    @SerializedName("sendCreatedNote", alternate = ["sendcreatednote"])
+    ROOM_NOTE_CREATED("sendCreatedNote"),
+
+    @SerializedName("sendRename", alternate = ["sendrename"])
+    ROOM_NOTE_RENAMED("sendRename"),
+
+    @SerializedName("broadcastNoteToAll", alternate = ["broadcastnotetoall"])
+    BROADCAST_ROOM_NOTE_TO_ALL("broadcastNoteToAll"),
+
+    @SerializedName("sendDeletedNote", alternate = ["senddeletedmote"])
+    ROOM_NOTE_DELETED("sendDeletedNote"),
+
+    /*
     * Room Settings
     * */
 

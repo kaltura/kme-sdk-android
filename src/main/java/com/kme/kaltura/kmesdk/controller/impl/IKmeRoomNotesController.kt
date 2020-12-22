@@ -2,9 +2,7 @@ package com.kme.kaltura.kmesdk.controller.impl
 
 import com.kme.kaltura.kmesdk.controller.IKmeRoomNoteDownloadController
 import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeDeleteRoomNoteResponse
-import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeGetRoomNotesResponse
-import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeRoomNoteDownloadUrlResponse
+import com.kme.kaltura.kmesdk.rest.response.room.notes.*
 
 interface IKmeRoomNotesController : IKmeRoomNoteDownloadController {
 
@@ -20,6 +18,21 @@ interface IKmeRoomNotesController : IKmeRoomNoteDownloadController {
         noteId: Long,
         saveToFiles: Boolean,
         success: (response: KmeRoomNoteDownloadUrlResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
+    fun createRoomNote(
+        companyId: Long,
+        roomId: Long,
+        success: (response: KmeRoomNoteCreateResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
+    fun renameRoomNote(
+        roomId: Long,
+        noteId: String,
+        name: String,
+        success: (response: KmeRoomNoteRenameResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )
 
