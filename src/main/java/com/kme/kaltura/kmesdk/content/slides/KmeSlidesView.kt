@@ -2,13 +2,13 @@ package com.kme.kaltura.kmesdk.content.slides
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.glide
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.ActiveContentPayload.Slide
+import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
 import kotlinx.android.synthetic.main.layout_slides_view.view.*
 
 class KmeSlidesView @JvmOverloads constructor(
@@ -29,10 +29,10 @@ class KmeSlidesView @JvmOverloads constructor(
         this.config = config
 
         fabZoomIn.setOnClickListener {
-            ivSlide.zoomIn()
+//            zoomLayout.zoomIn()
         }
         fabZoomOut.setOnClickListener {
-            ivSlide.zoomOut()
+//            zoomLayout.zoomOut()
         }
     }
 
@@ -56,7 +56,9 @@ class KmeSlidesView @JvmOverloads constructor(
 
     private fun setupContentView() {
         selectedSlide?.let {
-            ivSlide.glide(it.url, config.cookie, config.fileUrl)
+            whiteboardLayout.glide(it.url, config.cookie, config.fileUrl) { originalSize ->
+                whiteboardLayout.init(originalSize)
+            }
         }
     }
 
@@ -72,7 +74,6 @@ class KmeSlidesView @JvmOverloads constructor(
 
     private fun notifySlideSelected(selectedSlide: Slide) {
         val indexOf = slides.indexOf(selectedSlide)
-        Log.e("TAG", "notifySlideSelected: $indexOf")
         if (indexOf >= 0) {
             slides.forEachIndexed { index, slide ->
                 slide.isSelected = index == indexOf
@@ -126,6 +127,10 @@ class KmeSlidesView @JvmOverloads constructor(
             setupContentView()
             notifySlideSelected(slide)
         }
+    }
+
+    override fun applyDrawings(drawings: List<WhiteboardPayload.Drawing>) {
+        whiteboardLayout.applyDrawings(drawings)
     }
 
     class Config(

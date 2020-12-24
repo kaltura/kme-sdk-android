@@ -1,14 +1,16 @@
 package com.kme.kaltura.kmesdk
 
 import android.graphics.drawable.Drawable
+import android.util.Size
 import android.webkit.URLUtil
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.load.model.LazyHeaders
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
-import org.koin.core.context.KoinContextHandler
 
 fun String.encryptWith(key: String): String {
     val s = IntArray(256)
@@ -51,14 +53,25 @@ internal fun ImageView?.glide(
     imageUrl: String?,
     cookie: String?,
     fileUrl: String?,
-    func: (RequestBuilder<Drawable>.() -> RequestBuilder<Drawable>)? = null
+    func: (RequestBuilder<Drawable>.() -> RequestBuilder<Drawable>)? = null,
+    onSizeReady: ((Size) -> Unit)? = null
 ) {
     if (this == null) return
-    Glide.with(this).load(generateGlideUrl(imageUrl, cookie, fileUrl))
+    Glide.with(this)
+        .asDrawable()
+        .load(generateGlideUrl(imageUrl, cookie, fileUrl))
         .apply {
             func?.let { it() }
         }
-        .into(this)
+        .into(object : CustomTarget<Drawable>() {
+            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                this@glide.setImageDrawable(resource)
+                onSizeReady?.invoke(Size(resource.intrinsicWidth, resource.intrinsicHeight))
+            }
+
+            override fun onLoadCleared(placeholder: Drawable?) {
+            }
+        })
 }
 
 internal fun generateGlideUrl(url: String?, cookie: String?, fileUrl: String?): GlideUrl? {

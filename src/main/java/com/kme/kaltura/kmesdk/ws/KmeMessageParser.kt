@@ -17,10 +17,11 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.SyncPlayerStatePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPageDataPayload
 
 private const val KEY_NAME = "name"
 
@@ -181,6 +182,9 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.SLIDE_CHANGED.toString() -> {
                 text.jsonToObject<KmeSlidesPlayerModuleMessage<SlideChangedPayload>>()
+            }
+            KmeMessageEvent.WHITEBOARD_PAGE_DATA.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<WhiteboardPageDataPayload>>()
             }
             else -> null
         }

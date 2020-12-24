@@ -197,6 +197,12 @@ enum class KmeMessageEvent(
     SYNC_PLAYER_STATE("syncPlayerState"),
 
     /*
+    * Whiteboard
+    * */
+    @SerializedName("whiteboardPageData", alternate = ["whiteboardpagedata"])
+    WHITEBOARD_PAGE_DATA("whiteboardPageData"),
+
+    /*
     * Share Desktop
     * */
 
