@@ -162,6 +162,9 @@ internal class KmeMessageParser(
             KmeMessageEvent.BROADCAST_ROOM_NOTE_TO_ALL.toString() -> {
                 text.jsonToObject<KmeRoomNotesMessage<NotePayload>>()
             }
+            KmeMessageEvent.ROOM_NOTE_SEND_TO_LISTENERS.toString() -> {
+                text.jsonToObject<KmeRoomNotesMessage<NotePayload>>()
+            }
             KmeMessageEvent.ROOM_NOTE_DELETED.toString() -> {
                 text.jsonToObject<KmeRoomNotesMessage<NotePayload>>()
             }

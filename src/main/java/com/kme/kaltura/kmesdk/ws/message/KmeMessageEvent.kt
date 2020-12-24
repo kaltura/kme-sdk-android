@@ -160,6 +160,12 @@ enum class KmeMessageEvent(
     @SerializedName("broadcastNoteToAll", alternate = ["broadcastnotetoall"])
     BROADCAST_ROOM_NOTE_TO_ALL("broadcastNoteToAll"),
 
+    @SerializedName("subscribeToNote", alternate = ["subscribetonote"])
+    ROOM_NOTE_SUBSCRIBE("subscribeToNote"),
+
+    @SerializedName("sendNotesToListeners", alternate = ["sendNotesToListeners"])
+    ROOM_NOTE_SEND_TO_LISTENERS("sendNotesToListeners"),
+
     @SerializedName("sendDeletedNote", alternate = ["senddeletedmote"])
     ROOM_NOTE_DELETED("sendDeletedNote"),
 
