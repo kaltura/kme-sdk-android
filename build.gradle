@@ -10,8 +10,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 1
-        versionName "0.1"
+        versionCode 3
+        versionName "0.2.1"
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -23,7 +23,7 @@ android {
         }
         release {
             minifyEnabled false
-            resValue "string", "api_url", 'smart.newrow.com'
+            resValue "string", "api_url", 'stagingsmart.newrow.com'
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
