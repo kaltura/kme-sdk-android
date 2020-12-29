@@ -14,6 +14,7 @@ data class KmeWhiteboardPath(
     @SerializedName("data") val data: Data? = null,
     @SerializedName("segments") val segments: List<List<Any>>? = null,
     @SerializedName("type") val type: KmeWhiteboardShapeType? = null,
+    @SerializedName("closed") val closed: Boolean? = null,
     var pathType: String? = null
 )  {
 

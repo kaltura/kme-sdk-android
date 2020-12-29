@@ -26,10 +26,7 @@ class KmeWhiteboardModuleMessage<T : KmeWhiteboardModuleMessage.WhiteboardPayloa
             @SerializedName("path") val path: KmeWhiteboardPath? = null,
             @SerializedName("date_created") val createdDate: String? = null,
             @SerializedName("user_full_name") val fullUsername: String? = null,
-        ) {
-            //local
-            var mappedPath: KmeWhiteboardPath? = null
-        }
+        )
 
         @SerializedName("board_id")
         val boardId: String? = null
