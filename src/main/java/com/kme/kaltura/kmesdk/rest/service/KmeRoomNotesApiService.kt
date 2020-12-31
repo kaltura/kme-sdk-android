@@ -35,6 +35,16 @@ interface KmeRoomNotesApiService {
     ): KmeRoomNoteRenameResponse
 
     @FormUrlEncoded
+    @POST("note/updateContent")
+    suspend fun updateRoomNoteContent(
+        @Field("room_id") roomId: Long,
+        @Field("note_id") noteId: String,
+        @Field("content") content: String,
+        @Field("should_update_change_log") updateLogs: Boolean = false,
+        @Field("html") html: String
+    ): KmeRoomNoteUpdateContentResponse
+
+    @FormUrlEncoded
     @POST("note/delete")
     suspend fun deleteRoomNote(
         @Field("room_id") roomId: Long,
