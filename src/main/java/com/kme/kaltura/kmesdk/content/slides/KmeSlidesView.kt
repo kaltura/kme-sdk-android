@@ -30,9 +30,13 @@ class KmeSlidesView @JvmOverloads constructor(
 
         fabZoomIn.setOnClickListener {
 //            zoomLayout.zoomIn()
+            drawing.setErase(true)
         }
         fabZoomOut.setOnClickListener {
 //            zoomLayout.zoomOut()
+
+            drawing.setErase(false)
+
         }
     }
 

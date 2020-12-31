@@ -4,7 +4,12 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.util.Size
+import android.view.View
 import androidx.appcompat.widget.AppCompatImageView
+import com.kme.kaltura.kmesdk.ptToDp
+import com.kme.kaltura.kmesdk.toColor
+import com.kme.kaltura.kmesdk.toPaintAlpha
+import com.kme.kaltura.kmesdk.toPaintCap
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardShapeType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardToolType
@@ -25,7 +30,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private var imageWidth: Float = 0f
     private var imageHeight: Float = 0f
 
-    private val paths = mutableMapOf<String, Path>()
+    private val pathsMap: MutableMap<WhiteboardPayload.Drawing, Path> = mutableMapOf()
 
     private var drawings: List<WhiteboardPayload.Drawing>? = null
 
@@ -33,8 +38,9 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private val defaultSize = Size(1280, 720)
 
     init {
+        setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         paint.apply {
-            strokeWidth = 6f
+            strokeWidth = ptToDp(2f, context)
             style = Paint.Style.STROKE
             isAntiAlias = true
             isDither = true
@@ -55,7 +61,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     }
 
     private fun invalidatePaths() {
-        paths.clear()
+        pathsMap.clear()
 
         if (drawings.isNullOrEmpty() || originalImageSize?.width ?: 0 <= 0) return
 
@@ -95,7 +101,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
         }
 
         path?.let {
-            paths.put(drawing.layer ?: "", path)
+            pathsMap.put(drawing, path)
         }
     }
 
@@ -248,6 +254,33 @@ class KmeWhiteboardView @JvmOverloads constructor(
         transform(pathMatrix)
     }
 
+    private fun invalidatePaint(path: KmeWhiteboardPath?) {
+        path?.let {
+            paint.color = it.strokeColor.toColor()
+            paint.strokeWidth = ptToDp(it.strokeWidth.toFloat(), context)
+            paint.strokeCap = path.strokeCap.toPaintCap()
+            paint.alpha = path.opacity.toPaintAlpha()
+
+//            val porterDuffMode = path.blendMode.getPorterDuffMode()
+//            if (porterDuffMode != null) {
+//                p = Paint().apply {
+//                    color = resources.getColor(R.color.transparentColor)
+//                    xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN)
+//                }
+//            } else {
+//                paint.setXfermode(null)
+//            }
+        }
+    }
+
+    override fun dispatchDraw(canvas: Canvas?) {
+        for (pathItem in pathsMap) {
+            invalidatePaint(pathItem.key.path)
+            canvas?.drawPath(pathItem.value, paint)
+        }
+        super.dispatchDraw(canvas)
+    }
+
     private fun Float.toX(): Float {
         return this * imageWidth / (originalImageSize?.width
             ?: defaultSize.width)
@@ -256,13 +289,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private fun Float.toY(): Float {
         return this * imageHeight / (originalImageSize?.height
             ?: defaultSize.height)
-    }
-
-    override fun dispatchDraw(canvas: Canvas?) {
-        super.dispatchDraw(canvas)
-        for (path in paths) {
-            canvas?.drawPath(path.value, paint)
-        }
     }
 
     private fun WhiteboardPayload.Drawing?.isLine(): Boolean {

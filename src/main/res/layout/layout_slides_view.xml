@@ -14,12 +14,23 @@
 <!--        app:layout_constraintStart_toStartOf="parent"-->
 <!--        app:layout_constraintTop_toTopOf="parent">-->
 
+
+    <com.kme.kaltura.kmesdk.content.whiteboard.DrawingView
+        android:id="@+id/drawing"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/rvSlides"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"/>
+
         <com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardView
             android:id="@+id/whiteboardLayout"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/rvSlides"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"
             android:layout_width="0dp"
             android:layout_height="match_parent"/>
 

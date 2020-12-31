@@ -5,18 +5,42 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardShapeType
 
 
 data class KmeWhiteboardPath(
+    @SerializedName("name") val name: String? = null,
     @SerializedName("applyMatrix") val applyMatrix: Boolean? = null,
     @SerializedName("matrix") val matrix: FloatArray? = null,
     @SerializedName("size") val size: FloatArray? = null,
     @SerializedName("radius") val radius: FloatArray? = null,
     @SerializedName("strokeColor") val strokeColor: FloatArray? = null,
+    @SerializedName("strokeCap") val strokeCap: Cap? = null,
     @SerializedName("strokeWidth") val strokeWidth: Int,
+    @SerializedName("opacity") val opacity: Float?,
+    @SerializedName("blendMode") val blendMode: BlendMode?,
     @SerializedName("data") val data: Data? = null,
     @SerializedName("segments") val segments: List<List<Any>>? = null,
     @SerializedName("type") val type: KmeWhiteboardShapeType? = null,
     @SerializedName("closed") val closed: Boolean? = null,
     var pathType: String? = null
-)  {
+) {
+
+    enum class Cap {
+        @SerializedName("round")
+        ROUND,
+
+        @SerializedName("butt")
+        BUTT,
+
+        @SerializedName("square")
+        SQUARE
+    }
+
+    enum class BlendMode {
+        @SerializedName("multiply")
+        MULTIPLY,
+
+        @SerializedName("destination-out")
+        DESTINATION_OUT
+    }
+
 
     data class Data(
         @SerializedName("user_id") val userId: Long? = null,

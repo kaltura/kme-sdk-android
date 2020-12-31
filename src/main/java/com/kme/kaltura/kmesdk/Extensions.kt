@@ -12,6 +12,7 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 
+
 fun String.encryptWith(key: String): String {
     val s = IntArray(256)
     var x: Int
