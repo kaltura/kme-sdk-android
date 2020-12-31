@@ -1,7 +1,6 @@
 package com.kme.kaltura.kmesdk.ws.message
 
 import com.google.gson.annotations.SerializedName
-
 enum class KmeMessageEvent(
     @SerializedName("name") val moduleName: String
 ) {
@@ -217,6 +216,35 @@ enum class KmeMessageEvent(
 
     @SerializedName("syncPlayerState", alternate = ["syncplayerstate"])
     SYNC_PLAYER_STATE("syncPlayerState"),
+
+
+    /*
+    * Recording
+    * */
+
+    @SerializedName("startRecording", alternate = ["startrecording"])
+    START_RECORDING("startRecording"),
+
+    @SerializedName("initiated", alternate = ["initiated"])
+    RECORDING_INITIATED("initiated"),
+
+    @SerializedName("recording", alternate = ["recording"])
+    RECORDING("recording"),
+
+    @SerializedName("stopRecording", alternate = ["stoprecording"])
+    STOP_RECORDING("stopRecording"),
+
+    @SerializedName("receivedStopRecording", alternate = ["receivedstoprecording"])
+    RECEIVED_STOP_RECORDING("receivedStopRecording"),
+
+    @SerializedName("recordingCompleted", alternate = ["recordingcompleted"])
+    RECORDING_COMPLETED("recordingCompleted"),
+
+    @SerializedName("conversionCompleted", alternate = ["conversioncompleted"])
+    CONVERSION_COMPLETED("conversionCompleted"),
+
+    @SerializedName("uploadCompleted", alternate = ["uploadcompleted"])
+    UPLOAD_COMPLETED("uploadCompleted"),
 
     /*
     * Share Desktop
