@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeNoteBlockType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeNoteStyle
+import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
 
 class KmeRoomNotesMessage<T : KmeRoomNotesMessage.NotesPayload> : KmeMessage<T>() {
 
@@ -40,7 +41,7 @@ class KmeRoomNotesMessage<T : KmeRoomNotesMessage.NotesPayload> : KmeMessage<T>(
     )
 
     data class NoteEditKeyValueContent(
-        @SerializedName("keyValueContent") val keyValueContent: Map<String, NoteEditDelta>? = null
+        @SerializedName("keyValueContent") val keyValueContent: LinkedHashMap<String, NoteEditDelta>
     )
 
     data class NoteEditDelta(
@@ -49,27 +50,30 @@ class KmeRoomNotesMessage<T : KmeRoomNotesMessage.NotesPayload> : KmeMessage<T>(
     )
 
     data class NoteEditBlock(
-        @SerializedName("key") val key: String,
-        @SerializedName("text") val text: String,
-        @SerializedName("type") val type: KmeNoteBlockType,
+        @SerializedName("key") var key: String,
+        @SerializedName("text") var text: String,
+        @SerializedName("type") var type: KmeNoteBlockType,
         @SerializedName("depth") val depth: Long,
-        @SerializedName("inlineStyleRanges") val inlineStyleRanges: List<NoteInlineStyle>
+        @SerializedName("inlineStyleRanges") var inlineStyleRanges: List<NoteInlineStyle>,
+        @SerializedName("entityRanges") var entityRanges: List<NoteInlineStyle> = arrayListOf(),
+        @SerializedName("data") var data: Any? = null
     )
 
     data class NoteInlineStyle(
-        @SerializedName("offset") val offset: String,
-        @SerializedName("length") val length: String,
+        @SerializedName("offset") val offset: Int,
+        @SerializedName("length") val length: Int,
         @SerializedName("style") val style: KmeNoteStyle
     )
 
     data class NoteEditor(
         @SerializedName("userId") val userId: Long? = null,
-        @SerializedName("userType") val userType: String? = null,
+        @SerializedName("userType") val userType: KmeUserRole? = null,
         @SerializedName("userName") val userName: String? = null
     )
 
     data class NoteBlocks(
-        @SerializedName("blocks") val blocks: List<NoteEditBlock>? = null
+        @SerializedName("blocks") val blocks: List<NoteEditBlock>? = null,
+        @SerializedName("entityMap") val entityMap: Any? = null,
     )
 
     open class NotesPayload : Payload()

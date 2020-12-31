@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.controller.impl
 
 import android.content.Context
 import android.os.Environment
+import com.kme.kaltura.kmesdk.controller.IKmeRoomNotesController
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.downloadFile
 import com.kme.kaltura.kmesdk.rest.response.room.notes.*
@@ -79,6 +80,24 @@ class KmeRoomNotesControllerImpl(
         uiScope.launch {
             safeApiCall(
                 { roomNotesApiService.renameRoomNote(roomId, noteId, name) },
+                success,
+                error
+            )
+        }
+    }
+
+    override fun updateRoomNoteContent(
+        roomId: Long,
+        noteId: String,
+        content: String,
+        updateLogs: Boolean,
+        html: String,
+        success: (response: KmeRoomNoteUpdateContentResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        uiScope.launch {
+            safeApiCall(
+                { roomNotesApiService.updateRoomNoteContent(roomId, noteId, content, updateLogs, html) },
                 success,
                 error
             )

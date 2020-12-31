@@ -1,6 +1,5 @@
-package com.kme.kaltura.kmesdk.controller.impl
+package com.kme.kaltura.kmesdk.controller
 
-import com.kme.kaltura.kmesdk.controller.IKmeRoomNoteDownloadController
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.notes.*
 
@@ -33,6 +32,16 @@ interface IKmeRoomNotesController : IKmeRoomNoteDownloadController {
         noteId: String,
         name: String,
         success: (response: KmeRoomNoteRenameResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
+    fun updateRoomNoteContent(
+        roomId: Long,
+        noteId: String,
+        content: String,
+        updateLogs: Boolean,
+        html: String,
+        success: (response: KmeRoomNoteUpdateContentResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )
 

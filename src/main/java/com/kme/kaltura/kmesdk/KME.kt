@@ -2,7 +2,7 @@ package com.kme.kaltura.kmesdk
 
 import android.content.Context
 import com.kme.kaltura.kmesdk.controller.*
-import com.kme.kaltura.kmesdk.controller.impl.IKmeRoomNotesController
+import com.kme.kaltura.kmesdk.controller.IKmeRoomNotesController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.KmeKoinContext
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
