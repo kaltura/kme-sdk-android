@@ -228,23 +228,29 @@ enum class KmeMessageEvent(
     @SerializedName("initiated", alternate = ["initiated"])
     RECORDING_INITIATED("initiated"),
 
-    @SerializedName("recording", alternate = ["recording"])
-    RECORDING("recording"),
+    @SerializedName("receivedStartRecording", alternate = ["receivedstartrecording"])
+    RECORDING_STARTING("receivedStartRecording"),
 
     @SerializedName("stopRecording", alternate = ["stoprecording"])
     STOP_RECORDING("stopRecording"),
 
+    @SerializedName("recording", alternate = ["recording"])
+    RECORDING_STARTED("recording"),
+
     @SerializedName("receivedStopRecording", alternate = ["receivedstoprecording"])
-    RECEIVED_STOP_RECORDING("receivedStopRecording"),
+    RECORDING_STOPPED("receivedStopRecording"),
 
     @SerializedName("recordingCompleted", alternate = ["recordingcompleted"])
     RECORDING_COMPLETED("recordingCompleted"),
 
     @SerializedName("conversionCompleted", alternate = ["conversioncompleted"])
-    CONVERSION_COMPLETED("conversionCompleted"),
+    RECORDING_CONVERSION_COMPLETED("conversionCompleted"),
 
     @SerializedName("uploadCompleted", alternate = ["uploadcompleted"])
-    UPLOAD_COMPLETED("uploadCompleted"),
+    RECORDING_UPLOAD_COMPLETED("uploadCompleted"),
+
+    @SerializedName("recorderFailed", alternate = ["recorderfailed"])
+    RECORDING_FAILED("recorderFailed"),
 
     /*
     * Share Desktop
