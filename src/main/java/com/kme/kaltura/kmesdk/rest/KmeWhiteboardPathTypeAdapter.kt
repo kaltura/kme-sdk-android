@@ -16,8 +16,22 @@ class KmeWhiteboardPathTypeAdapter : JsonDeserializer<KmeWhiteboardPath?> {
         return if (result?.size() ?: 0 > 1) {
             val pathType: String? = result?.get(0)?.asString
             val path: KmeWhiteboardPath? =
-                Gson().fromJson(result?.get(1)?.asJsonObject, KmeWhiteboardPath::class.java)
+                Gson().fromJson(result?.get(1), KmeWhiteboardPath::class.java)
             path?.pathType = pathType
+
+            result?.get(1)?.asJsonObject?.get("children")?.asJsonArray?.let {
+                if (it.size() > 0 && it[0].isJsonArray) {
+                    val childrenPathType: String? = it[0].asJsonArray?.get(0)?.asString
+                    val childrenPath: KmeWhiteboardPath? =
+                        Gson().fromJson(
+                            it[0].asJsonArray?.get(1),
+                            KmeWhiteboardPath::class.java
+                        )
+
+                    childrenPath?.pathType = childrenPathType
+                    path?.childrenPath = childrenPath
+                }
+            }
 
             path
         } else {

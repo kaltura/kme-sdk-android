@@ -1,8 +1,11 @@
 package com.kme.kaltura.kmesdk.content.slides
 
 import android.content.Context
+import android.graphics.RectF
 import android.util.AttributeSet
+import android.util.Size
 import android.view.LayoutInflater
+import android.view.ViewTreeObserver
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kme.kaltura.kmesdk.R
@@ -21,6 +24,9 @@ class KmeSlidesView @JvmOverloads constructor(
     private var slidesAdapter: SlidesAdapter? = null
     private var selectedSlide: Slide? = null
 
+    private var originalImageSize: Size? = null
+
+
     init {
         LayoutInflater.from(context).inflate(R.layout.layout_slides_view, this)
     }
@@ -30,12 +36,12 @@ class KmeSlidesView @JvmOverloads constructor(
 
         fabZoomIn.setOnClickListener {
 //            zoomLayout.zoomIn()
-            drawing.setErase(true)
+//            drawing.setErase(true)
         }
         fabZoomOut.setOnClickListener {
 //            zoomLayout.zoomOut()
 
-            drawing.setErase(false)
+//            drawing.setErase(false)
 
         }
     }
@@ -59,11 +65,33 @@ class KmeSlidesView @JvmOverloads constructor(
     }
 
     private fun setupContentView() {
+        originalImageSize = null
+
         selectedSlide?.let {
-            whiteboardLayout.glide(it.url, config.cookie, config.fileUrl) { originalSize ->
-                whiteboardLayout.init(originalSize)
+            ivSlide.glide(it.url, config.cookie, config.fileUrl) { originalSize ->
+                originalImageSize = originalSize
+                setupWhiteboardView()
             }
         }
+    }
+
+    private fun setupWhiteboardView() {
+        ivSlide.viewTreeObserver.addOnPreDrawListener(object :
+            ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                val drawable = ivSlide.drawable
+                if (drawable != null) {
+                    val imageBounds = RectF()
+                    ivSlide.imageMatrix.mapRect(imageBounds, RectF(drawable.bounds))
+
+                    originalImageSize?.let { imageSize ->
+                        whiteboardLayout.init(imageSize, imageBounds)
+                    }
+                    ivSlide.viewTreeObserver.removeOnPreDrawListener(this)
+                }
+                return true
+            }
+        })
     }
 
     private fun setupPreviews() {

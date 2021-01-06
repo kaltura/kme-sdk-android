@@ -6,35 +6,36 @@
     android:layout_height="match_parent"
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
-<!--    <com.otaliastudios.zoom.ZoomLayout-->
-<!--        android:id="@+id/zoomLayout"-->
-<!-- -->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toStartOf="@id/rvSlides"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent">-->
+    <!--    <com.otaliastudios.zoom.ZoomLayout-->
+    <!--        android:id="@+id/zoomLayout"-->
+    <!-- -->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toStartOf="@id/rvSlides"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent">-->
 
-
-    <com.kme.kaltura.kmesdk.content.whiteboard.DrawingView
-        android:id="@+id/drawing"
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/rvSlides"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"/>
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivSlide"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
         <com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardView
             android:id="@+id/whiteboardLayout"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/rvSlides"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:visibility="gone"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"/>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-<!--    </com.otaliastudios.zoom.ZoomLayout>-->
+    </FrameLayout>
+
+
+    <!--    </com.otaliastudios.zoom.ZoomLayout>-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSlides"

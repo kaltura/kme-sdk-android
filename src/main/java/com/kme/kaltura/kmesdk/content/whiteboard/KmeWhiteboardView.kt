@@ -2,14 +2,15 @@ package com.kme.kaltura.kmesdk.content.whiteboard
 
 import android.content.Context
 import android.graphics.*
+import android.os.Build
+import android.text.Layout
+import android.text.StaticLayout
+import android.text.TextPaint
 import android.util.AttributeSet
+import android.util.Log
 import android.util.Size
 import android.view.View
-import androidx.appcompat.widget.AppCompatImageView
-import com.kme.kaltura.kmesdk.ptToDp
-import com.kme.kaltura.kmesdk.toColor
-import com.kme.kaltura.kmesdk.toPaintAlpha
-import com.kme.kaltura.kmesdk.toPaintCap
+import com.kme.kaltura.kmesdk.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardShapeType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardToolType
@@ -17,20 +18,26 @@ import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+
 class KmeWhiteboardView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : AppCompatImageView(context, attrs, defStyleAttr), IKmeWhiteboardLayout {
+) : View(context, attrs, defStyleAttr), IKmeWhiteboardLayout {
 
     private val TAG = javaClass.simpleName
 
     private val paint: Paint = Paint()
+    private val canvasPaint: Paint = Paint(Paint.DITHER_FLAG)
+    private var drawCanvas: Canvas? = null
+    private var canvasBitmap: Bitmap? = null
     private val pathMatrix: Matrix = Matrix()
     private val imageBounds: RectF = RectF()
+
+    private val eraseXfermode by lazy { PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
 
     private var imageWidth: Float = 0f
     private var imageHeight: Float = 0f
 
-    private val pathsMap: MutableMap<WhiteboardPayload.Drawing, Path> = mutableMapOf()
+    private var pathsMap: MutableMap<WhiteboardPayload.Drawing, Path?> = LinkedHashMap()
 
     private var drawings: List<WhiteboardPayload.Drawing>? = null
 
@@ -38,9 +45,9 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private val defaultSize = Size(1280, 720)
 
     init {
-        setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        setLayerType(LAYER_TYPE_SOFTWARE, null)
         paint.apply {
-            strokeWidth = ptToDp(2f, context)
+            strokeWidth = ptToDp(6f, context)
             style = Paint.Style.STROKE
             isAntiAlias = true
             isDither = true
@@ -50,8 +57,9 @@ class KmeWhiteboardView @JvmOverloads constructor(
         }
     }
 
-    override fun init(originalImageSize: Size) {
+    override fun init(originalImageSize: Size, imageBounds: RectF) {
         this.originalImageSize = originalImageSize
+        this.imageBounds.set(imageBounds)
         invalidatePaths()
     }
 
@@ -60,10 +68,13 @@ class KmeWhiteboardView @JvmOverloads constructor(
         invalidatePaths()
     }
 
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        invalidatePaths()
+    }
+
     private fun invalidatePaths() {
         pathsMap.clear()
-
-        if (drawings.isNullOrEmpty() || originalImageSize?.width ?: 0 <= 0) return
 
         measureBounds()
 
@@ -71,15 +82,25 @@ class KmeWhiteboardView @JvmOverloads constructor(
             calculatePath(it)
         }
 
+        pathsMap = pathsMap.toSortedMap { o1, o2 ->
+            o1.layer.getCreatingDate().compareTo(o2.layer.getCreatingDate())
+        }
+
         invalidate()
     }
 
     private fun measureBounds() {
-        if (drawable != null) {
-            imageMatrix.mapRect(imageBounds, RectF(drawable.bounds))
-
+        if (!imageBounds.isEmpty) {
             imageWidth = sqrt((imageBounds.right - imageBounds.left).pow(2))
             imageHeight = sqrt((imageBounds.bottom - imageBounds.top).pow(2))
+
+            canvasBitmap = Bitmap.createBitmap(
+                imageBounds.right.toInt(),
+                imageBounds.bottom.toInt(),
+                Bitmap.Config.ARGB_8888
+            ).also {
+                drawCanvas = Canvas(it)
+            }
         }
     }
 
@@ -100,14 +121,13 @@ class KmeWhiteboardView @JvmOverloads constructor(
             else -> null
         }
 
-        path?.let {
-            pathsMap.put(drawing, path)
-        }
+        pathsMap[drawing] = path
     }
 
     private fun calculatePencilPath(drawing: WhiteboardPayload.Drawing): Path? {
         val drawingPath = drawing.path ?: return null
-        val segments = drawingPath.segments.checkSegments<List<List<List<Float>>>>() ?: return null
+        val segments =
+            drawingPath.segments.validatePencilSegments<List<List<List<Float>>>>() ?: return null
 
         val path = Path()
 
@@ -142,7 +162,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     private fun calculateLinePath(drawing: WhiteboardPayload.Drawing): Path? {
         val drawingPath = drawing.path ?: return null
-        val segments = drawingPath.segments.checkSegments<List<List<Float>>>() ?: return null
+        val segments = drawingPath.segments.validateSegments<List<List<Float>>>() ?: return null
 
         val path = Path()
 
@@ -160,7 +180,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     private fun calculateClosedPath(drawing: WhiteboardPayload.Drawing): Path? {
         val drawingPath = drawing.path ?: return null
-        val segments = drawingPath.segments.checkSegments<List<List<Float>>>() ?: return null
+        val segments = drawingPath.segments.validateSegments<List<List<Float>>>() ?: return null
 
         val path = Path()
 
@@ -255,30 +275,116 @@ class KmeWhiteboardView @JvmOverloads constructor(
     }
 
     private fun invalidatePaint(path: KmeWhiteboardPath?) {
+        Log.e(TAG, "invalidatePaint: $path")
         path?.let {
-            paint.color = it.strokeColor.toColor()
+            paint.color = it.getPaintColor()
             paint.strokeWidth = ptToDp(it.strokeWidth.toFloat(), context)
-            paint.strokeCap = path.strokeCap.toPaintCap()
-            paint.alpha = path.opacity.toPaintAlpha()
-
-//            val porterDuffMode = path.blendMode.getPorterDuffMode()
-//            if (porterDuffMode != null) {
-//                p = Paint().apply {
-//                    color = resources.getColor(R.color.transparentColor)
-//                    xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN)
-//                }
-//            } else {
-//                paint.setXfermode(null)
-//            }
+            paint.strokeCap = path.strokeCap.getPaintCap()
+            paint.alpha = path.opacity.getPaintAlpha()
+            paint.style = path.getPaintStyle()
+            paint.textSize = path.childrenPath?.fontSize?.toFloat() ?: 0f
+            val isEraseMode = path.blendMode.isEraseMode()
+            if (isEraseMode) {
+                paint.xfermode = eraseXfermode
+            } else {
+                paint.xfermode = null
+            }
         }
     }
 
-    override fun dispatchDraw(canvas: Canvas?) {
-        for (pathItem in pathsMap) {
-            invalidatePaint(pathItem.key.path)
-            canvas?.drawPath(pathItem.value, paint)
+    override fun onDraw(canvas: Canvas?) {
+        if (!imageBounds.isEmpty && imageWidth > 0 && imageHeight > 0) {
+            canvasBitmap?.let {
+                canvas?.drawBitmap(it, 0f, 0f, canvasPaint)
+            }
+
+            for (pathItem in pathsMap) {
+                val drawing = pathItem.key
+                invalidatePaint(drawing.path)
+
+                if (drawing.isText()) {
+                    canvas?.drawTextPath(drawing)
+                } else {
+                    pathItem.value?.let {
+                        canvas?.drawPath(it, paint)
+                    }
+                }
+            }
         }
-        super.dispatchDraw(canvas)
+    }
+
+    private fun Canvas.drawTextPath(drawing: WhiteboardPayload.Drawing?) {
+        val textDrawing = drawing?.path?.childrenPath
+        if (textDrawing != null && !textDrawing.content.isNullOrEmpty()) {
+
+            val width = if (textDrawing.rectangle?.size == 4) {
+                textDrawing.rectangle[2].toX()
+            } else {
+                0f
+            }
+
+            val height = if (textDrawing.rectangle?.size == 4) {
+                textDrawing.rectangle[3].toY()
+            } else {
+                0f
+            }
+
+
+            val scaleX = textDrawing.matrix?.get(0) ?: 0f
+            val scaleY = textDrawing.matrix?.get(3) ?: 0f
+            val scalePointX = textDrawing.matrix?.get(4)?.toX()?.div(2) ?: 0f
+            val scalePointY = textDrawing.matrix?.get(5)?.toY()?.div(2) ?: 0f
+
+            val translateX = if (textDrawing.rectangle?.size == 4) {
+                imageBounds.left +  textDrawing.rectangle[0].toX() - (width / 2) + (drawing.path.matrix?.get(4)?.toX() ?: 0f)
+            } else {
+                0f
+            }
+            val translateY = if (textDrawing.rectangle?.size == 4) {
+                imageBounds.top + textDrawing.rectangle[1].toY() - (height / 2) + (drawing.path.matrix?.get(5)?.toY() ?: 0f)
+            } else {
+                0f
+            }
+            val coefY = if (imageWidth >= imageHeight) 1 else -1
+
+
+            val tPaint = TextPaint(paint)
+
+            val sLayout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                StaticLayout.Builder.obtain(
+                    textDrawing.content,
+                    0,
+                    textDrawing.content.length,
+                    tPaint,
+                    width.toInt()
+                ).apply {
+                    setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                    setIncludePad(false)
+                }.build()
+            } else {
+                StaticLayout(
+                    textDrawing.content,
+                    tPaint,
+                    width.toInt(),
+                    Layout.Alignment.ALIGN_NORMAL,
+                    1.2f,
+                    1.0f,
+                    false
+                )
+            }
+
+            save()
+            translate(translateX, translateY)
+//            scale(
+//                scaleX,
+//                scaleY,
+//                imageBounds.left + scalePointX,
+//                scalePointY + coefY * imageBounds.top
+//            )
+            sLayout.draw(this)
+            restore()
+            drawPoint(translateX, translateY, paint.apply { strokeWidth = 14f })
+        }
     }
 
     private fun Float.toX(): Float {
@@ -306,11 +412,48 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 && !this.path.segments.isNullOrEmpty()
     }
 
-    private inline fun <reified T> List<List<Any>>?.checkSegments(): T? {
+    private fun WhiteboardPayload.Drawing?.isText(): Boolean {
+        return this != null && this.tool == KmeWhiteboardToolType.TEXT && this.path != null
+    }
+
+    private inline fun <reified T> List<List<Any>>?.validateSegments(): T? {
         return if (this is T) {
             this
         } else {
             null
+        }
+    }
+
+    private inline fun <reified T : List<List<List<Float>>>> List<List<Any>>?.validatePencilSegments(): T? {
+        if (this == null) return null
+        val segments = this.toMutableList()
+        segments.forEachIndexed { index, it ->
+            if (it.size == 2 && it[0] is Double && it[1] is Double) {
+                val pointX = (it[0] as Double).toFloat()
+                val pointY = (it[1] as Double).toFloat()
+
+                val segment = mutableListOf<List<Float>>()
+                val point = mutableListOf<Float>()
+                point.add(pointX)
+                point.add(pointY)
+                val handlePoint = mutableListOf<Float>()
+                handlePoint.add(0.0f)
+                handlePoint.add(0.0f)
+                segment.add(point)
+                segment.add(handlePoint)
+                segment.add(handlePoint)
+
+                segments[index] = segment
+            }
+        }
+        return segments as T
+    }
+
+    private fun String?.getCreatingDate(): Long {
+        return if (this != null) {
+            "(\\d+)\$".toRegex().find(this)?.value?.toLong() ?: 0L
+        } else {
+            0L
         }
     }
 
