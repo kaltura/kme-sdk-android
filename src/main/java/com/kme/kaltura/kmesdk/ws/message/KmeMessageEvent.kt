@@ -249,6 +249,9 @@ enum class KmeMessageEvent(
     @SerializedName("uploadCompleted", alternate = ["uploadcompleted"])
     RECORDING_UPLOAD_COMPLETED("uploadCompleted"),
 
+    @SerializedName("recordingStatus", alternate = ["recordingstatus"])
+    RECORDING_STATUS("recordingStatus"),
+
     @SerializedName("recorderFailed", alternate = ["recorderfailed"])
     RECORDING_FAILED("recorderFailed"),
 

@@ -191,6 +191,12 @@ internal class KmeMessageParser(
             KmeMessageEvent.RECORDING_UPLOAD_COMPLETED.toString() -> {
                 text.jsonToObject<KmeRoomRecordingMessage<RecordingUploadCompletedPayload>>()
             }
+            KmeMessageEvent.RECORDING_STATUS.toString() -> {
+                text.jsonToObject<KmeRoomRecordingMessage<RecordingStatusPayload>>()
+            }
+            KmeMessageEvent.RECORDING_FAILED.toString() -> {
+                text.jsonToObject<KmeRoomRecordingMessage<RecordingFailurePayload>>()
+            }
 
             KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED.toString() -> {
                 text.jsonToObject<KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload>>()

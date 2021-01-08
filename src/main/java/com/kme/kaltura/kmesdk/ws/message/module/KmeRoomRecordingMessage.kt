@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.ws.message.module
 
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
+import com.kme.kaltura.kmesdk.ws.message.type.KmeRecordStatus
 
 class KmeRoomRecordingMessage<T : KmeRoomRecordingMessage.RecordingPayload> : KmeMessage<T>() {
 
@@ -46,6 +47,12 @@ class KmeRoomRecordingMessage<T : KmeRoomRecordingMessage.RecordingPayload> : Km
 
     data class RecordingUploadCompletedPayload(
         @SerializedName("responseCode") val responseCode: Int
+    ) : RecordingRxPayload()
+
+    data class RecordingStatusPayload(
+        @SerializedName("userJoinTimestamp") val userJoinTimestamp: Long,
+        @SerializedName("status") val status: KmeRecordStatus,
+        @SerializedName("timestamp") val timestamp: Long
     ) : RecordingRxPayload()
 
     data class RecordingFailurePayload(
