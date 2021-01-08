@@ -9,6 +9,7 @@ data class KmeWhiteboardPath(
     @SerializedName("applyMatrix") val applyMatrix: Boolean? = null,
     @SerializedName("matrix") val matrix: FloatArray? = null,
     @SerializedName("size") val size: FloatArray? = null,
+    @SerializedName("pivot") val pivot: FloatArray? = null,
     @SerializedName("radius") val radius: FloatArray? = null,
     @SerializedName("strokeColor") val strokeColor: FloatArray? = null,
     @SerializedName("fillColor") val fillColor: FloatArray? = null,

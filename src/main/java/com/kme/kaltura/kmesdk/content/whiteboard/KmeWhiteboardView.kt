@@ -7,7 +7,6 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.AttributeSet
-import android.util.Log
 import android.util.Size
 import android.view.View
 import com.kme.kaltura.kmesdk.*
@@ -74,14 +73,12 @@ class KmeWhiteboardView @JvmOverloads constructor(
     }
 
     private fun invalidatePaths() {
-        pathsMap.clear()
-
         measureBounds()
 
+        pathsMap.clear()
         drawings?.forEach {
             calculatePath(it)
         }
-
         pathsMap = pathsMap.toSortedMap { o1, o2 ->
             o1.layer.getCreatingDate().compareTo(o2.layer.getCreatingDate())
         }
@@ -275,7 +272,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
     }
 
     private fun invalidatePaint(path: KmeWhiteboardPath?) {
-        Log.e(TAG, "invalidatePaint: $path")
         path?.let {
             paint.color = it.getPaintColor()
             paint.strokeWidth = ptToDp(it.strokeWidth.toFloat(), context)
@@ -323,48 +319,36 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 0f
             }
 
-            val height = if (textDrawing.rectangle?.size == 4) {
-                textDrawing.rectangle[3].toY()
-            } else {
-                0f
-            }
-
-
-            val scaleX = textDrawing.matrix?.get(0) ?: 0f
-            val scaleY = textDrawing.matrix?.get(3) ?: 0f
-            val scalePointX = textDrawing.matrix?.get(4)?.toX()?.div(2) ?: 0f
-            val scalePointY = textDrawing.matrix?.get(5)?.toY()?.div(2) ?: 0f
-
             val translateX = if (textDrawing.rectangle?.size == 4) {
-                imageBounds.left +  textDrawing.rectangle[0].toX() - (width / 2) + (drawing.path.matrix?.get(4)?.toX() ?: 0f)
+                imageBounds.left +  textDrawing.rectangle[0].toX() + (drawing.path.matrix?.get(4)?.toX() ?: 0f)
             } else {
                 0f
             }
+
             val translateY = if (textDrawing.rectangle?.size == 4) {
-                imageBounds.top + textDrawing.rectangle[1].toY() - (height / 2) + (drawing.path.matrix?.get(5)?.toY() ?: 0f)
+                imageBounds.top + textDrawing.rectangle[1].toY() + (drawing.path.matrix?.get(5)?.toY() ?: 0f)
             } else {
                 0f
             }
-            val coefY = if (imageWidth >= imageHeight) 1 else -1
 
+            val textPaint = TextPaint(paint)
 
-            val tPaint = TextPaint(paint)
-
-            val sLayout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val staticLayout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 StaticLayout.Builder.obtain(
                     textDrawing.content,
                     0,
                     textDrawing.content.length,
-                    tPaint,
+                    textPaint,
                     width.toInt()
                 ).apply {
                     setAlignment(Layout.Alignment.ALIGN_NORMAL)
                     setIncludePad(false)
+                    setLineSpacing(1.0f, 1.2f)
                 }.build()
             } else {
                 StaticLayout(
                     textDrawing.content,
-                    tPaint,
+                    textPaint,
                     width.toInt(),
                     Layout.Alignment.ALIGN_NORMAL,
                     1.2f,
@@ -381,9 +365,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
 //                imageBounds.left + scalePointX,
 //                scalePointY + coefY * imageBounds.top
 //            )
-            sLayout.draw(this)
+            staticLayout.draw(this)
             restore()
-            drawPoint(translateX, translateY, paint.apply { strokeWidth = 14f })
         }
     }
 
