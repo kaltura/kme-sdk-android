@@ -5,7 +5,7 @@ import com.kme.kaltura.kmesdk.rest.response.room.KmeCheckRecordingLicenseRespons
 
 interface IKmeRoomRecordingController {
 
-    fun heckRecordingLicense(
+    fun checkRecordingLicense(
         roomId: Long,
         success: (response: KmeCheckRecordingLicenseResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit

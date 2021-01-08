@@ -15,7 +15,7 @@ class KmeRoomRecordingControllerImpl : KmeController(), IKmeRoomRecordingControl
     private val roomRecordingApiService: KmeRoomRecordingApiService by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
-    override fun heckRecordingLicense(
+    override fun checkRecordingLicense(
         roomId: Long,
         success: (response: KmeCheckRecordingLicenseResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
