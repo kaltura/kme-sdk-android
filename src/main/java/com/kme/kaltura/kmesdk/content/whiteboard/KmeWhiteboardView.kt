@@ -88,8 +88,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     private fun measureBounds() {
         if (!imageBounds.isEmpty) {
-            imageWidth = sqrt((imageBounds.right - imageBounds.left).pow(2))
-            imageHeight = sqrt((imageBounds.bottom - imageBounds.top).pow(2))
+            imageWidth = computeLength(imageBounds.left, imageBounds.right)
+            imageHeight = computeLength(imageBounds.top, imageBounds.bottom)
 
             canvasBitmap = Bitmap.createBitmap(
                 imageBounds.right.toInt(),
@@ -103,7 +103,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     private fun calculatePath(drawing: WhiteboardPayload.Drawing) {
         val path = when {
-            drawing.path?.type == KmeWhiteboardShapeType.RECTANGLE -> {
+            drawing.path?.type == KmeWhiteboardShapeType.RECTANGLE
+                    || drawing.path?.childrenPath?.type == KmeWhiteboardShapeType.RECTANGLE -> {
                 calculateRectPath(drawing)
             }
             drawing.isLine() -> {
@@ -122,7 +123,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     }
 
     private fun calculatePencilPath(drawing: WhiteboardPayload.Drawing): Path? {
-        val drawingPath = drawing.path ?: return null
+        val drawingPath = drawing.getDrawingPath() ?: return null
         val segments =
             drawingPath.segments.validatePencilSegments<List<List<List<Float>>>>() ?: return null
 
@@ -153,12 +154,12 @@ class KmeWhiteboardView @JvmOverloads constructor(
             }
         }
 
-        path.applyDefaultPathMatrix(drawingPath)
+        path.applyDefaultPathMatrix(drawing)
         return path
     }
 
     private fun calculateLinePath(drawing: WhiteboardPayload.Drawing): Path? {
-        val drawingPath = drawing.path ?: return null
+        val drawingPath = drawing.getDrawingPath() ?: return null
         val segments = drawingPath.segments.validateSegments<List<List<Float>>>() ?: return null
 
         val path = Path()
@@ -171,12 +172,12 @@ class KmeWhiteboardView @JvmOverloads constructor(
             }
         }
 
-        path.applyDefaultPathMatrix(drawingPath)
+        path.applyDefaultPathMatrix(drawing)
         return path
     }
 
     private fun calculateClosedPath(drawing: WhiteboardPayload.Drawing): Path? {
-        val drawingPath = drawing.path ?: return null
+        val drawingPath = drawing.getDrawingPath() ?: return null
         val segments = drawingPath.segments.validateSegments<List<List<Float>>>() ?: return null
 
         val path = Path()
@@ -190,12 +191,12 @@ class KmeWhiteboardView @JvmOverloads constructor(
         }
 
         path.close()
-        path.applyDefaultPathMatrix(drawingPath)
+        path.applyDefaultPathMatrix(drawing)
         return path
     }
 
     private fun calculateRectPath(drawing: WhiteboardPayload.Drawing): Path? {
-        val drawingPath = drawing.path
+        val drawingPath = drawing.getDrawingPath()
         val rectSize = drawingPath?.size
 
         if (drawingPath == null || rectSize == null || rectSize.size != 2) return null
@@ -219,18 +220,31 @@ class KmeWhiteboardView @JvmOverloads constructor(
         return path
     }
 
-    private fun Path.applyDefaultPathMatrix(drawingPath: KmeWhiteboardPath) {
+    private fun Path.applyDefaultPathMatrix(drawing: WhiteboardPayload.Drawing) {
         pathMatrix.reset()
 
-        val matrix = drawingPath.matrix
+        val drawingPath = drawing.getDrawingPath() ?: return
+        val matrix = drawingPath.getDrawingMatrix()
         if (matrix == null || matrix.isEmpty() || matrix.size != 6) return
+
+        var pivotX = drawing.path?.pivot?.firstOrNull()?.toX() ?: 0f
+        var pivotY = drawing.path?.pivot?.lastOrNull()?.toY() ?: 0f
+
+        if (pivotX > 0 || pivotY > 0) {
+            val pathBounds = RectF()
+            computeBounds(pathBounds, false)
+            val pathWidth = computeLength(pathBounds.left, pathBounds.right)
+            val pathHeight = computeLength(pathBounds.top, pathBounds.bottom)
+            pivotX -= (pathBounds.left + (pathWidth / 2))
+            pivotY -= (pathBounds.top + (pathHeight / 2))
+        }
 
         val scaleX = matrix[0]
         val scaleY = matrix[3]
         val scalePointX = matrix[4].toX()
         val scalePointY = matrix[5].toY()
-        val translateX = imageBounds.left + scalePointX
-        val translateY = scalePointY + imageBounds.top
+        val translateX = imageBounds.left + scalePointX + pivotX
+        val translateY = imageBounds.top + scalePointY + pivotY
 
         pathMatrix.setTranslate(translateX, translateY)
 
@@ -239,7 +253,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
             scaleX,
             scaleY,
             imageBounds.left + scalePointX,
-            scalePointY + coefY * imageBounds.top
+            coefY * imageBounds.top + scalePointY
         )
 
         transform(pathMatrix)
@@ -248,7 +262,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private fun Path.applyRectMatrix(size: FloatArray, drawingPath: KmeWhiteboardPath) {
         pathMatrix.reset()
 
-        val matrix = drawingPath.matrix
+        val matrix = drawingPath.matrix ?: drawingPath.childrenPath?.matrix
         if (matrix == null || matrix.isEmpty() || matrix.size != 6) return
 
         val scaleX = matrix[0]
@@ -278,7 +292,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
             paint.strokeCap = path.strokeCap.getPaintCap()
             paint.alpha = path.opacity.getPaintAlpha()
             paint.style = path.getPaintStyle()
-            paint.textSize = path.childrenPath?.fontSize?.toFloat() ?: 0f
+            paint.textSize = path.childrenPath?.fontSize?.toFloat() ?: 25f
+
             val isEraseMode = path.blendMode.isEraseMode()
             if (isEraseMode) {
                 paint.xfermode = eraseXfermode
@@ -296,7 +311,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
             for (pathItem in pathsMap) {
                 val drawing = pathItem.key
-                invalidatePaint(drawing.path)
+                invalidatePaint(drawing.getDrawingPath())
 
                 if (drawing.isText()) {
                     canvas?.drawTextPath(drawing)
@@ -313,23 +328,23 @@ class KmeWhiteboardView @JvmOverloads constructor(
         val textDrawing = drawing?.path?.childrenPath
         if (textDrawing != null && !textDrawing.content.isNullOrEmpty()) {
 
+            val bounds = Rect()
+            paint.getTextBounds(textDrawing.content, 0, textDrawing.content.length, bounds)
+
+            val scaleX = drawing.path.matrix?.get(0) ?: 1f
+            val scaleY = drawing.path.matrix?.get(3) ?: 1f
+
             val width = if (textDrawing.rectangle?.size == 4) {
-                textDrawing.rectangle[2].toX()
+                textDrawing.rectangle[2].toX() * scaleX
             } else {
                 0f
             }
 
-            val translateX = if (textDrawing.rectangle?.size == 4) {
-                imageBounds.left +  textDrawing.rectangle[0].toX() + (drawing.path.matrix?.get(4)?.toX() ?: 0f)
-            } else {
-                0f
-            }
-
-            val translateY = if (textDrawing.rectangle?.size == 4) {
-                imageBounds.top + textDrawing.rectangle[1].toY() + (drawing.path.matrix?.get(5)?.toY() ?: 0f)
-            } else {
-                0f
-            }
+            val scalePointX =
+                textDrawing.rectangle?.get(0)?.toX()?.times(scaleX)?.plus(drawing.path.matrix?.get(4)?.toX() ?: 0f) ?: 0f
+            val scalePointY = textDrawing.rectangle?.get(1)?.toY()?.times(scaleY)?.plus(drawing.path.matrix?.get(5)?.toY() ?: 0f) ?: 0f
+            val translateX =  imageBounds.left + (scalePointX)
+            val translateY =  imageBounds.top  +(scalePointY)
 
             val textPaint = TextPaint(paint)
 
@@ -343,7 +358,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 ).apply {
                     setAlignment(Layout.Alignment.ALIGN_NORMAL)
                     setIncludePad(false)
-                    setLineSpacing(1.0f, 1.2f)
+                    setLineSpacing(0.0f, 1.0f)
                 }.build()
             } else {
                 StaticLayout(
@@ -351,24 +366,20 @@ class KmeWhiteboardView @JvmOverloads constructor(
                     textPaint,
                     width.toInt(),
                     Layout.Alignment.ALIGN_NORMAL,
-                    1.2f,
                     1.0f,
+                    0.0f,
                     false
                 )
             }
 
             save()
             translate(translateX, translateY)
-//            scale(
-//                scaleX,
-//                scaleY,
-//                imageBounds.left + scalePointX,
-//                scalePointY + coefY * imageBounds.top
-//            )
             staticLayout.draw(this)
             restore()
         }
     }
+
+    private fun computeLength(p1: Float, p2: Float) = sqrt((p2 - p1).pow(2))
 
     private fun Float.toX(): Float {
         return this * imageWidth / (originalImageSize?.width
@@ -382,17 +393,17 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     private fun WhiteboardPayload.Drawing?.isLine(): Boolean {
         return this != null && this.tool == KmeWhiteboardToolType.LINE_TOOL && this.path != null
-                && !this.path.segments.isNullOrEmpty()
+                && (!this.path.segments.isNullOrEmpty() || !this.path.childrenPath?.segments.isNullOrEmpty())
     }
 
     private fun KmeWhiteboardPath?.isClosedPath(): Boolean {
-        if (this == null || this.segments.isNullOrEmpty()) return false
-        return this.closed == true
+        if (this == null || (this.segments.isNullOrEmpty() && this.childrenPath?.segments.isNullOrEmpty())) return false
+        return this.closed == true || this.childrenPath?.closed == true
     }
 
     private fun WhiteboardPayload.Drawing?.isPencilPath(): Boolean {
         return this != null && this.tool == KmeWhiteboardToolType.PENCIL && this.path != null
-                && !this.path.segments.isNullOrEmpty()
+                && (!this.path.segments.isNullOrEmpty() || !this.path.childrenPath?.segments.isNullOrEmpty())
     }
 
     private fun WhiteboardPayload.Drawing?.isText(): Boolean {
@@ -438,6 +449,16 @@ class KmeWhiteboardView @JvmOverloads constructor(
         } else {
             0L
         }
+    }
+
+    private fun WhiteboardPayload.Drawing?.getDrawingPath(): KmeWhiteboardPath? {
+        if (this == null || this.path == null) return null
+        return this.path.childrenPath ?: this.path
+    }
+
+    private fun KmeWhiteboardPath?.getDrawingMatrix(): FloatArray? {
+        if (this == null) return null
+        return this.childrenPath?.matrix ?: this.matrix
     }
 
 }

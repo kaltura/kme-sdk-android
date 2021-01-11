@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Paint
 import android.util.DisplayMetrics
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
@@ -26,7 +27,7 @@ fun KmeWhiteboardPath?.getPaintColor(): Int {
             this.strokeColor.toColor()
         }
         else -> {
-            -0x1000000
+            Color.BLACK
         }
     }
 }
@@ -48,7 +49,7 @@ fun KmeWhiteboardPath.Cap?.getPaintCap(): Paint.Cap {
 }
 
 fun KmeWhiteboardPath?.getPaintStyle(): Paint.Style {
-    return if (this?.childrenPath != null || this?.fillColor?.isNotEmpty() == true) {
+    return if (this?.childrenPath != null || this?.fillColor?.isNotEmpty() == true || !this?.content.isNullOrEmpty()) {
         Paint.Style.FILL
     } else {
         Paint.Style.STROKE
