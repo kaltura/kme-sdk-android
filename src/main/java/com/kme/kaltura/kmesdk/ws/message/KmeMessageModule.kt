@@ -36,6 +36,9 @@ enum class KmeMessageModule(
     @SerializedName("Streaming", alternate = ["streaming"])
     STREAMING("Streaming"),
 
+    @SerializedName("Recording", alternate = ["recording"])
+    RECORDING("Recording"),
+
     @SerializedName("DesktopShare", alternate = ["desktopshare"])
     DESKTOP_SHARE("DesktopShare");
 

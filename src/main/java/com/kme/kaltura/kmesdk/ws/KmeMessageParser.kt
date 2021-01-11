@@ -17,6 +17,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.CreateNotePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.NotePayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomRecordingMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
@@ -167,6 +168,34 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.ROOM_NOTE_DELETED.toString() -> {
                 text.jsonToObject<KmeRoomNotesMessage<NotePayload>>()
+            }
+
+            KmeMessageEvent.RECORDING_STARTED.toString() -> {
+                text.jsonToObject<KmeRoomRecordingMessage<RecordingStartingPayload>>()
+            }
+            KmeMessageEvent.RECORDING_INITIATED.toString() -> {
+                text.jsonToObject<KmeRoomRecordingMessage<RecordingInitiatedPayload>>()
+            }
+            KmeMessageEvent.RECORDING_STARTING.toString() -> {
+                text.jsonToObject<KmeRoomRecordingMessage<RecordingStartedPayload>>()
+            }
+            KmeMessageEvent.RECORDING_STOPPED.toString() -> {
+                text.jsonToObject<KmeRoomRecordingMessage<RecordingStoppedPayload>>()
+            }
+            KmeMessageEvent.RECORDING_COMPLETED.toString() -> {
+                text.jsonToObject<KmeRoomRecordingMessage<RecordingCompletedPayload>>()
+            }
+            KmeMessageEvent.RECORDING_CONVERSION_COMPLETED.toString() -> {
+                text.jsonToObject<KmeRoomRecordingMessage<RecordingConversionCompletedPayload>>()
+            }
+            KmeMessageEvent.RECORDING_UPLOAD_COMPLETED.toString() -> {
+                text.jsonToObject<KmeRoomRecordingMessage<RecordingUploadCompletedPayload>>()
+            }
+            KmeMessageEvent.RECORDING_STATUS.toString() -> {
+                text.jsonToObject<KmeRoomRecordingMessage<RecordingStatusPayload>>()
+            }
+            KmeMessageEvent.RECORDING_FAILED.toString() -> {
+                text.jsonToObject<KmeRoomRecordingMessage<RecordingFailurePayload>>()
             }
 
             KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED.toString() -> {

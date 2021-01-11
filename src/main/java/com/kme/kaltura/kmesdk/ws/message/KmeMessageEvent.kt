@@ -1,7 +1,6 @@
 package com.kme.kaltura.kmesdk.ws.message
 
 import com.google.gson.annotations.SerializedName
-
 enum class KmeMessageEvent(
     @SerializedName("name") val moduleName: String
 ) {
@@ -217,6 +216,44 @@ enum class KmeMessageEvent(
 
     @SerializedName("syncPlayerState", alternate = ["syncplayerstate"])
     SYNC_PLAYER_STATE("syncPlayerState"),
+
+
+    /*
+    * Recording
+    * */
+
+    @SerializedName("startRecording", alternate = ["startrecording"])
+    START_RECORDING("startRecording"),
+
+    @SerializedName("initiated", alternate = ["initiated"])
+    RECORDING_INITIATED("initiated"),
+
+    @SerializedName("receivedStartRecording", alternate = ["receivedstartrecording"])
+    RECORDING_STARTING("receivedStartRecording"),
+
+    @SerializedName("stopRecording", alternate = ["stoprecording"])
+    STOP_RECORDING("stopRecording"),
+
+    @SerializedName("recording", alternate = ["recording"])
+    RECORDING_STARTED("recording"),
+
+    @SerializedName("receivedStopRecording", alternate = ["receivedstoprecording"])
+    RECORDING_STOPPED("receivedStopRecording"),
+
+    @SerializedName("recordingCompleted", alternate = ["recordingcompleted"])
+    RECORDING_COMPLETED("recordingCompleted"),
+
+    @SerializedName("conversionCompleted", alternate = ["conversioncompleted"])
+    RECORDING_CONVERSION_COMPLETED("conversionCompleted"),
+
+    @SerializedName("uploadCompleted", alternate = ["uploadcompleted"])
+    RECORDING_UPLOAD_COMPLETED("uploadCompleted"),
+
+    @SerializedName("recordingStatus", alternate = ["recordingstatus"])
+    RECORDING_STATUS("recordingStatus"),
+
+    @SerializedName("recorderFailed", alternate = ["recorderfailed"])
+    RECORDING_FAILED("recorderFailed"),
 
     /*
     * Share Desktop
