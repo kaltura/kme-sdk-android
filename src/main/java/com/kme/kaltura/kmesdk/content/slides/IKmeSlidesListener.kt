@@ -1,9 +1,9 @@
 package com.kme.kaltura.kmesdk.content.slides
 
+import com.kme.kaltura.kmesdk.content.whiteboard.IKmeWhiteboardLayout
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage
 
-interface IKmeSlidesListener {
+interface IKmeSlidesListener : IKmeWhiteboardLayout{
 
     fun init(config: KmeSlidesView.Config)
 
@@ -18,7 +18,5 @@ interface IKmeSlidesListener {
     fun previous()
 
     fun toSlide(slideNumber: Int)
-
-    fun applyDrawings(drawings: List<KmeWhiteboardModuleMessage.WhiteboardPayload.Drawing>)
 
 }

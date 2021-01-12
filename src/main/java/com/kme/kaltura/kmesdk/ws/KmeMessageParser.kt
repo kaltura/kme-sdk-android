@@ -21,7 +21,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.Sli
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.SyncPlayerStatePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPageDataPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.*
 
 private const val KEY_NAME = "name"
 
@@ -185,6 +185,32 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.WHITEBOARD_PAGE_DATA.toString() -> {
                 text.jsonToObject<KmeWhiteboardModuleMessage<WhiteboardPageDataPayload>>()
+            }
+            KmeMessageEvent.RECEIVE_DRAWING.toString() -> {
+                val message =  text.jsonToObject<KmeWhiteboardModuleMessage<ReceiveDrawingPayload>>()
+                        as KmeWhiteboardModuleMessage<ReceiveDrawingPayload>?
+
+                message?.payload?.drawing = WhiteboardPayload.Drawing().apply {
+                    this.layer =  message?.payload?.drawingLayer
+                    this.type = message?.payload?.drawingType
+                    this.tool = message?.payload?.drawingTool
+                    this.userId = message?.payload?.drawingUserId
+                    this.userType = message?.payload?.drawingUserType
+                    this.path = message?.payload?.drawingPath
+                    this.createdDate = message?.payload?.drawingCreatedDate
+                    this.fullUsername = message?.payload?.drawingFullUsername
+                }
+
+                return message as KmeMessage<KmeMessage.Payload>?
+            }
+            KmeMessageEvent.DELETE_DRAWING.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<DeleteDrawingPayload>>()
+            }
+            KmeMessageEvent.WHITEBOARD_PAGE_CLEARED.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<WhiteboardPageClearedPayload>>()
+            }
+            KmeMessageEvent.WHITEBOARD_ALL_PAGES_CLEARED.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<WhiteboardPageClearedPayload>>()
             }
             else -> null
         }

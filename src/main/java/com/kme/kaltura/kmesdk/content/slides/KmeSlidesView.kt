@@ -85,7 +85,7 @@ class KmeSlidesView @JvmOverloads constructor(
                     ivSlide.imageMatrix.mapRect(imageBounds, RectF(drawable.bounds))
 
                     originalImageSize?.let { imageSize ->
-                        whiteboardLayout.init(imageSize, imageBounds)
+                        init(imageSize, imageBounds)
                     }
                     ivSlide.viewTreeObserver.removeOnPreDrawListener(this)
                 }
@@ -161,8 +161,24 @@ class KmeSlidesView @JvmOverloads constructor(
         }
     }
 
-    override fun applyDrawings(drawings: List<WhiteboardPayload.Drawing>) {
-        whiteboardLayout.applyDrawings(drawings)
+    override fun init(originalImageSize: Size, imageBounds: RectF) {
+        whiteboardLayout.init(originalImageSize, imageBounds)
+    }
+
+    override fun setDrawings(drawings: List<WhiteboardPayload.Drawing>) {
+        whiteboardLayout.setDrawings(drawings)
+    }
+
+    override fun addDrawing(drawing: WhiteboardPayload.Drawing) {
+        whiteboardLayout.addDrawing(drawing)
+    }
+
+    override fun removeDrawing(layer: String) {
+        whiteboardLayout.removeDrawing(layer)
+    }
+
+    override fun removeDrawings() {
+        whiteboardLayout.removeDrawings()
     }
 
     class Config(

@@ -8,6 +8,12 @@ interface IKmeWhiteboardLayout {
 
     fun init(originalImageSize: Size, imageBounds: RectF)
 
-    fun applyDrawings(drawings: List<WhiteboardPayload.Drawing>)
+    fun setDrawings(drawings: List<WhiteboardPayload.Drawing>)
+
+    fun addDrawing(drawing: WhiteboardPayload.Drawing)
+
+    fun removeDrawing(layer: String)
+
+    fun removeDrawings()
 
 }

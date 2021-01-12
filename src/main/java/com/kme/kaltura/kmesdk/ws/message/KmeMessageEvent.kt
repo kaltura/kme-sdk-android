@@ -202,6 +202,18 @@ enum class KmeMessageEvent(
     @SerializedName("whiteboardPageData", alternate = ["whiteboardpagedata"])
     WHITEBOARD_PAGE_DATA("whiteboardPageData"),
 
+    @SerializedName("whiteboardPageCleared", alternate = ["whiteboardpagecleared"])
+    WHITEBOARD_PAGE_CLEARED("whiteboardPageCleared"),
+
+    @SerializedName("whiteboardAllPagesCleared", alternate = ["whiteboardallpagescleared"])
+    WHITEBOARD_ALL_PAGES_CLEARED("whiteboardAllPagesCleared"),
+
+    @SerializedName("receiveDrawing", alternate = ["receivedrawing"])
+    RECEIVE_DRAWING("receiveDrawing"),
+
+    @SerializedName("drawingDeleted", alternate = ["drawingdeleted"])
+    DELETE_DRAWING("drawingDeleted"),
+
     /*
     * Share Desktop
     * */

@@ -13,19 +13,42 @@ class KmeWhiteboardModuleMessage<T : KmeWhiteboardModuleMessage.WhiteboardPayloa
         @SerializedName("page_drawings") val drawings: List<Drawing>? = null
     ) : WhiteboardPayload()
 
+    data class WhiteboardPageClearedPayload(
+        @SerializedName("user_id") internal val drawingUserId: String? = null
+    ) : WhiteboardPayload()
+
+    data class ReceiveDrawingPayload(
+        @SerializedName("layer") internal val drawingLayer: String? = null,
+        @SerializedName("type") internal val drawingType: KmeWhiteboardActionType? = null,
+        @SerializedName("tool") internal val drawingTool: KmeWhiteboardToolType? = null,
+        @SerializedName("user_id") internal val drawingUserId: String? = null,
+        @SerializedName("user_type") internal val drawingUserType: String? = null,
+        @SerializedName("path") internal val drawingPath: KmeWhiteboardPath? = null,
+        @SerializedName("date_created") internal val drawingCreatedDate: String? = null,
+        @SerializedName("user_full_name") internal val drawingFullUsername: String? = null,
+    ) : WhiteboardPayload() {
+        var drawing: Drawing? = null
+    }
+
+    data class DeleteDrawingPayload(
+        @SerializedName("user_id") val userId: String? = null,
+        @SerializedName("layer") val layer: String? = null,
+        @SerializedName("tool") val tool: KmeWhiteboardToolType? = null
+    ) : WhiteboardPayload()
+
     open class WhiteboardPayload : Payload() {
 
         data class Drawing(
-            @SerializedName("layer") val layer: String? = null,
-            @SerializedName("type") val type: KmeWhiteboardActionType? = null,
-            @SerializedName("tool") val tool: KmeWhiteboardToolType? = null,
-            @SerializedName("user_id") val userId: String? = null,
-            @SerializedName("user_type") val userType: String? = null,
-            @SerializedName("board_id") val boardId: String? = null,
-            @SerializedName("page_id") val pageId: String? = null,
-            @SerializedName("path") val path: KmeWhiteboardPath? = null,
-            @SerializedName("date_created") val createdDate: String? = null,
-            @SerializedName("user_full_name") val fullUsername: String? = null,
+            @SerializedName("layer") var layer: String? = null,
+            @SerializedName("type") var type: KmeWhiteboardActionType? = null,
+            @SerializedName("tool") var tool: KmeWhiteboardToolType? = null,
+            @SerializedName("user_id") var userId: String? = null,
+            @SerializedName("user_type") var userType: String? = null,
+            @SerializedName("board_id") var boardId: String? = null,
+            @SerializedName("page_id") var pageId: String? = null,
+            @SerializedName("path") var path: KmeWhiteboardPath? = null,
+            @SerializedName("date_created") var createdDate: String? = null,
+            @SerializedName("user_full_name") var fullUsername: String? = null,
         )
 
         @SerializedName("board_id")
