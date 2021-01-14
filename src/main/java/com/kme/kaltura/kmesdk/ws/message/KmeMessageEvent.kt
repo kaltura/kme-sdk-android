@@ -208,6 +208,9 @@ enum class KmeMessageEvent(
     @SerializedName("whiteboardAllPagesCleared", alternate = ["whiteboardallpagescleared"])
     WHITEBOARD_ALL_PAGES_CLEARED("whiteboardAllPagesCleared"),
 
+    @SerializedName("receiveTransformation", alternate = ["receivetransformation"])
+    RECEIVE_TRANSFORMATION("receiveTransformation"),
+
     @SerializedName("receiveDrawing", alternate = ["receivedrawing"])
     RECEIVE_DRAWING("receiveDrawing"),
 

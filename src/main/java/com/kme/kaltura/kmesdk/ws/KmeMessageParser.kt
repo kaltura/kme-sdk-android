@@ -186,7 +186,7 @@ internal class KmeMessageParser(
             KmeMessageEvent.WHITEBOARD_PAGE_DATA.toString() -> {
                 text.jsonToObject<KmeWhiteboardModuleMessage<WhiteboardPageDataPayload>>()
             }
-            KmeMessageEvent.RECEIVE_DRAWING.toString() -> {
+            KmeMessageEvent.RECEIVE_DRAWING.toString(), KmeMessageEvent.RECEIVE_TRANSFORMATION.toString()-> {
                 val message =  text.jsonToObject<KmeWhiteboardModuleMessage<ReceiveDrawingPayload>>()
                         as KmeWhiteboardModuleMessage<ReceiveDrawingPayload>?
 

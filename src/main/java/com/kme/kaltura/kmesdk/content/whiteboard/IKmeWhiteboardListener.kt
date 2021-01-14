@@ -4,7 +4,7 @@ import android.graphics.RectF
 import android.util.Size
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
 
-interface IKmeWhiteboardLayout {
+interface IKmeWhiteboardListener {
 
     fun init(originalImageSize: Size, imageBounds: RectF)
 
