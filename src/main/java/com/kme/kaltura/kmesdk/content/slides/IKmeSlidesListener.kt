@@ -1,9 +1,9 @@
 package com.kme.kaltura.kmesdk.content.slides
 
-import com.kme.kaltura.kmesdk.content.whiteboard.IKmeWhiteboardLayout
+import com.kme.kaltura.kmesdk.content.whiteboard.IKmeWhiteboardListener
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
 
-interface IKmeSlidesListener : IKmeWhiteboardLayout{
+interface IKmeSlidesListener : IKmeWhiteboardListener{
 
     fun init(config: KmeSlidesView.Config)
 

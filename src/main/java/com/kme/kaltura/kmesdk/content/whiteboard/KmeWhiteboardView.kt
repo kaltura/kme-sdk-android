@@ -319,8 +319,10 @@ class KmeWhiteboardView @JvmOverloads constructor(
 //        val matrix = drawingPath.matrix ?: drawingPath.childrenPath?.matrix
 //        if (matrix == null || matrix.isEmpty() || matrix.size != 6) return
 //
-        var pivotX = drawing.path?.pivot?.firstOrNull()?.toX() ?: 0f
-        var pivotY = drawing.path?.pivot?.lastOrNull()?.toY() ?: 0f
+        var pivotX = drawing.path?.pivot?.firstOrNull()?.toX()
+            ?: drawing.path?.childrenPath?.pivot?.firstOrNull()?.toX() ?: 0f
+        var pivotY = drawing.path?.pivot?.lastOrNull()?.toY()
+            ?: drawing.path?.childrenPath?.pivot?.lastOrNull()?.toY() ?: 0f
 
 //        val pathBounds = RectF()
 //        computeBounds(pathBounds, false)
@@ -355,28 +357,27 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
         val parentPath = drawing.path ?: return
         val childrenPath = drawing.path?.childrenPath
-        val parentMatrix = parentPath.matrix ?: return
+        val parentMatrix = parentPath.matrix
         val childrenMatrix = childrenPath?.matrix
-        if (parentMatrix.isEmpty() || parentMatrix.size != 6) return
 
-        val scaleX = if (parentMatrix[0] != 1f) {
-            parentMatrix[0]
+        val scaleX = if (parentMatrix?.get(0) ?: 1f != 1f) {
+            parentMatrix?.get(0) ?: 1f
         } else if (childrenMatrix?.get(0) ?: 1f != 1f) {
             childrenMatrix?.get(0) ?: 1f
         } else {
             1f
         }
 
-        val scaleY = if (parentMatrix[3] != 1f) {
-            parentMatrix[3]
+        val scaleY = if (parentMatrix?.get(3) ?: 1f != 1f) {
+            parentMatrix?.get(3) ?: 1f
         } else if (childrenMatrix?.get(3) ?: 1f != 1f) {
             childrenMatrix?.get(3) ?: 1f
         } else {
             1f
         }
 
-        val skewX = parentMatrix[2]
-        val skewY = parentMatrix[1]
+//        val skewX = parentMatrix[2]
+//        val skewY = parentMatrix[1]
 
 
 //        val scalePointX = if (parentMatrix[4] != 0f) {
@@ -395,29 +396,54 @@ class KmeWhiteboardView @JvmOverloads constructor(
 //            0f
 //        }
 
-        val scalePointX  = parentMatrix[4].toX() + (childrenMatrix?.get(4)?.toX() ?: 0f)
-        val scalePointY  = parentMatrix[5].toY() + (childrenMatrix?.get(5)?.toY() ?: 0f)
+        val scalePointX =
+            (parentMatrix?.get(4)?.toX() ?: 0f) + (childrenMatrix?.get(4)?.toX() ?: 0f)
+        val scalePointY =
+            (parentMatrix?.get(5)?.toY() ?: 0f) + (childrenMatrix?.get(5)?.toY() ?: 0f)
 
+
+//        drawCanvas?.drawPoint(
+//            translateX , translateY,
+//            paint
+//        )
 
         val pathBounds = RectF()
         computeBounds(pathBounds, false)
 
-        if (pivotX > 0 || pivotY > 0) {
-            pivotX += imageBounds.left
-            pivotY += imageBounds.top
-        }
+//        if (pivotX > 0 || pivotY > 0) {
+            pivotX += /*imageBounds.left*/ - pathBounds.width() / 2
+            pivotY += /*imageBounds.top */- pathBounds.height() / 2
+//        }
 
-//        val translateX = scalePointX + imageBounds.left - pathBounds.width() / 2
-//        val translateY = scalePointY + imageBounds.top - pathBounds.height() / 2
-        val translateX = imageBounds.left+ (childrenMatrix?.get(4)?.toX() ?: 0f)
-        val translateY = imageBounds.top + (childrenMatrix?.get(5)?.toY() ?: 0f)
+        val translateX = scalePointX + imageBounds.left - pathBounds.width() / 2
+        val translateY = scalePointY + imageBounds.top - pathBounds.height() / 2
+
+        pathMatrix.postTranslate(
+            pivotX, pivotY
+        )
+
+        pathMatrix.postScale(scaleX, scaleY)
 
 
-        pathMatrix.setTranslate(translateX, translateY)
-        pathMatrix.postScale(childrenMatrix?.get(0) ?: 1f, childrenMatrix?.get(3) ?: 1f, translateX, translateY)
+        pathMatrix.postTranslate(
+            (parentMatrix?.get(4)?.toX() ?: 0f) + imageBounds.left,
+            (parentMatrix?.get(5)?.toY() ?: 0f) + imageBounds.top
+        )
 
 
         transform(pathMatrix)
+
+
+//
+//        pathMatrix.postScale(
+//            parentMatrix?.get(0) ?: 1f,
+//            parentMatrix?.get(3) ?: 1f
+//        )
+//        pathMatrix.postTranslate(
+//            (parentMatrix?.get(4)?.toX() ?: 0f) + imageBounds.left - pathBounds.width() / 2,
+//            (parentMatrix?.get(5)?.toY() ?: 0f) + imageBounds.top - pathBounds.height() / 2
+//        )
+
 
 //
 //        pathMatrix.setTranslate(parentMatrix[4].toX() + imageBounds.left, parentMatrix[5].toY() + imageBounds.top )
