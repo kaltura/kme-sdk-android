@@ -6,6 +6,9 @@ import org.koin.core.Koin
 import org.koin.core.KoinComponent
 import org.koin.dsl.koinApplication
 
+/**
+ * Base class for the KME controllers which has an access for Koin container
+ */
 object KmeKoinContext {
 
     private lateinit var context: Context

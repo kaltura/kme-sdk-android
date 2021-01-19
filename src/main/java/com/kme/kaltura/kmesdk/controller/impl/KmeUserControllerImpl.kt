@@ -15,6 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.inject
 
+/**
+ * An implementation for actual user information details
+ */
 class KmeUserControllerImpl : KmeController(), IKmeUserController {
 
     private val userApiService: KmeUserApiService by inject()
@@ -24,10 +27,16 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
     private var currentUserInfo: KmeUserInfoData? = null
     private var currentParticipant: KmeParticipant? = null
 
+    /**
+     * Checks is actual user is logged and access token exist
+     */
     override fun isLoggedIn(): Boolean {
         return !kmePreferences.getString(KmePrefsKeys.ACCESS_TOKEN, "").isNullOrEmpty()
     }
 
+    /**
+     * Checks is actual user has admin permissions for specific company
+     */
     override fun isAdminFor(companyId: Long): Boolean {
         getCurrentUserInfo()?.userCompanies?.companies?.find {
             it.id == companyId
@@ -39,6 +48,9 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
         return false
     }
 
+    /**
+     * Checks is actual user has moderator permissions
+     */
     override fun isModerator(): Boolean {
         getCurrentParticipant()?.let {
             return it.userRole == KmeUserRole.INSTRUCTOR ||
@@ -49,6 +61,9 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
         return false
     }
 
+    /**
+     * Getting actual user information
+     */
     override fun getUserInformation(
         success: (response: KmeGetUserInfoResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
@@ -68,6 +83,9 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
         }
     }
 
+    /**
+     * Getting actual user information for specific room by alias
+     */
     override fun getUserInformation(
         roomAlias: String,
         success: (response: KmeGetUserInfoResponse) -> Unit,
@@ -88,14 +106,26 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
         }
     }
 
+    /**
+     * Getting stored user information
+     */
     override fun getCurrentUserInfo() = currentUserInfo
 
+    /**
+     * Getting stored user information in the room
+     */
     override fun getCurrentParticipant() = currentParticipant
 
+    /**
+     * Updates actual user info in the room
+     */
     override fun updateParticipant(participant: KmeParticipant?) {
         this.currentParticipant = participant
     }
 
+    /**
+     * Removes actual user information
+     */
     override fun logout() {
         currentUserInfo = null
         currentParticipant = null

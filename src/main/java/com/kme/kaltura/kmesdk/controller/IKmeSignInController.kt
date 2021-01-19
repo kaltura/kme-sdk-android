@@ -6,8 +6,22 @@ import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLogoutResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeRegisterResponse
 
+/**
+ * An interface for signIn/signUp
+ */
 interface IKmeSignInController {
 
+    /**
+     * Registers new user by input data
+     *
+     * @param fullName name of a user
+     * @param email email of a user
+     * @param password password of a user
+     * @param forceRegister
+     * @param addToMailingList add email to subscriptions
+     * @param success function to handle success result. Contains [KmeRegisterResponse] object
+     * @param error function to handle error result. Contains [KmeApiException] object
+     */
     fun register(
         fullName: String,
         email: String,
@@ -18,6 +32,14 @@ interface IKmeSignInController {
         error: (exception: KmeApiException) -> Unit
     )
 
+    /**
+     * Login user by input data
+     *
+     * @param email email of a user
+     * @param password password of a user
+     * @param success function to handle success result. Contains [KmeLoginResponse] object
+     * @param error function to handle error result. Contains [KmeApiException] object
+     */
     fun login(
         email: String,
         password: String,
@@ -25,6 +47,15 @@ interface IKmeSignInController {
         error: (exception: KmeApiException) -> Unit
     )
 
+    /**
+     * Login user by input data and allow to connect to the room
+     *
+     * @param name name of a user
+     * @param email email of a user
+     * @param roomAlias alias of a room
+     * @param success function to handle success result. Contains [KmeGuestLoginResponse] object
+     * @param error function to handle error result. Contains [KmeApiException] object
+     */
     fun guest(
         name: String,
         email: String,
@@ -33,6 +64,12 @@ interface IKmeSignInController {
         error: (exception: KmeApiException) -> Unit
     )
 
+    /**
+     * Logout from actual user
+     *
+     * @param success function to handle success result. Contains [KmeLogoutResponse] object
+     * @param error function to handle error result. Contains [KmeApiException] object
+     */
     fun logout(
         success: (response: KmeLogoutResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit

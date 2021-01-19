@@ -16,6 +16,9 @@ import org.koin.core.inject
 import java.io.File
 import java.io.FileOutputStream
 
+/**
+ * An implementation for actions with notes
+ */
 class KmeRoomNotesControllerImpl(
     private val context: Context
 ) : KmeController(), IKmeRoomNotesController {
@@ -24,6 +27,9 @@ class KmeRoomNotesControllerImpl(
     private val fileLoaderApiService: KmeFileLoaderApiService by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
+    /**
+     * Getting all notes for specific room
+     */
     override fun getRoomNotes(
         companyId: Long,
         roomId: Long,
@@ -39,6 +45,9 @@ class KmeRoomNotesControllerImpl(
         }
     }
 
+    /**
+     * Getting an url for download note as pdf file
+     */
     override fun getDownloadRoomNoteUrl(
         roomId: Long,
         noteId: Long,
@@ -55,6 +64,9 @@ class KmeRoomNotesControllerImpl(
         }
     }
 
+    /**
+     * Creates a new note in the room
+     */
     override fun createRoomNote(
         companyId: Long,
         roomId: Long,
@@ -70,6 +82,9 @@ class KmeRoomNotesControllerImpl(
         }
     }
 
+    /**
+     * Renames specific note
+     */
     override fun renameRoomNote(
         roomId: Long,
         noteId: String,
@@ -86,6 +101,9 @@ class KmeRoomNotesControllerImpl(
         }
     }
 
+    /**
+     * Changes content in the note
+     */
     override fun updateRoomNoteContent(
         roomId: Long,
         noteId: String,
@@ -104,6 +122,9 @@ class KmeRoomNotesControllerImpl(
         }
     }
 
+    /**
+     * Download specific note as pdf file
+     */
     override fun downloadRoomNote(
         name: String,
         url: String,
@@ -124,6 +145,9 @@ class KmeRoomNotesControllerImpl(
         }
     }
 
+    /**
+     * Delete specific note
+     */
     override fun deleteRoomNote(
         roomId: Long,
         noteId: Long,
