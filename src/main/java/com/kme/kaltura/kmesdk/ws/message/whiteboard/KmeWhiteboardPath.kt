@@ -24,6 +24,7 @@ data class KmeWhiteboardPath(
     @SerializedName("leading") val leading: Int? = null,
     @SerializedName("rectangle") val rectangle: FloatArray? = null,
     @SerializedName("content") val content: String? = null,
+    @SerializedName("source") val source: String? = null,
     @SerializedName("closed") val closed: Boolean? = null,
     var childrenPath: KmeWhiteboardPath? = null,
     var pathType: String? = null

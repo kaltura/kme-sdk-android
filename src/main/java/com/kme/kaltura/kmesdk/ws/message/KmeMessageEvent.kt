@@ -6,6 +6,9 @@ enum class KmeMessageEvent(
     @SerializedName("name") val moduleName: String
 ) {
 
+    @SerializedName("combinedEvent", alternate = ["combinedevent"])
+    COMBINED_EVENT("combinedEvent"),
+
     /*
     * RoomInit
     * */

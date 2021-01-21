@@ -20,6 +20,8 @@ open class KmeMessage<T : KmeMessage.Payload> {
     @SerializedName("payload")
     var payload: T? = null
 
-    open class Payload
+    open class Payload {
+        val events: List<KmeMessage<Payload>>? = null
+    }
 
 }

@@ -50,6 +50,9 @@ internal class KmeMessageParser(
     @Suppress("UNCHECKED_CAST")
     private fun parseMessage(name: String, text: String): KmeMessage<KmeMessage.Payload>? {
         return when (name) {
+            KmeMessageEvent.COMBINED_EVENT.toString() -> {
+                text.jsonToObject<KmeMessage<KmeMessage.Payload>>()
+            }
             KmeMessageEvent.INSTRUCTOR_IS_OFFLINE.toString() -> {
                 text.jsonToObject<KmeRoomInitModuleMessage<InstructorIsOfflinePayload>>()
             }

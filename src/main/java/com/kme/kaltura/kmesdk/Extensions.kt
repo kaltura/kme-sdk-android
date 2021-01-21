@@ -1,5 +1,7 @@
 package com.kme.kaltura.kmesdk
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.Size
 import android.webkit.URLUtil
@@ -49,6 +51,18 @@ inline fun <reified T> KmeMessage<*>.toType(): T? =
         @Suppress("UNCHECKED_CAST")
         this else
         null
+
+internal fun Context?.getBitmap(
+    imageUrl: String?,
+    cookie: String?,
+    fileUrl: String?
+): Bitmap? {
+    if (this == null || imageUrl.isNullOrEmpty()) return null
+    return Glide.with(this)
+        .asBitmap()
+        .load(generateGlideUrl(imageUrl, cookie, fileUrl))
+        .submit().get()
+}
 
 internal fun ImageView?.glide(
     imageUrl: String?,

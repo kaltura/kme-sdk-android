@@ -9,6 +9,7 @@ import android.view.ViewTreeObserver
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kme.kaltura.kmesdk.R
+import com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardView
 import com.kme.kaltura.kmesdk.glide
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.ActiveContentPayload.Slide
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
@@ -85,7 +86,11 @@ class KmeSlidesView @JvmOverloads constructor(
                     ivSlide.imageMatrix.mapRect(imageBounds, RectF(drawable.bounds))
 
                     originalImageSize?.let { imageSize ->
-                        init(imageSize, imageBounds)
+                        val whiteboardConfig = KmeWhiteboardView.Config(imageSize, imageBounds).apply {
+                            cookie = config.cookie
+                            fileUrl = config.fileUrl
+                        }
+                        init(whiteboardConfig)
                     }
                     ivSlide.viewTreeObserver.removeOnPreDrawListener(this)
                 }
@@ -161,8 +166,8 @@ class KmeSlidesView @JvmOverloads constructor(
         }
     }
 
-    override fun init(originalImageSize: Size, imageBounds: RectF) {
-        whiteboardLayout.init(originalImageSize, imageBounds)
+    override fun init(whiteboardConfig: KmeWhiteboardView.Config?) {
+        whiteboardLayout.init(whiteboardConfig)
     }
 
     override fun setDrawings(drawings: List<WhiteboardPayload.Drawing>) {
