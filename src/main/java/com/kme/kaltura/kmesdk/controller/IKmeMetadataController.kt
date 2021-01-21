@@ -4,15 +4,36 @@ import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.metadata.GetTranslationsResponse
 import com.kme.kaltura.kmesdk.rest.response.metadata.KmeMetadata
 
+/**
+ * An interface for actions related to metadata
+ */
 interface IKmeMetadataController {
 
+    /**
+     * Getting stored metadata
+     *
+     * @return [KmeMetadata] object in success case
+     */
     fun getMetadata() : KmeMetadata?
 
+    /**
+     * Getting metadata for global usage
+     *
+     * @param success function to handle success result
+     * @param error function to handle error result. Contains [KmeApiException] object
+     */
     fun fetchMetadata(
         success: () -> Unit,
         error: (exception: KmeApiException) -> Unit
     )
 
+    /**
+     * Getting translations strings for specific language
+     *
+     * @param lang language for translations
+     * @param success function to handle success result. Contains [GetTranslationsResponse] object
+     * @param error function to handle error result. Contains [KmeApiException] object
+     */
     fun getTranslation(
         lang: String,
         success: (response: GetTranslationsResponse) -> Unit,

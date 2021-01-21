@@ -4,9 +4,11 @@ import android.util.Log
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.IKmeWebSocketController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
-import com.kme.kaltura.kmesdk.ws.*
+import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
+import com.kme.kaltura.kmesdk.ws.IKmeWSListener
+import com.kme.kaltura.kmesdk.ws.KmeMessageManager
+import com.kme.kaltura.kmesdk.ws.KmeWebSocketHandler
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
-import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request

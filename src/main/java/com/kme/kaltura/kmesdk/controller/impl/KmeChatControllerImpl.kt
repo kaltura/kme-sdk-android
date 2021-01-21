@@ -13,11 +13,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.inject
 
+/**
+ * An implementation actions related to chat
+ */
 class KmeChatControllerImpl : KmeController(), IKmeChatController {
 
     private val chatApiService: KmeChatApiService by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
+    /**
+     * Change visibility of public chat
+     */
     override fun changePublicChatVisibility(
         roomId: Long,
         value: KmePermissionValue,

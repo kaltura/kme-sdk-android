@@ -43,6 +43,9 @@ class KmeAudioManagerImpl(
         state = AudioManagerState.UNINITIALIZED
     }
 
+    /**
+     * Starting audio manager
+     */
     override fun start() {
         if (state == AudioManagerState.RUNNING) {
             return
@@ -73,6 +76,9 @@ class KmeAudioManagerImpl(
         registerReceiver(wiredHeadsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
     }
 
+    /**
+     * Stopping use audio
+     */
     override fun stop() {
         if (state != AudioManagerState.RUNNING) {
             return
@@ -90,10 +96,16 @@ class KmeAudioManagerImpl(
         listener = null
     }
 
+    /**
+     * Listener for detecting audio route changes
+     */
     override fun setListener(listener: AudioManagerListener) {
         this.listener = listener
     }
 
+    /**
+     * Setting default audio device
+     */
     override fun setDefaultAudioDevice(device: KmeAudioDevice) {
         when (device) {
             KmeAudioDevice.SPEAKER_PHONE -> defaultAudioDevice = device
@@ -108,6 +120,11 @@ class KmeAudioManagerImpl(
         updateAudioDeviceState()
     }
 
+    /**
+     * Change current audio device
+     *
+     * @param device audio device to use
+     */
     override fun setAudioDevice(device: KmeAudioDevice) {
         if (audioDevices.contains(device)) {
             userSelectedAudioDevice = device
@@ -115,10 +132,16 @@ class KmeAudioManagerImpl(
         }
     }
 
+    /**
+     * Getting set of available audio devices
+     */
     override fun getAvailableAudioDevices(): Set<KmeAudioDevice?> {
         return Collections.unmodifiableSet(HashSet(audioDevices))
     }
 
+    /**
+     * Getting last selected audio device
+     */
     override fun getSelectedAudioDevice(): KmeAudioDevice {
         return selectedAudioDevice
     }
@@ -157,6 +180,9 @@ class KmeAudioManagerImpl(
         return audioManager.isWiredHeadsetOn
     }
 
+    /**
+     * Detect all available devices and auto switch to most important for now
+     */
     override fun updateAudioDeviceState() {
         if (bluetoothManager.getState() === KmeBluetoothManager.State.HEADSET_AVAILABLE ||
             bluetoothManager.getState() === KmeBluetoothManager.State.HEADSET_UNAVAILABLE ||

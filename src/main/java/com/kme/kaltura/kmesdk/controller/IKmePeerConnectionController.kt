@@ -4,6 +4,9 @@ import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEven
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
 
+/**
+ * An interface for actions related to p2p connection
+ */
 interface IKmePeerConnectionController {
 
     fun setTurnServer(

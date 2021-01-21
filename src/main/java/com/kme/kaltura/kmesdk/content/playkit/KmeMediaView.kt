@@ -16,6 +16,9 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTube
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import java.util.concurrent.TimeUnit
 
+/**
+ * An implementation ov view for media files playback
+ */
 class KmeMediaView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), IKmeMediaPlaybackListener {
@@ -29,6 +32,9 @@ class KmeMediaView @JvmOverloads constructor(
     private var youtubeTracker: YouTubePlayerTracker? = null
     private var youtubePlayerListener: AbstractYouTubePlayerListener? = null
 
+    /**
+     * Init media view
+     */
     override fun init(config: Config) {
         removeAllViews()
 
@@ -45,6 +51,9 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Setting media file url
+     */
     override fun setMedia(url: String) {
         check(::config.isInitialized) {
             "${javaClass.simpleName} is not initialized."
