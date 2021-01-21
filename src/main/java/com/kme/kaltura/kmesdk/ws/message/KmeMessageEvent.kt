@@ -1,7 +1,6 @@
 package com.kme.kaltura.kmesdk.ws.message
 
 import com.google.gson.annotations.SerializedName
-
 enum class KmeMessageEvent(
     @SerializedName("name") val moduleName: String
 ) {
@@ -151,6 +150,28 @@ enum class KmeMessageEvent(
     GOT_CONVERSATION("gotDMConversation"),
 
     /*
+    * Room Notes
+    * */
+
+    @SerializedName("sendCreatedNote", alternate = ["sendcreatednote"])
+    ROOM_NOTE_CREATED("sendCreatedNote"),
+
+    @SerializedName("sendRename", alternate = ["sendrename"])
+    ROOM_NOTE_RENAMED("sendRename"),
+
+    @SerializedName("broadcastNoteToAll", alternate = ["broadcastnotetoall"])
+    BROADCAST_ROOM_NOTE_TO_ALL("broadcastNoteToAll"),
+
+    @SerializedName("subscribeToNote", alternate = ["subscribetonote"])
+    ROOM_NOTE_SUBSCRIBE("subscribeToNote"),
+
+    @SerializedName("sendNotesToListeners", alternate = ["sendNotesToListeners"])
+    ROOM_NOTE_SEND_TO_LISTENERS("sendNotesToListeners"),
+
+    @SerializedName("sendDeletedNote", alternate = ["senddeletedmote"])
+    ROOM_NOTE_DELETED("sendDeletedNote"),
+
+    /*
     * Room Settings
     * */
 
@@ -198,6 +219,44 @@ enum class KmeMessageEvent(
 
     @SerializedName("syncPlayerState", alternate = ["syncplayerstate"])
     SYNC_PLAYER_STATE("syncPlayerState"),
+
+
+    /*
+    * Recording
+    * */
+
+    @SerializedName("startRecording", alternate = ["startrecording"])
+    START_RECORDING("startRecording"),
+
+    @SerializedName("initiated", alternate = ["initiated"])
+    RECORDING_INITIATED("initiated"),
+
+    @SerializedName("receivedStartRecording", alternate = ["receivedstartrecording"])
+    RECORDING_STARTING("receivedStartRecording"),
+
+    @SerializedName("stopRecording", alternate = ["stoprecording"])
+    STOP_RECORDING("stopRecording"),
+
+    @SerializedName("recording", alternate = ["recording"])
+    RECORDING_STARTED("recording"),
+
+    @SerializedName("receivedStopRecording", alternate = ["receivedstoprecording"])
+    RECORDING_STOPPED("receivedStopRecording"),
+
+    @SerializedName("recordingCompleted", alternate = ["recordingcompleted"])
+    RECORDING_COMPLETED("recordingCompleted"),
+
+    @SerializedName("conversionCompleted", alternate = ["conversioncompleted"])
+    RECORDING_CONVERSION_COMPLETED("conversionCompleted"),
+
+    @SerializedName("uploadCompleted", alternate = ["uploadcompleted"])
+    RECORDING_UPLOAD_COMPLETED("uploadCompleted"),
+
+    @SerializedName("recordingStatus", alternate = ["recordingstatus"])
+    RECORDING_STATUS("recordingStatus"),
+
+    @SerializedName("recorderFailed", alternate = ["recorderfailed"])
+    RECORDING_FAILED("recorderFailed"),
 
     /*
     * Whiteboard

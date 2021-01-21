@@ -18,6 +18,9 @@ enum class KmeMessageModule(
     @SerializedName("Chat", alternate = ["chat"])
     CHAT("Chat"),
 
+    @SerializedName("Notes", alternate = ["notes"])
+    NOTES("Notes"),
+
     @SerializedName("RoomSettings", alternate = ["roomsettings"])
     ROOM_SETTINGS("RoomSettings"),
 
@@ -35,6 +38,9 @@ enum class KmeMessageModule(
 
     @SerializedName("Whiteboard", alternate = ["whiteboard"])
     WHITEBOARD("Whiteboard"),
+
+    @SerializedName("Recording", alternate = ["recording"])
+    RECORDING("Recording"),
 
     @SerializedName("DesktopShare", alternate = ["desktopshare"])
     DESKTOP_SHARE("DesktopShare");
