@@ -1,5 +1,8 @@
 package com.kme.kaltura.kmesdk.webrtc.peerconnection
 
+/**
+ * An interface for p2p connection events
+ */
 interface IKmePeerConnectionClientEvents {
 
     /**

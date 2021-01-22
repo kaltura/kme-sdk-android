@@ -1,5 +1,8 @@
 package com.kme.kaltura.kmesdk.webrtc.audio
 
+/**
+ * An interface for handling audio devices in the room
+ */
 interface IKmeAudioManager {
 
     /**

@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.webrtc.audio
 
+import android.bluetooth.BluetoothHeadset
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -10,6 +11,9 @@ import android.media.AudioManager.OnAudioFocusChangeListener
 import java.util.*
 import kotlin.collections.HashSet
 
+/**
+ * An implementation for handling audio devices in the room
+ */
 class KmeAudioManagerImpl(
     private val context: Context
 ) : IKmeAudioManager {
@@ -166,16 +170,25 @@ class KmeAudioManagerImpl(
         context.unregisterReceiver(receiver)
     }
 
+    /**
+     * Toggle for speaker
+     */
     private fun setSpeakerphoneOn(on: Boolean) {
         if (audioManager.isSpeakerphoneOn != on) {
             audioManager.isSpeakerphoneOn = on
         }
     }
 
+    /**
+     * Checks if phone has earpiece
+     */
     private fun hasEarpiece(): Boolean {
         return context.packageManager?.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)!!
     }
 
+    /**
+     * Checks if wired headset is connected
+     */
     private fun hasWiredHeadset(): Boolean {
         return audioManager.isWiredHeadsetOn
     }
@@ -259,6 +272,9 @@ class KmeAudioManagerImpl(
         }
     }
 
+    /**
+     * Callbacks from the system about plugging in and out for wired headset devices
+     */
     inner class WiredHeadsetReceiver : BroadcastReceiver() {
 
         override fun onReceive(context: Context, intent: Intent) {
