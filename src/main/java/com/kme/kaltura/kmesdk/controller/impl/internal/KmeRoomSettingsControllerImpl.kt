@@ -20,11 +20,18 @@ import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionModule
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 import org.koin.core.inject
 
+/**
+ * An implementation for room settings handling
+ */
 internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettingsController {
 
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
 
+    /**
+     * Subscribing for the room events related to change settings
+     * for the users and for the room itself
+     */
     override fun subscribe() {
         messageManager.listen(
             roomSettingsHandler,
@@ -33,6 +40,9 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
         )
     }
 
+    /**
+     * Listen for subscribed events
+     */
     private val roomSettingsHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
@@ -74,6 +84,9 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
         }
     }
 
+    /**
+     * Update application listeners in case some of settings were changed
+     */
     private fun handleChatSetting(
         key: KmePermissionKey?,
         value: KmePermissionValue?
@@ -106,6 +119,9 @@ internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettings
         return currentParticipant
     }
 
+    /**
+     * Update application listeners in case room moderator was changed by admin
+     */
     private fun handleModeratorSetting(
         userId: Long,
         isModerator: Boolean

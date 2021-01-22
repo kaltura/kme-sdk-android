@@ -10,6 +10,9 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import java.util.concurrent.TimeUnit
 
+/**
+ * Kme web socket module
+ */
 val webSocketModule = module {
 
     single(named("wsOkHttpClient")) {

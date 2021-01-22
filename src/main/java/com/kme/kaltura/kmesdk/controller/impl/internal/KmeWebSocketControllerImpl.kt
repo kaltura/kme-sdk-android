@@ -19,8 +19,11 @@ import org.koin.core.qualifier.named
 
 private const val RECONNECTION_ATTEMPTS = 5
 
-internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketController,
-    IKmeWSListener {
+/**
+ * An implementation for socket actions
+ */
+internal class KmeWebSocketControllerImpl : KmeController(),
+    IKmeWebSocketController, IKmeWSListener {
 
     private val TAG = KmeWebSocketControllerImpl::class.java.canonicalName
 
@@ -47,6 +50,9 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
 
     private var reconnectionJob: Job? = null
 
+    /**
+     * Establish socket connection
+     */
     override fun connect(
         url: String,
         companyId: Long,
@@ -72,8 +78,14 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
         webSocket = newWebSocket()
     }
 
+    /**
+     * Creating a new socket object
+     */
     private fun newWebSocket() = okHttpClient.newWebSocket(request, webSocketHandler)
 
+    /**
+     * Trying to connect socket again if need
+     */
     private fun reconnect() {
         if (allowReconnection && reconnectionAttempts < RECONNECTION_ATTEMPTS) {
             reconnectionJob?.cancel()
@@ -86,8 +98,15 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
         }
     }
 
+    /**
+     * Check is socket connected
+     */
     override fun isConnected() = isSocketConnected
 
+    /**
+     * Invoked when a web socket has been accepted by the remote peer and may begin transmitting
+     * messages.
+     */
     override fun onOpen(response: Response) {
         isSocketConnected = true
         reconnectionJob?.cancel()
@@ -97,6 +116,11 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
         }
     }
 
+    /**
+     * Invoked when a web socket has been closed due to an error reading from or writing to the
+     * network. Both outgoing and incoming messages may have been lost. No further calls to this
+     * listener will be made.
+     */
     override fun onFailure(throwable: Throwable, response: Response?) {
         isSocketConnected = false
         reconnect()
@@ -108,6 +132,9 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
         }
     }
 
+    /**
+     * Invoked when the remote peer has indicated that no more incoming messages will be transmitted.
+     */
     override fun onClosing(code: Int, reason: String) {
         isSocketConnected = false
         //Status code == 1000 - normal closure, the connection successfully completed
@@ -119,6 +146,10 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
         }
     }
 
+    /**
+     * Invoked when both peers have indicated that no more messages will be transmitted and the
+     * connection has been successfully released. No further calls to this listener will be made.
+     */
     override fun onClosed(code: Int, reason: String) {
         isSocketConnected = false
         reconnectionJob?.cancel()
@@ -127,12 +158,18 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
         }
     }
 
+    /**
+     * Send message via socket
+     */
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
         val strMessage = gson.toJson(message)
         Log.e(TAG, "send: $strMessage")
         webSocket?.send(strMessage)
     }
 
+    /**
+     * Disconnect socket connection
+     */
     override fun disconnect() {
         allowReconnection = false
         reconnectionJob?.cancel()
@@ -142,6 +179,9 @@ internal class KmeWebSocketControllerImpl : KmeController(), IKmeWebSocketContro
         messageManager.removeListeners()
     }
 
+    /**
+     * Create a web socket url from input data
+     */
     private fun parseWssUrl(
         url: String,
         companyId: Long,

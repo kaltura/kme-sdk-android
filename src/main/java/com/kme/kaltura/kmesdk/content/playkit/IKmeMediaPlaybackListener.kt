@@ -56,7 +56,7 @@ interface IKmeMediaPlaybackListener {
     /**
      * Check is playback of media file is ended
      *
-     * @return true if playback is ended
+     * @return 'true' if playback is ended
      */
     fun isEnded(): Boolean
 

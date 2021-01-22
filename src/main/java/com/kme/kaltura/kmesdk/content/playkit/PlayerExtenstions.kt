@@ -5,10 +5,17 @@ import com.kaltura.tvplayer.KalturaPlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerState.*
 
+/**
+ * Check is playback of media file is ended
+ */
 fun KalturaPlayer.isEnded(): Boolean {
     return this.currentPosition >= this.duration
 }
 
+/**
+ * Wrap [com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerState]
+ * as [com.kaltura.playkit.PlayerEvent]
+ */
 fun PlayerConstants.PlayerState.asKalturaEvent(): PlayerEvent? {
     return when (this) {
         UNKNOWN, UNSTARTED, BUFFERING -> null

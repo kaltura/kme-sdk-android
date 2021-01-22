@@ -11,7 +11,7 @@ interface IKmeWebSocketController {
     /**
      * Check is socket connected
      *
-     * @return true in case socket is connected
+     * @return 'true' in case socket is connected
      */
     fun isConnected(): Boolean
 

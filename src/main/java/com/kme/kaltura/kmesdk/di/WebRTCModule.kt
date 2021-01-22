@@ -7,6 +7,9 @@ import com.kme.kaltura.kmesdk.webrtc.audio.KmeAudioManagerImpl
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
+/**
+ * Kme WebRTC module
+ */
 val webRTCModule = module {
 
     factory<IKmePeerConnectionController> { KmePeerConnectionControllerImpl(androidContext(), get()) }

@@ -27,7 +27,7 @@ interface IKmeUserController {
     /**
      * Checks is actual user is logged and access token exist
      *
-     * @return true in case there is a stored data related to actual user
+     * @return 'true' in case there is a stored data related to actual user
      */
     fun isLoggedIn(): Boolean
 
@@ -35,14 +35,14 @@ interface IKmeUserController {
      * Checks is actual user has admin permissions for specific company
      *
      * @param companyId companyId to check
-     * @return true in case user has admin permissions
+     * @return 'true' in case user has admin permissions
      */
     fun isAdminFor(companyId: Long): Boolean
 
     /**
      * Checks is actual user has moderator permissions
      *
-     * @return true in case user has moderator permissions
+     * @return 'true' in case user has moderator permissions
      */
     fun isModerator(): Boolean
 

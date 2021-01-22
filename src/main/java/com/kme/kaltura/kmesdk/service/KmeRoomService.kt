@@ -15,6 +15,9 @@ import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import org.koin.android.ext.android.inject
 
+/**
+ * Service wrapper under the room actions
+ */
 class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKmeWebRTCController {
 
     private val binder: IBinder = RoomServiceBinder()
