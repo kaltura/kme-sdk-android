@@ -27,11 +27,20 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPaylo
 
 private const val KEY_NAME = "name"
 
+/**
+ * An implementation for parsing incoming messages
+ */
 internal class KmeMessageParser(
     private val gson: Gson,
     private val jsonParser: JsonParser
 ) {
 
+    /**
+     * Parse string message to [KmeMessage]
+     *
+     * @param messageText string message representation
+     * @return [KmeMessage] object in case parsed correctly
+     */
     fun parse(messageText: String): KmeMessage<KmeMessage.Payload>? {
         var parsedMessage: KmeMessage<KmeMessage.Payload>? = null
         try {
@@ -49,6 +58,13 @@ internal class KmeMessageParser(
         return parsedMessage
     }
 
+    /**
+     * Parse string message to [KmeMessage]
+     *
+     * @param name name of event to parse
+     * @param text string message representation
+     * @return [KmeMessage] object in case parsed correctly
+     */
     @Suppress("UNCHECKED_CAST")
     private fun parseMessage(name: String, text: String): KmeMessage<KmeMessage.Payload>? {
         return when (name) {
@@ -233,6 +249,12 @@ internal class KmeMessageParser(
         }
     }
 
+    /**
+     * Cast string to JsonObject using Gson library
+     *
+     * @param T class we need to cast to
+     * @return [KmeMessage] object in case parsed correctly
+     */
     private inline fun <reified T> String.jsonToObject(): KmeMessage<KmeMessage.Payload>? {
         return gson.fromJson(this, object : TypeToken<T>() {}.type)
     }

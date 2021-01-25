@@ -16,6 +16,9 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util.*
 
+/**
+ * An implementation actions under WebRTC peer connection object
+ */
 class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
 
     private val localSdpObserver: LocalSdpObserver = LocalSdpObserver()
@@ -54,6 +57,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
     private var sdpMediaConstraints: MediaConstraints? = null
     private var volumeDataChannel: DataChannel? = null
 
+    /**
+     * Creates peer connection factory
+     */
     override fun createPeerConnectionFactory(
         context: Context,
         events: IKmePeerConnectionEvents
@@ -89,6 +95,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
             .createPeerConnectionFactory()
     }
 
+    /**
+     * Creates peer connection
+     */
     override fun createPeerConnection(
         context: Context,
         localVideoSink: VideoSink,
@@ -107,6 +116,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         createPeerConnection(context)
     }
 
+    /**
+     * Audio and SDP constraints
+     */
     private fun createMediaConstraints() {
         audioConstraints = MediaConstraints()
         audioConstraints?.mandatory?.add(
@@ -134,6 +146,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         )
     }
 
+    /**
+     * Creates peer connection
+     */
     private fun createPeerConnection(context: Context) {
         if (factory == null) {
             return
@@ -171,6 +186,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         }
     }
 
+    /**
+     * Creates local audio track
+     */
     private fun createLocalAudioTrack(): AudioTrack? {
         localAudioSource = factory?.createAudioSource(audioConstraints)
         localAudioTrack = factory?.createAudioTrack(AUDIO_TRACK_ID, localAudioSource)
@@ -178,6 +196,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         return localAudioTrack
     }
 
+    /**
+     * Creates local video track
+     */
     private fun createLocalVideoTrack(context: Context, capturer: VideoCapturer?): VideoTrack? {
         capturer?.let {
             surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", getRenderContext())
@@ -192,6 +213,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         return localVideoTrack
     }
 
+    /**
+     * Find local video sender
+     */
     private fun findVideoSender() {
         for (sender in peerConnection?.senders!!) {
             if (sender.track() != null) {
@@ -203,6 +227,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         }
     }
 
+    /**
+     * Toggle audio
+     */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     override fun setAudioEnabled(enable: Boolean) {
         if (isPublisher) {
@@ -211,6 +238,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         localAudioTrack?.setEnabled(enable)
     }
 
+    /**
+     * Toggle video
+     */
     @RequiresPermission(Manifest.permission.CAMERA)
     override fun setVideoEnabled(enable: Boolean) {
         renderVideo = enable
@@ -218,14 +248,23 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         remoteVideoTrack?.setEnabled(renderVideo)
     }
 
+    /**
+     * Creates an offers
+     */
     override fun createOffer() {
         peerConnection?.createOffer(localSdpObserver, sdpMediaConstraints)
     }
 
+    /**
+     * Creates an answer
+     */
     override fun createAnswer() {
         peerConnection?.createAnswer(localSdpObserver, sdpMediaConstraints)
     }
 
+    /**
+     * Handle adding ICE candidate
+     */
     override fun addRemoteIceCandidate(candidate: IceCandidate?) {
         if (queuedRemoteCandidates != null) {
             queuedRemoteCandidates?.add(candidate!!)
@@ -234,6 +273,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         }
     }
 
+    /**
+     * Handle remove remote ICE candidates
+     */
     override fun removeRemoteIceCandidates(candidates: Array<IceCandidate>) {
         if (peerConnection == null) {
             return
@@ -242,10 +284,16 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         peerConnection?.removeIceCandidates(candidates)
     }
 
+    /**
+     * Setting remote SDP
+     */
     override fun setRemoteDescription(sdp: SessionDescription) {
         peerConnection?.setRemoteDescription(remoteSdpObserver, sdp)
     }
 
+    /**
+     * Disable outgoing video stream
+     */
     override fun stopVideoSource() {
         if (!videoCapturerStopped) {
             try {
@@ -257,6 +305,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         }
     }
 
+    /**
+     * Enable outgoing video stream
+     */
     override fun startVideoSource() {
         if (videoCapturerStopped) {
             videoCapturer?.startCapture(VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS)
@@ -264,6 +315,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         }
     }
 
+    /**
+     * Change bitrate parameters of local video
+     */
     fun setVideoMaxBitrate(maxBitrateKbps: Int?) {
         if (peerConnection == null || localVideoSender == null) {
             return
@@ -285,6 +339,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         }
     }
 
+    /**
+     * Clear list of ICE candidates
+     */
     private fun drainCandidates() {
         if (queuedRemoteCandidates != null) {
             for (candidate in queuedRemoteCandidates!!) {
@@ -294,6 +351,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         }
     }
 
+    /**
+     * Switch between existing cameras
+     */
     @RequiresPermission(Manifest.permission.CAMERA)
     override fun switchCamera() {
         if (videoCapturer == null) {
@@ -305,6 +365,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         }
     }
 
+    /**
+     * Change capture parameters of local video
+     */
     private fun changeCaptureFormat(
         width: Int,
         height: Int,
@@ -316,6 +379,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         localVideoSource?.adaptOutputFormat(width, height, frameRate)
     }
 
+    /**
+     * Closes actual connection
+     */
     override fun close() {
         volumeDataChannel?.dispose()
         volumeDataChannel = null
@@ -356,10 +422,16 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         events = null
     }
 
+    /**
+     * Getting rendering context for WebRTC
+     */
     override fun getRenderContext(): EglBase.Context? {
         return rootEglBase.eglBaseContext
     }
 
+    /**
+     * Fired once sound amplitude measured
+     */
     override fun onAmplitudeMeasured(bringToFront: Boolean, amplitude: Double) {
         events?.onUserSpeaking(bringToFront)
 
@@ -370,6 +442,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         }
     }
 
+    /**
+     * Peer connection callbacks
+     */
     private inner class PeerConnectionObserver : PeerConnection.Observer {
 
         override fun onIceCandidate(candidate: IceCandidate) {
@@ -427,6 +502,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
             remoteVideoTrack = null
         }
 
+        /**
+         * Fired once data channel created
+         */
         override fun onDataChannel(dataChannel: DataChannel) {
             dataChannel.registerObserver(object : DataChannel.Observer {
 
@@ -458,6 +536,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         }
     }
 
+    /**
+     * Local SDP callbacks
+     */
     private inner class LocalSdpObserver : SdpObserver {
 
         override fun onCreateSuccess(sdp: SessionDescription) {
@@ -474,6 +555,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         override fun onSetFailure(error: String) {}
     }
 
+    /**
+     * Remote SDP callbacks
+     */
     private inner class RemoteSdpObserver : SdpObserver {
 
         override fun onCreateSuccess(origSdp: SessionDescription) {}

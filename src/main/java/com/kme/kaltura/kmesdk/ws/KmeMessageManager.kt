@@ -7,6 +7,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
+/**
+ * An implementation for transferring messages to appropriate listeners
+ */
 internal class KmeMessageManager {
 
     private val listeners: MutableMap<KmeMessageEvent?, MutableSet<IKmeMessageListener>?> =
@@ -14,6 +17,12 @@ internal class KmeMessageManager {
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
+    /**
+     * Transfer messages to appropriate listeners
+     *
+     * @param event event name
+     * @param message message to send
+     */
     fun post(event: KmeMessageEvent, message: KmeMessage<KmeMessage.Payload>) {
         val postListeners: MutableSet<IKmeMessageListener> = mutableSetOf()
         val eventListeners = listeners[event]
@@ -31,14 +40,28 @@ internal class KmeMessageManager {
         }
     }
 
+    /**
+     * Add listener to the listeners collection
+     *
+     * @param listener listener to be added
+     */
     fun addListener(listener: IKmeMessageListener) {
         addToMap(null, listener, listeners)
     }
 
+    /**
+     * Add listener to the listeners collection
+     *
+     * @param event event to be listed by [listener]
+     * @param listener listener to be added
+     */
     fun addListener(event: KmeMessageEvent, listener: IKmeMessageListener) {
         addToMap(event, listener, listeners)
     }
 
+    /**
+     * Clear listeners collection
+     */
     fun removeListeners() {
         for (listener in listeners.values) {
             listener?.clear()
@@ -47,12 +70,24 @@ internal class KmeMessageManager {
         listeners.clear()
     }
 
+    /**
+     * Remove specific listener from the listeners collection
+     *
+     * @param listener listener to be removed
+     */
     fun removeListener(listener: IKmeMessageListener) {
         for (listenerSet in listeners.values) {
             listenerSet?.remove(listener)
         }
     }
 
+    /**
+     * Listen list of events by specific listener
+     *
+     * @param listener listener to be added
+     * @param events events to be listed by [listener]
+     * @return [IKmeMessageListener] as listener object
+     */
     fun listen(
         listener: IKmeMessageListener,
         vararg events: KmeMessageEvent
@@ -63,6 +98,12 @@ internal class KmeMessageManager {
         return listener
     }
 
+    /**
+     * Stop listen events for listener
+     *
+     * @param listener target listener
+     * @param eventTypes list of events
+     */
     fun remove(listener: IKmeMessageListener, vararg eventTypes: KmeMessageEvent) {
         for (eventType in eventTypes) {
             val listenerSet: MutableSet<IKmeMessageListener>? = listeners[eventType]
@@ -70,6 +111,13 @@ internal class KmeMessageManager {
         }
     }
 
+    /**
+     * Add listener to the listeners collection
+     *
+     * @param key event name
+     * @param listener listener to be added
+     * @param map internal collection of listeners
+     */
     private fun addToMap(
         key: KmeMessageEvent?,
         listener: IKmeMessageListener,

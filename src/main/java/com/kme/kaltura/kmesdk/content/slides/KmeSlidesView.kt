@@ -11,6 +11,9 @@ import com.kme.kaltura.kmesdk.glide
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.ActiveContentPayload.Slide
 import kotlinx.android.synthetic.main.layout_slides_view.view.*
 
+/**
+ * An implementation of slides view in the room
+ */
 class KmeSlidesView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), IKmeSlidesListener {
@@ -25,6 +28,9 @@ class KmeSlidesView @JvmOverloads constructor(
         LayoutInflater.from(context).inflate(R.layout.layout_slides_view, this)
     }
 
+    /**
+     * Initialize function. Setting config
+     */
     override fun init(config: Config) {
         this.config = config
 
@@ -36,6 +42,9 @@ class KmeSlidesView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Set actual slides
+     */
     override fun setSlides(slides: List<Slide>) {
         check(::config.isInitialized) {
             "${javaClass.simpleName} is not initialized."
@@ -89,12 +98,21 @@ class KmeSlidesView @JvmOverloads constructor(
         return slides.find { slide -> slide.slideNumber?.toInt() == number }
     }
 
+    /**
+     * Getting actual slide
+     */
     override val currentSlide: Slide?
         get() = selectedSlide
 
+    /**
+     * Getting size of slides collection
+     */
     override val size: Int
         get() = slides.size
 
+    /**
+     * Asking for the next slide form slides collection
+     */
     override fun next() {
         val nextSlideNumber = currentSlide?.slideNumber?.toInt()?.inc()
         nextSlideNumber?.let { number ->
@@ -107,6 +125,9 @@ class KmeSlidesView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Asking for the previous slide form slides collection
+     */
     override fun previous() {
         val prevSlideNumber = currentSlide?.slideNumber?.toInt()?.dec()
         prevSlideNumber?.let { number ->
@@ -119,6 +140,9 @@ class KmeSlidesView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Getting slide by position from slides collection
+     */
     override fun toSlide(slideNumber: Int) {
         val slide = getSlideByNumber(slideNumber)
         slide?.let { it ->

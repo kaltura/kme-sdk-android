@@ -16,6 +16,9 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTube
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import java.util.concurrent.TimeUnit
 
+/**
+ * An implementation of view for media files playback
+ */
 class KmeMediaView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), IKmeMediaPlaybackListener {
@@ -29,6 +32,9 @@ class KmeMediaView @JvmOverloads constructor(
     private var youtubeTracker: YouTubePlayerTracker? = null
     private var youtubePlayerListener: AbstractYouTubePlayerListener? = null
 
+    /**
+     * Init media view
+     */
     override fun init(config: Config) {
         removeAllViews()
 
@@ -45,6 +51,9 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Setting media file url
+     */
     override fun setMedia(url: String) {
         check(::config.isInitialized) {
             "${javaClass.simpleName} is not initialized."
@@ -158,18 +167,27 @@ class KmeMediaView @JvmOverloads constructor(
         return listOf(mediaSource)
     }
 
+    /**
+     * Getting current playing position
+     */
     override val currentPosition: Long
         get() = if (isYoutube())
             youtubeTracker?.currentSecond?.toLong() ?: 0L
         else
             TimeUnit.MILLISECONDS.toSeconds(kalturaPlayer?.currentPosition ?: 0L)
 
+    /**
+     * Getting duration of current media file
+     */
     override val duration: Long
         get() = if (isYoutube())
             youtubeTracker?.videoDuration?.toLong() ?: 0L
         else
             TimeUnit.MILLISECONDS.toSeconds(kalturaPlayer?.duration ?: 0L)
 
+    /**
+     * Start playback
+     */
     override fun play() {
         if (isYoutube()) {
             youtubePlayer?.play()
@@ -179,6 +197,9 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Replay playback
+     */
     override fun replay() {
         if (isYoutube()) {
             youtubePlayer?.seekTo(0f)
@@ -189,6 +210,9 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Pause playback
+     */
     override fun pause() {
         if (isYoutube()) {
             youtubePlayer?.pause()
@@ -198,6 +222,9 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Seek to position
+     */
     override fun seekTo(seekTo: Long) {
         val seekToMillis = TimeUnit.SECONDS.toMillis(seekTo)
         if (isYoutube()) {
@@ -208,6 +235,9 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Check is playback of media file is ended
+     */
     override fun isEnded(): Boolean {
         return if (isYoutube()) {
             youtubeTracker?.state == PlayerConstants.PlayerState.ENDED
@@ -216,6 +246,9 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Adding listener for specific event
+     */
     override fun <E : PKEvent?> addListener(
         groupId: Any,
         type: Class<E>,
@@ -228,6 +261,9 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Adding event listener
+     */
     override fun addListener(groupId: Any, type: Enum<*>, listener: PKEvent.Listener<*>) {
         if (isYoutube()) {
             messageBus?.addListener(groupId, type, listener)
@@ -236,6 +272,9 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Removing event listener
+     */
     override fun removeListeners(groupId: Any) {
         messageBus?.removeListeners(groupId)
         kalturaPlayer?.removeListeners(groupId)

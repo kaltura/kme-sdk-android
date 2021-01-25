@@ -3,6 +3,9 @@ package com.kme.kaltura.kmesdk.webrtc.view
 import org.webrtc.VideoFrame
 import org.webrtc.VideoSink
 
+/**
+ * Kme wrapper under [org.webrtc.VideoSink] class
+ */
 class KmeVideoSink : VideoSink {
 
     private var target: VideoSink? = null

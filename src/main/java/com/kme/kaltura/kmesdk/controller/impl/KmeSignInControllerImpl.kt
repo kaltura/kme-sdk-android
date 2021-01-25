@@ -16,12 +16,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.inject
 
+/**
+ * An implementation for signIn/signUp
+ */
 class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
 
     private val signInApiService: KmeSignInApiService by inject()
     private val prefs: IKmePreferences by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
+    /**
+     * Registers new user by input data
+     */
     override fun register(
         fullName: String,
         email: String,
@@ -49,6 +55,9 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
         }
     }
 
+    /**
+     * Login user by input data
+     */
     override fun login(
         email: String,
         password: String,
@@ -70,6 +79,9 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
         }
     }
 
+    /**
+     * Login user by input data and allow to connect to the room
+     */
     override fun guest(
         name: String,
         email: String,
@@ -86,6 +98,9 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
         }
     }
 
+    /**
+     * Logout from actual user
+     */
     override fun logout(
         success: (response: KmeLogoutResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit

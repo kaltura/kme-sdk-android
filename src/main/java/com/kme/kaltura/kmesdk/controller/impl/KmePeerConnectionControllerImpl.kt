@@ -14,6 +14,9 @@ import com.kme.kaltura.kmesdk.webrtc.view.KmeVideoSink
 import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
 import org.webrtc.*
 
+/**
+ * An implementation for p2p connection
+ */
 class KmePeerConnectionControllerImpl(
     private val context: Context,
     private val gson: Gson
@@ -34,18 +37,30 @@ class KmePeerConnectionControllerImpl(
     private var mediaServerId = 0L
 
     // Public PeerConnection API
+    /**
+     * Setting TURN server for RTC. Build ICE servers collection
+     */
     override fun setTurnServer(turnUrl: String, turnUser: String, turnCred: String) {
         iceServers = buildIceServers(turnUrl, turnUser, turnCred)
     }
 
+    /**
+     * Setting view for local stream rendering
+     */
     override fun setLocalRenderer(localRenderer: KmeSurfaceRendererView) {
         localRendererView = localRenderer
     }
 
+    /**
+     * Setting view for remote stream rendering
+     */
     override fun setRemoteRenderer(remoteRenderer: KmeSurfaceRendererView) {
         remoteRendererView = remoteRenderer
     }
 
+    /**
+     * Creates p2p connection
+     */
     override fun createPeerConnection(
         isPublisher: Boolean,
         requestedUserIdStream: String,
@@ -95,14 +110,23 @@ class KmePeerConnectionControllerImpl(
         )
     }
 
+    /**
+     * Setting media server id for data relay
+     */
     override fun setMediaServerId(mediaServerId: Long) {
         this.mediaServerId = mediaServerId
     }
 
+    /**
+     * Creates an offers
+     */
     override fun createOffer() {
         peerConnectionClient?.createOffer()
     }
 
+    /**
+     * Setting remote SDP
+     */
     override fun setRemoteSdp(type: KmeSdpType, sdp: String) {
         val sdpType =
             if (type == KmeSdpType.ANSWER) SessionDescription.Type.ANSWER
@@ -110,6 +134,9 @@ class KmePeerConnectionControllerImpl(
         peerConnectionClient?.setRemoteDescription(SessionDescription(sdpType, sdp))
     }
 
+    /**
+     * Toggle camera
+     */
     override fun enableCamera(isEnable: Boolean) {
         if (isPublisher && ActivityCompat.checkSelfPermission(
                 context,
@@ -120,6 +147,9 @@ class KmePeerConnectionControllerImpl(
         }
     }
 
+    /**
+     * Toggle audio
+     */
     override fun enableAudio(isEnable: Boolean) {
         if (isPublisher && ActivityCompat.checkSelfPermission(
                 context,
@@ -130,6 +160,9 @@ class KmePeerConnectionControllerImpl(
         }
     }
 
+    /**
+     * Switch between existing cameras
+     */
     override fun switchCamera() {
         if (isPublisher && ActivityCompat.checkSelfPermission(
                 context,
@@ -140,6 +173,9 @@ class KmePeerConnectionControllerImpl(
         }
     }
 
+    /**
+     * Closes actual p2p connection
+     */
     override fun disconnectPeerConnection() {
         localVideoSink.setTarget(null)
         remoteVideoSink.setTarget(null)
@@ -157,10 +193,16 @@ class KmePeerConnectionControllerImpl(
     }
 
     // Callbacks from PeerConnection internal API to the application
+    /**
+     * Callback fired once peerConnection instance created
+     */
     override fun onPeerConnectionCreated() {
         listener?.onPeerConnectionCreated(requestedUserIdStream)
     }
 
+    /**
+     * Callback fired once local SDP is created and set
+     */
     override fun onLocalDescription(sdp: SessionDescription) {
         listener?.onLocalDescription(
             requestedUserIdStream,
@@ -170,42 +212,74 @@ class KmePeerConnectionControllerImpl(
         )
     }
 
+    /**
+     * Callback fired once local Ice candidate is generated
+     */
     override fun onIceCandidate(candidate: IceCandidate) {
         listener?.onIceCandidate(gson.toJson(candidate))
     }
 
+    /**
+     * Callback fired once local ICE candidates are removed
+     */
     override fun onIceCandidatesRemoved(candidates: Array<IceCandidate>) {
         listener?.onIceCandidatesRemoved(gson.toJson(candidates))
     }
 
+    /**
+     * Callback fired once connection is established (IceConnectionState is
+     * CONNECTED)
+     */
     override fun onIceConnected() {
         listener?.onIceConnected()
     }
 
+    /**
+     * Callback fired once ice gathering is complete (IceGatheringDone is COMPLETE)
+     */
     override fun onIceGatheringDone() {
         listener?.onIceGatheringDone(requestedUserIdStream, mediaServerId)
     }
 
+    /**
+     * Callback fired to indicate current talking user
+     */
     override fun onUserSpeaking(isSpeaking: Boolean) {
         listener?.onUserSpeaking(requestedUserIdStream, isSpeaking)
     }
 
+    /**
+     * Callback fired once connection is closed (IceConnectionState is
+     * DISCONNECTED)
+     */
     override fun onIceDisconnected() {
         listener?.onIceDisconnected()
     }
 
+    /**
+     * Callback fired once peer connection is closed
+     */
     override fun onPeerConnectionClosed() {
         listener?.onPeerConnectionClosed()
     }
 
+    /**
+     * Callback fired once peer connection statistics is ready
+     */
     override fun onPeerConnectionStatsReady(reports: Array<StatsReport>) {
         listener?.onPeerConnectionStatsReady(gson.toJson(reports))
     }
 
+    /**
+     * Callback fired once peer connection error happened
+     */
     override fun onPeerConnectionError(description: String) {
         listener?.onPeerConnectionError(description)
     }
 
+    /**
+     * Check existed cameras and create video capturer if can
+     */
     private fun createCameraCapturer(context: Context): VideoCapturer? {
         val enumerator: CameraEnumerator = Camera2Enumerator(context)
         val deviceNames = enumerator.deviceNames
@@ -233,6 +307,9 @@ class KmePeerConnectionControllerImpl(
         return null
     }
 
+    /**
+     * Build collection of ICE servers to use
+     */
     private fun buildIceServers(
         turnUrl: String,
         turnUser: String,
@@ -256,6 +333,9 @@ class KmePeerConnectionControllerImpl(
         return iceServers
     }
 
+    /**
+     * Build ICE server based on input data
+     */
     private fun buildIceServer(
         serverUrl: String,
         serverUser: String,

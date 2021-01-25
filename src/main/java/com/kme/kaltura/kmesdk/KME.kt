@@ -9,6 +9,9 @@ import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import org.koin.core.inject
 
+/**
+ * Main class for KME SDK.
+ */
 class KME : KmeKoinComponent {
 
     val signInController: IKmeSignInController by inject()
@@ -27,6 +30,12 @@ class KME : KmeKoinComponent {
 
     companion object {
         private lateinit var instance: KME
+
+        /**
+         * Instantiate a KME singleton
+         *
+         * @return an instance of KME
+         */
         fun getInstance(): KME {
             if (!::instance.isInitialized) {
                 instance = KME()
@@ -35,6 +44,14 @@ class KME : KmeKoinComponent {
         }
     }
 
+    /**
+     * Initialization function. Initializes all needed controllers and modules.
+     * In the same place - fetching metadata from the server to use it in future REST API calls.
+     *
+     * @param context application context
+     * @param success function to handle success initialization event
+     * @param error function to handle error initialization event
+     */
     fun initSDK(
         context: Context,
         success: () -> Unit,
@@ -55,8 +72,14 @@ class KME : KmeKoinComponent {
         })
     }
 
+    /**
+     * @return url for accessing files in the room
+     */
     fun getFilesUrl() = metadataController.getMetadata()?.filesUrl
 
+    /**
+     * @return cookies from metadata
+     */
     fun getCookies() = prefs.getString(KmePrefsKeys.COOKIE)
 
 }

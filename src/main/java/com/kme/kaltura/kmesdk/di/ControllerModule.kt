@@ -7,6 +7,9 @@ import com.kme.kaltura.kmesdk.controller.impl.internal.KmeWebSocketControllerImp
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
+/**
+ * Kme controllers module
+ */
 val controllersModule = module {
 
     single<IKmeMetadataController> { KmeMetadataControllerImpl() }

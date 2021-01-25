@@ -6,6 +6,9 @@ import okhttp3.ResponseBody
 import java.io.IOException
 import java.io.OutputStream
 
+/**
+ * Main REST function. Download files from the server
+ */
 suspend fun downloadFile(
     call: suspend () -> ResponseBody?,
     target: OutputStream,

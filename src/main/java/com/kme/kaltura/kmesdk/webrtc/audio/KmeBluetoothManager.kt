@@ -13,6 +13,9 @@ import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
 
+/**
+ * An implementation for handling bluetooth audio device switches
+ */
 class KmeBluetoothManager(
     private val context: Context,
     private val kmeAudioManager: IKmeAudioManager,
@@ -51,6 +54,9 @@ class KmeBluetoothManager(
         return bluetoothState
     }
 
+    /**
+     * Start listen for bluetooth devices
+     */
     fun start() {
         if (bluetoothState != State.UNINITIALIZED) {
             return
@@ -84,6 +90,9 @@ class KmeBluetoothManager(
         bluetoothState = State.HEADSET_UNAVAILABLE
     }
 
+    /**
+     * Stop listen for bluetooth devices
+     */
     fun stop() {
         unregisterReceiver(bluetoothHeadsetReceiver)
 
@@ -102,6 +111,9 @@ class KmeBluetoothManager(
         }
     }
 
+    /**
+     * Start SCO
+     */
     fun startScoAudio(): Boolean {
         if (scoConnectionAttempts >= MAX_SCO_CONNECTION_ATTEMPTS) {
             return false
@@ -117,6 +129,9 @@ class KmeBluetoothManager(
         return true
     }
 
+    /**
+     * Stop SCO
+     */
     fun stopScoAudio() {
         if (bluetoothState != State.SCO_CONNECTING && bluetoothState != State.SCO_CONNECTED) {
             return
@@ -127,6 +142,9 @@ class KmeBluetoothManager(
         bluetoothState = State.SCO_DISCONNECTING
     }
 
+    /**
+     * Update available bluetooth devices
+     */
     fun updateDevice() {
         if (bluetoothState == State.UNINITIALIZED || bluetoothHeadset == null) {
             return
@@ -195,6 +213,9 @@ class KmeBluetoothManager(
         updateAudioDeviceState()
     }
 
+    /**
+     * Callbacks from the system about plugging in and out for bluetooth devices
+     */
     inner class BluetoothServiceListener : ServiceListener {
 
         override fun onServiceConnected(profile: Int, proxy: BluetoothProfile) {
@@ -219,6 +240,9 @@ class KmeBluetoothManager(
         }
     }
 
+    /**
+     * Callbacks from the system about changing [BluetoothHeadset] state
+     */
     inner class BluetoothHeadsetBroadcastReceiver : BroadcastReceiver() {
 
         override fun onReceive(context: Context?, intent: Intent) {

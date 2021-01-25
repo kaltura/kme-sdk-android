@@ -1,7 +1,21 @@
 package com.kme.kaltura.kmesdk.controller
 
+import com.kme.kaltura.kmesdk.rest.KmeApiException
+import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeGetRoomNotesResponse
+
+/**
+ * An interface for download notes
+ */
 interface IKmeRoomNoteDownloadController {
 
+    /**
+     * Download specific note as pdf file
+     *
+     * @param name name of a note
+     * @param url url location of a note
+     * @param success function to handle success result. Contains [KmeGetRoomNotesResponse] object
+     * @param error function to handle error result. Contains [KmeApiException] object
+     */
     fun downloadRoomNote(
         name: String,
         url: String,

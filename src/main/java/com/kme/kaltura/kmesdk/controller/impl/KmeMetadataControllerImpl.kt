@@ -12,16 +12,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.inject
 
+/**
+ * An implementation for actions related to metadata
+ */
 class KmeMetadataControllerImpl : KmeKoinComponent, IKmeMetadataController {
 
     private val metadataApiService: KmeMetadataApiService by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
     private var metadata: KmeMetadata? = null
 
+    /**
+     * Getting stored metadata
+     */
     override fun getMetadata(): KmeMetadata? {
         return metadata
     }
 
+    /**
+     * Getting metadata for global usage
+     */
     override fun fetchMetadata(
         success: () -> Unit,
         error: (exception: KmeApiException) -> Unit
@@ -38,6 +47,9 @@ class KmeMetadataControllerImpl : KmeKoinComponent, IKmeMetadataController {
         }
     }
 
+    /**
+     * Getting translations strings for specific language
+     */
     override fun getTranslation(
         lang: String,
         success: (response: GetTranslationsResponse) -> Unit,

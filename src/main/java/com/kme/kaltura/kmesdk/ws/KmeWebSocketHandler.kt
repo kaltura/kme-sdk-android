@@ -5,6 +5,12 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 
+/**
+ * Wrapper under OkHttp socket implementation
+ *
+ * @property messageParser an implementation for incoming messages parser
+ * @property messageManager an implementation transferring messages to appropriate listeners
+ */
 internal class KmeWebSocketHandler(
     private val messageParser: KmeMessageParser,
     private val messageManager: KmeMessageManager
@@ -17,36 +23,60 @@ internal class KmeWebSocketHandler(
 
     var listener: IKmeWSListener? = null
 
+    /**
+     * Invoked when a web socket has been accepted by the remote peer and may begin transmitting
+     * messages.
+     */
     override fun onOpen(webSocket: WebSocket, response: Response) {
         super.onOpen(webSocket, response)
         Log.e(TAG, "onOpen: $response")
         listener?.onOpen(response)
     }
 
+    /** Invoked when a text (type `0x1`) message has been received. */
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
         Log.e(TAG, "onMessage: $text")
         handleMessage(webSocket, text)
     }
 
+    /**
+     * Invoked when a web socket has been closed due to an error reading from or writing to the
+     * network. Both outgoing and incoming messages may have been lost. No further calls to this
+     * listener will be made.
+     */
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
         Log.e(TAG, "onFailure: $t, $response")
         listener?.onFailure(t, response)
     }
 
+    /**
+     * Invoked when the remote peer has indicated that no more incoming messages will be transmitted.
+     */
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosing(webSocket, code, reason)
         Log.e(TAG, "onClosing: $code, $reason")
         listener?.onClosing(code, reason)
     }
 
+    /**
+     * Invoked when both peers have indicated that no more messages will be transmitted and the
+     * connection has been successfully released. No further calls to this listener will be made.
+     */
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
         Log.e(TAG, "onClosed: $code, $reason")
         listener?.onClosed(code, reason)
     }
 
+    /**
+     * Handle incoming message. Do a 'Pong' in case 'Ping' received. Otherwise parse message and
+     * transfer to the application listeners
+     *
+     * @param webSocket
+     * @param text
+     */
     private fun handleMessage(webSocket: WebSocket, text: String) {
         if (isPingMessage(text)) {
             webSocket.send(pongValue.toString())
@@ -55,8 +85,18 @@ internal class KmeWebSocketHandler(
         }
     }
 
+    /**
+     * Checks ping message
+     *
+     * @param text incoming message
+     */
     private fun isPingMessage(text: String) = pingValue.toString() == text
 
+    /**
+     * Transfer messages to appropriate listeners
+     *
+     * @param text incoming message
+     */
     private fun post(text: String) {
         val message = messageParser.parse(text)
         message?.let {

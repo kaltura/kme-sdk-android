@@ -5,6 +5,9 @@ import android.os.Looper
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl
 import org.webrtc.PeerConnection
 
+/**
+ * An implementation for measure amplitude of actual p2p connection
+ */
 class KmeSoundAmplitudeMeter(
     private val peerConnection: PeerConnection,
     private var soundAmplitudeListener: KmeSoundAmplitudeListener?
@@ -13,15 +16,24 @@ class KmeSoundAmplitudeMeter(
     private var meterHandler = Handler(Looper.getMainLooper())
     private val soundMeasureRunnable = Runnable { measureAmplitude() }
 
+    /**
+     * Start listen for measuring
+     */
     fun startMeasure() {
         meterHandler.post(soundMeasureRunnable)
     }
 
+    /**
+     * Stop listen for measuring
+     */
     fun stopMeasure() {
         meterHandler.removeCallbacks(soundMeasureRunnable)
         soundAmplitudeListener?.onAmplitudeMeasured(false, 0.0)
     }
 
+    /**
+     * Measure sound amplitude based on RTC statistics
+     */
     private fun measureAmplitude() {
         peerConnection.getStats {
             it.statsMap?.forEach { statObject ->

@@ -15,6 +15,9 @@ import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import org.koin.android.ext.android.inject
 
+/**
+ * Service wrapper under the room actions
+ */
 class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKmeWebRTCController {
 
     private val binder: IBinder = RoomServiceBinder()
@@ -40,6 +43,9 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
         return START_NOT_STICKY
     }
 
+    /**
+     * Establish socket connection
+     */
     override fun connect(
         url: String,
         companyId: Long,
@@ -51,12 +57,21 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
         webSocketController.connect(url, companyId, roomId, isReconnect, token, listener)
     }
 
+    /**
+     * Check is socket connected
+     */
     override fun isConnected(): Boolean = webSocketController.isConnected()
 
+    /**
+     * Send message via socket
+     */
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
         webSocketController.send(message)
     }
 
+    /**
+     * Disconnect from the room. Destroy all related connections
+     */
     override fun disconnect() {
         disconnectAllConnections()
         webSocketController.disconnect()
@@ -74,6 +89,9 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
         this.turnCred = turnCred
     }
 
+    /**
+     * Creates publisher connection
+     */
     override fun addPublisherPeerConnection(
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView,
@@ -88,6 +106,9 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
         return publisherPeerConnection
     }
 
+    /**
+     * Creates a viewer connection
+     */
     override fun addViewerPeerConnection(
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView,
@@ -103,19 +124,31 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
         return viewerPeerConnection
     }
 
+    /**
+     * Getting publisher connection if exist
+     */
     override fun getPublisherConnection(): IKmePeerConnectionController? {
         return publisherPeerConnection
     }
 
+    /**
+     * Getting publisher/viewer connection by id
+     */
     override fun getPeerConnection(requestedUserIdStream: String): IKmePeerConnectionController? {
         return peerConnections.getOrDefault(requestedUserIdStream, null)
     }
 
+    /**
+     * Disconnect publisher/viewer connection by id
+     */
     override fun disconnectPeerConnection(requestedUserIdStream: String) {
         peerConnections[requestedUserIdStream]?.disconnectPeerConnection()
         peerConnections.remove(requestedUserIdStream)
     }
 
+    /**
+     * Disconnect all publisher/viewers connections
+     */
     override fun disconnectAllConnections() {
         peerConnections.forEach { (_, connection) -> connection.disconnectPeerConnection() }
         peerConnections.clear()
