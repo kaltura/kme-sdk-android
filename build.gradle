@@ -39,8 +39,9 @@ android {
     }
 
     dokka {
+        outputFormat = 'javadoc'
 //        outputFormat = 'html'
-        outputFormat = 'gfm'
+//        outputFormat = 'gfm'
         outputDirectory = "$buildDir/documentation"
     }
 }
