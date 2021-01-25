@@ -86,7 +86,7 @@ internal class KmeWebSocketHandler(
     }
 
     /**
-     * Checks pink message
+     * Checks ping message
      *
      * @param text incoming message
      */
