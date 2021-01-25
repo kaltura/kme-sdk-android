@@ -7,7 +7,7 @@ For SDK initialization you should get an instance of main SDK class
  val kmeSDK = KME.getInstance()
 ```
 
-## For eah kind of interaction with KME SDK has a specific controllers
+## For each kind of interaction with KME SDK has a specific controllers
 * Sign In
 * User
 * Room
