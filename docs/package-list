@@ -1,8 +1,3 @@
-$dokka.format:jekyll
-$dokka.linkExtension:html
-$dokka.location:com.kme.kaltura.kmesdk$encryptWith(kotlin.String, kotlin.String)com.kme.kaltura.kmesdk/kotlin.-string/encrypt-with.html
-$dokka.location:com.kme.kaltura.kmesdk.content.playkit$asKalturaEvent(com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerState)com.kme.kaltura.kmesdk.content.playkit/com.pierfrancescosoffritti.androidyoutubeplayer.core.player.-player-constants.-player-state/as-kaltura-event.html
-$dokka.location:com.kme.kaltura.kmesdk.content.playkit$isEnded(com.kaltura.tvplayer.KalturaPlayer)com.kme.kaltura.kmesdk.content.playkit/com.kaltura.tvplayer.-kaltura-player/is-ended.html
 com.kme.kaltura.kmesdk
 com.kme.kaltura.kmesdk.content.playkit
 com.kme.kaltura.kmesdk.content.slides
