@@ -1,0 +1,107 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>IKmeUserController - kmeSdk</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kmeSdk</a>&nbsp;/&nbsp;<a href="../index.html">com.kme.kaltura.kmesdk.controller</a>&nbsp;/&nbsp;<a href="./index.html">IKmeUserController</a><br/>
+<br/>
+<h1>IKmeUserController</h1>
+<code><span class="keyword">interface </span><span class="identifier">IKmeUserController</span></code>
+<p>An interface for actual user information details</p>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="get-current-participant.html">getCurrentParticipant</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">getCurrentParticipant</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.ws.message.participant/-kme-participant/index.html"><span class="identifier">KmeParticipant</span></a><span class="symbol">?</span></code>
+<p>Getting stored user information in the room</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-current-user-info.html">getCurrentUserInfo</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">getCurrentUserInfo</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.rest.response.user/-kme-user-info-data/index.html"><span class="identifier">KmeUserInfoData</span></a><span class="symbol">?</span></code>
+<p>Getting stored user information</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-user-information.html">getUserInformation</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">getUserInformation</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.IKmeUserController$getUserInformation(kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.user.KmeGetUserInfoResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/success">success</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">response</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.rest.response.user/-kme-get-user-info-response/index.html"><span class="identifier">KmeGetUserInfoResponse</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.IKmeUserController$getUserInformation(kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.user.KmeGetUserInfoResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/error">error</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">exception</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.rest/-kme-api-exception/index.html"><span class="identifier">KmeApiException</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Getting actual user information</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">getUserInformation</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.IKmeUserController$getUserInformation(kotlin.String, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.user.KmeGetUserInfoResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/roomAlias">roomAlias</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.IKmeUserController$getUserInformation(kotlin.String, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.user.KmeGetUserInfoResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/success">success</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">response</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.rest.response.user/-kme-get-user-info-response/index.html"><span class="identifier">KmeGetUserInfoResponse</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.IKmeUserController$getUserInformation(kotlin.String, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.user.KmeGetUserInfoResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/error">error</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">exception</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.rest/-kme-api-exception/index.html"><span class="identifier">KmeApiException</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Getting actual user information for specific room by alias</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="is-admin-for.html">isAdminFor</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">isAdminFor</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.IKmeUserController$isAdminFor(kotlin.Long)/companyId">companyId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Checks is actual user has admin permissions for specific company</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="is-logged-in.html">isLoggedIn</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">isLoggedIn</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Checks is actual user is logged and access token exist</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="is-moderator.html">isModerator</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">isModerator</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Checks is actual user has moderator permissions</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="logout.html">logout</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">logout</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Removes actual user information</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="update-participant.html">updateParticipant</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">updateParticipant</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.IKmeUserController$updateParticipant(com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant)/participant">participant</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.ws.message.participant/-kme-participant/index.html"><span class="identifier">KmeParticipant</span></a><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Updates actual user info in the room</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../../com.kme.kaltura.kmesdk.controller.impl/-kme-user-controller-impl/index.html">KmeUserControllerImpl</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">KmeUserControllerImpl</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.controller.impl/-kme-controller/index.html"><span class="identifier">KmeController</span></a><span class="symbol">, </span><a href="./index.html"><span class="identifier">IKmeUserController</span></a></code>
+<p>An implementation for actual user information details</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

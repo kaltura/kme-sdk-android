@@ -1,0 +1,55 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>KmeSignInApiService - kmeSdk</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kmeSdk</a>&nbsp;/&nbsp;<a href="../index.html">com.kme.kaltura.kmesdk.rest.service</a>&nbsp;/&nbsp;<a href="./index.html">KmeSignInApiService</a><br/>
+<br/>
+<h1>KmeSignInApiService</h1>
+<code><span class="keyword">interface </span><span class="identifier">KmeSignInApiService</span></code>
+<p>An interface for signIn/signUp API calls</p>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="guest.html">guest</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">guest</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$guest(kotlin.String, kotlin.String, kotlin.String, kotlin.String)/name">name</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$guest(kotlin.String, kotlin.String, kotlin.String, kotlin.String)/email">email</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$guest(kotlin.String, kotlin.String, kotlin.String, kotlin.String)/roomAlias">roomAlias</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$guest(kotlin.String, kotlin.String, kotlin.String, kotlin.String)/roomAliasField">roomAliasField</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.rest.response.signin/-kme-guest-login-response/index.html"><span class="identifier">KmeGuestLoginResponse</span></a></code>
+<p>Login user by input data and allow to connect to the room</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="login.html">login</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">login</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$login(kotlin.String, kotlin.String)/email">email</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$login(kotlin.String, kotlin.String)/password">password</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.rest.response.signin/-kme-login-response/index.html"><span class="identifier">KmeLoginResponse</span></a></code>
+<p>Login user by input data</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="logout.html">logout</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">logout</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.rest.response.signin/-kme-logout-response/index.html"><span class="identifier">KmeLogoutResponse</span></a></code>
+<p>Logout from actual user</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="register.html">register</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">register</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$register(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, kotlin.Int)/fullName">fullName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$register(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, kotlin.Int)/email">email</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$register(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, kotlin.Int)/password">password</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$register(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, kotlin.Int)/forceRegister">forceRegister</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$register(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, kotlin.Int)/addToMailingList">addToMailingList</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.rest.response.signin/-kme-register-response/index.html"><span class="identifier">KmeRegisterResponse</span></a></code>
+<p>Registers new user by input data</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

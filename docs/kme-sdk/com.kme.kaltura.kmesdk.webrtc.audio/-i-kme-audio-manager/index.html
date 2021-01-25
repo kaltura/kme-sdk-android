@@ -1,0 +1,105 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>IKmeAudioManager - kmeSdk</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kmeSdk</a>&nbsp;/&nbsp;<a href="../index.html">com.kme.kaltura.kmesdk.webrtc.audio</a>&nbsp;/&nbsp;<a href="./index.html">IKmeAudioManager</a><br/>
+<br/>
+<h1>IKmeAudioManager</h1>
+<code><span class="keyword">interface </span><span class="identifier">IKmeAudioManager</span></code>
+<p>An interface for handling audio devices in the room</p>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="get-available-audio-devices.html">getAvailableAudioDevices</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">getAvailableAudioDevices</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html"><span class="identifier">Set</span></a><span class="symbol">&lt;</span><a href="../-kme-audio-device/index.html"><span class="identifier">KmeAudioDevice</span></a><span class="symbol">?</span><span class="symbol">&gt;</span></code>
+<p>Getting set of available audio devices</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-selected-audio-device.html">getSelectedAudioDevice</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">getSelectedAudioDevice</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../-kme-audio-device/index.html"><span class="identifier">KmeAudioDevice</span></a><span class="symbol">?</span></code>
+<p>Getting last selected audio device</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-audio-device.html">setAudioDevice</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">setAudioDevice</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.audio.IKmeAudioManager$setAudioDevice(com.kme.kaltura.kmesdk.webrtc.audio.KmeAudioDevice)/device">device</span><span class="symbol">:</span>&nbsp;<a href="../-kme-audio-device/index.html"><span class="identifier">KmeAudioDevice</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Change current audio device</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-default-audio-device.html">setDefaultAudioDevice</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">setDefaultAudioDevice</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.audio.IKmeAudioManager$setDefaultAudioDevice(com.kme.kaltura.kmesdk.webrtc.audio.KmeAudioDevice)/device">device</span><span class="symbol">:</span>&nbsp;<a href="../-kme-audio-device/index.html"><span class="identifier">KmeAudioDevice</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Setting default audio device</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-listener.html">setListener</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">setListener</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.audio.IKmeAudioManager$setListener(com.kme.kaltura.kmesdk.webrtc.audio.AudioManagerListener)/listener">listener</span><span class="symbol">:</span>&nbsp;<a href="../-audio-manager-listener/index.html"><span class="identifier">AudioManagerListener</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Listener for detecting audio route changes</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="start.html">start</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">start</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Starting audio manager</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="stop.html">stop</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">stop</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Stopping use audio</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="update-audio-device-state.html">updateAudioDeviceState</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">updateAudioDeviceState</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Detect all available devices and auto switch to most important for now</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../-kme-audio-manager-impl/index.html">KmeAudioManagerImpl</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">KmeAudioManagerImpl</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">IKmeAudioManager</span></a></code>
+<p>An implementation for handling audio devices in the room</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

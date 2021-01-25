@@ -1,0 +1,189 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>KmePeerConnectionImpl - kmeSdk</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kmeSdk</a>&nbsp;/&nbsp;<a href="../index.html">com.kme.kaltura.kmesdk.webrtc.peerconnection.impl</a>&nbsp;/&nbsp;<a href="./index.html">KmePeerConnectionImpl</a><br/>
+<br/>
+<h1>KmePeerConnectionImpl</h1>
+<code><span class="keyword">class </span><span class="identifier">KmePeerConnectionImpl</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.webrtc.peerconnection/-i-kme-peer-connection/index.html"><span class="identifier">IKmePeerConnection</span></a><span class="symbol">, </span><a href="../../com.kme.kaltura.kmesdk.webrtc.stats/-kme-sound-amplitude-listener/index.html"><span class="identifier">KmeSoundAmplitudeListener</span></a></code>
+<p>An implementation actions under WebRTC peer connection object</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">KmePeerConnectionImpl</span><span class="symbol">(</span><span class="symbol">)</span></code>
+<p>An implementation actions under WebRTC peer connection object</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="add-remote-ice-candidate.html">addRemoteIceCandidate</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">addRemoteIceCandidate</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$addRemoteIceCandidate(org.webrtc.IceCandidate)/candidate">candidate</span><span class="symbol">:</span>&nbsp;<span class="identifier">IceCandidate</span><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Handle adding ICE candidate</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="close.html">close</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">close</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Closes actual connection</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="create-answer.html">createAnswer</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">createAnswer</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Creates an answer</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="create-offer.html">createOffer</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">createOffer</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Creates an offers</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="create-peer-connection.html">createPeerConnection</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">createPeerConnection</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$createPeerConnection(android.content.Context, org.webrtc.VideoSink, org.webrtc.VideoSink, org.webrtc.VideoCapturer, kotlin.Boolean, kotlin.collections.MutableList((org.webrtc.PeerConnection.IceServer)))/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$createPeerConnection(android.content.Context, org.webrtc.VideoSink, org.webrtc.VideoSink, org.webrtc.VideoCapturer, kotlin.Boolean, kotlin.collections.MutableList((org.webrtc.PeerConnection.IceServer)))/localVideoSink">localVideoSink</span><span class="symbol">:</span>&nbsp;<span class="identifier">VideoSink</span><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$createPeerConnection(android.content.Context, org.webrtc.VideoSink, org.webrtc.VideoSink, org.webrtc.VideoCapturer, kotlin.Boolean, kotlin.collections.MutableList((org.webrtc.PeerConnection.IceServer)))/remoteVideoSink">remoteVideoSink</span><span class="symbol">:</span>&nbsp;<span class="identifier">VideoSink</span><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$createPeerConnection(android.content.Context, org.webrtc.VideoSink, org.webrtc.VideoSink, org.webrtc.VideoCapturer, kotlin.Boolean, kotlin.collections.MutableList((org.webrtc.PeerConnection.IceServer)))/videoCapturer">videoCapturer</span><span class="symbol">:</span>&nbsp;<span class="identifier">VideoCapturer</span><span class="symbol">?</span><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$createPeerConnection(android.content.Context, org.webrtc.VideoSink, org.webrtc.VideoSink, org.webrtc.VideoCapturer, kotlin.Boolean, kotlin.collections.MutableList((org.webrtc.PeerConnection.IceServer)))/isPublisher">isPublisher</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$createPeerConnection(android.content.Context, org.webrtc.VideoSink, org.webrtc.VideoSink, org.webrtc.VideoCapturer, kotlin.Boolean, kotlin.collections.MutableList((org.webrtc.PeerConnection.IceServer)))/iceServers">iceServers</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-mutable-list/index.html"><span class="identifier">MutableList</span></a><span class="symbol">&lt;</span><span class="identifier">IceServer</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Creates peer connection</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="create-peer-connection-factory.html">createPeerConnectionFactory</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">createPeerConnectionFactory</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$createPeerConnectionFactory(android.content.Context, com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$createPeerConnectionFactory(android.content.Context, com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents)/events">events</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.webrtc.peerconnection/-i-kme-peer-connection-events/index.html"><span class="identifier">IKmePeerConnectionEvents</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Creates peer connection factory</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-render-context.html">getRenderContext</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">getRenderContext</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Context</span><span class="symbol">?</span></code>
+<p>Getting rendering context for WebRTC</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="on-amplitude-measured.html">onAmplitudeMeasured</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">onAmplitudeMeasured</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$onAmplitudeMeasured(kotlin.Boolean, kotlin.Double)/bringToFront">bringToFront</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$onAmplitudeMeasured(kotlin.Boolean, kotlin.Double)/amplitude">amplitude</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/index.html"><span class="identifier">Double</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Fired once sound amplitude measured</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="remove-remote-ice-candidates.html">removeRemoteIceCandidates</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">removeRemoteIceCandidates</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$removeRemoteIceCandidates(kotlin.Array((org.webrtc.IceCandidate)))/candidates">candidates</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html"><span class="identifier">Array</span></a><span class="symbol">&lt;</span><span class="identifier">IceCandidate</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Handle remove remote ICE candidates</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-audio-enabled.html">setAudioEnabled</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setAudioEnabled</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$setAudioEnabled(kotlin.Boolean)/enable">enable</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Toggle audio</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-remote-description.html">setRemoteDescription</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setRemoteDescription</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$setRemoteDescription(org.webrtc.SessionDescription)/sdp">sdp</span><span class="symbol">:</span>&nbsp;<span class="identifier">SessionDescription</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Setting remote SDP</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-video-enabled.html">setVideoEnabled</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setVideoEnabled</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$setVideoEnabled(kotlin.Boolean)/enable">enable</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Toggle video</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-video-max-bitrate.html">setVideoMaxBitrate</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setVideoMaxBitrate</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl$setVideoMaxBitrate(kotlin.Int)/maxBitrateKbps">maxBitrateKbps</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Change bitrate parameters of local video</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="start-video-source.html">startVideoSource</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">startVideoSource</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Enable outgoing video stream</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="stop-video-source.html">stopVideoSource</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">stopVideoSource</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Disable outgoing video stream</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="switch-camera.html">switchCamera</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">switchCamera</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Switch between existing cameras</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Companion Object Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-a-u-d-i-o_-t-r-a-c-k_-i-d.html">AUDIO_TRACK_ID</a></p>
+</td>
+<td>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">AUDIO_TRACK_ID</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

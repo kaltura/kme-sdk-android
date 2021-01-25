@@ -1,0 +1,115 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>KmeBluetoothManager - kmeSdk</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kmeSdk</a>&nbsp;/&nbsp;<a href="../index.html">com.kme.kaltura.kmesdk.webrtc.audio</a>&nbsp;/&nbsp;<a href="./index.html">KmeBluetoothManager</a><br/>
+<br/>
+<h1>KmeBluetoothManager</h1>
+<code><span class="keyword">class </span><span class="identifier">KmeBluetoothManager</span></code>
+<p>An implementation for handling bluetooth audio device switches</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-bluetooth-headset-broadcast-receiver/index.html">BluetoothHeadsetBroadcastReceiver</a></p>
+</td>
+<td>
+<code><span class="keyword">inner</span> <span class="keyword">class </span><span class="identifier">BluetoothHeadsetBroadcastReceiver</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/BroadcastReceiver.html"><span class="identifier">BroadcastReceiver</span></a></code>
+<p>Callbacks from the system about changing <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHeadset.html">BluetoothHeadset</a> state</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-bluetooth-service-listener/index.html">BluetoothServiceListener</a></p>
+</td>
+<td>
+<code><span class="keyword">inner</span> <span class="keyword">class </span><span class="identifier">BluetoothServiceListener</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/bluetooth/BluetoothProfile/ServiceListener.html"><span class="identifier">ServiceListener</span></a></code>
+<p>Callbacks from the system about plugging in and out for bluetooth devices</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-state/index.html">State</a></p>
+</td>
+<td>
+<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">State</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">KmeBluetoothManager</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.audio.KmeBluetoothManager$<init>(android.content.Context, com.kme.kaltura.kmesdk.webrtc.audio.IKmeAudioManager, android.media.AudioManager)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.audio.KmeBluetoothManager$<init>(android.content.Context, com.kme.kaltura.kmesdk.webrtc.audio.IKmeAudioManager, android.media.AudioManager)/kmeAudioManager">kmeAudioManager</span><span class="symbol">:</span>&nbsp;<a href="../-i-kme-audio-manager/index.html"><span class="identifier">IKmeAudioManager</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.webrtc.audio.KmeBluetoothManager$<init>(android.content.Context, com.kme.kaltura.kmesdk.webrtc.audio.IKmeAudioManager, android.media.AudioManager)/audioManager">audioManager</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/media/AudioManager.html"><span class="identifier">AudioManager</span></a><span class="symbol">)</span></code>
+<p>An implementation for handling bluetooth audio device switches</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="get-state.html">getState</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">getState</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-state/index.html"><span class="identifier">State</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="start.html">start</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">start</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Start listen for bluetooth devices</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="start-sco-audio.html">startScoAudio</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">startScoAudio</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Start SCO</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="stop.html">stop</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">stop</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Stop listen for bluetooth devices</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="stop-sco-audio.html">stopScoAudio</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">stopScoAudio</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Stop SCO</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="update-device.html">updateDevice</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">updateDevice</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Update available bluetooth devices</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

@@ -1,0 +1,191 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>KmeMediaView - kmeSdk</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kmeSdk</a>&nbsp;/&nbsp;<a href="../index.html">com.kme.kaltura.kmesdk.content.playkit</a>&nbsp;/&nbsp;<a href="./index.html">KmeMediaView</a><br/>
+<br/>
+<h1>KmeMediaView</h1>
+<code><span class="keyword">class </span><span class="identifier">KmeMediaView</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/widget/FrameLayout.html"><span class="identifier">FrameLayout</span></a><span class="symbol">, </span><a href="../-i-kme-media-playback-listener/index.html"><span class="identifier">IKmeMediaPlaybackListener</span></a></code>
+<p>An implementation of view for media files playback</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-config/index.html">Config</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">Config</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">KmeMediaView</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.content.playkit.KmeMediaView$<init>(android.content.Context, android.util.AttributeSet, kotlin.Int)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.content.playkit.KmeMediaView$<init>(android.content.Context, android.util.AttributeSet, kotlin.Int)/attrs">attrs</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/util/AttributeSet.html"><span class="identifier">AttributeSet</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.content.playkit.KmeMediaView$<init>(android.content.Context, android.util.AttributeSet, kotlin.Int)/defStyleAttr">defStyleAttr</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;0<span class="symbol">)</span></code>
+<p>An implementation of view for media files playback</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="current-position.html">currentPosition</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">currentPosition</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a></code>
+<p>Getting current playing position</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="duration.html">duration</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">duration</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a></code>
+<p>Getting duration of current media file</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="add-listener.html">addListener</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">E</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">PKEvent</span><span class="symbol">?</span><span class="symbol">&gt;</span> <span class="identifier">addListener</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.content.playkit.KmeMediaView$addListener(kotlin.Any, java.lang.Class((com.kme.kaltura.kmesdk.content.playkit.KmeMediaView.addListener.E)), com.kaltura.playkit.PKEvent.Listener((com.kme.kaltura.kmesdk.content.playkit.KmeMediaView.addListener.E)))/groupId">groupId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.content.playkit.KmeMediaView$addListener(kotlin.Any, java.lang.Class((com.kme.kaltura.kmesdk.content.playkit.KmeMediaView.addListener.E)), com.kaltura.playkit.PKEvent.Listener((com.kme.kaltura.kmesdk.content.playkit.KmeMediaView.addListener.E)))/type">type</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/java/lang/Class.html"><span class="identifier">Class</span></a><span class="symbol">&lt;</span><a href="add-listener.html#E"><span class="identifier">E</span></a><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.content.playkit.KmeMediaView$addListener(kotlin.Any, java.lang.Class((com.kme.kaltura.kmesdk.content.playkit.KmeMediaView.addListener.E)), com.kaltura.playkit.PKEvent.Listener((com.kme.kaltura.kmesdk.content.playkit.KmeMediaView.addListener.E)))/listener">listener</span><span class="symbol">:</span>&nbsp;<span class="identifier">Listener</span><span class="symbol">&lt;</span><a href="add-listener.html#E"><span class="identifier">E</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Adding listener for specific event</p>
+<code><span class="keyword">fun </span><span class="identifier">addListener</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.content.playkit.KmeMediaView$addListener(kotlin.Any, kotlin.Enum(()), com.kaltura.playkit.PKEvent.Listener((com.kaltura.playkit.PKEvent)))/groupId">groupId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.content.playkit.KmeMediaView$addListener(kotlin.Any, kotlin.Enum(()), com.kaltura.playkit.PKEvent.Listener((com.kaltura.playkit.PKEvent)))/type">type</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html"><span class="identifier">Enum</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.content.playkit.KmeMediaView$addListener(kotlin.Any, kotlin.Enum(()), com.kaltura.playkit.PKEvent.Listener((com.kaltura.playkit.PKEvent)))/listener">listener</span><span class="symbol">:</span>&nbsp;<span class="identifier">Listener</span><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Adding event listener</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="init.html">init</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">init</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.content.playkit.KmeMediaView$init(com.kme.kaltura.kmesdk.content.playkit.KmeMediaView.Config)/config">config</span><span class="symbol">:</span>&nbsp;<a href="-config/index.html"><span class="identifier">Config</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Init media view</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="is-ended.html">isEnded</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">isEnded</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Check is playback of media file is ended</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="is-youtube.html">isYoutube</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">isYoutube</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="pause.html">pause</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">pause</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Pause playback</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="play.html">play</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">play</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Start playback</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="release.html">release</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">release</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="remove-listeners.html">removeListeners</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">removeListeners</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.content.playkit.KmeMediaView$removeListeners(kotlin.Any)/groupId">groupId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Removing event listener</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="replay.html">replay</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">replay</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Replay playback</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="seek-to.html">seekTo</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">seekTo</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.content.playkit.KmeMediaView$seekTo(kotlin.Long)/seekTo">seekTo</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Seek to position</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-media.html">setMedia</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setMedia</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.content.playkit.KmeMediaView$setMedia(kotlin.String)/url">url</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Setting media file url</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Companion Object Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-e-n-t-r-y_-i-d.html">ENTRY_ID</a></p>
+</td>
+<td>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">ENTRY_ID</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-h-t-t-p_-p-r-o-v-i-d-e-r_-i-d.html">HTTP_PROVIDER_ID</a></p>
+</td>
+<td>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">HTTP_PROVIDER_ID</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-m-e-d-i-a_-s-o-u-r-c-e_-i-d.html">MEDIA_SOURCE_ID</a></p>
+</td>
+<td>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">MEDIA_SOURCE_ID</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

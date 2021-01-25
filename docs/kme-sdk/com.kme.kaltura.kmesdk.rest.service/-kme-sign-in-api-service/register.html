@@ -1,0 +1,28 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>KmeSignInApiService.register - kmeSdk</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kmeSdk</a>&nbsp;/&nbsp;<a href="../index.html">com.kme.kaltura.kmesdk.rest.service</a>&nbsp;/&nbsp;<a href="index.html">KmeSignInApiService</a>&nbsp;/&nbsp;<a href="./register.html">register</a><br/>
+<br/>
+<h1>register</h1>
+<a name="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$register(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, kotlin.Int)"></a>
+<code><span class="identifier">@FormUrlEncoded</span> <span class="identifier">@POST</span><span class="symbol">(</span>"signin/register"<span class="symbol">)</span> <span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">register</span><span class="symbol">(</span><span class="identifier">@Field</span><span class="symbol">(</span>"SignupForm[full_name]"<span class="symbol">)</span> <span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$register(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, kotlin.Int)/fullName">fullName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier">@Field</span><span class="symbol">(</span>"SignupForm[email]"<span class="symbol">)</span> <span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$register(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, kotlin.Int)/email">email</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier">@Field</span><span class="symbol">(</span>"SignupForm[password]"<span class="symbol">)</span> <span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$register(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, kotlin.Int)/password">password</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier">@Field</span><span class="symbol">(</span>"SignupForm[forceRegister]"<span class="symbol">)</span> <span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$register(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, kotlin.Int)/forceRegister">forceRegister</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">, </span><span class="identifier">@Field</span><span class="symbol">(</span>"SignupForm[addToMailingList]"<span class="symbol">)</span> <span class="identifier" id="com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService$register(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, kotlin.Int)/addToMailingList">addToMailingList</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.rest.response.signin/-kme-register-response/index.html"><span class="identifier">KmeRegisterResponse</span></a></code>
+<p>Registers new user by input data</p>
+<h3>Parameters</h3>
+<p><a name="fullName"></a>
+<code>fullName</code> - name of a user</p>
+<p><a name="email"></a>
+<code>email</code> - email of a user</p>
+<p><a name="password"></a>
+<code>password</code> - password of a user</p>
+<p><a name="forceRegister"></a>
+<code>forceRegister</code> - </p>
+<p><a name="addToMailingList"></a>
+<code>addToMailingList</code> - add email to subscriptions</p>
+<p><strong>Return</strong><br/>
+<a href="../../com.kme.kaltura.kmesdk.rest.response.signin/-kme-register-response/index.html">KmeRegisterResponse</a> object in success case</p>
+</BODY>
+</HTML>

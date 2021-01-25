@@ -1,0 +1,220 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>KmeRoomControllerImpl - kmeSdk</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kmeSdk</a>&nbsp;/&nbsp;<a href="../index.html">com.kme.kaltura.kmesdk.controller.impl</a>&nbsp;/&nbsp;<a href="./index.html">KmeRoomControllerImpl</a><br/>
+<br/>
+<h1>KmeRoomControllerImpl</h1>
+<code><span class="keyword">class </span><span class="identifier">KmeRoomControllerImpl</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-kme-controller/index.html"><span class="identifier">KmeController</span></a><span class="symbol">, </span><a href="../../com.kme.kaltura.kmesdk.controller/-i-kme-room-controller/index.html"><span class="identifier">IKmeRoomController</span></a></code>
+<p>An implementation for room data</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">KmeRoomControllerImpl</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$<init>(android.content.Context)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">)</span></code>
+<p>An implementation for room data</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="room-settings.html">roomSettings</a></p>
+</td>
+<td>
+<code><span class="keyword">var </span><span class="identifier">roomSettings</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.rest.response.room/-kme-web-r-t-c-server/index.html"><span class="identifier">KmeWebRTCServer</span></a><span class="symbol">?</span></code>
+<p>Getting WevRTC server data if exist</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="add-listener.html">addListener</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">addListener</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$addListener(com.kme.kaltura.kmesdk.ws.IKmeMessageListener)/listener">listener</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.ws/-i-kme-message-listener/index.html"><span class="identifier">IKmeMessageListener</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Add listeners for socket messages</p>
+<code><span class="keyword">fun </span><span class="identifier">addListener</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$addListener(com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent, com.kme.kaltura.kmesdk.ws.IKmeMessageListener)/event">event</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.ws.message/-kme-message-event/index.html"><span class="identifier">KmeMessageEvent</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$addListener(com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent, com.kme.kaltura.kmesdk.ws.IKmeMessageListener)/listener">listener</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.ws/-i-kme-message-listener/index.html"><span class="identifier">IKmeMessageListener</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Add event to listener</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="add-publisher-peer-connection.html">addPublisherPeerConnection</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">addPublisherPeerConnection</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$addPublisherPeerConnection(kotlin.String, com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView, com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents)/requestedUserIdStream">requestedUserIdStream</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$addPublisherPeerConnection(kotlin.String, com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView, com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents)/renderer">renderer</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.webrtc.view/-kme-surface-renderer-view/index.html"><span class="identifier">KmeSurfaceRendererView</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$addPublisherPeerConnection(kotlin.String, com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView, com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents)/listener">listener</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.webrtc.peerconnection/-i-kme-peer-connection-client-events/index.html"><span class="identifier">IKmePeerConnectionClientEvents</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.controller/-i-kme-peer-connection-controller/index.html"><span class="identifier">IKmePeerConnectionController</span></a><span class="symbol">?</span></code>
+<p>Creates publisher connection</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="add-viewer-peer-connection.html">addViewerPeerConnection</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">addViewerPeerConnection</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$addViewerPeerConnection(kotlin.String, com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView, com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents)/requestedUserIdStream">requestedUserIdStream</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$addViewerPeerConnection(kotlin.String, com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView, com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents)/renderer">renderer</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.webrtc.view/-kme-surface-renderer-view/index.html"><span class="identifier">KmeSurfaceRendererView</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$addViewerPeerConnection(kotlin.String, com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView, com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents)/listener">listener</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.webrtc.peerconnection/-i-kme-peer-connection-client-events/index.html"><span class="identifier">IKmePeerConnectionClientEvents</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.controller/-i-kme-peer-connection-controller/index.html"><span class="identifier">IKmePeerConnectionController</span></a><span class="symbol">?</span></code>
+<p>Creates a viewer connection</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="connect.html">connect</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">connect</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$connect(kotlin.String, kotlin.Long, kotlin.Long, kotlin.Boolean, kotlin.String, com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener)/url">url</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$connect(kotlin.String, kotlin.Long, kotlin.Long, kotlin.Boolean, kotlin.String, com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener)/companyId">companyId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$connect(kotlin.String, kotlin.Long, kotlin.Long, kotlin.Boolean, kotlin.String, com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener)/roomId">roomId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$connect(kotlin.String, kotlin.Long, kotlin.Long, kotlin.Boolean, kotlin.String, com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener)/isReconnect">isReconnect</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$connect(kotlin.String, kotlin.Long, kotlin.Long, kotlin.Boolean, kotlin.String, com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener)/token">token</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$connect(kotlin.String, kotlin.Long, kotlin.Long, kotlin.Boolean, kotlin.String, com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener)/listener">listener</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.ws/-i-kme-w-s-connection-listener/index.html"><span class="identifier">IKmeWSConnectionListener</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Establish socket connection</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="disconnect.html">disconnect</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">disconnect</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Disconnect socket connection</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="disconnect-all-connections.html">disconnectAllConnections</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">disconnectAllConnections</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Disconnect all publisher/viewers connections</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="disconnect-peer-connection.html">disconnectPeerConnection</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">disconnectPeerConnection</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$disconnectPeerConnection(kotlin.String)/requestedUserIdStream">requestedUserIdStream</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Disconnect publisher/viewer connection by id</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-peer-connection.html">getPeerConnection</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">getPeerConnection</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getPeerConnection(kotlin.String)/requestedUserIdStream">requestedUserIdStream</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.controller/-i-kme-peer-connection-controller/index.html"><span class="identifier">IKmePeerConnectionController</span></a><span class="symbol">?</span></code>
+<p>Getting publisher/viewer connection by id</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-publisher-connection.html">getPublisherConnection</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">getPublisherConnection</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.controller/-i-kme-peer-connection-controller/index.html"><span class="identifier">IKmePeerConnectionController</span></a><span class="symbol">?</span></code>
+<p>Getting publisher connection if exist</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-room-info.html">getRoomInfo</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">getRoomInfo</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getRoomInfo(kotlin.String, kotlin.Int, kotlin.Int, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/alias">alias</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getRoomInfo(kotlin.String, kotlin.Int, kotlin.Int, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/checkPermission">checkPermission</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getRoomInfo(kotlin.String, kotlin.Int, kotlin.Int, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/withFiles">withFiles</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getRoomInfo(kotlin.String, kotlin.Int, kotlin.Int, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/success">success</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">response</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.rest.response.room/-kme-get-room-info-response/index.html"><span class="identifier">KmeGetRoomInfoResponse</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getRoomInfo(kotlin.String, kotlin.Int, kotlin.Int, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/error">error</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">exception</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.rest/-kme-api-exception/index.html"><span class="identifier">KmeApiException</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Getting room info by alias</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-rooms.html">getRooms</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">getRooms</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getRooms(kotlin.Long, kotlin.Long, kotlin.Long, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/companyId">companyId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getRooms(kotlin.Long, kotlin.Long, kotlin.Long, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/pages">pages</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getRooms(kotlin.Long, kotlin.Long, kotlin.Long, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/limit">limit</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getRooms(kotlin.Long, kotlin.Long, kotlin.Long, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/success">success</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">response</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.rest.response.room/-kme-get-rooms-response/index.html"><span class="identifier">KmeGetRoomsResponse</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getRooms(kotlin.Long, kotlin.Long, kotlin.Long, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/error">error</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">exception</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.rest/-kme-api-exception/index.html"><span class="identifier">KmeApiException</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Getting all rooms for specific company</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-web-r-t-c-live-server.html">getWebRTCLiveServer</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">getWebRTCLiveServer</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getWebRTCLiveServer(kotlin.String, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/roomAlias">roomAlias</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getWebRTCLiveServer(kotlin.String, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/success">success</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">response</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.rest.response.room/-kme-get-web-r-t-c-server-response/index.html"><span class="identifier">KmeGetWebRTCServerResponse</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$getWebRTCLiveServer(kotlin.String, kotlin.Function1((com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse, kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/error">error</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">exception</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.rest/-kme-api-exception/index.html"><span class="identifier">KmeApiException</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Getting data for p2p connection</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="is-connected.html">isConnected</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">isConnected</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Check is socket connected</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="listen.html">listen</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">listen</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$listen(com.kme.kaltura.kmesdk.ws.IKmeMessageListener, kotlin.Array((com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent)))/listener">listener</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.ws/-i-kme-message-listener/index.html"><span class="identifier">IKmeMessageListener</span></a><span class="symbol">, </span><span class="keyword">vararg</span> <span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$listen(com.kme.kaltura.kmesdk.ws.IKmeMessageListener, kotlin.Array((com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent)))/events">events</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.ws.message/-kme-message-event/index.html"><span class="identifier">KmeMessageEvent</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Start listen events for listener</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="remove.html">remove</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">remove</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$remove(com.kme.kaltura.kmesdk.ws.IKmeMessageListener, kotlin.Array((com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent)))/listener">listener</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.ws/-i-kme-message-listener/index.html"><span class="identifier">IKmeMessageListener</span></a><span class="symbol">, </span><span class="keyword">vararg</span> <span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$remove(com.kme.kaltura.kmesdk.ws.IKmeMessageListener, kotlin.Array((com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent)))/events">events</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.ws.message/-kme-message-event/index.html"><span class="identifier">KmeMessageEvent</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Stop listen events for listener</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="remove-listener.html">removeListener</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">removeListener</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$removeListener(com.kme.kaltura.kmesdk.ws.IKmeMessageListener)/listener">listener</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.ws/-i-kme-message-listener/index.html"><span class="identifier">IKmeMessageListener</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Remove listener</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="remove-listeners.html">removeListeners</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">removeListeners</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Remove all attached listeners</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="send.html">send</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">send</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$send(com.kme.kaltura.kmesdk.ws.message.KmeMessage((com.kme.kaltura.kmesdk.ws.message.KmeMessage.Payload)))/message">message</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.ws.message/-kme-message/index.html"><span class="identifier">KmeMessage</span></a><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.ws.message/-kme-message/-payload/index.html"><span class="identifier">Payload</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Send message via socket</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-turn-server.html">setTurnServer</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setTurnServer</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$setTurnServer(kotlin.String, kotlin.String, kotlin.String)/turnUrl">turnUrl</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$setTurnServer(kotlin.String, kotlin.String, kotlin.String)/turnUser">turnUser</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmeRoomControllerImpl$setTurnServer(kotlin.String, kotlin.String, kotlin.String)/turnCred">turnCred</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Setting TURN server for RTC</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

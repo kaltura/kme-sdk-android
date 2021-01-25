@@ -1,0 +1,132 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>KME - kmeSdk</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kmeSdk</a>&nbsp;/&nbsp;<a href="../index.html">com.kme.kaltura.kmesdk</a>&nbsp;/&nbsp;<a href="./index.html">KME</a><br/>
+<br/>
+<h1>KME</h1>
+<code><span class="keyword">class </span><span class="identifier">KME</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">KmeKoinComponent</span></code>
+<p>Main class for KME SDK.</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">KME</span><span class="symbol">(</span><span class="symbol">)</span></code>
+<p>Main class for KME SDK.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="audio-controller.html">audioController</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">audioController</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.controller/-i-kme-audio-controller/index.html"><span class="identifier">IKmeAudioController</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="chat-controller.html">chatController</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">chatController</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.controller/-i-kme-chat-controller/index.html"><span class="identifier">IKmeChatController</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="is-s-d-k-initialized.html">isSDKInitialized</a></p>
+</td>
+<td>
+<code><span class="keyword">var </span><span class="identifier">isSDKInitialized</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="room-controller.html">roomController</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">roomController</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.controller/-i-kme-room-controller/index.html"><span class="identifier">IKmeRoomController</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="room-notes-controller.html">roomNotesController</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">roomNotesController</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.controller/-i-kme-room-notes-controller/index.html"><span class="identifier">IKmeRoomNotesController</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="room-recording-controller.html">roomRecordingController</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">roomRecordingController</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.controller/-i-kme-room-recording-controller/index.html"><span class="identifier">IKmeRoomRecordingController</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="sign-in-controller.html">signInController</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">signInController</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.controller/-i-kme-sign-in-controller/index.html"><span class="identifier">IKmeSignInController</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="user-controller.html">userController</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">userController</span><span class="symbol">: </span><a href="../../com.kme.kaltura.kmesdk.controller/-i-kme-user-controller/index.html"><span class="identifier">IKmeUserController</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="get-cookies.html">getCookies</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">getCookies</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="get-files-url.html">getFilesUrl</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">getFilesUrl</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="init-s-d-k.html">initSDK</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">initSDK</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.KME$initSDK(android.content.Context, kotlin.Function0((kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.KME$initSDK(android.content.Context, kotlin.Function0((kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/success">success</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.KME$initSDK(android.content.Context, kotlin.Function0((kotlin.Unit)), kotlin.Function1((com.kme.kaltura.kmesdk.rest.KmeApiException, kotlin.Unit)))/error">error</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">exception</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.rest/-kme-api-exception/index.html"><span class="identifier">KmeApiException</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Initialization function. Initializes all needed controllers and modules.
+In the same place - fetching metadata from the server to use it in future REST API calls.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Companion Object Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="get-instance.html">getInstance</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">getInstance</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">KME</span></a></code>
+<p>Instantiate a KME singleton</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

@@ -1,0 +1,233 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>KmePeerConnectionControllerImpl - kmeSdk</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">kmeSdk</a>&nbsp;/&nbsp;<a href="../index.html">com.kme.kaltura.kmesdk.controller.impl</a>&nbsp;/&nbsp;<a href="./index.html">KmePeerConnectionControllerImpl</a><br/>
+<br/>
+<h1>KmePeerConnectionControllerImpl</h1>
+<code><span class="keyword">class </span><span class="identifier">KmePeerConnectionControllerImpl</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.controller/-i-kme-peer-connection-controller/index.html"><span class="identifier">IKmePeerConnectionController</span></a><span class="symbol">, </span><a href="../../com.kme.kaltura.kmesdk.webrtc.peerconnection/-i-kme-peer-connection-events/index.html"><span class="identifier">IKmePeerConnectionEvents</span></a></code>
+<p>An implementation for p2p connection</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">KmePeerConnectionControllerImpl</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$<init>(android.content.Context, com.google.gson.Gson)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$<init>(android.content.Context, com.google.gson.Gson)/gson">gson</span><span class="symbol">:</span>&nbsp;<span class="identifier">Gson</span><span class="symbol">)</span></code>
+<p>An implementation for p2p connection</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="create-offer.html">createOffer</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">createOffer</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Creates an offers</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="create-peer-connection.html">createPeerConnection</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">createPeerConnection</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$createPeerConnection(kotlin.Boolean, kotlin.String, com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents)/isPublisher">isPublisher</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$createPeerConnection(kotlin.Boolean, kotlin.String, com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents)/requestedUserIdStream">requestedUserIdStream</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$createPeerConnection(kotlin.Boolean, kotlin.String, com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents)/listener">listener</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.webrtc.peerconnection/-i-kme-peer-connection-client-events/index.html"><span class="identifier">IKmePeerConnectionClientEvents</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Creates p2p connection</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="disconnect-peer-connection.html">disconnectPeerConnection</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">disconnectPeerConnection</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Closes actual p2p connection</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="enable-audio.html">enableAudio</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">enableAudio</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$enableAudio(kotlin.Boolean)/isEnable">isEnable</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Toggle audio</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="enable-camera.html">enableCamera</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">enableCamera</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$enableCamera(kotlin.Boolean)/isEnable">isEnable</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Toggle camera</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="on-ice-candidate.html">onIceCandidate</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">onIceCandidate</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$onIceCandidate(org.webrtc.IceCandidate)/candidate">candidate</span><span class="symbol">:</span>&nbsp;<span class="identifier">IceCandidate</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Callback fired once local Ice candidate is generated</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="on-ice-candidates-removed.html">onIceCandidatesRemoved</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">onIceCandidatesRemoved</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$onIceCandidatesRemoved(kotlin.Array((org.webrtc.IceCandidate)))/candidates">candidates</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html"><span class="identifier">Array</span></a><span class="symbol">&lt;</span><span class="identifier">IceCandidate</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Callback fired once local ICE candidates are removed</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="on-ice-connected.html">onIceConnected</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">onIceConnected</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Callback fired once connection is established (IceConnectionState is
+CONNECTED)</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="on-ice-disconnected.html">onIceDisconnected</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">onIceDisconnected</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Callback fired once connection is closed (IceConnectionState is
+DISCONNECTED)</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="on-ice-gathering-done.html">onIceGatheringDone</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">onIceGatheringDone</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Callback fired once ice gathering is complete (IceGatheringDone is COMPLETE)</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="on-local-description.html">onLocalDescription</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">onLocalDescription</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$onLocalDescription(org.webrtc.SessionDescription)/sdp">sdp</span><span class="symbol">:</span>&nbsp;<span class="identifier">SessionDescription</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Callback fired once local SDP is created and set</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="on-peer-connection-closed.html">onPeerConnectionClosed</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">onPeerConnectionClosed</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Callback fired once peer connection is closed</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="on-peer-connection-created.html">onPeerConnectionCreated</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">onPeerConnectionCreated</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Callback fired once peerConnection instance created</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="on-peer-connection-error.html">onPeerConnectionError</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">onPeerConnectionError</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$onPeerConnectionError(kotlin.String)/description">description</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Callback fired once peer connection error happened</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="on-peer-connection-stats-ready.html">onPeerConnectionStatsReady</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">onPeerConnectionStatsReady</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$onPeerConnectionStatsReady(kotlin.Array((org.webrtc.StatsReport)))/reports">reports</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html"><span class="identifier">Array</span></a><span class="symbol">&lt;</span><span class="identifier">StatsReport</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Callback fired once peer connection statistics is ready</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="on-user-speaking.html">onUserSpeaking</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">onUserSpeaking</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$onUserSpeaking(kotlin.Boolean)/isSpeaking">isSpeaking</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Callback fired to indicate current talking user</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-local-renderer.html">setLocalRenderer</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setLocalRenderer</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$setLocalRenderer(com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView)/localRenderer">localRenderer</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.webrtc.view/-kme-surface-renderer-view/index.html"><span class="identifier">KmeSurfaceRendererView</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Setting view for local stream rendering</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-media-server-id.html">setMediaServerId</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setMediaServerId</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$setMediaServerId(kotlin.Long)/mediaServerId">mediaServerId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Setting media server id for data relay</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-remote-renderer.html">setRemoteRenderer</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setRemoteRenderer</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$setRemoteRenderer(com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView)/remoteRenderer">remoteRenderer</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.webrtc.view/-kme-surface-renderer-view/index.html"><span class="identifier">KmeSurfaceRendererView</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Setting view for remote stream rendering</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-remote-sdp.html">setRemoteSdp</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setRemoteSdp</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$setRemoteSdp(com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType, kotlin.String)/type">type</span><span class="symbol">:</span>&nbsp;<a href="../../com.kme.kaltura.kmesdk.ws.message.type/-kme-sdp-type/index.html"><span class="identifier">KmeSdpType</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$setRemoteSdp(com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType, kotlin.String)/sdp">sdp</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Setting remote SDP</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-turn-server.html">setTurnServer</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setTurnServer</span><span class="symbol">(</span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$setTurnServer(kotlin.String, kotlin.String, kotlin.String)/turnUrl">turnUrl</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$setTurnServer(kotlin.String, kotlin.String, kotlin.String)/turnUser">turnUser</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.kme.kaltura.kmesdk.controller.impl.KmePeerConnectionControllerImpl$setTurnServer(kotlin.String, kotlin.String, kotlin.String)/turnCred">turnCred</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Setting TURN server for RTC. Build ICE servers collection</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="switch-camera.html">switchCamera</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">switchCamera</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Switch between existing cameras</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>
