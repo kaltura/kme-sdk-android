@@ -18,14 +18,13 @@ For SDK initialization you should get an instance of main SDK class
 
 ## Sign In
 ```
- kmeSDK.signInController.login(email, password,
-     success = {
-         // Handle success result of login. Save access token for next REST calls
-         val accessToken = it.data?.accessToken
-     }, error = {
-         // Handle error result of login.
-         val errorMessage = it.message
-     })
+ kmeSDK.signInController.login(email, password, success = {
+     // Handle success result of login. Save access token for next REST calls
+     val accessToken = it.data?.accessToken
+ }, error = {
+     // Handle error result of login.
+     val errorMessage = it.message
+ })
 ```
 
 ## Get user information
@@ -41,32 +40,28 @@ For SDK initialization you should get an instance of main SDK class
 
 ## Get rooms
 ```
- kmeSDK.roomController.getRooms(companyId, 0, 20,
-     success = {
-         // Handle success result.
-         val rooms = it.data?.rooms ?: emptyList()
-     }, error = {
-         // Handle error result.
-         val errorMessage = it.message
-     })
+ kmeSDK.roomController.getRooms(companyId, 0, 20, success = {
+     // Handle success result.
+     val rooms = it.data?.rooms ?: emptyList()
+ }, error = {
+     // Handle error result.
+     val errorMessage = it.message
+ })
 ```
 
 ## Fetch WebRTC server information
                     
 ```
- kmeSDK.roomController.getWebRTCLiveServer(
-     roomAlias,
-     success = {
-         isLoading.value = false
-         // Handle success result.
-         val webRTC = it.data?.let { kmeWebRTCServer ->
-             connectToRoom(kmeWebRTCServer)
-         }
-     }, error = {
-         // Handle error result.
-         val errorMessage = it.message
+ kmeSDK.roomController.getWebRTCLiveServer(roomAlias, success = {
+     isLoading.value = false
+     // Handle success result.
+     val webRTC = it.data?.let { kmeWebRTCServer ->
+         connectToRoom(kmeWebRTCServer)
      }
- )
+ }, error = {
+     // Handle error result.
+     val errorMessage = it.message
+ })
 ```
 
 ## Connect to the room via socket
