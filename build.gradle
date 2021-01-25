@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'org.jetbrains.dokka-android'
 
 android {
     compileSdkVersion 30
@@ -35,6 +36,12 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
+    dokka {
+        outputFormat = 'html'
+//        outputFormat = 'gfm'
+        outputDirectory = "$buildDir/documentation"
     }
 }
 
