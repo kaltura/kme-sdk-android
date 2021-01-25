@@ -1,0 +1,12 @@
+---
+title: KmeRegisterResponse.data - kmeSdk
+---
+
+[kmeSdk](../../index.html) / [com.kme.kaltura.kmesdk.rest.response.signin](../index.html) / [KmeRegisterResponse](index.html) / [data](./data.html)
+
+# data
+
+`@SerializedName("data") val data: `[`KmeResponseData`](../../com.kme.kaltura.kmesdk.rest.response/-kme-response-data/index.html)`?`
+
+Overrides [KmeResponse.data](../../com.kme.kaltura.kmesdk.rest.response/-kme-response/data.html)
+
