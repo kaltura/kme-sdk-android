@@ -21,7 +21,7 @@ open class KmeMessage<T : KmeMessage.Payload> {
     var payload: T? = null
 
     open class Payload {
-        val events: List<KmeMessage<Payload>>? = null
+        val events: List<String>? = null
     }
 
 }

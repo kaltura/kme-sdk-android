@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk.content.slides
 import android.content.Context
 import android.graphics.RectF
 import android.util.AttributeSet
+import android.util.Base64
 import android.util.Size
 import android.view.LayoutInflater
 import android.view.ViewTreeObserver
@@ -11,9 +12,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardView
 import com.kme.kaltura.kmesdk.glide
+import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.ActiveContentPayload.Page
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.ActiveContentPayload.Slide
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import kotlinx.android.synthetic.main.layout_slides_view.view.*
+
 
 class KmeSlidesView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -24,6 +29,9 @@ class KmeSlidesView @JvmOverloads constructor(
     private var slides: MutableList<Slide> = mutableListOf()
     private var slidesAdapter: SlidesAdapter? = null
     private var selectedSlide: Slide? = null
+
+    private var pages: MutableList<Page> = mutableListOf()
+    private var selectedPage: Page? = null
 
     private var originalImageSize: Size? = null
 
@@ -45,27 +53,65 @@ class KmeSlidesView @JvmOverloads constructor(
 //            drawing.setErase(false)
 
         }
-    }
 
-    override fun setSlides(slides: List<Slide>) {
-        check(::config.isInitialized) {
-            "${javaClass.simpleName} is not initialized."
-        }
-        this.slides.clear()
-        this.slides.addAll(slides)
-        this.slides.sortedBy { slide -> slide.slideNumber?.toInt() ?: 0 }
-
-        selectedSlide = getSlideByNumber(config.currentSlide)
-
-        setupContentView()
-        setupPreviews()
-
-        selectedSlide?.let {
-            notifySlideSelected(it)
+        if (KmeContentType.SLIDES == config.payload.contentType) {
+            setSlides(config.payload)
+        } else if (KmeContentType.WHITEBOARD == config.payload.contentType) {
+            setWhiteboardPages(config.payload)
         }
     }
 
-    private fun setupContentView() {
+    private fun setWhiteboardPages(payload: KmeActiveContentModuleMessage.SetActiveContentPayload) {
+        payload.metadata.pages?.let {
+            rvSlides?.visibility = GONE
+
+            this.pages.clear()
+            this.pages.addAll(it)
+
+            selectedPage = getPageById(payload.metadata.activePageId)
+
+            setupPageContentView()
+        }
+    }
+
+    private fun setSlides(payload: KmeActiveContentModuleMessage.SetActiveContentPayload) {
+        payload.metadata.slides?.let {
+            rvSlides?.visibility = VISIBLE
+
+            this.slides.clear()
+            this.slides.addAll(it)
+            this.slides.sortedBy { slide -> slide.slideNumber?.toInt() ?: 0 }
+
+            selectedSlide = getSlideByNumber(config.currentSlide)
+
+            setupSlideContentView()
+            setupSlidesPreview()
+
+            selectedSlide?.let { selectedSlide ->
+                notifySlideSelected(selectedSlide)
+            }
+        }
+    }
+
+
+    private fun setupPageContentView() {
+        originalImageSize = null
+
+        selectedPage?.thumbnail?.let {
+            if (it.isEmpty()) return
+
+            val thumbnailParams = it.split(",")
+            if (thumbnailParams.isNotEmpty()) {
+                val decodedString: ByteArray = Base64.decode(thumbnailParams[1], Base64.DEFAULT)
+                ivSlide.glide(decodedString) { originalSize ->
+                    originalImageSize = Size(1280, 720)
+                    setupWhiteboardView()
+                }
+            }
+        }
+    }
+
+    private fun setupSlideContentView() {
         originalImageSize = null
 
         selectedSlide?.let {
@@ -86,10 +132,11 @@ class KmeSlidesView @JvmOverloads constructor(
                     ivSlide.imageMatrix.mapRect(imageBounds, RectF(drawable.bounds))
 
                     originalImageSize?.let { imageSize ->
-                        val whiteboardConfig = KmeWhiteboardView.Config(imageSize, imageBounds).apply {
-                            cookie = config.cookie
-                            fileUrl = config.fileUrl
-                        }
+                        val whiteboardConfig =
+                            KmeWhiteboardView.Config(imageSize, imageBounds).apply {
+                                cookie = config.cookie
+                                fileUrl = config.fileUrl
+                            }
                         init(whiteboardConfig)
                     }
                     ivSlide.viewTreeObserver.removeOnPreDrawListener(this)
@@ -99,7 +146,7 @@ class KmeSlidesView @JvmOverloads constructor(
         })
     }
 
-    private fun setupPreviews() {
+    private fun setupSlidesPreview() {
         slidesAdapter = SlidesAdapter(config.cookie, config.fileUrl).apply {
             setData(slides)
         }
@@ -127,6 +174,10 @@ class KmeSlidesView @JvmOverloads constructor(
         return slides.find { slide -> slide.slideNumber?.toInt() == number }
     }
 
+    private fun getPageById(pageId: String?): Page? {
+        return pages.find { page -> page.id == pageId }
+    }
+
     override val currentSlide: Slide?
         get() = selectedSlide
 
@@ -139,7 +190,7 @@ class KmeSlidesView @JvmOverloads constructor(
             val nextSlide = getSlideByNumber(number)
             nextSlide?.let { slide ->
                 selectedSlide = slide
-                setupContentView()
+                setupSlideContentView()
                 notifySlideSelected(slide)
             }
         }
@@ -151,7 +202,7 @@ class KmeSlidesView @JvmOverloads constructor(
             val prevSlide = getSlideByNumber(number)
             prevSlide?.let { slide ->
                 selectedSlide = slide
-                setupContentView()
+                setupSlideContentView()
                 notifySlideSelected(slide)
             }
         }
@@ -161,7 +212,7 @@ class KmeSlidesView @JvmOverloads constructor(
         val slide = getSlideByNumber(slideNumber)
         slide?.let { it ->
             selectedSlide = it
-            setupContentView()
+            setupSlideContentView()
             notifySlideSelected(slide)
         }
     }
@@ -187,6 +238,7 @@ class KmeSlidesView @JvmOverloads constructor(
     }
 
     class Config(
+        val payload: KmeActiveContentModuleMessage.SetActiveContentPayload,
         val cookie: String,
         val fileUrl: String,
     ) {

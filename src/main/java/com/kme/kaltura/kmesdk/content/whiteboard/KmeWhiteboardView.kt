@@ -17,7 +17,6 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardToolType
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -34,6 +33,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private var canvasBitmap: Bitmap? = null
     private val pathMatrix: Matrix = Matrix()
     private val imageBounds: RectF = RectF()
+
+    private val defaultMatrixArray: FloatArray by lazy { floatArrayOf(1f, 0f, 0f, 1f, 0f, 0f) }
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
@@ -107,21 +108,24 @@ class KmeWhiteboardView @JvmOverloads constructor(
     }
 
     private fun invalidatePaths() {
+//        ioScope.cancel()
         measureBounds()
+
+        if (imageBounds.isEmpty || imageWidth <= 0 || imageHeight <= 0) return
 
         pathsMap.clear()
 
-        ioScope.launch {
-            drawings.forEach {
-                Log.e(TAG, "invalidatePaths: ${it.path}")
-                calculatePath(it)
-            }
-            pathsMap = pathsMap.toSortedMap { o1, o2 ->
-                o1.layer.getCreatingDate().compareTo(o2.layer.getCreatingDate())
-            }
-
-            invalidate()
+//        ioScope.launch {
+        drawings.forEach {
+            Log.e(TAG, "invalidatePaths: ${it.path}")
+            calculatePath(it)
         }
+        pathsMap = pathsMap.toSortedMap { o1, o2 ->
+            o1.layer.getCreatingDate().compareTo(o2.layer.getCreatingDate())
+        }
+
+        postInvalidate()
+//        }
     }
 
     private fun measureBounds() {
@@ -143,7 +147,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private fun calculatePath(drawing: WhiteboardPayload.Drawing) {
         val path = when {
             drawing.isRect() -> {
-                calculateRectPath(drawing)
+//                calculateRectPath(drawing)
+                calculateRectanglePath(drawing)
             }
             drawing.isImage() -> {
                 calculateBitmap(drawing)
@@ -173,20 +178,19 @@ class KmeWhiteboardView @JvmOverloads constructor(
         context.getBitmap(drawingPath.source, cookie, fileUrl)?.let {
             val matrix = Matrix()
 
-            val matrixArray = drawingPath.matrix
-            if (matrixArray != null && matrixArray.size == 6) {
+            val matrixArray = drawingPath.matrix ?: defaultMatrixArray
+            if (matrixArray.size == 6) {
                 val scaleX = matrixArray[0]
                 val scaleY = matrixArray[3]
                 val scalePointX = matrixArray[4].toX()
                 val scalePointY = matrixArray[5].toY()
 
-                Log.e(TAG, "image: (${originalImageWidth}, ${originalImageHeight})"  )
-                Log.e(TAG, "bitmap: (${it.width}, ${it.height})"  )
-
+                Log.e(TAG, "image: (${originalImageWidth}, ${originalImageHeight})")
+                Log.e(TAG, "bitmap: (${it.width}, ${it.height})")
 
 
                 val relativeScaleX = if (it.width > originalImageWidth) {
-                    scaleX *  it.width /originalImageWidth
+                    scaleX * it.width / originalImageWidth
 //                    scaleX
                 } else {
                     scaleX
@@ -198,8 +202,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
                     scaleY
                 }
 
-                Log.e(TAG, "relativeScaleX: $relativeScaleX"  )
-                Log.e(TAG, "relativeScaleY: $relativeScaleY"  )
+                Log.e(TAG, "relativeScaleX: $relativeScaleX")
+                Log.e(TAG, "relativeScaleY: $relativeScaleY")
 
                 val translateX = scalePointX + imageBounds.left - (relativeScaleX * it.width / 2)
                 val translateY = scalePointY + imageBounds.top - (relativeScaleY * it.height / 2)
@@ -218,22 +222,58 @@ class KmeWhiteboardView @JvmOverloads constructor(
         val drawingPath = drawing.getDrawingPath() ?: return null
         val segments =
             drawingPath.segments.validatePencilSegments<List<List<List<Float>>>>() ?: return null
+        val matrix = (drawing.path?.matrix ?: defaultMatrixArray).copyOf()
+
+        matrix[4] = matrix[4].toX() + imageBounds.left
+        matrix[5] = matrix[5].toY() + imageBounds.top
 
         val path = Path()
 
         segments.forEachIndexed { index, segment ->
-            val point1 = PointF(segment[0][0].toX(), segment[0][1].toY())
-            val point2 = PointF(segment[2][0].toX(), segment[2][1].toY())
+            val segmentX1 = segment[0][0].toX()
+            val segmentY1 = segment[0][1].toY()
+            val segmentX2 = segment[2][0].toX()
+            val segmentY2 = segment[2][1].toY()
+
+            val point1 = PointF(
+                segmentX1.transformX(segmentY1, matrix),
+                segmentY1.transformY(segmentX1, matrix)
+            )
+            val point2 = PointF(
+                segmentX2.transformX(segmentY2, matrix),
+                segmentY2.transformY(segmentX2, matrix)
+            )
+//            val point3 = PointF(point1.x, point1.y)
+//            val point4 = PointF(point2.x, point2.y)
+
+//            val point1 = PointF(segmentX1, segmentY1)
+//            val point2 = PointF(segmentX2, segmentY2)
             var point3 = point1
             var point4 = point2
 
             if (index + 1 < segments.size) {
-                point3 = PointF(segments[index + 1][0][0].toX(), segments[index + 1][0][1].toY())
-                point4 = PointF(segments[index + 1][1][0].toX(), segments[index + 1][1][1].toY())
+                val segmentX3 = segments[index + 1][0][0].toX()
+                val segmentY3 = segments[index + 1][0][1].toY()
+                val segmentX4 = segments[index + 1][1][0].toX()
+                val segmentY4 = segments[index + 1][1][1].toY()
+                point3.set(
+                    segmentX3.transformX(segmentY3, matrix),
+                    segmentY3.transformY(segmentX3, matrix)
+                )
+                point4.set(
+                    segmentX4.transformX(segmentY4, matrix),
+                    segmentY4.transformY(segmentX4, matrix)
+                )
+//
+//                point3 = PointF(segmentX3, segmentY3)
+//                point4 = PointF(segmentX4, segmentY4)
             }
 
             if (index == 0) {
-                path.moveTo(point1.x, point1.y)
+                path.moveTo(
+                    point1.x,
+                    point1.y
+                )
             } else {
                 path.cubicTo(
                     point1.x + point2.x,
@@ -241,30 +281,38 @@ class KmeWhiteboardView @JvmOverloads constructor(
                     point3.x + point4.x,
                     point3.y + point4.y,
                     point3.x,
-                    point3.y
+                    point3.y,
                 )
+
             }
         }
 
-        path.applyDefaultPathMatrix(drawing)
+
         return path
     }
 
     private fun calculateLinePath(drawing: WhiteboardPayload.Drawing): Path? {
         val drawingPath = drawing.getDrawingPath() ?: return null
         val segments = drawingPath.segments.validateSegments<List<List<Float>>>() ?: return null
-
+        val matrix = (drawing.path?.matrix ?: defaultMatrixArray).copyOf()
         val path = Path()
 
+        matrix[4] = matrix[4].toX() + imageBounds.left
+        matrix[5] = matrix[5].toY() + imageBounds.top
+
         segments.forEachIndexed { index, segment ->
+            val segmentX = segment[0].toX()
+            val segmentY = segment[1].toY()
+            val x = segmentX.transformX(segmentY, matrix)
+            val y = segmentY.transformY(segmentX, matrix)
+
             if (index == 0) {
-                path.moveTo(segment[0].toX(), segment[1].toY())
+                path.moveTo(x, y)
             } else {
-                path.lineTo(segment[0].toX(), segment[1].toY())
+                path.lineTo(x, y)
             }
         }
 
-        path.applyDefaultPathMatrix(drawing)
         return path
     }
 
@@ -274,17 +322,58 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
         val path = Path()
 
+        val matrix = (drawing.path?.matrix ?: defaultMatrixArray).copyOf()
+
+        matrix[4] = matrix[4].toX() + imageBounds.left
+        matrix[5] = matrix[5].toY() + imageBounds.top
+
         segments.forEachIndexed { index, segment ->
+            val segmentX = segment[0].toX()
+            val segmentY = segment[1].toY()
+            val x = segmentX.transformX(segmentY, matrix)
+            val y = segmentY.transformY(segmentX, matrix)
+
             if (index == 0) {
-                path.moveTo(segment[0].toX(), segment[1].toY())
+                path.moveTo(x, y)
             } else {
-                path.lineTo(segment[0].toX(), segment[1].toY())
+                path.lineTo(x, y)
             }
         }
-
         path.close()
-        path.applyDefaultPathMatrix(drawing)
+
         return path
+    }
+
+    private fun Float.transformX(y: Float, matrix: FloatArray): Float {
+        return this.scaleX(matrix) + skewX(y, matrix) + translateX(matrix)
+    }
+
+    private fun Float.transformY(x: Float, matrix: FloatArray): Float {
+        return this.scaleY(matrix) + skewY(x, matrix) + translateY(matrix)
+    }
+
+    private fun Float.scaleX(matrix: FloatArray): Float {
+        return matrix[0] * this
+    }
+
+    private fun Float.scaleY(matrix: FloatArray): Float {
+        return matrix[3] * this
+    }
+
+    private fun skewX(y: Float, matrix: FloatArray): Float {
+        return matrix[2] * y
+    }
+
+    private fun skewY(x: Float, matrix: FloatArray): Float {
+        return matrix[1] * x
+    }
+
+    private fun translateX(matrix: FloatArray): Float {
+        return matrix[4]
+    }
+
+    private fun translateY(matrix: FloatArray): Float {
+        return matrix[5]
     }
 
     private fun calculateRectPath(drawing: WhiteboardPayload.Drawing): Path? {
@@ -294,12 +383,31 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
         if (parentPath == null || drawingPath == null || rectSize == null || rectSize.size != 2) return null
 
+        val matrix = drawing.path?.matrix ?: defaultMatrixArray
+        val childrenMatrix = drawing.path?.childrenPath?.matrix
+        if (childrenMatrix != null) {
+            matrix[0] = if (childrenMatrix[0] != 1f) childrenMatrix[0] else matrix[0]
+            matrix[1] = childrenMatrix[1]
+            matrix[2] = childrenMatrix[2]
+            matrix[3] = if (childrenMatrix[3] != 1f) childrenMatrix[3] else matrix[3]
+            matrix[4] = childrenMatrix[4] + matrix[4]
+            matrix[5] = childrenMatrix[5] + matrix[5]
+        }
+
         val path = Path()
 
-        val fromX = 0f
-        val fromY = 0f
-        val toX = rectSize[0].toX()
-        val toY = rectSize[1].toY()
+        val fromSegmentX = 0f
+        val fromSegmentY = 0f
+        val toSegmentX = rectSize[0].toX()
+        val toSegmentY = rectSize[1].toY()
+
+
+        val fromX = fromSegmentX.transformX(fromSegmentY, matrix)
+        val fromY = fromSegmentY.transformY(fromSegmentX, matrix)
+        val toX = toSegmentX.transformX(toSegmentY, matrix)
+        val toY = toSegmentY.transformY(toSegmentX, matrix)
+
+
         val radiusX = drawingPath.radius?.get(0)?.toX() ?: 0f
         val radiusY = drawingPath.radius?.get(1)?.toY() ?: 0f
 
@@ -309,7 +417,72 @@ class KmeWhiteboardView @JvmOverloads constructor(
             path.addRect(fromX, fromY, toX, toY, Path.Direction.CW)
         }
 
-        path.applyRectMatrix(drawing)
+//        path.applyRectMatrix(drawing)
+        return path
+    }
+
+    private fun calculateRectanglePath(drawing: WhiteboardPayload.Drawing): Path? {
+        val parentPath = drawing.path
+        val childrenPath = parentPath?.childrenPath
+        val rectSize = parentPath?.size ?: childrenPath?.size
+
+        if (parentPath == null || rectSize == null || rectSize.size != 2) return null
+
+        val parentMatrix = (parentPath.matrix ?: defaultMatrixArray).copyOf()
+        val childrenMatrix = childrenPath?.matrix?.copyOf()
+
+        parentMatrix[4] = parentMatrix[4].toX() + imageBounds.left
+        parentMatrix[5] = parentMatrix[5].toY() + imageBounds.top
+
+        val path = Path()
+
+        val segmentWidth = rectSize[0].toX()
+        val segmentHeight = rectSize[1].toY()
+
+        val segmentLeft = -segmentWidth / 2
+        val segmentTop = -segmentHeight / 2
+        val segmentRight = segmentLeft + segmentWidth
+        val segmentBottom = segmentTop + segmentHeight
+
+        var cx1 = segmentLeft
+        var cy1 = segmentTop
+        var cx2 = segmentRight
+        var cy2 = segmentTop
+        var cx3 = segmentRight
+        var cy3 = segmentBottom
+        var cx4 = segmentLeft
+        var cy4 = segmentBottom
+
+        if (childrenMatrix != null) {
+            childrenMatrix[4] = childrenMatrix[4].toX()
+            childrenMatrix[5] = childrenMatrix[5].toY()
+
+            cx1 = segmentLeft.transformX(segmentTop, childrenMatrix)
+            cy1 = segmentTop.transformY(segmentLeft, childrenMatrix)
+            cx2 = segmentRight.transformX(segmentTop, childrenMatrix)
+            cy2 = segmentTop.transformY(segmentRight, childrenMatrix)
+            cx3 = segmentRight.transformX(segmentBottom, childrenMatrix)
+            cy3 = segmentBottom.transformY(segmentRight, childrenMatrix)
+            cx4 = segmentLeft.transformX(segmentBottom, childrenMatrix)
+            cy4 = segmentBottom.transformY(segmentLeft, childrenMatrix)
+        }
+
+        val x1 = cx1.transformX(cy1, parentMatrix)
+        val y1 = cy1.transformY(cx1, parentMatrix)
+        val x2 = cx2.transformX(cy2, parentMatrix)
+        val y2 = cy2.transformY(cx2, parentMatrix)
+        val x3 = cx3.transformX(cy3, parentMatrix)
+        val y3 = cy3.transformY(cx3, parentMatrix)
+        val x4 = cx4.transformX(cy4, parentMatrix)
+        val y4 = cy4.transformY(cx4, parentMatrix)
+
+        path.moveTo(x1, y1)
+        path.lineTo(x2, y2)
+        path.lineTo(x3, y3)
+        path.lineTo(x4, y4)
+
+        path.close()
+
         return path
     }
 
@@ -317,8 +490,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
         pathMatrix.reset()
 
         val drawingPath = drawing.path ?: return
-        val matrix = drawingPath.matrix ?: drawingPath.childrenPath?.matrix ?: return
-        if (matrix.isEmpty() || matrix.size != 6) return
 
         var pivotX = drawingPath.pivot?.firstOrNull()?.toX() ?: 0f
         var pivotY = drawingPath.pivot?.lastOrNull()?.toY() ?: 0f
@@ -346,10 +517,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 1f
             }
         }
-
-        val skewX = matrix[2]
-        val skewY = matrix[1]
-
 
         val scalePointX = when {
             drawingPath.matrix?.get(4) ?: 0f != 0f -> {
@@ -461,7 +628,12 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         if (!imageBounds.isEmpty && imageWidth > 0 && imageHeight > 0) {
-            canvas?.clipRect(imageBounds.left, imageBounds.top, imageBounds.right, imageBounds.bottom)
+            canvas?.clipRect(
+                imageBounds.left,
+                imageBounds.top,
+                imageBounds.right,
+                imageBounds.bottom
+            )
 
             canvasBitmap?.let {
                 canvas?.drawBitmap(it, 0f, 0f, canvasPaint)

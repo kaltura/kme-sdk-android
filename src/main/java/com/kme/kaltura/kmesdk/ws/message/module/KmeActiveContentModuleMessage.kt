@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeFileType
+import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
 import kotlinx.android.parcel.Parcelize
 
 class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveContentPayload> :
@@ -25,7 +26,11 @@ class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveCont
             @SerializedName("file_type") val fileType: KmeFileType? = null,
             @SerializedName("slides") val slides: List<Slide>? = null,
             @SerializedName("video_url") val videoUrl: String? = null,
-            @SerializedName("play_state") val playState: String? = null
+            @SerializedName("play_state") val playState: String? = null,
+            @SerializedName("boards") val boards: List<Board>? = null,
+            @SerializedName("pages") val pages: List<Page>? = null,
+            @SerializedName("board_id") val boardId: String? = null,
+            @SerializedName("active_page") val activePageId: String? = null
         ) : Parcelable
 
         @Parcelize
@@ -35,6 +40,21 @@ class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveCont
             @SerializedName("url") val url: String? = null,
             @SerializedName("thumbnail") val thumbnail: String? = null,
             var isSelected: Boolean
+        ) : Parcelable
+
+        @Parcelize
+        data class Board(
+            @SerializedName("id") val id: String? = null,
+            @SerializedName("name") val name: String? = null,
+            @SerializedName("active_page") val activePageId: String? = null
+        ) : Parcelable
+
+        @Parcelize
+        data class Page(
+            @SerializedName("id") val id: String? = null,
+            @SerializedName("thumbnail") val thumbnail: String? = null,
+            @SerializedName("date_created") val createdDate: Long? = null,
+            @SerializedName("background_metadata") val backgroundMetadata: KmeWhiteboardBackgroundType? = null
         ) : Parcelable
 
         @SerializedName("content_type")
