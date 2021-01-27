@@ -1,94 +1,138 @@
 # KME SDK user guide
 
-## Initialization
-For SDK initialization you should get an instance of main SDK class
-
+### Initialization
+For SDK initialization the applciation should get an instance of main SDK class
 ```
  val kmeSDK = KME.getInstance()
 ```
 
-## For each kind of interaction with KME SDK has a specific controllers
-* Sign In
-* User
-* Room
-* Notes
-* Recordings
-* Chat
-* Audio
+#### For each kind of interaction with KME SDK has a specific controllers
+* Sign In (`kmeSDK.signInController`)
+* User (`kmeSDK.userController`)
+* Room (`kmeSDK.roomController`)
+* Notes (`kmeSDK.roomNotesController`)
+* Recordings (`kmeSDK.roomRecordingController`)
+* Chat (`kmeSDK.chatController`)
+* Audio (`kmeSDK.audioController`)
 
-## Sign In
+#### Sign In
 ```
  kmeSDK.signInController.login(email, password, success = {
-     // Handle success result of login. Save access token for next REST calls
      val accessToken = it.data?.accessToken
  }, error = {
-     // Handle error result of login.
      val errorMessage = it.message
  })
 ```
 
-## Get user information
+#### Get user information
 ```
  kmeSDK.userController.getUserInformation(success = {
-     // Handle success result.
      val userCompanies = it.data?.userCompanies?.companies ?: emptyList()
  }, error = {
-     // Handle error result.
      val errorMessage = it.message
  })
 ```
 
-## Get rooms
+#### Get rooms
 ```
  kmeSDK.roomController.getRooms(companyId, 0, 20, success = {
-     // Handle success result.
      val rooms = it.data?.rooms ?: emptyList()
  }, error = {
-     // Handle error result.
      val errorMessage = it.message
  })
 ```
 
-## Fetch WebRTC server information
-                    
+# Room
+To get an information for connection to the room the application side should ask for WebRTC server info first.
+
+#### Fetch WebRTC server information
 ```
  kmeSDK.roomController.getWebRTCLiveServer(roomAlias, success = {
-     isLoading.value = false
-     // Handle success result.
-     val webRTC = it.data?.let { kmeWebRTCServer ->
-         connectToRoom(kmeWebRTCServer)
-     }
+     it.data?.let { connectToRoom(it) }
  }, error = {
-     // Handle error result.
      val errorMessage = it.message
  })
 ```
 
-## Connect to the room via socket
+#### Connect to the room using WS
+Based on information from WebRTC server the applciation can connect to the room using WS by calling `kmeSDK.roomController.connect()` API
 ```
- kmeSDK.roomController.connect(wssUrl, companyId, roomId, true, token, this)
+ private fun connectToRoom(webRTCServer: KmeWebRTCServer, companyId: Long, roomId: Long) {
+     val wssUrl = webRTCServer.wssUrl
+     val token = webRTCServer.token
+     kmeSDK.roomController.connect(wssUrl, companyId, roomId, isReconnect = true, token, object : IKmeWSConnectionListener {
+                override fun onOpen() {
+                    // Handle socket opened
+                }
+
+                override fun onFailure(throwable: Throwable) {
+                    // Handle socket failure
+                }
+
+                override fun onClosing(code: Int, reason: String) {
+                    // Handle socket closing
+                }
+
+                override fun onClosed(code: Int, reason: String) {
+                    // Handle socket closed
+                }
+            })
+ }
 ```
 
-## Once socket is connected listen events
+Once WS is connected the application can listen events from the room.
 ```
  override fun onOpen() {
-     kmeSDK.roomController.listen(
-         bannersHandler,
-         KmeMessageEvent.ANY_INSTRUCTORS_IS_CONNECTED_TO_ROOM,
-         KmeMessageEvent.ROOM_HAS_PASSWORD,
-         KmeMessageEvent.ROOM_PARTICIPANT_LIMIT_REACHED,
-         KmeMessageEvent.AWAIT_INSTRUCTOR_APPROVAL,
-         KmeMessageEvent.USER_APPROVED_BY_INSTRUCTOR,
-         KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR,
-         KmeMessageEvent.JOINED_ROOM,
-         KmeMessageEvent.ROOM_PASSWORD_STATUS_RECEIVED,
-         KmeMessageEvent.INSTRUCTOR_IS_OFFLINE,
-         KmeMessageEvent.CLOSE_WEB_SOCKET,
+     kmeSDK.roomController.listen(object : IKmeMessageListener {
+         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
+             // Handle incoming message
+         }},
+         KmeMessageEvent.JOIN_ROOM,
+         KmeMessageEvent.ROOM_STATE
      )
  }
 ```
 
-## Sending messages via socket
+#### Parsing WS messages
+Basically all messages from the server are coming as json string. KME SDK provides a mechanism to receive them as parsed objects depends on `KmeMessageEvent`.
+ ```
+ override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
+     when (message.name) {
+         KmeMessageEvent.ROOM_STATE -> {
+             val msg: KmeRoomInitModuleMessage<RoomStatePayload>? = message.toType()
+         }
+         KmeMessageEvent.AWAIT_INSTRUCTOR_APPROVAL -> {
+             val msg: KmeRoomInitModuleMessage<ApprovalPayload>? = message.toType()
+         }
+        KmeMessageEvent.USER_STARTED_TO_PUBLISH -> {
+             val msg: KmeStreamingModuleMessage<StartedPublishPayload>? = message.toType()
+         }
+         KmeMessageEvent.DESKTOP_SHARE_STATE_UPDATED -> {
+             val msg: KmeDesktopShareModuleMessage<DesktopShareStateUpdatedPayload>? = message.toType()
+        }
+         else -> {
+            // ....
+         }
+     }
+ }
+ ```
+
+#### WS events.
+All available events and objects to parse supported by KME SDK are described in the `KmeMessageEvent` and separetes by sections:
+* Room initialization, Banners - `KmeRoomInitModuleMessage`
+* Participants - `KmeParticipantsModuleMessage`
+* Streaming - `KmeStreamingModuleMessage`
+* Chat - `KmeChatModuleMessage`
+* Notes - `KmeRoomNotesMessage`
+* Settings - `KmeRoomSettingsModuleMessage`
+* Active Content - `KmeActiveContentModuleMessage`
+  * Slides - `KmeSlidesPlayerModuleMessage`
+  * Video - `KmeVideoModuleMessage`
+  * Desktop sharing - `KmeDesktopShareModuleMessage`
+  * White board - ``
+* Recording - `KmeRoomRecordingMessage`
+
+#### Sending messages via socket
 ```
  kmeSdk.roomController.send(buildJoinRoomMessage(roomId, companyId))
 
