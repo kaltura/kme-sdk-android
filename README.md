@@ -1,9 +1,9 @@
 # Kaltura Meeting Experience. Android SDK.
-This section should describe the project in highlevel and provide introduction to what this repository is all about and who it is relevant for.  
-Provide a highlevel breakdown of features that matter in this project and known limitations this project doesn't handle.
+KME Android SDK is a mediator between server side and application. Created for simplifying interactions with Kaltura Meeting Experience server side.
+Allow to build high-performance application for real time communications.
 
 # Documentation and guides
-* [**Frequently Asked Questions**](http://linktodoc.com)
+* [Frequently Asked Questions](http://linktodoc.com)
 * [Project Release Notes](http://linktodoc.com) (see example: [Kaltura server Release Notes](https://github.com/kaltura/server/blob/master/release-notes.md)
 * [Install Guide / Deployment Guide](http://linktodoc.com)
 * [Setup Guide](http://linktodoc.com)
@@ -24,12 +24,12 @@ Thank you for helping Kaltura grow! If you'd like to contribute please follow th
 * Sign the [Kaltura Contributor License Agreement](https://agentcontribs.kaltura.org/)
 
 # Known issues
- - Write MORE Tests
- - Add Night Mode
+ - Can't start publish only video or only audion for the very first time
 
 # Todos
- - Write MORE Tests
- - Add Night Mode
+ - Incapsulate all actions related to sending messages via WS
+ - Incapsulate establishing publisher and viewer peerconnections
+ - White board drawings
  
 # Open Source Libraries
 Review the [list of Open Source 3rd party libraries](open-source-libraries.md) used in this project.

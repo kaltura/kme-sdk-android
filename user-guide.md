@@ -61,22 +61,22 @@ Based on information from WebRTC server the applciation can connect to the room 
      val wssUrl = webRTCServer.wssUrl
      val token = webRTCServer.token
      kmeSDK.roomController.connect(wssUrl, companyId, roomId, isReconnect = true, token, object : IKmeWSConnectionListener {
-                override fun onOpen() {
-                    // Handle socket opened
-                }
-
-                override fun onFailure(throwable: Throwable) {
-                    // Handle socket failure
-                }
-
-                override fun onClosing(code: Int, reason: String) {
-                    // Handle socket closing
-                }
-
-                override fun onClosed(code: Int, reason: String) {
-                    // Handle socket closed
-                }
-            })
+         override fun onOpen() {
+             // Handle socket opened
+         }
+ 
+         override fun onFailure(throwable: Throwable) {
+             // Handle socket failure
+         }
+ 
+         override fun onClosing(code: Int, reason: String) {
+             // Handle socket closing
+         }
+ 
+         override fun onClosed(code: Int, reason: String) {
+             // Handle socket closed
+         }
+     })
  }
 ```
 
@@ -104,12 +104,12 @@ Basically all messages from the server are coming as json string. KME SDK provid
          KmeMessageEvent.AWAIT_INSTRUCTOR_APPROVAL -> {
              val msg: KmeRoomInitModuleMessage<ApprovalPayload>? = message.toType()
          }
-        KmeMessageEvent.USER_STARTED_TO_PUBLISH -> {
+         KmeMessageEvent.USER_STARTED_TO_PUBLISH -> {
              val msg: KmeStreamingModuleMessage<StartedPublishPayload>? = message.toType()
          }
          KmeMessageEvent.DESKTOP_SHARE_STATE_UPDATED -> {
              val msg: KmeDesktopShareModuleMessage<DesktopShareStateUpdatedPayload>? = message.toType()
-        }
+         }
          else -> {
             // ....
          }
@@ -184,14 +184,14 @@ kmeSDK.roomController.send(buildMediaInitMessage(roomId, publisherId, companyId)
 3. Once peerconnection created the app should ask the SDK to create a SDP offer
 ```
  override fun onPeerConnectionCreated(requestedUserIdStream: String) {
-     kmeSdk.roomController.getPublisherConnection()?.createOffer()
+     kmeSDK.roomController.getPublisherConnection()?.createOffer()
  }
 ```
 
 4. When SDP is created `onLocalDescription()` callback invoked by the SDK. The app should provide it to the server.
 ```
  override fun onLocalDescription(requestedUserIdStream: String, mediaServerId: Long, sdp: String, type: String) {
-     kmeSdk.roomController.send(buildStartPublishingMessage(roomId,  publisherId, companyId, type, sdp))
+     kmeSDK.roomController.send(buildStartPublishingMessage(roomId,  publisherId, companyId, type, sdp))
  }
 
  fun buildStartPublishingMessage(
@@ -237,7 +237,7 @@ kmeSDK.roomController.send(buildMediaInitMessage(roomId, publisherId, companyId)
 6. When SDK is ready to setup p2p connection `onIceGatheringDone()` is invoked, and the aap should notify the server about it. It is the last point for in video publishing sequence.
 ```
  override fun onIceGatheringDone(requestedUserIdStream: String, mediaServerId: Long) {
-     kmeSdk.roomController.send(buildGatheringPublishDoneMessage(roomId, publisherId, companyId, mediaServerId))
+     kmeSDK.roomController.send(buildGatheringPublishDoneMessage(roomId, publisherId, companyId, mediaServerId))
  }
 
  fun buildGatheringPublishDoneMessage(
@@ -308,7 +308,14 @@ fun buildStartViewingMessage(
 3. After setting remote SDP by `setRemoteSdp()` API peerconnection generates a viewr SDP. The app should provide it to the server 
 ```
  override fun onLocalDescription(requestedUserIdStream: String, mediaServerId: Long, sdp: String, type: String) {
-     kmeSdk.roomController.send(buildAnswerFromViewerMessage(roomId, publisherId, companyId, type, sdp, requestedUserIdStream, mediaServerId))
+     kmeSDK.roomController.send(buildAnswerFromViewerMessage(
+         roomId,
+         publisherId,
+         companyId,
+         type,
+         sdp,
+         requestedUserIdStream,
+         mediaServerId))
  }
      
  fun buildAnswerFromViewerMessage(
@@ -341,6 +348,29 @@ fun buildStartViewingMessage(
 4. When SDK is ready to setup p2p connection `onIceGatheringDone()` is invoked, and the aap should notify the server about it. It is the last point for in video viewing sequence.
 ```
  override fun onIceGatheringDone(requestedUserIdStream: String, mediaServerId: Long) {
-     kmeSdk.roomController.send(buildGatheringPublishDoneMessage(roomId, publisherId, companyId,mediaServerId))
+     kmeSDK.roomController.send(buildGatheringPublishDoneMessage(roomId, publisherId, companyId, mediaServerId))
+ }
+
+ fun buildGatheringViewDoneMessage(
+     roomId: Long,
+     userId: Long,
+     companyId: Long,
+     requestedUserIdStream: String,
+     mediaServerId: Long
+ ): KmeStreamingModuleMessage<IceGatheringViewingDonePayload> {
+     return KmeStreamingModuleMessage<IceGatheringViewingDonePayload>().apply {
+         module = KmeMessageModule.STREAMING
+         name = KmeMessageEvent.ICE_GATHERING_DONE
+         type = KmeMessageEventType.VOID
+         payload = IceGatheringViewingDonePayload(
+             roomId,
+             userId,
+             companyId,
+             mediaServerId,
+             "videoroom",
+             requestedUserIdStream,
+             "viewer"
+         )
+     }
  }
 ```
