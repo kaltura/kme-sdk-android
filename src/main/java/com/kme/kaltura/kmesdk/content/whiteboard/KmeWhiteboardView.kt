@@ -10,6 +10,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.util.Size
 import android.view.View
+import androidx.core.content.ContextCompat
 import com.kme.kaltura.kmesdk.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardShapeType
@@ -29,6 +30,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private val TAG = javaClass.simpleName
 
     private val paint: Paint = Paint()
+    private val backgroundPaint: Paint = Paint()
     private val testPaint: Paint = Paint()
     private val canvasPaint: Paint = Paint(Paint.DITHER_FLAG)
     private var drawCanvas: Canvas? = null
@@ -65,6 +67,21 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
         }
 
+//        val bitmap = getBitmap(R.drawable.ic_dot)
+        val bitmap = getBitmap(R.drawable.ic_grid)
+
+        backgroundPaint.apply {
+            isAntiAlias = true
+            isDither = true
+            color = Color.BLACK
+            if (bitmap != null) {
+                shader = BitmapShader(
+                    bitmap,
+                    Shader.TileMode.REPEAT, Shader.TileMode.REPEAT
+                )
+            }
+        }
+
         testPaint.apply {
             strokeWidth = ptToDp(2f, context)
             style = Paint.Style.STROKE
@@ -74,6 +91,26 @@ class KmeWhiteboardView @JvmOverloads constructor(
             strokeJoin = Paint.Join.ROUND
             strokeCap = Paint.Cap.ROUND
         }
+
+    }
+
+    private fun getBitmap(drawableRes: Int): Bitmap? {
+        val drawable = ContextCompat.getDrawable(context, drawableRes)
+        drawable?.let {
+            val canvas = Canvas()
+            val bitmap = Bitmap.createBitmap(
+//                drawable.intrinsicWidth + 10,
+//                drawable.intrinsicHeight + 10,
+                drawable.intrinsicWidth,
+                drawable.intrinsicHeight ,
+                Bitmap.Config.ARGB_8888
+            )
+            canvas.setBitmap(bitmap)
+            drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+            drawable.draw(canvas)
+            return bitmap
+        }
+        return null
     }
 
     override fun init(whiteboardConfig: Config?) {
@@ -222,7 +259,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
 
             val matrixValues2 = floatArrayOf(
-                1f, 0f, translateX - segmentWidth / 2 ,
+                1f, 0f, translateX - segmentWidth / 2,
                 0f, 1f, translateY - segmentHeight / 2,
                 0f, 0f, 1f
             )
@@ -534,6 +571,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         if (!imageBounds.isEmpty && imageWidth > 0 && imageHeight > 0) {
+
+            // Allow drawing only inside image borders
             canvas?.clipRect(
                 imageBounds.left,
                 imageBounds.top,
@@ -544,6 +583,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
             canvasBitmap?.let {
                 canvas?.drawBitmap(it, 0f, 0f, canvasPaint)
             }
+
+            canvas?.drawRect(imageBounds, backgroundPaint)
 
             for (pathItem in pathsMap) {
                 val drawing = pathItem.key
@@ -558,8 +599,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
                             canvas?.drawBitmap(it.bitmap, it.matrix, paint)
                         }
                         is WhiteboardTextPath -> {
-                            canvas?.drawPath(it.path, testPaint)
-
                             canvas?.drawTextOnPath(it.text, it.path, it.hOffset, it.vOffset, paint)
                         }
                         else -> {
