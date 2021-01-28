@@ -33,7 +33,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private val canvasPaint: Paint = Paint(Paint.DITHER_FLAG)
     private var drawCanvas: Canvas? = null
     private var canvasBitmap: Bitmap? = null
-    private val pathMatrix: Matrix = Matrix()
     private val imageBounds: RectF = RectF()
 
     private val defaultMatrixArray: FloatArray by lazy { floatArrayOf(1f, 0f, 0f, 1f, 0f, 0f) }
@@ -63,10 +62,11 @@ class KmeWhiteboardView @JvmOverloads constructor(
             color = Color.BLACK
             strokeJoin = Paint.Join.ROUND
             strokeCap = Paint.Cap.ROUND
+
         }
 
         testPaint.apply {
-            strokeWidth = ptToDp(6f, context)
+            strokeWidth = ptToDp(2f, context)
             style = Paint.Style.STROKE
             isAntiAlias = true
             isDither = true
@@ -76,9 +76,9 @@ class KmeWhiteboardView @JvmOverloads constructor(
         }
     }
 
-    override fun init(config: Config?) {
-        this.config = config
-        config?.let {
+    override fun init(whiteboardConfig: Config?) {
+        this.config = whiteboardConfig
+        whiteboardConfig?.let {
             this.originalImageSize = it.originalImageSize
             this.imageBounds.set(it.imageBounds)
             invalidatePaths()
@@ -120,7 +120,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
     }
 
     private fun invalidatePaths() {
-//        ioScope.cancel()
         measureBounds()
 
         if (imageBounds.isEmpty || imageWidth <= 0 || imageHeight <= 0) return
@@ -130,7 +129,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
         ioScope.launch {
             drawings.forEach {
                 Log.e(TAG, "invalidatePaths: ${it.path}")
-                calculatePath(it)
+                measurePath(it)
             }
             pathsMap = pathsMap.toSortedMap { o1, o2 ->
                 o1.layer.getCreatingDate().compareTo(o2.layer.getCreatingDate())
@@ -156,22 +155,25 @@ class KmeWhiteboardView @JvmOverloads constructor(
     }
 
     @Suppress("IMPLICIT_CAST_TO_ANY")
-    private fun calculatePath(drawing: WhiteboardPayload.Drawing) {
+    private fun measurePath(drawing: WhiteboardPayload.Drawing) {
         val path = when {
             drawing.isRect() -> {
-                calculateRectanglePath(drawing)
+                measureRectanglePath(drawing)
+            }
+            drawing.isText() -> {
+                measureTextPath(drawing)
             }
             drawing.isImage() -> {
-                calculateBitmap(drawing)
+                measureImage(drawing)
             }
             drawing.isLine() -> {
-                calculateLinePath(drawing)
+                measureLinePath(drawing)
             }
             drawing.isPencilPath() -> {
-                calculatePencilPath(drawing)
+                measurePencilPath(drawing)
             }
             drawing.isClosedPath() -> {
-                calculateClosedPath(drawing)
+                measureClosedPath(drawing)
             }
             else -> null
         }
@@ -179,7 +181,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
         pathsMap[drawing] = path
     }
 
-    private fun calculateBitmap(drawing: WhiteboardPayload.Drawing): WhiteboardImagePath? {
+    private fun measureImage(drawing: WhiteboardPayload.Drawing): WhiteboardImagePath? {
         val cookie: String = this.config?.cookie ?: return null
         val fileUrl: String = this.config?.fileUrl ?: return null
         val drawingPath = drawing.path ?: return null
@@ -187,104 +189,64 @@ class KmeWhiteboardView @JvmOverloads constructor(
         val originalImageHeight = originalImageSize?.height ?: return null
 
         context.getBitmap(drawingPath.source, cookie, fileUrl)?.let {
-            val matrix = Matrix()
 
             val parentMatrix = (drawingPath.matrix ?: defaultMatrixArray).copyOf()
 
-            val childrenMatrix = drawingPath.childrenPath?.matrix?.copyOf()
+            //MSCALE_X = 0
+            //MSKEW_X  = 1
+            //MTRANS_X = 2
+            //MSKEW_Y  = 3
+            //MSCALE_Y = 4
+            //MTRANS_Y = 5
+            //MPERSP_0 = 6
+            //MPERSP_1 = 7
+            //MPERSP_2 = 8
 
-            parentMatrix[4] = parentMatrix[4].toX() + imageBounds.left
-            parentMatrix[5] = parentMatrix[5].toY() + imageBounds.top
+            val scaleX = parentMatrix[0]
+            val scaleY = parentMatrix[3]
+            val skewX = parentMatrix[2]
+            val skewY = parentMatrix[1]
+            val translateX = parentMatrix[4].toX() //+ imageBounds.left
+            val translateY = parentMatrix[5].toY() //+ imageBounds.top
 
+            val segmentWidth = it.width.toFloat() * scaleX
+            val segmentHeight = it.height.toFloat() * scaleY
 
-            val segmentWidth = it.width.toFloat()
-            val segmentHeight = it.height.toFloat()
-
-            val segmentLeft = -segmentWidth / 2
-            val segmentTop = -segmentHeight / 2
-            val segmentRight = segmentLeft + segmentWidth
-            val segmentBottom = segmentTop + segmentHeight
-
-            var cx1 = segmentLeft
-            var cy1 = segmentTop
-            var cx2 = segmentRight
-            var cy2 = segmentTop
-            var cx3 = segmentRight
-            var cy3 = segmentBottom
-            var cx4 = segmentLeft
-            var cy4 = segmentBottom
-
-            if (childrenMatrix != null) {
-                childrenMatrix[4] = childrenMatrix[4].toX()
-                childrenMatrix[5] = childrenMatrix[5].toY()
-
-                cx1 = segmentLeft.transformX(segmentTop, childrenMatrix)
-                cy1 = segmentTop.transformY(segmentLeft, childrenMatrix)
-                cx2 = segmentRight.transformX(segmentTop, childrenMatrix)
-                cy2 = segmentTop.transformY(segmentRight, childrenMatrix)
-                cx3 = segmentRight.transformX(segmentBottom, childrenMatrix)
-                cy3 = segmentBottom.transformY(segmentRight, childrenMatrix)
-                cx4 = segmentLeft.transformX(segmentBottom, childrenMatrix)
-                cy4 = segmentBottom.transformY(segmentLeft, childrenMatrix)
-            }
-
-            val x1 = cx1.transformX(cy1, parentMatrix)
-            val y1 = cy1.transformY(cx1, parentMatrix)
-            val x2 = cx2.transformX(cy2, parentMatrix)
-            val y2 = cy2.transformY(cx2, parentMatrix)
-            val x3 = cx3.transformX(cy3, parentMatrix)
-            val y3 = cy3.transformY(cx3, parentMatrix)
-            val x4 = cx4.transformX(cy4, parentMatrix)
-            val y4 = cy4.transformY(cx4, parentMatrix)
-
-            val rect = RectF()
-            rect.left = x1
-            rect.top = y1
-            rect.right = x2
-            rect.bottom = y2
+            val matrixValues1 = floatArrayOf(
+                scaleX, skewX, 0f,
+                skewY, scaleY, 0f,
+                0f, 0f, 1f
+            )
+            val matrix1 = Matrix()
+            matrix1.setValues(matrixValues1)
 
 
-//            val matrixArray = drawingPath.matrix ?: defaultMatrixArray
-//            if (matrixArray.size == 6) {
-//                val scaleX = matrixArray[0]
-//                val scaleY = matrixArray[3]
-//                val scalePointX = matrixArray[4].toX()
-//                val scalePointY = matrixArray[5].toY()
-//
-//                Log.e(TAG, "image: (${originalImageWidth}, ${originalImageHeight})")
-//                Log.e(TAG, "bitmap: (${it.width}, ${it.height})")
-//
-//
-//                val relativeScaleX = if (it.width > originalImageWidth) {
-//                    scaleX * it.width / originalImageWidth
-////                    scaleX
-//                } else {
-//                    scaleX
-//                }
-//                val relativeScaleY = if (it.height > originalImageHeight) {
-//                    scaleY * it.height / originalImageHeight
-////                    scaleY
-//                } else {
-//                    scaleY
-//                }
-//
-//                Log.e(TAG, "relativeScaleX: $relativeScaleX")
-//                Log.e(TAG, "relativeScaleY: $relativeScaleY")
-//
-//                val translateX = scalePointX + imageBounds.left - (relativeScaleX * it.width / 2)
-//                val translateY = scalePointY + imageBounds.top - (relativeScaleY * it.height / 2)
-//
-//                matrix.postScale(relativeScaleX, relativeScaleY)
-//                matrix.postTranslate(translateX, translateY)
-//            }
+            val matrixValues2 = floatArrayOf(
+                1f, 0f, translateX - segmentWidth / 2 ,
+                0f, 1f, translateY - segmentHeight / 2,
+                0f, 0f, 1f
+            )
+            val matrix2 = Matrix()
+            matrix2.setValues(matrixValues2)
 
-            return WhiteboardImagePath(it, matrix, rect)
+            matrix1.postConcat(matrix2)
+
+
+//            matrix.setValues(
+//                floatArrayOf(
+//                    scaleX, skewX, translateX - (segmentWidth / 2),
+//                    skewY, scaleY, translateY - (segmentHeight / 2),
+//                    0f, 0f, 1f
+//                )
+//            )
+
+            return WhiteboardImagePath(it, matrix1)
         }
 
         return null
     }
 
-    private fun calculatePencilPath(drawing: WhiteboardPayload.Drawing): Path? {
+    private fun measurePencilPath(drawing: WhiteboardPayload.Drawing): Path? {
         val drawingPath = drawing.getDrawingPath() ?: return null
         val segments =
             drawingPath.segments.validatePencilSegments<List<List<List<Float>>>>() ?: return null
@@ -351,7 +313,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
         return path
     }
 
-    private fun calculateLinePath(drawing: WhiteboardPayload.Drawing): Path? {
+    private fun measureLinePath(drawing: WhiteboardPayload.Drawing): Path? {
         val drawingPath = drawing.getDrawingPath() ?: return null
         val segments = drawingPath.segments.validateSegments<List<List<Float>>>() ?: return null
         val matrix = (drawing.path?.matrix ?: defaultMatrixArray).copyOf()
@@ -376,7 +338,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
         return path
     }
 
-    private fun calculateClosedPath(drawing: WhiteboardPayload.Drawing): Path? {
+    private fun measureClosedPath(drawing: WhiteboardPayload.Drawing): Path? {
         val drawingPath = drawing.getDrawingPath() ?: return null
         val segments = drawingPath.segments.validateSegments<List<List<Float>>>() ?: return null
 
@@ -404,7 +366,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
         return path
     }
 
-    private fun calculateRectanglePath(drawing: WhiteboardPayload.Drawing): Path? {
+    private fun measureRectanglePath(drawing: WhiteboardPayload.Drawing): Path? {
         val parentPath = drawing.path
         val childrenPath = parentPath?.childrenPath
         val rectSize = parentPath?.size ?: childrenPath?.size
@@ -469,38 +431,80 @@ class KmeWhiteboardView @JvmOverloads constructor(
         return path
     }
 
-    private fun Float.transformX(y: Float, matrix: FloatArray): Float {
-        return this.scaleX(matrix) + skewX(y, matrix) + translateX(matrix)
-    }
+    private fun measureTextPath(drawing: WhiteboardPayload.Drawing): WhiteboardTextPath? {
+        val parentPath = drawing.path ?: return null
+        val childrenPath = parentPath.childrenPath ?: return null
+        val rectangle = childrenPath.rectangle ?: return null
 
-    private fun Float.transformY(x: Float, matrix: FloatArray): Float {
-        return this.scaleY(matrix) + skewY(x, matrix) + translateY(matrix)
-    }
+        if (childrenPath.content == null || childrenPath.content.isEmpty()) return null
 
-    private fun Float.scaleX(matrix: FloatArray): Float {
-        return matrix[0] * this
-    }
+        val parentMatrix = (parentPath.matrix ?: defaultMatrixArray).copyOf()
+        val childrenMatrix = childrenPath.matrix?.copyOf()
 
-    private fun Float.scaleY(matrix: FloatArray): Float {
-        return matrix[3] * this
-    }
+        invalidatePaint(drawing.getDrawingPath())
+        val bounds = Rect()
+        paint.getTextBounds(childrenPath.content, 0, childrenPath.content.length, bounds)
 
-    private fun skewX(y: Float, matrix: FloatArray): Float {
-        return matrix[2] * y
-    }
+        parentMatrix[4] = parentMatrix[4].toX() + imageBounds.left
+        parentMatrix[5] = parentMatrix[5].toY() + imageBounds.top
 
-    private fun skewY(x: Float, matrix: FloatArray): Float {
-        return matrix[1] * x
-    }
+        val path = Path()
 
-    private fun translateX(matrix: FloatArray): Float {
-        return matrix[4]
-    }
+        val segmentWidth = rectangle[2].toX() - rectangle[0].toX()
+        val segmentHeight = rectangle[3].toY() - rectangle[1].toY()
 
-    private fun translateY(matrix: FloatArray): Float {
-        return matrix[5]
-    }
 
+        //rectangle (x, y, width, height)
+
+        val segmentLeft = rectangle[0].toX()
+        val segmentTop = rectangle[1].toY()
+        val segmentRight = segmentLeft + rectangle[2].toX()
+        val segmentBottom = segmentTop + rectangle[3].toY()
+
+        var cx1 = segmentLeft
+        var cy1 = segmentTop
+        var cx2 = segmentRight
+        var cy2 = segmentTop
+        var cx3 = segmentRight
+        var cy3 = segmentBottom
+        var cx4 = segmentLeft
+        var cy4 = segmentBottom
+
+        if (childrenMatrix != null) {
+            childrenMatrix[4] = childrenMatrix[4].toX()
+            childrenMatrix[5] = childrenMatrix[5].toY()
+
+            cx1 = segmentLeft.transformX(segmentTop, childrenMatrix)
+            cy1 = segmentTop.transformY(segmentLeft, childrenMatrix)
+            cx2 = segmentRight.transformX(segmentTop, childrenMatrix)
+            cy2 = segmentTop.transformY(segmentRight, childrenMatrix)
+            cx3 = segmentRight.transformX(segmentBottom, childrenMatrix)
+            cy3 = segmentBottom.transformY(segmentRight, childrenMatrix)
+            cx4 = segmentLeft.transformX(segmentBottom, childrenMatrix)
+            cy4 = segmentBottom.transformY(segmentLeft, childrenMatrix)
+        }
+
+        val x1 = cx1.transformX(cy1, parentMatrix)
+        val y1 = cy1.transformY(cx1, parentMatrix)
+        val x2 = cx2.transformX(cy2, parentMatrix)
+        val y2 = cy2.transformY(cx2, parentMatrix)
+        val x3 = cx3.transformX(cy3, parentMatrix)
+        val y3 = cy3.transformY(cx3, parentMatrix)
+        val x4 = cx4.transformX(cy4, parentMatrix)
+        val y4 = cy4.transformY(cx4, parentMatrix)
+
+        path.moveTo(x1, y1)
+        path.lineTo(x2, y2)
+//        path.lineTo(x3, y3)
+//        path.lineTo(x4, y4)
+
+        path.close()
+
+        val hOffset = 0f
+        val vOffset = bounds.height().toFloat()
+
+        return WhiteboardTextPath(childrenPath.content, path, vOffset, hOffset)
+    }
 
     private fun invalidatePaint(path: KmeWhiteboardPath?) {
         path?.let {
@@ -516,6 +520,14 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 paint.xfermode = eraseXfermode
             } else {
                 paint.xfermode = null
+            }
+
+            val cornerRadius =
+                path.radius?.get(0)?.toX()?.times(path.radius[1].toY()) ?: 0f
+            if (cornerRadius > 0f) {
+                paint.pathEffect = CornerPathEffect(cornerRadius)
+            } else {
+                paint.pathEffect = null
             }
         }
     }
@@ -537,20 +549,20 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 val drawing = pathItem.key
                 invalidatePaint(drawing.getDrawingPath())
 
-                if (drawing.isText()) {
-                    canvas?.drawTextPath(drawing)
-                } else {
-                    pathItem.value?.let {
-                        when (it) {
-                            is Path -> {
-                                canvas?.drawPath(it, paint)
-                            }
-                            is WhiteboardImagePath -> {
-//                                canvas?.drawBitmap(it.bitmap, it.matrix, paint)
-                                canvas?.drawBitmap(it.bitmap, null, it.rectF, paint)
-                            }
-                            else -> {
-                            }
+                pathItem.value?.let {
+                    when (it) {
+                        is Path -> {
+                            canvas?.drawPath(it, paint)
+                        }
+                        is WhiteboardImagePath -> {
+                            canvas?.drawBitmap(it.bitmap, it.matrix, paint)
+                        }
+                        is WhiteboardTextPath -> {
+                            canvas?.drawPath(it.path, testPaint)
+
+                            canvas?.drawTextOnPath(it.text, it.path, it.hOffset, it.vOffset, paint)
+                        }
+                        else -> {
                         }
                     }
                 }
@@ -627,6 +639,38 @@ class KmeWhiteboardView @JvmOverloads constructor(
             ?: defaultSize.height)
     }
 
+    private fun Float.transformX(y: Float, matrix: FloatArray): Float {
+        return this.scaleX(matrix) + skewX(y, matrix) + translateX(matrix)
+    }
+
+    private fun Float.transformY(x: Float, matrix: FloatArray): Float {
+        return this.scaleY(matrix) + skewY(x, matrix) + translateY(matrix)
+    }
+
+    private fun Float.scaleX(matrix: FloatArray): Float {
+        return matrix[0] * this
+    }
+
+    private fun Float.scaleY(matrix: FloatArray): Float {
+        return matrix[3] * this
+    }
+
+    private fun skewX(y: Float, matrix: FloatArray): Float {
+        return matrix[2] * y
+    }
+
+    private fun skewY(x: Float, matrix: FloatArray): Float {
+        return matrix[1] * x
+    }
+
+    private fun translateX(matrix: FloatArray): Float {
+        return matrix[4]
+    }
+
+    private fun translateY(matrix: FloatArray): Float {
+        return matrix[5]
+    }
+
     private fun WhiteboardPayload.Drawing?.isRect(): Boolean {
         return this != null && (this.path?.type == KmeWhiteboardShapeType.RECTANGLE
                 || this.path?.childrenPath?.type == KmeWhiteboardShapeType.RECTANGLE)
@@ -700,11 +744,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private fun WhiteboardPayload.Drawing?.getDrawingPath(): KmeWhiteboardPath? {
         if (this == null || this.path == null) return null
         return this.path?.childrenPath ?: this.path
-    }
-
-    private fun KmeWhiteboardPath?.getDrawingMatrix(): FloatArray? {
-        if (this == null) return null
-        return this.childrenPath?.matrix ?: this.matrix
     }
 
     class Config(
