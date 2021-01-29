@@ -21,4 +21,17 @@ interface IKmeRecordingModule {
         error: (exception: KmeApiException) -> Unit
     )
 
+    fun startRecording(
+        roomId: Long,
+        companyId: Long,
+        timestamp: Long,
+        recordingDuration: Long,
+        timeZone: Long
+    )
+
+    fun stopRecording(
+        roomId: Long,
+        companyId: Long
+    )
+
 }

@@ -16,6 +16,7 @@ interface IKmeRoomController : IKmeWebSocketModule, IKmeWebRTCModule {
     val chatModule: IKmeChatModule
     val noteModule: IKmeNoteModule
     val recordingModule: IKmeRecordingModule
+    val desktopShareModule: IKmeDesktopShareModule
     val audioModule: IKmeAudioModule
 
     /**

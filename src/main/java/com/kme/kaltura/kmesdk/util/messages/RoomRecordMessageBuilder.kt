@@ -20,7 +20,6 @@ internal fun buildStartRoomRecordingMessage(
         type = KmeMessageEventType.VOID
         module = KmeMessageModule.RECORDING
         name = KmeMessageEvent.START_RECORDING
-
         payload = RecordingStartPayload(
             recordingDuration,
             timestamp,
@@ -40,7 +39,6 @@ internal fun buildStopRoomRecordingMessage(
         type = KmeMessageEventType.VOID
         module = KmeMessageModule.RECORDING
         name = KmeMessageEvent.STOP_RECORDING
-
         payload = RecordingStopPayload(roomId, companyId)
     }
 }
