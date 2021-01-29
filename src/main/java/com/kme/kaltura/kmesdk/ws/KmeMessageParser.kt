@@ -262,6 +262,15 @@ internal class KmeMessageParser(
             KmeMessageEvent.WHITEBOARD_ALL_PAGES_CLEARED.toString() -> {
                 text.jsonToObject<KmeWhiteboardModuleMessage<WhiteboardPageClearedPayload>>()
             }
+            KmeMessageEvent.WHITEBOARD_BACKGROUND_TYPE_CHANGED.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<BackgroundTypeChangedPayload>>()
+            }
+            KmeMessageEvent.WHITEBOARD_SET_ACTIVE_PAGE.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<SetActivePagePayload>>()
+            }
+            KmeMessageEvent.WHITEBOARD_PAGE_CREATED.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<PageCreatedPayload>>()
+            }
             else -> null
         }
     }

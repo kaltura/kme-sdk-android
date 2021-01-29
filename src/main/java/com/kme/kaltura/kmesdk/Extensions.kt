@@ -65,6 +65,24 @@ internal fun Context?.getBitmap(
 }
 
 internal fun ImageView?.glide(
+    drawable: Int,
+    onSizeReady: ((Size) -> Unit)? = null
+) {
+    if (this == null) return
+    Glide.with(this)
+        .load(drawable)
+        .into(object : CustomTarget<Drawable>() {
+            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                this@glide.setImageDrawable(resource)
+                onSizeReady?.invoke(Size(resource.intrinsicWidth, resource.intrinsicHeight))
+            }
+
+            override fun onLoadCleared(placeholder: Drawable?) {
+            }
+        })
+}
+
+internal fun ImageView?.glide(
     decodedString: ByteArray,
     onSizeReady: ((Size) -> Unit)? = null
 ) {

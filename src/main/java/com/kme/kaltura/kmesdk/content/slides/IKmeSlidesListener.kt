@@ -17,4 +17,6 @@ interface IKmeSlidesListener : IKmeWhiteboardListener {
 
     fun toSlide(slideNumber: Int)
 
+    fun setActivePage(activePageId: String?)
+
 }

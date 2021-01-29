@@ -3,7 +3,6 @@ package com.kme.kaltura.kmesdk.content.slides
 import android.content.Context
 import android.graphics.RectF
 import android.util.AttributeSet
-import android.util.Base64
 import android.util.Size
 import android.view.LayoutInflater
 import android.view.ViewTreeObserver
@@ -17,6 +16,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.Ac
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.ActiveContentPayload.Slide
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
+import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
 import kotlinx.android.synthetic.main.layout_slides_view.view.*
 
 
@@ -44,14 +44,10 @@ class KmeSlidesView @JvmOverloads constructor(
         this.config = config
 
         fabZoomIn.setOnClickListener {
-//            zoomLayout.zoomIn()
-//            drawing.setErase(true)
+            zoomLayout.zoomIn()
         }
         fabZoomOut.setOnClickListener {
-//            zoomLayout.zoomOut()
-
-//            drawing.setErase(false)
-
+            zoomLayout.zoomOut()
         }
 
         if (KmeContentType.SLIDES == config.payload.contentType) {
@@ -68,10 +64,21 @@ class KmeSlidesView @JvmOverloads constructor(
             this.pages.clear()
             this.pages.addAll(it)
 
-            selectedPage = getPageById(payload.metadata.activePageId)
-
-            setupPageContentView()
+            setActivePage(payload.metadata.activePageId)
         }
+    }
+
+    override fun setActivePage(activePageId: String?) {
+        selectedPage = getPageById(activePageId)
+        if (selectedPage == null) {
+            val newPage = Page(activePageId).apply {
+                backgroundMetadata = KmeWhiteboardBackgroundType.BLANK
+            }
+            selectedPage = newPage
+            this.pages.add(newPage)
+        }
+        removeDrawings()
+        setupPageContentView()
     }
 
     private fun setSlides(payload: KmeActiveContentModuleMessage.SetActiveContentPayload) {
@@ -97,17 +104,9 @@ class KmeSlidesView @JvmOverloads constructor(
     private fun setupPageContentView() {
         originalImageSize = null
 
-        selectedPage?.thumbnail?.let {
-            if (it.isEmpty()) return
-
-            val thumbnailParams = it.split(",")
-            if (thumbnailParams.isNotEmpty()) {
-                val decodedString: ByteArray = Base64.decode(thumbnailParams[1], Base64.DEFAULT)
-                ivSlide.glide(decodedString) { originalSize ->
-                    originalImageSize = Size(1280, 720)
-                    setupWhiteboardView()
-                }
-            }
+        ivSlide.glide(R.drawable.bg_blank_whiteboard) { originalSize ->
+            originalImageSize = Size(1280, 720)
+            setupWhiteboardView()
         }
     }
 
@@ -130,12 +129,12 @@ class KmeSlidesView @JvmOverloads constructor(
                 if (drawable != null) {
                     val imageBounds = RectF()
                     ivSlide.imageMatrix.mapRect(imageBounds, RectF(drawable.bounds))
-
                     originalImageSize?.let { imageSize ->
                         val whiteboardConfig =
                             KmeWhiteboardView.Config(imageSize, imageBounds).apply {
                                 cookie = config.cookie
                                 fileUrl = config.fileUrl
+                                backgroundType = selectedPage?.backgroundMetadata
                             }
                         init(whiteboardConfig)
                     }
@@ -223,10 +222,25 @@ class KmeSlidesView @JvmOverloads constructor(
 
     override fun setDrawings(drawings: List<WhiteboardPayload.Drawing>) {
         whiteboardLayout.setDrawings(drawings)
+
+        selectedPage?.let {
+            updateBackground(it.backgroundMetadata)
+        }
     }
 
     override fun addDrawing(drawing: WhiteboardPayload.Drawing) {
         whiteboardLayout.addDrawing(drawing)
+    }
+
+    override fun updateBackground(backgroundType: KmeWhiteboardBackgroundType?) {
+        selectedPage?.let {
+            val index = pages.indexOf(it)
+            if (index >= 0) {
+                it.backgroundMetadata = backgroundType
+                pages[index] = it
+            }
+        }
+        whiteboardLayout.updateBackground(backgroundType)
     }
 
     override fun removeDrawing(layer: String) {

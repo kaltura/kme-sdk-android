@@ -1,9 +1,9 @@
 package com.kme.kaltura.kmesdk
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.util.DisplayMetrics
+import androidx.core.content.ContextCompat
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath.Cap.*
 
@@ -62,4 +62,23 @@ fun KmeWhiteboardPath.BlendMode?.isEraseMode(): Boolean {
 
 fun Float?.getPaintAlpha(): Int {
     return this?.times(255 + 0.5f)?.toInt() ?: 255
+}
+
+fun Context.getBitmap(drawableRes: Int, bounds: Rect? = null, padding: Float = 0f): Bitmap? {
+    val drawable = ContextCompat.getDrawable(this, drawableRes)
+    drawable?.let {
+        val canvas = Canvas()
+        val width = bounds?.width() ?: it.intrinsicWidth
+        val height = bounds?.height() ?: it.intrinsicHeight
+        val bitmap = Bitmap.createBitmap(
+            (width + padding).toInt(),
+            (height + padding).toInt(),
+            Bitmap.Config.ARGB_8888
+        )
+        canvas.setBitmap(bitmap)
+        drawable.bounds = bounds ?: Rect(0, 0, width, height)
+        drawable.draw(canvas)
+        return bitmap
+    }
+    return null
 }

@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk.ws.message.module
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardActionType
+import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardToolType
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 
@@ -34,6 +35,20 @@ class KmeWhiteboardModuleMessage<T : KmeWhiteboardModuleMessage.WhiteboardPayloa
         @SerializedName("user_id") val userId: String? = null,
         @SerializedName("layer") val layer: String? = null,
         @SerializedName("tool") val tool: KmeWhiteboardToolType? = null
+    ) : WhiteboardPayload()
+
+    data class BackgroundTypeChangedPayload(
+        @SerializedName("user_id") val userId: String? = null,
+        @SerializedName("background_type") val backgroundType: KmeWhiteboardBackgroundType? = null
+    ) : WhiteboardPayload()
+
+    data class SetActivePagePayload(
+        @SerializedName("active_page") val activePageId: String? = null,
+    ) : WhiteboardPayload()
+
+    data class PageCreatedPayload(
+        @SerializedName("id") val id: String? = null,
+        @SerializedName("thumbnail") val thumbnail: String? = null,
     ) : WhiteboardPayload()
 
     open class WhiteboardPayload : Payload() {

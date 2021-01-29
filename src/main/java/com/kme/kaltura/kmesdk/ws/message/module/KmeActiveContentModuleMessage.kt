@@ -54,7 +54,7 @@ class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveCont
             @SerializedName("id") val id: String? = null,
             @SerializedName("thumbnail") val thumbnail: String? = null,
             @SerializedName("date_created") val createdDate: Long? = null,
-            @SerializedName("background_metadata") val backgroundMetadata: KmeWhiteboardBackgroundType? = null
+            @SerializedName("background_metadata") var backgroundMetadata: KmeWhiteboardBackgroundType? = null
         ) : Parcelable
 
         @SerializedName("content_type")

@@ -10,14 +10,17 @@ import android.util.AttributeSet
 import android.util.Log
 import android.util.Size
 import android.view.View
-import androidx.core.content.ContextCompat
+import androidx.core.graphics.toRect
 import com.kme.kaltura.kmesdk.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
+import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
+import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardShapeType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardToolType
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -30,7 +33,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private val TAG = javaClass.simpleName
 
     private val paint: Paint = Paint()
-    private val backgroundPaint: Paint = Paint()
+    private var backgroundPaint: Paint? = null
     private val testPaint: Paint = Paint()
     private val canvasPaint: Paint = Paint(Paint.DITHER_FLAG)
     private var drawCanvas: Canvas? = null
@@ -39,7 +42,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     private val defaultMatrixArray: FloatArray by lazy { floatArrayOf(1f, 0f, 0f, 1f, 0f, 0f) }
 
-    private val ioScope = CoroutineScope(Dispatchers.IO)
+    private val measureScope = CoroutineScope(Dispatchers.IO)
+    private var measureJob: Job? = null
 
     private val eraseXfermode by lazy { PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
 
@@ -67,21 +71,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
         }
 
-//        val bitmap = getBitmap(R.drawable.ic_dot)
-        val bitmap = getBitmap(R.drawable.ic_grid)
-
-        backgroundPaint.apply {
-            isAntiAlias = true
-            isDither = true
-            color = Color.BLACK
-            if (bitmap != null) {
-                shader = BitmapShader(
-                    bitmap,
-                    Shader.TileMode.REPEAT, Shader.TileMode.REPEAT
-                )
-            }
-        }
-
         testPaint.apply {
             strokeWidth = ptToDp(2f, context)
             style = Paint.Style.STROKE
@@ -91,26 +80,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
             strokeJoin = Paint.Join.ROUND
             strokeCap = Paint.Cap.ROUND
         }
-
-    }
-
-    private fun getBitmap(drawableRes: Int): Bitmap? {
-        val drawable = ContextCompat.getDrawable(context, drawableRes)
-        drawable?.let {
-            val canvas = Canvas()
-            val bitmap = Bitmap.createBitmap(
-//                drawable.intrinsicWidth + 10,
-//                drawable.intrinsicHeight + 10,
-                drawable.intrinsicWidth,
-                drawable.intrinsicHeight ,
-                Bitmap.Config.ARGB_8888
-            )
-            canvas.setBitmap(bitmap)
-            drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
-            drawable.draw(canvas)
-            return bitmap
-        }
-        return null
     }
 
     override fun init(whiteboardConfig: Config?) {
@@ -141,6 +110,11 @@ class KmeWhiteboardView @JvmOverloads constructor(
         invalidatePaths()
     }
 
+    override fun updateBackground(backgroundType: KmeWhiteboardBackgroundType?) {
+        this.config?.backgroundType = backgroundType
+        invalidatePaths()
+    }
+
     override fun removeDrawing(layer: String) {
         this.drawings.removeAll { drawing -> drawing.layer == layer }
         invalidatePaths()
@@ -157,14 +131,18 @@ class KmeWhiteboardView @JvmOverloads constructor(
     }
 
     private fun invalidatePaths() {
+        measureJob?.cancel()
         measureBounds()
 
         if (imageBounds.isEmpty || imageWidth <= 0 || imageHeight <= 0) return
 
-        pathsMap.clear()
+        measureJob = measureScope.launch {
+            val unmodifiedDrawings: MutableList<WhiteboardPayload.Drawing> = drawings
+            invalidateBackground()
 
-        ioScope.launch {
-            drawings.forEach {
+            pathsMap.clear()
+
+            unmodifiedDrawings.forEach {
                 Log.e(TAG, "invalidatePaths: ${it.path}")
                 measurePath(it)
             }
@@ -188,6 +166,42 @@ class KmeWhiteboardView @JvmOverloads constructor(
             ).also {
                 drawCanvas = Canvas(it)
             }
+        }
+    }
+
+    private fun invalidateBackground() {
+        val backgroundType = config?.backgroundType
+
+        val bitmap = when (backgroundType) {
+            DOTS -> context.getBitmap(R.drawable.ic_dot, null, 10f)
+            AXIS -> context.getBitmap(R.drawable.bg_axis, imageBounds.toRect())
+            GRID -> null
+            LARGE_GRID -> context.getBitmap(R.drawable.ic_large_grid)
+            BLANK -> null
+            else -> null
+
+        }
+
+        backgroundPaint = if (bitmap != null && backgroundType != null) {
+            createBackgroundPaint(bitmap, backgroundType)
+        } else {
+            null
+        }
+    }
+
+    private fun createBackgroundPaint(
+        bitmap: Bitmap,
+        backgroundType: KmeWhiteboardBackgroundType
+    ): Paint {
+        val tileMode = when (backgroundType) {
+            AXIS -> Shader.TileMode.CLAMP
+            else -> Shader.TileMode.REPEAT
+        }
+
+        return Paint().apply {
+            isAntiAlias = true
+            isDither = true
+            shader = BitmapShader(bitmap, tileMode, tileMode)
         }
     }
 
@@ -584,7 +598,9 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 canvas?.drawBitmap(it, 0f, 0f, canvasPaint)
             }
 
-            canvas?.drawRect(imageBounds, backgroundPaint)
+            backgroundPaint?.let {
+                canvas?.drawRect(imageBounds, it)
+            }
 
             for (pathItem in pathsMap) {
                 val drawing = pathItem.key
@@ -791,6 +807,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     ) {
         var cookie: String? = null
         var fileUrl: String? = null
+        var backgroundType: KmeWhiteboardBackgroundType? = null
     }
 
 }

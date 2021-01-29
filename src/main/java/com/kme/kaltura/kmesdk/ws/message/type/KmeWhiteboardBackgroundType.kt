@@ -7,6 +7,20 @@ enum class KmeWhiteboardBackgroundType(
 ) {
 
     @SerializedName("DOTS")
-    DOTS("DOTS")
+    DOTS("DOTS"),
+
+    @SerializedName("AXIS")
+    AXIS("AXIS"),
+
+    @SerializedName("GRID")
+    GRID("GRID"),
+
+    @SerializedName("LARGE_GRID")
+    LARGE_GRID("LARGE_GRID"),
+
+    @SerializedName("BLANK")
+    BLANK("BLANK")
+
+
 
 }

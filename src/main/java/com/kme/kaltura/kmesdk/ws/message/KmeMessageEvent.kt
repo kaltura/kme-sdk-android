@@ -279,6 +279,15 @@ enum class KmeMessageEvent(
     @SerializedName("drawingDeleted", alternate = ["drawingdeleted"])
     DELETE_DRAWING("drawingDeleted"),
 
+    @SerializedName("whiteboardBackgroundTypeChanged", alternate = ["whiteboardbackgroundtypechanged"])
+    WHITEBOARD_BACKGROUND_TYPE_CHANGED("whiteboardBackgroundTypeChanged"),
+
+    @SerializedName("whiteboardActivePageSet", alternate = ["whiteboardActivePageSet"])
+    WHITEBOARD_SET_ACTIVE_PAGE("whiteboardActivePageSet"),
+
+    @SerializedName("whiteboardPageCreated", alternate = ["whiteboardpagecreated"])
+    WHITEBOARD_PAGE_CREATED("whiteboardPageCreated"),
+
     /*
     * Share Desktop
     * */
