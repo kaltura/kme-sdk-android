@@ -1,9 +1,9 @@
-package com.kme.kaltura.kmesdk.controller.impl.internal
+package com.kme.kaltura.kmesdk.controller.room.impl
 
 import android.util.Log
 import com.google.gson.Gson
-import com.kme.kaltura.kmesdk.controller.IKmeWebSocketController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
+import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSListener
 import com.kme.kaltura.kmesdk.ws.KmeMessageManager
@@ -23,7 +23,7 @@ private const val RECONNECTION_ATTEMPTS = 5
  * An implementation for socket actions
  */
 internal class KmeWebSocketControllerImpl : KmeController(),
-    IKmeWebSocketController, IKmeWSListener {
+    IKmeWebSocketModule, IKmeWSListener {
 
     private val TAG = KmeWebSocketControllerImpl::class.java.canonicalName
 

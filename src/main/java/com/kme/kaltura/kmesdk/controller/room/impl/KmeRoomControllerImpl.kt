@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.controller.impl
+package com.kme.kaltura.kmesdk.controller.room.impl
 
 import android.content.ComponentName
 import android.content.Context
@@ -6,10 +6,9 @@ import android.content.Context.BIND_ADJUST_WITH_ACTIVITY
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import com.kme.kaltura.kmesdk.controller.IKmePeerConnectionController
-import com.kme.kaltura.kmesdk.controller.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.IKmeRoomSettingsController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
+import com.kme.kaltura.kmesdk.controller.impl.KmeController
+import com.kme.kaltura.kmesdk.controller.room.*
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
@@ -42,7 +41,12 @@ class KmeRoomControllerImpl(
     private val roomApiService: KmeRoomApiService by inject()
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
-    private val roomSettingsController: IKmeRoomSettingsController by inject()
+    private val settingsModule: IKmeSettingsModule by inject()
+
+    override val chatModule: IKmeChatModule by inject()
+    override val noteModule: IKmeNoteModule by inject()
+    override val recordingModule: IKmeRecordingModule by inject()
+    override val audioModule: IKmeAudioModule by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -181,7 +185,7 @@ class KmeRoomControllerImpl(
                     KmeMessageEvent.ROOM_STATE
                 )
 
-                roomSettingsController.subscribe()
+                settingsModule.subscribe()
 
                 listener.onOpen()
             }
@@ -318,7 +322,7 @@ class KmeRoomControllerImpl(
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
-    ) : IKmePeerConnectionController? {
+    ) : IKmePeerConnectionModule? {
         return roomService?.addPublisherPeerConnection(requestedUserIdStream, renderer, listener)
     }
 
@@ -329,21 +333,21 @@ class KmeRoomControllerImpl(
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
-    ) : IKmePeerConnectionController? {
+    ) : IKmePeerConnectionModule? {
         return roomService?.addViewerPeerConnection(requestedUserIdStream, renderer, listener)
     }
 
     /**
      * Getting publisher connection if exist
      */
-    override fun getPublisherConnection(): IKmePeerConnectionController? {
+    override fun getPublisherConnection(): IKmePeerConnectionModule? {
         return roomService?.getPublisherConnection()
     }
 
     /**
      * Getting publisher/viewer connection by id
      */
-    override fun getPeerConnection(requestedUserIdStream: String): IKmePeerConnectionController? {
+    override fun getPeerConnection(requestedUserIdStream: String): IKmePeerConnectionModule? {
         return roomService?.getPeerConnection(requestedUserIdStream)
     }
 

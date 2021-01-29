@@ -1,9 +1,9 @@
-package com.kme.kaltura.kmesdk.controller
+package com.kme.kaltura.kmesdk.controller.room
 
 /**
  * An interface for room settings
  */
-interface IKmeRoomSettingsController {
+interface IKmeSettingsModule {
 
     /**
      * Subscribing for the room events related to change settings

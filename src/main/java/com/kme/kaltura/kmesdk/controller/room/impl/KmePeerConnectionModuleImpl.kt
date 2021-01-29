@@ -1,11 +1,11 @@
-package com.kme.kaltura.kmesdk.controller.impl
+package com.kme.kaltura.kmesdk.controller.room.impl
 
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import com.google.gson.Gson
-import com.kme.kaltura.kmesdk.controller.IKmePeerConnectionController
+import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl
@@ -17,10 +17,10 @@ import org.webrtc.*
 /**
  * An implementation for p2p connection
  */
-class KmePeerConnectionControllerImpl(
+class KmePeerConnectionModuleImpl(
     private val context: Context,
     private val gson: Gson
-) : IKmePeerConnectionController, IKmePeerConnectionEvents {
+) : IKmePeerConnectionModule, IKmePeerConnectionEvents {
 
     private var peerConnectionClient: KmePeerConnectionImpl? = null
     private var iceServers: MutableList<PeerConnection.IceServer> = mutableListOf()

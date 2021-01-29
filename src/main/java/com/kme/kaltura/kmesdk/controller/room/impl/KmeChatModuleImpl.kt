@@ -1,6 +1,7 @@
-package com.kme.kaltura.kmesdk.controller.impl
+package com.kme.kaltura.kmesdk.controller.room.impl
 
-import com.kme.kaltura.kmesdk.controller.IKmeChatController
+import com.kme.kaltura.kmesdk.controller.impl.KmeController
+import com.kme.kaltura.kmesdk.controller.room.IKmeChatModule
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeChangeRoomSettingsResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
@@ -16,7 +17,7 @@ import org.koin.core.inject
 /**
  * An implementation actions related to chat
  */
-class KmeChatControllerImpl : KmeController(), IKmeChatController {
+class KmeChatModuleImpl : KmeController(), IKmeChatModule {
 
     private val chatApiService: KmeChatApiService by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)

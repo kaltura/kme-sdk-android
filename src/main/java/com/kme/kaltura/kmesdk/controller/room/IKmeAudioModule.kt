@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.controller
+package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.webrtc.audio.AudioManagerListener
 import com.kme.kaltura.kmesdk.webrtc.audio.KmeAudioDevice
@@ -6,7 +6,7 @@ import com.kme.kaltura.kmesdk.webrtc.audio.KmeAudioDevice
 /**
  * An interface for handling audio in the room
  */
-interface IKmeAudioController {
+interface IKmeAudioModule {
 
     /**
      * Starting audio manager

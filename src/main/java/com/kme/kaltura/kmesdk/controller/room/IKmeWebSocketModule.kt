@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.controller
+package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
@@ -6,7 +6,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 /**
  * An interface for communication with socket in the room
  */
-interface IKmeWebSocketController {
+interface IKmeWebSocketModule {
 
     /**
      * Check is socket connected

@@ -1,7 +1,10 @@
 package com.kme.kaltura.kmesdk
 
 import android.content.Context
-import com.kme.kaltura.kmesdk.controller.*
+import com.kme.kaltura.kmesdk.controller.IKmeMetadataController
+import com.kme.kaltura.kmesdk.controller.IKmeSignInController
+import com.kme.kaltura.kmesdk.controller.IKmeUserController
+import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.KmeKoinContext
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
@@ -17,10 +20,6 @@ class KME : KmeKoinComponent {
     val signInController: IKmeSignInController by inject()
     val userController: IKmeUserController by inject()
     val roomController: IKmeRoomController by inject()
-    val roomNotesController: IKmeRoomNotesController by inject()
-    val roomRecordingController: IKmeRoomRecordingController by inject()
-    val chatController: IKmeChatController by inject()
-    val audioController: IKmeAudioController by inject()
 
     private val prefs: IKmePreferences by inject()
     private val metadataController: IKmeMetadataController by inject()

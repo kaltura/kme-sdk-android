@@ -5,9 +5,9 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import com.kme.kaltura.kmesdk.controller.IKmePeerConnectionController
-import com.kme.kaltura.kmesdk.controller.IKmeWebRTCController
-import com.kme.kaltura.kmesdk.controller.IKmeWebSocketController
+import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
+import com.kme.kaltura.kmesdk.controller.room.IKmeWebRTCModule
+import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
@@ -18,18 +18,18 @@ import org.koin.android.ext.android.inject
 /**
  * Service wrapper under the room actions
  */
-class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKmeWebRTCController {
+class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule, IKmeWebRTCModule {
 
     private val binder: IBinder = RoomServiceBinder()
 
-    private val webSocketController: IKmeWebSocketController by inject()
-    private val publisherPeerConnection: IKmePeerConnectionController by inject()
+    private val webSocketModule: IKmeWebSocketModule by inject()
+    private val publisherPeerConnection: IKmePeerConnectionModule by inject()
 
     private lateinit var turnUrl: String
     private lateinit var turnUser: String
     private lateinit var turnCred: String
 
-    private var peerConnections: MutableMap<String, IKmePeerConnectionController> = mutableMapOf()
+    private var peerConnections: MutableMap<String, IKmePeerConnectionModule> = mutableMapOf()
 
     override fun onBind(intent: Intent?): IBinder = binder
 
@@ -54,19 +54,19 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
         token: String,
         listener: IKmeWSConnectionListener
     ) {
-        webSocketController.connect(url, companyId, roomId, isReconnect, token, listener)
+        webSocketModule.connect(url, companyId, roomId, isReconnect, token, listener)
     }
 
     /**
      * Check is socket connected
      */
-    override fun isConnected(): Boolean = webSocketController.isConnected()
+    override fun isConnected(): Boolean = webSocketModule.isConnected()
 
     /**
      * Send message via socket
      */
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
-        webSocketController.send(message)
+        webSocketModule.send(message)
     }
 
     /**
@@ -74,7 +74,7 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
      */
     override fun disconnect() {
         disconnectAllConnections()
-        webSocketController.disconnect()
+        webSocketModule.disconnect()
         stopForeground(true)
         stopSelf()
     }
@@ -96,7 +96,7 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
-    ) : IKmePeerConnectionController? {
+    ) : IKmePeerConnectionModule? {
         peerConnections[requestedUserIdStream]?.let { return null }
 
         publisherPeerConnection.setTurnServer(turnUrl, turnUser, turnCred)
@@ -113,10 +113,10 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
-    ) : IKmePeerConnectionController? {
+    ) : IKmePeerConnectionModule? {
         peerConnections[requestedUserIdStream]?.let { return null }
 
-        val viewerPeerConnection: IKmePeerConnectionController by inject()
+        val viewerPeerConnection: IKmePeerConnectionModule by inject()
         viewerPeerConnection.setTurnServer(turnUrl, turnUser, turnCred)
         viewerPeerConnection.setRemoteRenderer(renderer)
         viewerPeerConnection.createPeerConnection(false, requestedUserIdStream, listener)
@@ -127,14 +127,14 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketController, IKm
     /**
      * Getting publisher connection if exist
      */
-    override fun getPublisherConnection(): IKmePeerConnectionController? {
+    override fun getPublisherConnection(): IKmePeerConnectionModule? {
         return publisherPeerConnection
     }
 
     /**
      * Getting publisher/viewer connection by id
      */
-    override fun getPeerConnection(requestedUserIdStream: String): IKmePeerConnectionController? {
+    override fun getPeerConnection(requestedUserIdStream: String): IKmePeerConnectionModule? {
         return peerConnections.getOrDefault(requestedUserIdStream, null)
     }
 

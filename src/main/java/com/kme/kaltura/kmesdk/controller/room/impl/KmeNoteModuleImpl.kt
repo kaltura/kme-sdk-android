@@ -1,8 +1,9 @@
-package com.kme.kaltura.kmesdk.controller.impl
+package com.kme.kaltura.kmesdk.controller.room.impl
 
 import android.content.Context
 import android.os.Environment
-import com.kme.kaltura.kmesdk.controller.IKmeRoomNotesController
+import com.kme.kaltura.kmesdk.controller.impl.KmeController
+import com.kme.kaltura.kmesdk.controller.room.IKmeNoteModule
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.downloadFile
 import com.kme.kaltura.kmesdk.rest.response.room.notes.*
@@ -19,9 +20,9 @@ import java.io.FileOutputStream
 /**
  * An implementation for actions with notes
  */
-class KmeRoomNotesControllerImpl(
+class KmeNoteModuleImpl(
     private val context: Context
-) : KmeController(), IKmeRoomNotesController {
+) : KmeController(), IKmeNoteModule {
 
     private val roomNotesApiService: KmeRoomNotesApiService by inject()
     private val fileLoaderApiService: KmeFileLoaderApiService by inject()

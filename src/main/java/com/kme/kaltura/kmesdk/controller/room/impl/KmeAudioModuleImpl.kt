@@ -1,6 +1,7 @@
-package com.kme.kaltura.kmesdk.controller.impl
+package com.kme.kaltura.kmesdk.controller.room.impl
 
-import com.kme.kaltura.kmesdk.controller.IKmeAudioController
+import com.kme.kaltura.kmesdk.controller.impl.KmeController
+import com.kme.kaltura.kmesdk.controller.room.IKmeAudioModule
 import com.kme.kaltura.kmesdk.webrtc.audio.AudioManagerListener
 import com.kme.kaltura.kmesdk.webrtc.audio.IKmeAudioManager
 import com.kme.kaltura.kmesdk.webrtc.audio.KmeAudioDevice
@@ -9,7 +10,7 @@ import org.koin.core.inject
 /**
  * An implementation for handling audio in the room
  */
-class KmeAudioControllerImpl : KmeController(), IKmeAudioController {
+class KmeAudioModuleImpl : KmeController(), IKmeAudioModule {
 
     private val audioManager: IKmeAudioManager by inject()
 

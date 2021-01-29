@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.controller
+package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeCheckRecordingLicenseResponse
@@ -6,7 +6,7 @@ import com.kme.kaltura.kmesdk.rest.response.room.KmeCheckRecordingLicenseRespons
 /**
  * An interface for recording in the room
  */
-interface IKmeRoomRecordingController {
+interface IKmeRecordingModule {
 
     /**
      * Checking recording license for the room

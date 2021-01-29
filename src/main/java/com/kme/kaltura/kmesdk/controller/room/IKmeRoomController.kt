@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.controller
+package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
@@ -11,7 +11,12 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 /**
  * An interface for room data
  */
-interface IKmeRoomController : IKmeWebSocketController, IKmeWebRTCController {
+interface IKmeRoomController : IKmeWebSocketModule, IKmeWebRTCModule {
+
+    val chatModule: IKmeChatModule
+    val noteModule: IKmeNoteModule
+    val recordingModule: IKmeRecordingModule
+    val audioModule: IKmeAudioModule
 
     /**
      * Getting WevRTC server data if exist

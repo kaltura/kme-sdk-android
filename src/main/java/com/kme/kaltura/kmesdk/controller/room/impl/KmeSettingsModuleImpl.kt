@@ -1,8 +1,8 @@
-package com.kme.kaltura.kmesdk.controller.impl.internal
+package com.kme.kaltura.kmesdk.controller.room.impl
 
-import com.kme.kaltura.kmesdk.controller.IKmeRoomSettingsController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
+import com.kme.kaltura.kmesdk.controller.room.IKmeSettingsModule
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeChatModule
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeDefaultSettings
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
@@ -23,7 +23,7 @@ import org.koin.core.inject
 /**
  * An implementation for room settings handling
  */
-internal class KmeRoomSettingsControllerImpl : KmeController(), IKmeRoomSettingsController {
+internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
 
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()

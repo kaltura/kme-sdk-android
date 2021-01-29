@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.controller
+package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeChangeRoomSettingsResponse
@@ -7,7 +7,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 /**
  * An interface for actions related to chat
  */
-interface IKmeChatController {
+interface IKmeChatModule {
 
     /**
      * Change visibility of public chat

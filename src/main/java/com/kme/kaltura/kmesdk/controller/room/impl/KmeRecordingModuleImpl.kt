@@ -1,6 +1,7 @@
-package com.kme.kaltura.kmesdk.controller.impl
+package com.kme.kaltura.kmesdk.controller.room.impl
 
-import com.kme.kaltura.kmesdk.controller.IKmeRoomRecordingController
+import com.kme.kaltura.kmesdk.controller.impl.KmeController
+import com.kme.kaltura.kmesdk.controller.room.IKmeRecordingModule
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeCheckRecordingLicenseResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
@@ -13,7 +14,7 @@ import org.koin.core.inject
 /**
  * An implementation for recording in the room
  */
-class KmeRoomRecordingControllerImpl : KmeController(), IKmeRoomRecordingController {
+class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
 
     private val roomRecordingApiService: KmeRoomRecordingApiService by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)

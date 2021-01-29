@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.controller
+package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeGetRoomNotesResponse
@@ -6,7 +6,7 @@ import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeGetRoomNotesResponse
 /**
  * An interface for download notes
  */
-interface IKmeRoomNoteDownloadController {
+interface IKmeNoteDownloadModule {
 
     /**
      * Download specific note as pdf file
