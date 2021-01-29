@@ -5,9 +5,7 @@ Allow to build high-performance application for real time communications.
 # Documentation and guides
 * [Frequently Asked Questions](http://linktodoc.com)
 * [Project Release Notes](http://linktodoc.com) (see example: [Kaltura server Release Notes](https://github.com/kaltura/server/blob/master/release-notes.md)
-* [Install Guide / Deployment Guide](http://linktodoc.com)
-* [Setup Guide](http://linktodoc.com)
-* [User Guide](user-guide.md)
+* [Deployment Guide](user-guide.md)
 * [Testing and QA Guide](http://linktodoc.com)
 * [Doc Title X](http://linktodoc.com)
 * [KME SDK source code documentation](https://fictional-tribble-278be803.pages.github.io/)
@@ -30,6 +28,7 @@ Thank you for helping Kaltura grow! If you'd like to contribute please follow th
  - Incapsulate all actions related to sending messages via WS
  - Incapsulate establishing publisher and viewer peerconnections
  - White board drawings
+ - Publish as standalone public third party SDK
  
 # Open Source Libraries
 Review the [list of Open Source 3rd party libraries](open-source-libraries.md) used in this project.
