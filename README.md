@@ -1,15 +1,14 @@
 # Kaltura Meeting Experience. Android SDK.
-This section should describe the project in highlevel and provide introduction to what this repository is all about and who it is relevant for.  
-Provide a highlevel breakdown of features that matter in this project and known limitations this project doesn't handle.
+KME Android SDK is a mediator between server side and application. Created for simplifying interactions with Kaltura Meeting Experience server side.
+Allow to build high-performance application for real time communications.
 
 # Documentation and guides
-* [**Frequently Asked Questions**](http://linktodoc.com)
+* [Frequently Asked Questions](http://linktodoc.com)
 * [Project Release Notes](http://linktodoc.com) (see example: [Kaltura server Release Notes](https://github.com/kaltura/server/blob/master/release-notes.md)
-* [Install Guide / Deployment Guide](http://linktodoc.com)
-* [Setup Guide](http://linktodoc.com)
-* [User Guide](http://linktodoc.com)
+* [Deployment Guide](user-guide.md)
 * [Testing and QA Guide](http://linktodoc.com)
 * [Doc Title X](http://linktodoc.com)
+* [KME SDK source code documentation](https://fictional-tribble-278be803.pages.github.io/)
 
 # Project Specific Sections and Information
 Every project has its own important information to expose, place it here under clear titles and text.  
@@ -21,6 +20,18 @@ Thank you for helping Kaltura grow! If you'd like to contribute please follow th
 * Use the repository issues tracker to report bugs or feature requests
 * Read [Contributing Code to the Kaltura Platform](https://github.com/kaltura/platform-install-packages/blob/master/doc/Contributing-to-the-Kaltura-Platform.md)
 * Sign the [Kaltura Contributor License Agreement](https://agentcontribs.kaltura.org/)
+
+# Known issues
+ - Can't start publish only video or only audion for the very first time
+
+# Todos
+ - Incapsulate all actions related to sending messages via WS
+ - Incapsulate establishing publisher and viewer peerconnections
+ - White board drawings
+ - Publish as standalone public third party SDK
+ 
+# Open Source Libraries
+Review the [list of Open Source 3rd party libraries](open-source-libraries.md) used in this project.
 
 # Where to get help
 * Join the [Kaltura Community Forums](https://forum.kaltura.org/) to ask questions or start discussions
@@ -35,7 +46,4 @@ We'd love to hear from you!
 All code in this project is released under the [AGPLv3 license](http://www.gnu.org/licenses/agpl-3.0.html) unless a different license for a particular library is specified in the applicable library path.   
 
 Copyright © Kaltura Inc. All rights reserved.   
-Authors and contributors: See [GitHub contributors list](https://github.com/kaltura/YOURREPONAME/graphs/contributors).  
-
-### Open Source Libraries
-Review the [list of Open Source 3rd party libraries](open-source-libraries.md) used in this project.
+Authors and contributors: See [GitHub contributors list](https://github.com/kaltura/YOURREPONAME/graphs/contributors).
