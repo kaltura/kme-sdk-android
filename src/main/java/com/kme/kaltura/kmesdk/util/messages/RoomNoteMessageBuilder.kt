@@ -43,7 +43,7 @@ internal fun buildRenameRoomNoteMessage(
         payload = NotePayload(
             roomId,
             companyId,
-            NoteEventData(noteId, noteNewName)
+            NoteEventData(noteId, noteNewName = noteNewName)
         )
     }
 }
@@ -62,7 +62,7 @@ internal fun buildBroadcastRoomNoteMessage(
         payload = NotePayload(
             roomId,
             companyId,
-            NoteEventData(noteId, noteName)
+            NoteEventData(noteId, noteName = noteName)
         )
     }
 }

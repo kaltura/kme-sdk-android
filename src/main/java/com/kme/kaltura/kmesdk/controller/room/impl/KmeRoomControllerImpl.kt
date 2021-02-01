@@ -10,8 +10,6 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
 import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
 import com.kme.kaltura.kmesdk.rest.safeApiCall
@@ -43,6 +41,7 @@ class KmeRoomControllerImpl(
     private val userController: IKmeUserController by inject()
     private val settingsModule: IKmeSettingsModule by inject()
 
+    override val roomModule: IKmeRoomModule by inject()
     override val chatModule: IKmeChatModule by inject()
     override val noteModule: IKmeNoteModule by inject()
     override val recordingModule: IKmeRecordingModule by inject()
@@ -81,44 +80,6 @@ class KmeRoomControllerImpl(
 
         override fun onServiceDisconnected(name: ComponentName) {
             roomService = null
-        }
-    }
-
-    /**
-     * Getting all rooms for specific company
-     */
-    override fun getRooms(
-        companyId: Long,
-        pages: Long,
-        limit: Long,
-        success: (response: KmeGetRoomsResponse) -> Unit,
-        error: (exception: KmeApiException) -> Unit
-    ) {
-        uiScope.launch {
-            safeApiCall(
-                { roomApiService.getRooms(companyId, pages, limit) },
-                success,
-                error
-            )
-        }
-    }
-
-    /**
-     * Getting room info by alias
-     */
-    override fun getRoomInfo(
-        alias: String,
-        checkPermission: Int,
-        withFiles: Int,
-        success: (response: KmeGetRoomInfoResponse) -> Unit,
-        error: (exception: KmeApiException) -> Unit
-    ) {
-        uiScope.launch {
-            safeApiCall(
-                { roomApiService.getRoomInfo(alias, checkPermission, withFiles) },
-                success,
-                error
-            )
         }
     }
 

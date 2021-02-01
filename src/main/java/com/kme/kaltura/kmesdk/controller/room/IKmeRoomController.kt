@@ -1,8 +1,6 @@
 package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -13,6 +11,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
  */
 interface IKmeRoomController : IKmeWebSocketModule, IKmeWebRTCModule {
 
+    val roomModule: IKmeRoomModule
     val chatModule: IKmeChatModule
     val noteModule: IKmeNoteModule
     val recordingModule: IKmeRecordingModule
@@ -23,40 +22,6 @@ interface IKmeRoomController : IKmeWebSocketModule, IKmeWebRTCModule {
      * Getting WevRTC server data if exist
      */
     val roomSettings: KmeWebRTCServer?
-
-    /**
-     * Getting all rooms for specific company
-     *
-     * @param companyId id of a company
-     * @param pages page number
-     * @param limit count of rooms per page
-     * @param success function to handle success result. Contains [KmeGetRoomsResponse] object
-     * @param error function to handle error result. Contains [KmeApiException] object
-     */
-    fun getRooms(
-        companyId: Long,
-        pages: Long,
-        limit: Long,
-        success: (response: KmeGetRoomsResponse) -> Unit,
-        error: (exception: KmeApiException) -> Unit
-    )
-
-    /**
-     * Getting room info by alias
-     *
-     * @param alias alias of a room
-     * @param checkPermission
-     * @param withFiles
-     * @param success function to handle success result. Contains [KmeGetRoomInfoResponse] object
-     * @param error function to handle error result. Contains [KmeApiException] object
-     */
-    fun getRoomInfo(
-        alias: String,
-        checkPermission: Int,
-        withFiles: Int,
-        success: (response: KmeGetRoomInfoResponse) -> Unit,
-        error: (exception: KmeApiException) -> Unit
-    )
 
     /**
      * Getting data for p2p connection

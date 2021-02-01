@@ -22,10 +22,10 @@ private const val RECONNECTION_ATTEMPTS = 5
 /**
  * An implementation for socket actions
  */
-internal class KmeWebSocketControllerImpl : KmeController(),
+internal class KmeWebSocketModuleImpl : KmeController(),
     IKmeWebSocketModule, IKmeWSListener {
 
-    private val TAG = KmeWebSocketControllerImpl::class.java.canonicalName
+    private val TAG = KmeWebSocketModuleImpl::class.java.canonicalName
 
     private val okHttpClient: OkHttpClient by inject(named("wsOkHttpClient"))
     private val gson: Gson by inject()

@@ -59,6 +59,7 @@ interface IKmeNoteModule : IKmeNoteDownloadModule {
      * Renames specific note
      *
      * @param roomId id of a room
+     * @param companyId id of a company
      * @param noteId id of a note
      * @param name new name for the note
      * @param success function to handle success result. Contains [KmeRoomNoteRenameResponse] object
@@ -66,6 +67,7 @@ interface IKmeNoteModule : IKmeNoteDownloadModule {
      */
     fun renameRoomNote(
         roomId: Long,
+        companyId: Long,
         noteId: String,
         name: String,
         success: (response: KmeRoomNoteRenameResponse) -> Unit,
@@ -94,16 +96,48 @@ interface IKmeNoteModule : IKmeNoteDownloadModule {
     )
 
     /**
-     * Delete specific note
+     * Propagate note to all participants
      *
      * @param roomId id of a room
+     * @param companyId id of a company
+     * @param noteId id of a note
+     * @param name name for the note
+     */
+    fun broadcastNote(
+        roomId: Long,
+        companyId: Long,
+        noteId: String,
+        name: String
+    )
+
+    /**
+     * Subscribes/unsubscribes to the note changes
+     *
+     * @param roomId id of a room
+     * @param companyId id of a company
+     * @param noteId id of a note
+     * @param isSubscribeToNote subscription flag
+     */
+    fun subscribeToNoteChanges(
+        roomId: Long,
+        companyId: Long,
+        noteId: String,
+        isSubscribeToNote: Boolean
+    )
+
+    /**
+     * Deletes specific note
+     *
+     * @param roomId id of a room
+     * @param companyId id of a company
      * @param noteId id of a note
      * @param success function to handle success result. Contains [KmeDeleteRoomNoteResponse] object
      * @param error function to handle error result. Contains [KmeApiException] object
      */
     fun deleteRoomNote(
         roomId: Long,
-        noteId: Long,
+        companyId: Long,
+        noteId: String,
         success: (response: KmeDeleteRoomNoteResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )

@@ -4,12 +4,14 @@ import android.content.Context
 import android.os.Environment
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeNoteModule
+import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.downloadFile
 import com.kme.kaltura.kmesdk.rest.response.room.notes.*
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeFileLoaderApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomNotesApiService
+import com.kme.kaltura.kmesdk.util.messages.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,6 +28,8 @@ class KmeNoteModuleImpl(
 
     private val roomNotesApiService: KmeRoomNotesApiService by inject()
     private val fileLoaderApiService: KmeFileLoaderApiService by inject()
+    private val webSocketModule: IKmeWebSocketModule by inject()
+
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     /**
@@ -77,7 +81,21 @@ class KmeNoteModuleImpl(
         uiScope.launch {
             safeApiCall(
                 { roomNotesApiService.createRoomNote(companyId, roomId) },
-                success,
+                {
+                    val name = it.data?.name
+                    val date = it.data?.dateCreated
+                    val id = it.data?.id
+                    if (name != null && date != null && id != null) {
+                        webSocketModule.send(buildCreateRoomNoteMessage(
+                            roomId,
+                            companyId,
+                            name,
+                            date,
+                            id
+                        ))
+                        success(it)
+                    }
+                },
                 error
             )
         }
@@ -88,6 +106,7 @@ class KmeNoteModuleImpl(
      */
     override fun renameRoomNote(
         roomId: Long,
+        companyId: Long,
         noteId: String,
         name: String,
         success: (response: KmeRoomNoteRenameResponse) -> Unit,
@@ -96,7 +115,15 @@ class KmeNoteModuleImpl(
         uiScope.launch {
             safeApiCall(
                 { roomNotesApiService.renameRoomNote(roomId, noteId, name) },
-                success,
+                {
+                    webSocketModule.send(buildRenameRoomNoteMessage(
+                        roomId,
+                        companyId,
+                        noteId,
+                        name
+                    ))
+                    success(it)
+                },
                 error
             )
         }
@@ -124,6 +151,35 @@ class KmeNoteModuleImpl(
     }
 
     /**
+     * Propagate note to all participants
+     */
+    override fun broadcastNote(roomId: Long, companyId: Long, noteId: String, name: String) {
+        webSocketModule.send(buildBroadcastRoomNoteMessage(
+            roomId,
+            companyId,
+            noteId,
+            name
+        ))
+    }
+
+    /**
+     * Subscribes/unsubscribes to the note changes
+     */
+    override fun subscribeToNoteChanges(
+        roomId: Long,
+        companyId: Long,
+        noteId: String,
+        isSubscribeToNote: Boolean
+    ) {
+        webSocketModule.send(buildSubscribeRoomNoteMessage(
+            roomId,
+            companyId,
+            noteId,
+            isSubscribeToNote
+        ))
+    }
+
+    /**
      * Download specific note as pdf file
      */
     override fun downloadRoomNote(
@@ -147,18 +203,26 @@ class KmeNoteModuleImpl(
     }
 
     /**
-     * Delete specific note
+     * Deletes specific note
      */
     override fun deleteRoomNote(
         roomId: Long,
-        noteId: Long,
+        companyId: Long,
+        noteId: String,
         success: (response: KmeDeleteRoomNoteResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
         uiScope.launch {
             safeApiCall(
-                { roomNotesApiService.deleteRoomNote(roomId, noteId) },
-                success,
+                { roomNotesApiService.deleteRoomNote(roomId, noteId.toLong()) },
+                {
+                    webSocketModule.send(buildDeleteRoomNoteMessage(
+                        roomId,
+                        companyId,
+                        noteId
+                    ))
+                    success(it)
+                },
                 error
             )
         }
