@@ -16,6 +16,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.inject
 
+/**
+ * An implementation for room actions
+ */
 class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
 
     private val roomApiService: KmeRoomApiService by inject()

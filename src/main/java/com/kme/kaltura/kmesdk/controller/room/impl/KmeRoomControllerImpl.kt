@@ -42,6 +42,7 @@ class KmeRoomControllerImpl(
     private val settingsModule: IKmeSettingsModule by inject()
 
     override val roomModule: IKmeRoomModule by inject()
+    override val participantModule: IKmeParticipantModule by inject()
     override val chatModule: IKmeChatModule by inject()
     override val noteModule: IKmeNoteModule by inject()
     override val recordingModule: IKmeRecordingModule by inject()

@@ -11,8 +11,8 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 
 internal fun buildMediaInitMessage(
     roomId: Long,
-    userId: Long,
-    companyId: Long
+    companyId: Long,
+    userId: Long
 ): KmeParticipantsModuleMessage<UserMediaStateInitPayload> {
     return KmeParticipantsModuleMessage<UserMediaStateInitPayload>().apply {
         constraint = listOf(KmeConstraint.INCLUDE_SELF)
@@ -32,8 +32,8 @@ internal fun buildMediaInitMessage(
 
 internal fun buildChangeFocusMessage(
     roomId: Long,
-    userId: Long,
-    companyId: Long
+    companyId: Long,
+    userId: Long
 ): KmeParticipantsModuleMessage<ChangeUserFocusEventPayload> {
     return KmeParticipantsModuleMessage<ChangeUserFocusEventPayload>().apply {
         constraint = listOf(KmeConstraint.INCLUDE_SELF)
@@ -51,8 +51,8 @@ internal fun buildChangeFocusMessage(
 
 internal fun buildChangeMediaStateMessage(
     roomId: Long,
-    userId: Long,
     companyId: Long,
+    userId: Long,
     mediaStateType: KmeMediaStateType,
     stateValue: KmeMediaDeviceState
 ): KmeParticipantsModuleMessage<UserMediaStateChangedPayload> {
@@ -73,10 +73,10 @@ internal fun buildChangeMediaStateMessage(
 
 internal fun buildRaiseHandMessage(
     roomId: Long,
-    userId: Long,
     companyId: Long,
-    isRaise: Boolean,
-    targetUserId: Long
+    userId: Long,
+    targetUserId: Long,
+    isRaise: Boolean
 ): KmeParticipantsModuleMessage<UserRaiseHandPayload> {
     return KmeParticipantsModuleMessage<UserRaiseHandPayload>().apply {
         constraint = listOf(KmeConstraint.INCLUDE_SELF)
@@ -95,7 +95,7 @@ internal fun buildRaiseHandMessage(
 
 internal fun buildAllHandsDownMessage(
     roomId: Long,
-    companyId: Long,
+    companyId: Long
 ): KmeParticipantsModuleMessage<AllUsersHandPutPayload> {
     return KmeParticipantsModuleMessage<AllUsersHandPutPayload>().apply {
         constraint = listOf(KmeConstraint.INCLUDE_SELF)

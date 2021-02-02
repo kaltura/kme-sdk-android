@@ -6,6 +6,9 @@ import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 
+/**
+ * An interface for room actions
+ */
 interface IKmeRoomModule {
 
     /**

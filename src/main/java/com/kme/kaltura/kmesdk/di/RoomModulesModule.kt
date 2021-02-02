@@ -12,6 +12,7 @@ val roomModules = module {
 
     single<IKmeRoomModule> { KmeRoomModuleImpl() }
     single<IKmeWebSocketModule> { KmeWebSocketModuleImpl() }
+    single<IKmeParticipantModule> { KmeParticipantModuleImpl() }
     single<IKmeChatModule> { KmeChatModuleImpl() }
     single<IKmeNoteModule> { KmeNoteModuleImpl(androidContext()) }
     single<IKmeRecordingModule> { KmeRecordingModuleImpl() }
