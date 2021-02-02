@@ -8,8 +8,8 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 
 internal fun buildStartPublishingMessage(
     roomId: Long,
-    userId: Long,
     companyId: Long,
+    userId: Long,
     sdpType: String,
     sdpDescription: String
 ): KmeStreamingModuleMessage<StartPublishingPayload> {
@@ -29,8 +29,8 @@ internal fun buildStartPublishingMessage(
 
 internal fun buildAnswerFromViewerMessage(
     roomId: Long,
-    userId: Long,
     companyId: Long,
+    userId: Long,
     sdpType: String,
     sdpDescription: String,
     requestedUserIdStream: String,
@@ -55,8 +55,8 @@ internal fun buildAnswerFromViewerMessage(
 
 internal fun buildStartViewingMessage(
     roomId: Long,
-    userId: Long,
     companyId: Long,
+    userId: Long,
     requestedUserIdStream: String?
 ): KmeStreamingModuleMessage<StartViewingPayload> {
     return KmeStreamingModuleMessage<StartViewingPayload>().apply {
@@ -75,8 +75,8 @@ internal fun buildStartViewingMessage(
 
 internal fun buildGatheringPublishDoneMessage(
     roomId: Long,
-    userId: Long,
     companyId: Long,
+    userId: Long,
     mediaServerId: Long
 ): KmeStreamingModuleMessage<IceGatheringPublishDonePayload> {
     return KmeStreamingModuleMessage<IceGatheringPublishDonePayload>().apply {
@@ -96,8 +96,8 @@ internal fun buildGatheringPublishDoneMessage(
 
 internal fun buildGatheringViewDoneMessage(
     roomId: Long,
-    userId: Long,
     companyId: Long,
+    userId: Long,
     requestedUserIdStream: String,
     mediaServerId: Long
 ): KmeStreamingModuleMessage<IceGatheringViewingDonePayload> {
