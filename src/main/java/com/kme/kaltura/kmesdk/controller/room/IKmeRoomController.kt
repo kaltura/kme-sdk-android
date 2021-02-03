@@ -9,9 +9,10 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 /**
  * An interface for room data
  */
-interface IKmeRoomController : IKmeWebSocketModule, IKmeWebRTCModule {
+interface IKmeRoomController : IKmeWebSocketModule {
 
     val roomModule: IKmeRoomModule
+    val peerConnectionModule: IKmePeerConnectionModule
     val participantModule: IKmeParticipantModule
     val chatModule: IKmeChatModule
     val noteModule: IKmeNoteModule

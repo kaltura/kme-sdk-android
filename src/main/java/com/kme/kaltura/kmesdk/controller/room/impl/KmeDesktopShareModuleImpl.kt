@@ -105,9 +105,9 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule,
                                 val mediaServerId = payload.mediaServerId
                                 val description = payload.sdpOffer
                                 if (mediaServerId != null && description != null) {
-                                    roomController.disconnectPeerConnection(streamId)
+                                    roomController.peerConnectionModule.disconnectPeerConnection(streamId)
 
-                                    roomController.addViewerPeerConnection(
+                                    roomController.peerConnectionModule.addViewerPeerConnection(
                                         streamId,
                                         renderer,
                                         this@KmeDesktopShareModuleImpl

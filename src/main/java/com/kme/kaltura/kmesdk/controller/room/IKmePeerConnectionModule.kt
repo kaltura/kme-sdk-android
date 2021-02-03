@@ -2,10 +2,9 @@ package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
-import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
 
 /**
- * An interface for actions related to p2p connection
+ * An interface for wrap actions with [IKmePeerConnection]
  */
 interface IKmePeerConnectionModule {
 
@@ -23,74 +22,58 @@ interface IKmePeerConnectionModule {
     )
 
     /**
-     * Setting view for local stream rendering
+     * Creates publisher connection
      *
-     * @param localRenderer view to render on
-     */
-    fun setLocalRenderer(localRenderer: KmeSurfaceRendererView)
-
-    /**
-     * Setting view for remote stream rendering
-     *
-     * @param remoteRenderer view to render on
-     */
-    fun setRemoteRenderer(remoteRenderer: KmeSurfaceRendererView)
-
-    /**
-     * Creates p2p connection
-     *
-     * @param isPublisher indicates type of connection
      * @param requestedUserIdStream id of a stream
+     * @param renderer view for video rendering
      * @param listener listener for p2p events
+     * @return publisher connection object as [IKmePeerConnection]
      */
-    fun createPeerConnection(
-        isPublisher: Boolean,
+    fun addPublisherPeerConnection(
         requestedUserIdStream: String,
+        renderer: KmeSurfaceRendererView,
         listener: IKmePeerConnectionClientEvents
-    )
+    ) : IKmePeerConnection?
 
     /**
-     * Setting media server id for data relay
+     * Creates a viewer connection
      *
-     * @param mediaServerId id of a server
+     * @param requestedUserIdStream
+     * @param renderer view for video rendering
+     * @param listener listener for p2p events
+     * @return viewer connection object as [IKmePeerConnection]
      */
-    fun setMediaServerId(mediaServerId: Long)
+    fun addViewerPeerConnection(
+        requestedUserIdStream: String,
+        renderer: KmeSurfaceRendererView,
+        listener: IKmePeerConnectionClientEvents
+    ) : IKmePeerConnection?
 
     /**
-     * Creates an offers
-     */
-    fun createOffer()
-
-    /**
-     * Setting remote SDP
+     * Getting publisher connection if exist
      *
-     * @param type type of SDP
-     * @param sdp string representation of SDP
+     * @return publisher connection object as [IKmePeerConnection]
      */
-    fun setRemoteSdp(type: KmeSdpType, sdp: String)
+    fun getPublisherConnection() : IKmePeerConnection?
 
     /**
-     * Toggle camera
+     * Getting publisher/viewer connection by id
      *
-     * @param isEnable flag to enable/disable camera
+     * @param requestedUserIdStream id of a stream
+     * @return publisher/viewer connection object as [IKmePeerConnection]
      */
-    fun enableCamera(isEnable: Boolean)
+    fun getPeerConnection(requestedUserIdStream: String) : IKmePeerConnection?
 
     /**
-     * Toggle audio
+     * Disconnect publisher/viewer connection by id
      *
-     * @param isEnable flag to enable/disable audio
+     * @param requestedUserIdStream id of a stream
      */
-    fun enableAudio(isEnable: Boolean)
+    fun disconnectPeerConnection(requestedUserIdStream: String)
 
     /**
-     * Switch between existing cameras
+     * Disconnect all publisher/viewers connections
      */
-    fun switchCamera()
-
-    /**
-     * Closes actual p2p connection
-     */
-    fun disconnectPeerConnection()
+    fun disconnectAllConnections()
 
 }

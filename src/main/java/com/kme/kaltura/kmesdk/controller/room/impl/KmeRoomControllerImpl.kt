@@ -16,8 +16,6 @@ import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.service.KmeRoomService
 import com.kme.kaltura.kmesdk.toType
-import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
-import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.KmeMessageManager
@@ -42,6 +40,7 @@ class KmeRoomControllerImpl(
     private val settingsModule: IKmeSettingsModule by inject()
 
     override val roomModule: IKmeRoomModule by inject()
+    override val peerConnectionModule: IKmePeerConnectionModule by inject()
     override val participantModule: IKmeParticipantModule by inject()
     override val chatModule: IKmeChatModule by inject()
     override val noteModule: IKmeNoteModule by inject()
@@ -60,10 +59,6 @@ class KmeRoomControllerImpl(
     private var roomId: Long = 0
     private var isReconnect: Boolean = true
 
-    private lateinit var turnUrl: String
-    private lateinit var turnUser: String
-    private lateinit var turnCred: String
-
     private lateinit var url: String
     private lateinit var token: String
     private lateinit var listener: IKmeWSConnectionListener
@@ -75,7 +70,6 @@ class KmeRoomControllerImpl(
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             val binder: KmeRoomService.RoomServiceBinder = service as KmeRoomService.RoomServiceBinder
             roomService = binder.service
-            roomService?.setTurnServer(turnUrl, turnUser, turnCred)
             roomService?.connect(url, companyId, roomId, isReconnect, token, listener)
         }
 
@@ -263,69 +257,6 @@ class KmeRoomControllerImpl(
      */
     override fun removeListeners() {
         messageManager.removeListeners()
-    }
-
-    /**
-     * Setting TURN server for RTC
-     */
-    override fun setTurnServer(
-        turnUrl: String,
-        turnUser: String,
-        turnCred: String
-    ) {
-        this.turnUrl = turnUrl
-        this.turnUser = turnUser
-        this.turnCred = turnCred
-    }
-
-    /**
-     * Creates publisher connection
-     */
-    override fun addPublisherPeerConnection(
-        requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView,
-        listener: IKmePeerConnectionClientEvents
-    ) : IKmePeerConnectionModule? {
-        return roomService?.addPublisherPeerConnection(requestedUserIdStream, renderer, listener)
-    }
-
-    /**
-     * Creates a viewer connection
-     */
-    override fun addViewerPeerConnection(
-        requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView,
-        listener: IKmePeerConnectionClientEvents
-    ) : IKmePeerConnectionModule? {
-        return roomService?.addViewerPeerConnection(requestedUserIdStream, renderer, listener)
-    }
-
-    /**
-     * Getting publisher connection if exist
-     */
-    override fun getPublisherConnection(): IKmePeerConnectionModule? {
-        return roomService?.getPublisherConnection()
-    }
-
-    /**
-     * Getting publisher/viewer connection by id
-     */
-    override fun getPeerConnection(requestedUserIdStream: String): IKmePeerConnectionModule? {
-        return roomService?.getPeerConnection(requestedUserIdStream)
-    }
-
-    /**
-     * Disconnect publisher/viewer connection by id
-     */
-    override fun disconnectPeerConnection(requestedUserIdStream: String) {
-        roomService?.disconnectPeerConnection(requestedUserIdStream)
-    }
-
-    /**
-     * Disconnect all publisher/viewers connections
-     */
-    override fun disconnectAllConnections() {
-        roomService?.disconnectAllConnections()
     }
 
 }
