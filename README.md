@@ -8,7 +8,7 @@ Allow to build high-performance application for real time communications.
 * [Deployment Guide](user-guide.md)
 * [Testing and QA Guide](http://linktodoc.com)
 * [Doc Title X](http://linktodoc.com)
-* [KME SDK source code documentation](https://fictional-tribble-278be803.pages.github.io/)
+* [KME SDK source code documentation](https://musical-giggle-e6fd5293.pages.github.io/)
 
 # Project Specific Sections and Information
 Every project has its own important information to expose, place it here under clear titles and text.  
