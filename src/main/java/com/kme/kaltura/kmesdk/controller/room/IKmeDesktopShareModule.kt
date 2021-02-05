@@ -12,12 +12,14 @@ interface IKmeDesktopShareModule {
      *
      * @param roomId id of a room
      * @param companyId id of a company
+     * @param renderer view for video rendering
+     * @param callback callback for desktop share events
      */
     fun startListenDesktopShare(
         roomId: Long,
         companyId: Long,
         renderer: KmeSurfaceRendererView,
-        callback: IKmeDesktopShareEvents
+        callback: KmeDesktopShareEvents
     )
 
     /**
@@ -28,7 +30,7 @@ interface IKmeDesktopShareModule {
     /**
      * Desktop share events
      */
-    interface IKmeDesktopShareEvents {
+    interface KmeDesktopShareEvents {
 
         /**
          * Triggered by administrator

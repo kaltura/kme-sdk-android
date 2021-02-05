@@ -6,74 +6,126 @@ import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 /**
  * An interface for wrap actions with [IKmePeerConnection]
  */
-interface IKmePeerConnectionModule {
+interface IKmePeerConnectionModule: IKmePeerConnectionClientEvents {
 
     /**
-     * Setting TURN server for RTC
+     * Setting initialization data to the module
      *
+     * @param roomId id of a room
+     * @param companyId id of a company
      * @param turnUrl url of a TURN server
      * @param turnUser username for TURN server
      * @param turnCred password for TURN server
+     * @param listener callback with [KmePeerConnectionEvents] for indicating main events
      */
-    fun setTurnServer(
+    fun initialize(
+        roomId: Long,
+        companyId: Long,
         turnUrl: String,
         turnUser: String,
-        turnCred: String
+        turnCred: String,
+        listener: KmePeerConnectionEvents
     )
 
     /**
      * Creates publisher connection
      *
-     * @param requestedUserIdStream id of a stream
+     * @param requestedUserIdStream id of a user (publisher)
      * @param renderer view for video rendering
-     * @param listener listener for p2p events
-     * @return publisher connection object as [IKmePeerConnection]
      */
-    fun addPublisherPeerConnection(
+    fun addPublisher(
         requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView,
-        listener: IKmePeerConnectionClientEvents
-    ) : IKmePeerConnection?
+        renderer: KmeSurfaceRendererView
+    )
 
     /**
      * Creates a viewer connection
      *
-     * @param requestedUserIdStream
+     * @param requestedUserIdStream id of a user (stream)
      * @param renderer view for video rendering
-     * @param listener listener for p2p events
-     * @return viewer connection object as [IKmePeerConnection]
      */
-    fun addViewerPeerConnection(
+    fun addViewer(
         requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView,
-        listener: IKmePeerConnectionClientEvents
-    ) : IKmePeerConnection?
+        renderer: KmeSurfaceRendererView
+    )
 
     /**
-     * Getting publisher connection if exist
+     * Getting publishing state
      *
-     * @return publisher connection object as [IKmePeerConnection]
+     * @return [Boolean] value that indicates publishing state
      */
-    fun getPublisherConnection() : IKmePeerConnection?
+    fun isPublishing(): Boolean
 
     /**
-     * Getting publisher/viewer connection by id
+     * Toggle publisher's camera
      *
-     * @param requestedUserIdStream id of a stream
-     * @return publisher/viewer connection object as [IKmePeerConnection]
+     * @param isEnable flag to enable/disable camera
      */
-    fun getPeerConnection(requestedUserIdStream: String) : IKmePeerConnection?
+    fun enableCamera(isEnable: Boolean)
+
+    /**
+     * Toggle publisher's audio
+     *
+     * @param isEnable flag to enable/disable audio
+     */
+    fun enableAudio(isEnable: Boolean)
+
+    /**
+     * Switch between publisher's existing cameras
+     */
+    fun switchCamera()
 
     /**
      * Disconnect publisher/viewer connection by id
      *
      * @param requestedUserIdStream id of a stream
      */
-    fun disconnectPeerConnection(requestedUserIdStream: String)
+    fun disconnect(requestedUserIdStream: String)
 
     /**
      * Disconnect all publisher/viewers connections
      */
-    fun disconnectAllConnections()
+    fun disconnectAll()
+
+    /**
+     * Peer connection events
+     */
+    interface KmePeerConnectionEvents {
+
+        /**
+         * Callback fired once publisher's stream is active on other side
+         */
+        fun onPublisherReady()
+
+        /**
+         * Callback fired once viewer's stream is active on client side
+         *
+         * @param id id of a user (stream)
+         */
+        fun onViewerReady(id: String)
+
+        /**
+         * Callback fired to indicate current talking user
+         *
+         * @param id id of a user (stream)
+         * @param isSpeaking indicates is user currently speaking
+         */
+        fun onUserSpeaking(id: String, isSpeaking: Boolean)
+
+        /**
+         * Callback fired once peer connection removed
+         *
+         * @param id id of a user (stream)
+         */
+        fun onPeerConnectionRemoved(id: String)
+
+        /**
+         * Callback fired once peer connection error happens
+         *
+         * @param id id of a user (stream)
+         * @param description error description
+         */
+        fun onPeerConnectionError(id: String, description: String)
+    }
 
 }

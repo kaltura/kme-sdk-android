@@ -7,7 +7,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
 /**
  * An interface for actions related to p2p connection
  */
-interface IKmePeerConnection {
+internal interface IKmePeerConnection {
 
     /**
      * Setting TURN server for RTC

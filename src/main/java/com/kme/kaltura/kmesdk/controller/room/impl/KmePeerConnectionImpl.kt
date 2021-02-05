@@ -17,7 +17,7 @@ import org.webrtc.*
 /**
  * An implementation for p2p connection
  */
-class KmePeerConnectionImpl(
+internal class KmePeerConnectionImpl(
     private val context: Context,
     private val gson: Gson
 ) : IKmePeerConnection, IKmePeerConnectionEvents {
@@ -274,7 +274,7 @@ class KmePeerConnectionImpl(
      * Callback fired once peer connection error happened
      */
     override fun onPeerConnectionError(description: String) {
-        listener?.onPeerConnectionError(description)
+        listener?.onPeerConnectionError(requestedUserIdStream, description)
     }
 
     /**

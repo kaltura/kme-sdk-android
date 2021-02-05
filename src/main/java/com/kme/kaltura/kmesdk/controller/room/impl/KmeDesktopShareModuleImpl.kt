@@ -1,42 +1,35 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
-import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeDesktopShareModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeDesktopShareModule.*
+import com.kme.kaltura.kmesdk.controller.room.IKmeDesktopShareModule.KmeDesktopShareEvents
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.toType
-import com.kme.kaltura.kmesdk.util.messages.buildAnswerFromViewerMessage
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
-import com.kme.kaltura.kmesdk.util.messages.buildGatheringViewDoneMessage
-import com.kme.kaltura.kmesdk.util.messages.buildStartViewingMessage
-import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.DesktopShareQualityUpdatedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.DesktopShareStateUpdatedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
-import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
+import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.StartedPublishPayload
 import org.koin.core.inject
 
 /**
  * An implementation for desktop share actions
  */
-class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule,
-    IKmePeerConnectionClientEvents {
+class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
 
     private val roomController: IKmeRoomController by inject()
-    private val userController: IKmeUserController by inject()
     private val webSocketModule: IKmeWebSocketModule by inject()
 
     private var roomId: Long = 0
     private var companyId: Long = 0
     private lateinit var renderer: KmeSurfaceRendererView
-    private lateinit var callback: IKmeDesktopShareEvents
+    private lateinit var callback: KmeDesktopShareEvents
 
     /**
      * Start listen desktop share events
@@ -45,7 +38,7 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule,
         roomId: Long,
         companyId: Long,
         renderer: KmeSurfaceRendererView,
-        callback: IKmeDesktopShareEvents
+        callback: KmeDesktopShareEvents
     ) {
         this.roomId = roomId
         this.companyId = companyId
@@ -86,37 +79,18 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule,
                     }
 
                     if (isActive == true && onRoomInit == true) {
-                        sendStartViewMessage("${msg.payload?.userId}_desk")
+                        roomController.peerConnectionModule.addViewer(
+                            "${msg.payload?.userId}_desk",
+                            renderer
+                        )
                     }
                 }
                 KmeMessageEvent.USER_STARTED_TO_PUBLISH -> {
                     val msg: KmeStreamingModuleMessage<StartedPublishPayload>? = message.toType()
-                    msg?.payload?.userId?.let { requestedUserIdStream ->
-                        if (requestedUserIdStream.toLongOrNull() == null) {
-                            sendStartViewMessage(requestedUserIdStream)
-                        }
-                    }
-                }
-                KmeMessageEvent.SDP_OFFER_FOR_VIEWER -> {
-                    val msg: KmeStreamingModuleMessage<SdpOfferToViewerPayload>? = message.toType()
-                    msg?.payload?.let { payload ->
-                        payload.requestedUserIdStream?.let { streamId ->
-                            if (streamId.toLongOrNull() == null) {
-                                val mediaServerId = payload.mediaServerId
-                                val description = payload.sdpOffer
-                                if (mediaServerId != null && description != null) {
-                                    roomController.peerConnectionModule.disconnectPeerConnection(streamId)
-
-                                    roomController.peerConnectionModule.addViewerPeerConnection(
-                                        streamId,
-                                        renderer,
-                                        this@KmeDesktopShareModuleImpl
-                                    )?.apply {
-                                        setMediaServerId(mediaServerId)
-                                        setRemoteSdp(KmeSdpType.OFFER, description)
-                                    }
-                                }
-                            }
+                    msg?.payload?.userId?.let {
+                        if (it.toLongOrNull() == null) {
+                            roomController.peerConnectionModule.disconnect(it)
+                            roomController.peerConnectionModule.addViewer(it, renderer)
                         }
                     }
                 }
@@ -131,84 +105,6 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule,
                 }
             }
         }
-    }
-
-    private fun sendStartViewMessage(requestedUserIdStream: String) {
-        webSocketModule.send(
-            buildStartViewingMessage(
-                roomId,
-                companyId,
-                userController.getCurrentUserInfo()?.getUserId() ?: 0,
-                requestedUserIdStream
-            )
-        )
-    }
-
-    override fun onPeerConnectionCreated(requestedUserIdStream: String) {
-
-    }
-
-    override fun onLocalDescription(
-        requestedUserIdStream: String,
-        mediaServerId: Long,
-        sdp: String,
-        type: String
-    ) {
-        webSocketModule.send(
-            buildAnswerFromViewerMessage(
-                roomId,
-                companyId,
-                userController.getCurrentUserInfo()?.getUserId() ?: 0,
-                type,
-                sdp,
-                requestedUserIdStream,
-                mediaServerId
-            )
-        )
-    }
-
-    override fun onIceCandidate(candidate: String) {
-
-    }
-
-    override fun onIceCandidatesRemoved(candidates: String) {
-
-    }
-
-    override fun onIceConnected() {
-
-    }
-
-    override fun onIceGatheringDone(requestedUserIdStream: String, mediaServerId: Long) {
-        webSocketModule.send(
-            buildGatheringViewDoneMessage(
-                roomId,
-                companyId,
-                userController.getCurrentUserInfo()?.getUserId() ?: 0,
-                requestedUserIdStream,
-                mediaServerId
-            )
-        )
-    }
-
-    override fun onUserSpeaking(requestedUserIdStream: String, isSpeaking: Boolean) {
-
-    }
-
-    override fun onIceDisconnected() {
-
-    }
-
-    override fun onPeerConnectionClosed() {
-
-    }
-
-    override fun onPeerConnectionStatsReady(reports: String) {
-
-    }
-
-    override fun onPeerConnectionError(description: String) {
-
     }
 
 }
