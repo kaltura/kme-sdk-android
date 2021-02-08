@@ -10,9 +10,9 @@ For SDK initialization the application should get an instance of main SDK class
 ```
 
 ### For each kind of interaction with KME SDK has a specific controllers
-* Sign In - `kmeSDK.signInController`
-* User - `kmeSDK.userController`
-* Room - `kmeSDK.roomController`
+* Sign In - [`KmeSignInController`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/controller/IKmeSignInController.html)
+* User - [`KmeUserController`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/controller/IKmeUserController.html)
+* Room - [`KmeRoomController`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/controller/room/IKmeRoomController.html)
 
 ### Sign In
 ```
@@ -54,7 +54,7 @@ To get an information for connection to the room the application side should ask
 ```
 
 ### Connect to the room using WS
-Based on information from WebRTC server the applciation can connect to the room using WS by calling `kmeSDK.roomController.connect()` API
+Based on information from WebRTC server the application can connect to the room using WS by calling `KmeRoomController.connect()` API
 ```
  private fun connectToRoom(webRTCServer: KmeWebRTCServer, companyId: Long, roomId: Long) {
      val wssUrl = webRTCServer.wssUrl
@@ -94,7 +94,7 @@ Once WS is connected the application can listen events from the room.
 
 ### Parsing WS messages
 Basically all messages from the server are coming as json string. KME SDK provides a mechanism to receive them as parsed objects depends on `KmeMessageEvent`.
- ```
+```
  override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
      when (message.name) {
          KmeMessageEvent.ROOM_STATE -> {
@@ -114,38 +114,38 @@ Basically all messages from the server are coming as json string. KME SDK provid
          }
      }
  }
- ```
+```
 
 ### WS events.
-All available events and objects to parse supported by KME SDK are described in the `KmeMessageEvent` and separetes by sections:
- * Room initialization, Banners - [`KmeRoomInitModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/)
- * Participants - [`KmeParticipantsModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/)
- * Streaming - [`KmeStreamingModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/)
- * Chat - [`KmeChatModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/)
- * Notes - [`KmeRoomNotesMessage`](https://musical-giggle-e6fd5293.pages.github.io/)
- * Settings - [`KmeRoomSettingsModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/)
- * Active Content - [`KmeActiveContentModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/)
-   * Slides - [`KmeSlidesPlayerModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/)
-   * Video - [`KmeVideoModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/)
-   * Desktop sharing - [`KmeDesktopShareModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/)
+All available events and objects to parse supported by KME SDK are described in the `KmeMessageEvent` and separates by sections:
+ * Room initialization, Banners - [`KmeRoomInitModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/ws/message/module/KmeRoomInitModuleMessage.html)
+ * Participants - [`KmeParticipantsModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/ws/message/module/KmeParticipantsModuleMessage.html)
+ * Streaming - [`KmeStreamingModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/ws/message/module/KmeStreamingModuleMessage.html)
+ * Chat - [`KmeChatModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/ws/message/module/KmeChatModuleMessage.html)
+ * Notes - [`KmeRoomNotesMessage`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/ws/message/module/KmeRoomNotesMessage.html)
+ * Settings - [`KmeRoomSettingsModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/ws/message/module/KmeRoomSettingsModuleMessage.html)
+ * Active Content - [`KmeActiveContentModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/ws/message/module/KmeActiveContentModuleMessage.html)
+   * Slides - [`KmeSlidesPlayerModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/ws/message/module/KmeSlidesPlayerModuleMessage.html)
+   * Video - [`KmeVideoModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/ws/message/module/KmeVideoModuleMessage.html)
+   * Desktop sharing - [`KmeDesktopShareModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/ws/message/module/KmeDesktopShareModuleMessage.html)
    * White board - [``](https://musical-giggle-e6fd5293.pages.github.io/)
- * Recording - [`KmeRoomRecordingMessage`](https://musical-giggle-e6fd5293.pages.github.io/)
+ * Recording - [`KmeRoomRecordingMessage`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/ws/message/module/KmeRoomRecordingMessage.html)
 
 ### Room modules
-All actions inside the room are described by set of room modules from [`KmeRoomController`](https://musical-giggle-e6fd5293.pages.github.io/):
- * [`KmeRoomModule`](https://musical-giggle-e6fd5293.pages.github.io/)
- * [`KmePeerConnectionModule`](https://musical-giggle-e6fd5293.pages.github.io/)
- * [`KmeParticipantModule`](https://musical-giggle-e6fd5293.pages.github.io/)
- * [`KmeChatModule`](https://musical-giggle-e6fd5293.pages.github.io/)
- * [`KmeNoteModule`](https://musical-giggle-e6fd5293.pages.github.io/)
- * [`KmeRecordingModule`](https://musical-giggle-e6fd5293.pages.github.io/)
- * [`KmeDesktopShareModule`](https://musical-giggle-e6fd5293.pages.github.io/)
- * [`KmeAudioModule`](https://musical-giggle-e6fd5293.pages.github.io/)
+All actions inside the room are described by set of room modules from [`KmeRoomController`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/controller/room/IKmeRoomController.html):
+ * [`KmeRoomModule`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/controller/room/IKmeRoomModule.html)
+ * [`KmePeerConnectionModule`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/controller/room/IKmePeerConnectionModule.html)
+ * [`KmeParticipantModule`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/controller/room/IKmeParticipantModule.html)
+ * [`KmeChatModule`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/controller/room/IKmeChatModule.html)
+ * [`KmeNoteModule`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/controller/room/IKmeNoteModule.html)
+ * [`KmeRecordingModule`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/controller/room/IKmeRecordingModule.html)
+ * [`KmeDesktopShareModule`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/controller/room/IKmeDesktopShareModule.html)
+ * [`KmeAudioModule`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/controller/room/IKmeAudioModule.html)
 
 ### Publishing own video stream
- To start publish/view video stream the application need to initialize `PeerConnectionModule` first:
+ To start publish/view video stream the application need to initialize [`KmePeerConnectionModule`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/controller/room/IKmePeerConnectionModule.html) first:
 ```
- kmeSdk.roomController.peerConnectionModule.initialize(
+ kmeSDK.roomController.peerConnectionModule.initialize(
      roomId, companyId,
      turnUrl, turnUser, turnCred,
      peerConnectionEventsHandler
@@ -157,5 +157,38 @@ All actions inside the room are described by set of room modules from [`KmeRoomC
 ### View participant's video stream
  To start view participant's video stream need to send via WS a message
 ```
- kmeSdk.roomController.peerConnectionModule.addViewer(userId, rendererView)
+ kmeSDK.roomController.peerConnectionModule.addViewer(userId, rendererView)
 ```
+
+### Active content
+ Content showed by administrator in the room handles by [`KmeActiveContentModuleMessage`](https://musical-giggle-e6fd5293.pages.github.io/com/kme/kaltura/kmesdk/ws/message/module/KmeActiveContentModuleMessage.html) message
+```
+ kmeSdk.roomController.listen(
+        activeContentHandler,
+        KmeMessageEvent.INIT_ACTIVE_CONTENT,
+        KmeMessageEvent.SET_ACTIVE_CONTENT
+ )
+
+ private val activeContentHandler = object : IKmeMessageListener {
+     override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
+         when (message.name) {
+             KmeMessageEvent.INIT_ACTIVE_CONTENT,
+             KmeMessageEvent.SET_ACTIVE_CONTENT -> {
+                 val contentMessage: KmeActiveContentModuleMessage<SetActiveContentPayload>? = message.toType()
+                 when (contentMessage.contentType) {
+                      VIDEO, AUDIO, YOUTUBE -> {
+                          // Add equivalent UI. Subscribe for video state messages
+                      }
+                      IMAGE, SLIDES -> {
+                          // Add equivalent UI. Subscribe for slides messages
+                      }
+                      DESKTOP_SHARE -> {
+                          // Add equivalent UI. Subscribe for desktop share peerconnection messages
+                      }
+                 }
+             }
+         }
+     }
+ }
+```
+ 
