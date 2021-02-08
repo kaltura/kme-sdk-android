@@ -60,6 +60,6 @@ interface IKmePeerConnectionClientEvents {
     /**
      * Callback fired once peer connection error happened.
      */
-    fun onPeerConnectionError(description: String)
+    fun onPeerConnectionError(requestedUserIdStream: String, description: String)
 
 }

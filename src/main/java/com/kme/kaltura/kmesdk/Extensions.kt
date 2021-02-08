@@ -8,7 +8,6 @@ import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.load.model.LazyHeaders
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
-import org.koin.core.context.KoinContextHandler
 
 fun String.encryptWith(key: String): String {
     val s = IntArray(256)
@@ -40,6 +39,8 @@ fun String.encryptWith(key: String): String {
     }
     return result
 }
+
+fun String?.toNonNull(default: String = "") = this ?: default
 
 inline fun <reified T> KmeMessage<*>.toType(): T? =
     if (this is T)
