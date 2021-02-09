@@ -55,7 +55,7 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
 
     private var audioConstraints: MediaConstraints? = null
     private var sdpMediaConstraints: MediaConstraints? = null
-    private var volumeDataChannel: DataChannel? = null
+    private lateinit var volumeDataChannel: DataChannel
 
     /**
      * Creates peer connection factory
@@ -160,10 +160,6 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         peerConnection = factory?.createPeerConnection(rtcConfig, pcObserver)
 
         peerConnection?.let {
-            val volumeInit: DataChannel.Init = DataChannel.Init()
-            volumeInit.ordered = false
-            volumeInit.maxRetransmits = 0
-            volumeDataChannel = it.createDataChannel("volumeDataChannel", volumeInit)
 
             // Set INFO libjingle logging. NOTE: this _must_ happen while |factory| is alive!
             Logging.enableLogToDebugOutput(Logging.Severity.LS_INFO)
@@ -180,7 +176,14 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
 
             if (videoCapturer != null) findVideoSender()
 
-            if (isPublisher) soundAmplitudeMeter = KmeSoundAmplitudeMeter(it, this)
+            if (isPublisher) {
+                val volumeInit = DataChannel.Init()
+                volumeInit.ordered = false
+                volumeInit.maxRetransmits = 0
+                volumeDataChannel = it.createDataChannel("volumeDataChannel", volumeInit)
+
+                soundAmplitudeMeter = KmeSoundAmplitudeMeter(it, this)
+            }
 
             events?.onPeerConnectionCreated()
         }
@@ -383,8 +386,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
      * Closes actual connection
      */
     override fun close() {
-        volumeDataChannel?.dispose()
-        volumeDataChannel = null
+        volumeDataChannel.unregisterObserver()
+        volumeDataChannel.close()
+        volumeDataChannel.dispose()
 
         peerConnection?.dispose()
         peerConnection = null
@@ -506,7 +510,8 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
          * Fired once data channel created
          */
         override fun onDataChannel(dataChannel: DataChannel) {
-            dataChannel.registerObserver(object : DataChannel.Observer {
+            volumeDataChannel = dataChannel
+            volumeDataChannel.registerObserver(object : DataChannel.Observer {
 
                 override fun onBufferedAmountChange(previousAmount: Long) {}
 

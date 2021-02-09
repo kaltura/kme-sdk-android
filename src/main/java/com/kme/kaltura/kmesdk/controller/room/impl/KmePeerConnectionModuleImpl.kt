@@ -12,6 +12,8 @@ import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.UserMediaStateChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
@@ -47,6 +49,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     private lateinit var turnCred: String
     private lateinit var listener: IKmePeerConnectionModule.KmePeerConnectionEvents
     private var isInitialized: Boolean = false
+    private var blockMediaStateEvents: Boolean = false
 
     /**
      * Setting initialization data to the module
@@ -71,7 +74,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
             peerConnectionModuleHandler,
             KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER,
             KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
-            KmeMessageEvent.USER_DISCONNECTED
+            KmeMessageEvent.USER_DISCONNECTED,
+            KmeMessageEvent.USER_MEDIA_STATE_CHANGED
         )
         isInitialized = true
     }
@@ -137,6 +141,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      *
      */
     override fun enableCamera(isEnable: Boolean) {
+        if (blockMediaStateEvents) return
         sendChangeMediaStateMessage(isEnable, KmeMediaStateType.WEBCAM)
         publisher?.enableCamera(isEnable)
     }
@@ -145,6 +150,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      * Toggle publisher's audio
      */
     override fun enableAudio(isEnable: Boolean) {
+        if (blockMediaStateEvents) return
         sendChangeMediaStateMessage(isEnable, KmeMediaStateType.MIC)
         publisher?.enableAudio(isEnable)
     }
@@ -186,6 +192,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     private fun sendChangeMediaStateMessage(enabled: Boolean, device: KmeMediaStateType) {
         checkData()
 
+        blockMediaStateEvents = true
         webSocketModule.send(
             buildChangeMediaStateMessage(
                 roomId,
@@ -229,6 +236,14 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 KmeMessageEvent.USER_DISCONNECTED -> {
                     val msg: KmeStreamingModuleMessage<UserDisconnectedPayload>? = message.toType()
                     msg?.payload?.userId?.toString()?.let { disconnect(it) }
+                }
+                KmeMessageEvent.USER_MEDIA_STATE_CHANGED -> {
+                    val msg: KmeParticipantsModuleMessage<UserMediaStateChangedPayload>? = message.toType()
+                    msg?.payload?.userId?.let {
+                        if (it == publisherId) {
+                            blockMediaStateEvents = false
+                        }
+                    }
                 }
                 else -> {
                 }
