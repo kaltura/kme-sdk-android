@@ -1,8 +1,21 @@
 # KME SDK user guide
 
-### Building
-Make sure application and SDK folders are stay on the same directory level
-
+### Getting the SDK
+Add it in your root build.gradle at the end of repositories:
+```gradle
+allprojects {
+	repositories {
+		...
+		maven { url 'https://jitpack.io' }
+	}
+}
+```
+Step 2. Add the dependency
+```gradle
+dependencies {
+	       implementation 'com.github.kaltura:kme-sdk-android:1.0.1'
+}
+```
 ### Initialization
 For SDK initialization the application should get an instance of main SDK class
 ```
