@@ -1,0 +1,2 @@
+include ':kmesdk'
+rootProject.name = "kme-sdk-android"
