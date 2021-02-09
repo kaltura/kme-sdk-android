@@ -4,6 +4,7 @@ Allow to build high-performance application for real time communications.
 # Getting Started
 * [Development Guide](user-guide.md)
 * [KME SDK source code documentation](https://kaltura.github.io/kme-sdk-android/)
+* [KME Android Demo App](https://github.com/kaltura/kme-native-android-demo)
 
 # Project Specific Sections and Information
 Every project has its own important information to expose, place it here under clear titles and text.  
