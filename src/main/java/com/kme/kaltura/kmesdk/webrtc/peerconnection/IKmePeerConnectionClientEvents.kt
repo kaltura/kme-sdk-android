@@ -1,16 +1,19 @@
 package com.kme.kaltura.kmesdk.webrtc.peerconnection
 
+/**
+ * An interface for p2p connection events
+ */
 interface IKmePeerConnectionClientEvents {
 
     /**
      * Callback fired once peerConnection instance created
      */
-    fun onPeerConnectionCreated(userId: Long)
+    fun onPeerConnectionCreated(requestedUserIdStream: String)
 
     /**
      * Callback fired once local SDP is created and set.
      */
-    fun onLocalDescription(userId: Long, mediaServerId: Long, sdp: String, type: String)
+    fun onLocalDescription(requestedUserIdStream: String, mediaServerId: Long, sdp: String, type: String)
 
     /**
      * Callback fired once local Ice candidate is generated.
@@ -31,7 +34,12 @@ interface IKmePeerConnectionClientEvents {
     /**
      * Callback fired once ice gathering is complete (IceGatheringDone is COMPLETE).
      */
-    fun onIceGatheringDone(userId: Long, mediaServerId: Long, )
+    fun onIceGatheringDone(requestedUserIdStream: String, mediaServerId: Long)
+
+    /**
+     * Callback fired to indicate current talking user
+     */
+    fun onUserSpeaking(requestedUserIdStream: String, isSpeaking: Boolean)
 
     /**
      * Callback fired once connection is closed (IceConnectionState is
@@ -52,6 +60,6 @@ interface IKmePeerConnectionClientEvents {
     /**
      * Callback fired once peer connection error happened.
      */
-    fun onPeerConnectionError(description: String)
+    fun onPeerConnectionError(requestedUserIdStream: String, description: String)
 
 }

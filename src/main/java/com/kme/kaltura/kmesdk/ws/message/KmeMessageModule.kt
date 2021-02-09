@@ -18,8 +18,29 @@ enum class KmeMessageModule(
     @SerializedName("Chat", alternate = ["chat"])
     CHAT("Chat"),
 
+    @SerializedName("Notes", alternate = ["notes"])
+    NOTES("Notes"),
+
+    @SerializedName("RoomSettings", alternate = ["roomsettings"])
+    ROOM_SETTINGS("RoomSettings"),
+
+    @SerializedName("ActiveContent", alternate = ["activecontent"])
+    ACTIVE_CONTENT("ActiveContent"),
+
+    @SerializedName("Video", alternate = ["video"])
+    VIDEO("Video"),
+
+    @SerializedName("SlidesPlayer", alternate = ["slidesplayer"])
+    SLIDES_PLAYER("SlidesPlayer"),
+
     @SerializedName("Streaming", alternate = ["streaming"])
-    STREAMING("Streaming");
+    STREAMING("Streaming"),
+
+    @SerializedName("Recording", alternate = ["recording"])
+    RECORDING("Recording"),
+
+    @SerializedName("DesktopShare", alternate = ["desktopshare"])
+    DESKTOP_SHARE("DesktopShare");
 
     override fun toString(): String {
         return moduleName.toLowerCase()

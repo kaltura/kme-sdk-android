@@ -2,8 +2,7 @@ package com.kme.kaltura.kmesdk.ws.message.participant
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
-import com.kme.kaltura.kmesdk.ws.message.permission.KmeUserPermissions
-import com.kme.kaltura.kmesdk.ws.message.type.KmeLiveMediaState
+import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlatformType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
@@ -21,7 +20,7 @@ data class KmeParticipant(
     @SerializedName("region_name") var regionName: String? = null,
     @SerializedName("join_time") var joinTime: Long? = null,
     @SerializedName("connection_state") var connectionState: String? = null,
-    @SerializedName("live_media_state") var liveMediaState: KmeLiveMediaState? = null,
+    @SerializedName("live_media_state") var liveMediaState: KmeMediaDeviceState? = null,
     @SerializedName("webcam_state") var webcamState: KmeMediaDeviceState? = null,
     @SerializedName("mic_state") var micState: KmeMediaDeviceState? = null,
     @SerializedName("time_hand_raised") var timeHandRaised: Long? = null,
@@ -32,10 +31,14 @@ data class KmeParticipant(
     @SerializedName("city") var city: String? = null,
     @SerializedName("managing_server_id") var managingServerId: Long? = null,
     @SerializedName("out_of_tab_focus") var outOfTabFocus: Boolean? = null,
-    @SerializedName("user_permissions") var userPermissions: KmeUserPermissions? = null,
+    @SerializedName("user_permissions") var userPermissions: KmeSettingsV2? = null,
     @SerializedName("is_moderator") var isModerator: Boolean?,
     @SerializedName("is_captioner") var isCaptioner: Boolean?,
     @SerializedName("lat") var lat: Double? = null,
-    @SerializedName("long") var long: Double? = null
+    @SerializedName("long") var long: Double? = null,
+
+//    Local
+    var isSpeaking: Boolean = false,
+    var isHandRaised: Boolean = false
 
 ) : Parcelable

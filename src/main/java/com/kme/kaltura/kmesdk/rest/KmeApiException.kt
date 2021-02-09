@@ -2,6 +2,9 @@ package com.kme.kaltura.kmesdk.rest
 
 import com.kme.kaltura.kmesdk.rest.response.KmeResponse
 
+/**
+ * Main REST exceptions class. Indicates an error produced by REST response handling
+ */
 sealed class KmeApiException(
     override val message: String?,
     cause: Throwable? = null,
@@ -33,7 +36,7 @@ sealed class KmeApiException(
 
     class InternalApiException(
         errorResponse: KmeResponse
-    ) : KmeApiException(null, null)
+    ) : KmeApiException(errorResponse.data?.message, null)
 
     class ParseJsonException(
         message: String? = null,

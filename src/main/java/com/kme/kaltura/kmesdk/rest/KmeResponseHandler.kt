@@ -6,6 +6,9 @@ import kotlinx.coroutines.withContext
 import java.net.ConnectException
 import java.net.UnknownHostException
 
+/**
+ * Main REST function. Sending requests and handle responses
+ */
 suspend fun <T> safeApiCall(
     call: suspend () -> T,
     success: (response: T) -> Unit,

@@ -6,6 +6,9 @@ import org.koin.core.Koin
 import org.koin.core.KoinComponent
 import org.koin.dsl.koinApplication
 
+/**
+ * Base class for the KME controllers which has an access for Koin container
+ */
 object KmeKoinContext {
 
     private lateinit var context: Context
@@ -15,6 +18,7 @@ object KmeKoinContext {
             androidContext(context)
             modules(restModule)
             modules(controllersModule)
+            modules(roomModules)
             modules(preferencesModule)
             modules(webSocketModule)
             modules(webRTCModule)
@@ -22,7 +26,6 @@ object KmeKoinContext {
     }
 
     fun init(appContext: Context) {
-        check(!::context.isInitialized) { "Context is already initialized!" }
         context = appContext.applicationContext
     }
 

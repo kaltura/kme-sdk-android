@@ -1,7 +1,6 @@
 package com.kme.kaltura.kmesdk.ws.message
 
 import com.google.gson.annotations.SerializedName
-
 enum class KmeMessageEvent(
     @SerializedName("name") val moduleName: String
 ) {
@@ -15,6 +14,15 @@ enum class KmeMessageEvent(
 
     @SerializedName("instructorIsOffLine", alternate = ["instructorisoffline"])
     INSTRUCTOR_IS_OFFLINE("instructorIsOffLine"),
+
+    @SerializedName("awaitInstructorApproval", alternate = ["awaitinstructorapproval"])
+    AWAIT_INSTRUCTOR_APPROVAL("awaitInstructorApproval"),
+
+    @SerializedName("userApprovedByInstructor", alternate = ["userapprovedbyinstructor"])
+    USER_APPROVED_BY_INSTRUCTOR("userApprovedByInstructor"),
+
+    @SerializedName("userRejectedByInstructor", alternate = ["userrejectedbyinstructor"])
+    USER_REJECTED_BY_INSTRUCTOR("userRejectedByInstructor"),
 
     @SerializedName("anyInstructorsConnectedToRoom", alternate = ["anyinstructorsconnectedtoroom"])
     ANY_INSTRUCTORS_IS_CONNECTED_TO_ROOM("anyInstructorsConnectedToRoom"),
@@ -63,6 +71,15 @@ enum class KmeMessageEvent(
 
     @SerializedName("changeUserFocusEvent", alternate = ["changeuserfocusevent"])
     CHANGE_USER_FOCUS_EVENT("changeUserFocusEvent"),
+
+    @SerializedName("setParticipantModerator", alternate = ["setparticipantmoderator"])
+    SET_PARTICIPANT_MODERATOR("setParticipantModerator"),
+
+    @SerializedName("userHandRaised", alternate = ["userhandraised"])
+    USER_HAND_RAISED("userHandRaised"),
+
+    @SerializedName("makeAllUsersHandPut", alternate = ["makeallusershandput"])
+    MAKE_ALL_USERS_HAND_PUT("makeAllUsersHandPut"),
 
     /*
     * Streaming
@@ -115,7 +132,141 @@ enum class KmeMessageEvent(
     DELETE_MESSAGE("deleteMessage"),
 
     @SerializedName("deletedMessage", alternate = ["deletedmessage"])
-    DELETED_MESSAGE("deletedMessage");
+    DELETED_MESSAGE("deletedMessage"),
+
+    @SerializedName("createDMConversation", alternate = ["createdmconversation"])
+    CREATE_DM_CONVERSATION("createDMConversation"),
+
+    @SerializedName("createdDMConversation", alternate = ["createddmconversation"])
+    CREATED_DM_CONVERSATION("createdDMConversation"),
+
+    @SerializedName("getDMConversation", alternate = ["getdmconversation"])
+    GET_CONVERSATION("getDMConversation"),
+
+    @SerializedName("gotDMConversation", alternate = ["gotdmconversation"])
+    GOT_CONVERSATION("gotDMConversation"),
+
+    /*
+    * Room Notes
+    * */
+
+    @SerializedName("sendCreatedNote", alternate = ["sendcreatednote"])
+    ROOM_NOTE_CREATED("sendCreatedNote"),
+
+    @SerializedName("sendRename", alternate = ["sendrename"])
+    ROOM_NOTE_RENAMED("sendRename"),
+
+    @SerializedName("broadcastNoteToAll", alternate = ["broadcastnotetoall"])
+    BROADCAST_ROOM_NOTE_TO_ALL("broadcastNoteToAll"),
+
+    @SerializedName("subscribeToNote", alternate = ["subscribetonote"])
+    ROOM_NOTE_SUBSCRIBE("subscribeToNote"),
+
+    @SerializedName("sendNotesToListeners", alternate = ["sendNotesToListeners"])
+    ROOM_NOTE_SEND_TO_LISTENERS("sendNotesToListeners"),
+
+    @SerializedName("sendDeletedNote", alternate = ["senddeletedmote"])
+    ROOM_NOTE_DELETED("sendDeletedNote"),
+
+    /*
+    * Room Settings
+    * */
+
+    @SerializedName("moduleDefaultSettingsChanged", alternate = ["moduledefaultsettingschanged"])
+    ROOM_DEFAULT_SETTINGS_CHANGED("moduleDefaultSettingsChanged"),
+
+    @SerializedName("roomSettingsChanged", alternate = ["roomsettingschanged"])
+    ROOM_SETTINGS_CHANGED("roomSettingsChanged"),
+
+    @SerializedName("forceSessionEnd", alternate = ["forcesessionend"])
+    FORCE_SESSION_END("forceSessionEnd"),
+
+    @SerializedName("userLeaveSession", alternate = ["userleavesession"])
+    USER_LEAVE_SESSION("userLeaveSession"),
+
+    /*
+    * Active Content
+    * */
+
+    @SerializedName("initActiveContent", alternate = ["initactivecontent"])
+    INIT_ACTIVE_CONTENT("initActiveContent"),
+
+    @SerializedName("setActiveContent", alternate = ["setactivecontent"])
+    SET_ACTIVE_CONTENT("setActiveContent"),
+
+    /*
+    * Slides Player
+    * */
+
+    @SerializedName("slideChanged", alternate = ["slideChanged"])
+    SLIDE_CHANGED("slideChanged"),
+
+    /*
+    * Video
+    * */
+
+    @SerializedName("playerPlaying", alternate = ["playerplaying"])
+    PLAYER_PLAYING("playerPlaying"),
+
+    @SerializedName("playerPaused", alternate = ["playerpaused"])
+    PLAYER_PAUSED("playerPaused"),
+
+    @SerializedName("playerShouldSeekTo", alternate = ["playershouldseekto"])
+    PLAYER_SEEK_TO("playerShouldSeekTo"),
+
+    @SerializedName("syncPlayerState", alternate = ["syncplayerstate"])
+    SYNC_PLAYER_STATE("syncPlayerState"),
+
+
+    /*
+    * Recording
+    * */
+
+    @SerializedName("startRecording", alternate = ["startrecording"])
+    START_RECORDING("startRecording"),
+
+    @SerializedName("initiated", alternate = ["initiated"])
+    RECORDING_INITIATED("initiated"),
+
+    @SerializedName("receivedStartRecording", alternate = ["receivedstartrecording"])
+    RECORDING_STARTING("receivedStartRecording"),
+
+    @SerializedName("stopRecording", alternate = ["stoprecording"])
+    STOP_RECORDING("stopRecording"),
+
+    @SerializedName("recording", alternate = ["recording"])
+    RECORDING_STARTED("recording"),
+
+    @SerializedName("receivedStopRecording", alternate = ["receivedstoprecording"])
+    RECORDING_STOPPED("receivedStopRecording"),
+
+    @SerializedName("recordingCompleted", alternate = ["recordingcompleted"])
+    RECORDING_COMPLETED("recordingCompleted"),
+
+    @SerializedName("conversionCompleted", alternate = ["conversioncompleted"])
+    RECORDING_CONVERSION_COMPLETED("conversionCompleted"),
+
+    @SerializedName("uploadCompleted", alternate = ["uploadcompleted"])
+    RECORDING_UPLOAD_COMPLETED("uploadCompleted"),
+
+    @SerializedName("recordingStatus", alternate = ["recordingstatus"])
+    RECORDING_STATUS("recordingStatus"),
+
+    @SerializedName("recorderFailed", alternate = ["recorderfailed"])
+    RECORDING_FAILED("recorderFailed"),
+
+    /*
+    * Share Desktop
+    * */
+
+    @SerializedName("initDesktopShareOnRoomInit", alternate = ["initdesktopsshareonroominit"])
+    DESKTOP_SHARE_INIT_ON_ROOM_INIT("initDesktopShareOnRoomInit"),
+
+    @SerializedName("desktopShareStateUpdated", alternate = ["desktopsharestateupdated"])
+    DESKTOP_SHARE_STATE_UPDATED("desktopShareStateUpdated"),
+
+    @SerializedName("desktopShareQualityUpdated", alternate = ["desktopsharequalityupdated"])
+    DESKTOP_SHARE_QUALITY_UPDATED("desktopShareQualityUpdated");
 
     override fun toString(): String {
         return moduleName.toLowerCase()

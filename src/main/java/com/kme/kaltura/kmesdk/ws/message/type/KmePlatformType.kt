@@ -10,6 +10,8 @@ enum class KmePlatformType(
     DESKTOP("desktop"),
 
     @SerializedName("mobile")
-    MOBILE("mobile")
+    MOBILE("mobile");
 
-}
+    override fun toString(): String {
+        return userRole
+    }}
