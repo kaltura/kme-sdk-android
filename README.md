@@ -1,13 +1,8 @@
 # Kaltura Meeting Experience. Android SDK.
 KME Android SDK is a mediator between server side and application. Created for simplifying interactions with Kaltura Meeting Experience server side.
 Allow to build high-performance application for real time communications.
-
-# Documentation and guides
-* [Frequently Asked Questions](http://linktodoc.com)
-* [Project Release Notes](http://linktodoc.com) (see example: [Kaltura server Release Notes](https://github.com/kaltura/server/blob/master/release-notes.md)
+# Getting Started
 * [Development Guide](user-guide.md)
-* [Testing and QA Guide](http://linktodoc.com)
-* [Doc Title X](http://linktodoc.com)
 * [KME SDK source code documentation](https://kaltura.github.io/kme-sdk-android/)
 
 # Project Specific Sections and Information
