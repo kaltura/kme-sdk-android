@@ -1,0 +1,6 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/cam_off" android:state_selected="false" />
+    <item android:drawable="@drawable/cam_on" android:state_selected="true" />
+
+</selector>

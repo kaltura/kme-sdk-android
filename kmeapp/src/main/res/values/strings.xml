@@ -1,0 +1,144 @@
+<resources>
+
+    <string name="app_name">KME Demo</string>
+
+    <!--SignIn-->
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">login</string>
+    <string name="join_as_guest">Join as guest</string>
+    <string name="join_as_user">Join as user</string>
+
+    <string name="not_valid_room_link">This room link is not valid.</string>
+
+    <string name="companies">Companies</string>
+
+    <string name="instructor">Instructor</string>
+    <string name="room">Room</string>
+    <string name="room_name">Room name</string>
+    <string name="plan">Plan</string>
+    <string name="summary">Summary</string>
+    <string name="description">Description</string>
+    <string name="add_users">Add users</string>
+    <string name="join">Join</string>
+    <string name="submit">Submit</string>
+    <string name="leave">Leave</string>
+    <string name="rejoin">Rejoin</string>
+
+    <!--Companies-->
+    <string name="room_link">Room link:</string>
+    <string name="https_prefix">https://</string>
+    <string name="logout">Logout</string>
+    <string name="logout_message">Are you sure you want to logout?</string>
+
+    <!--Banners-->
+    <string name="enter_password">Enter password</string>
+    <string name="password_required">Password required to join the class. (Password must be 8–24 characters)</string>
+    <string name="session_ended">Session ended</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="please_wait">Please wait</string>
+    <string name="left_session">You have successfully left the session.</string>
+    <string name="participant_limit_reached">The room has reached the maximum number of participants.</string>
+    <string name="removed_from_the_room">You have been removed from the class.Please contact your instructor for more information.</string>
+    <string name="instructor_not_arrived">The instructor has not yet arrived. You will be connected when the session starts.</string>
+    <string name="request_to_join_sent">A request to join was sent to the Instructor. Please wait for their confirmation.</string>
+    <string name="instructor_ended_session">The host has ended the session. Thank you for participating.</string>
+    <string name="all_participant_removed">All participants have been removed from the session.</string>
+    <string name="duplicated_tab">You have been disconnected from the room because you joined on another device or window.</string>
+    <string name="incorrect_password">Password is incorrect</string>
+
+    <!--Room-->
+    <string name="leave_room">Leave</string>
+    <string name="chat">Chat</string>
+    <string name="participants">Participants</string>
+    <string name="notes">Notes</string>
+
+    <string name="end_session">End the Session</string>
+    <string name="end_session_message">Do you want to end the session?</string>
+    <string name="end_session_for_everyone">End for everyone</string>
+
+    <string name="room_tools_action_youtube">YouTube</string>
+    <string name="room_tools_action_whiteboard">Whiteboard</string>
+    <string name="room_tools_action_desk_share">Desktop Share</string>
+    <string name="room_tools_action_quizzes">Quizzes</string>
+    <string name="room_tools_action_recording">Recording</string>
+    <string name="room_tools_action_start_recording">Start Recording</string>
+    <string name="room_tools_action_stop_recording">Stop Recording</string>
+    <string name="room_tools_action_breakout">Breakout</string>
+
+    <!--Recording-->
+    <string name="recording_initializing_dialog_title">Initializing recording</string>
+    <string name="recording_initializing_dialog_message">Recording will start momentarily</string>
+    <string name="recording_initializing_action_positive">OK</string>
+    <string name="recording_status_initiated">Recording will start in a moment. Please wait…</string>
+    <string name="recording_status_started">Recording has started!</string>
+    <string name="recording_status_stopped">Recording was stopped</string>
+    <string name="recording_status_processing">Recording is finished. Processing…</string>
+    <string name="recording_status_uploading">Processing is finished. Uploading…</string>
+    <string name="recording_status_finished">File has been uploaded, you can view file inside recordings folder</string>
+    <string name="recording_status_failed">Recording failed</string>
+    <string name="recording_start_dialog_title">Set recording duration</string>
+    <string name="recording_start_dialog_action_positive">Start</string>
+    <string name="recording_start_dialog_action_negative">Close</string>
+    <string name="recording_start_dialog_prefix">Record for</string>
+    <string name="recording_start_dialog_postfix_minutes">minutes</string>
+    <string name="recording_start_dialog_postfix_hour">hour</string>
+    <string name="recording_start_dialog_postfix_hours">hours</string>
+    <string name="recording_stop_dialog_title">Stop recording</string>
+    <string name="recording_stop_dialog_message">Do you want to stop recording?</string>
+    <string name="recording_stop_dialog_action_positive">Stop recording</string>
+    <string name="recording_stop_dialog_action_negative">Cancel</string>
+    <string name="recording_timer_pattern">%02d:%02d:%02d</string>
+
+    <!--Participants-->
+    <string name="enable_mic">Enable micro</string>
+    <string name="disable_mic">Disable micro</string>
+    <string name="enable_cam">Enable camera</string>
+    <string name="disable_cam">Disable camera</string>
+    <string name="enable_live">Enable live</string>
+    <string name="disable_live">Disable live</string>
+
+    <!--Chat-->
+    <string name="hint_enter_a_message">Enter chat…</string>
+    <string name="sending">Sending…</string>
+    <string name="failed">Failed</string>
+    <string name="sent">Sent</string>
+    <string name="reply">Reply</string>
+    <string name="reply_all">Reply All</string>
+    <string name="delete">Delete</string>
+    <string name="start_private_chat">Private chat</string>
+    <string name="name">Name</string>
+    <string name="yesterday">Yesterday</string>
+
+    <!--Room Notes-->
+    <string name="action_room_note_rename">Rename</string>
+    <string name="action_room_note_download">Download</string>
+    <string name="action_room_note_add_to_files">Add to files</string>
+    <string name="action_room_note_delete">Delete</string>
+    <string name="room_note_add_to_files_state_success">Added to files</string>
+    <string name="room_note_add_to_files_state_error">Error</string>
+    <string name="room_note_download_state_success">Downloaded</string>
+    <string name="room_note_download_state_error">Error</string>
+    <string name="room_note_delete_state_success">Deleted</string>
+    <string name="room_note_delete_state_error">Error</string>
+    <string name="room_note_rename_dialog_title">Rename Note</string>
+    <string name="room_note_rename_dialog_action_positive">Rename</string>
+    <string name="room_note_rename_dialog_action_negative">Cancel</string>
+    <string name="room_note_delete_dialog_title">Delete Note</string>
+    <string name="room_note_delete_dialog_message">Are you sure want to delete this note?</string>
+    <string name="room_note_delete_dialog_action_positive">Delete</string>
+    <string name="room_note_delete_dialog_action_negative">Cancel</string>
+    <string name="room_note_broadcast">Broadcast Note</string>
+
+    <!--Share Screen-->
+    <string name="share_screen_wait_title">Please wait</string>
+    <string name="share_screen_wait_message">Moderator didn\'t start screen share</string>
+
+    <!--General-->
+    <string name="error_active_content">Failed to load content data</string>
+    <string name="error">Error</string>
+    <string name="search">Search</string>
+
+    <string name="media_time_format">%s/%s</string>
+
+</resources>

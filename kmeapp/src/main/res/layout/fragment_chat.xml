@@ -1,0 +1,57 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true">
+
+    <com.stfalcon.chatkit.messages.MessagesList
+        android:id="@+id/messagesList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/inputContainer"
+        android:layout_alignParentTop="true"
+        android:clipToPadding="true"
+        android:paddingBottom="8dp"
+        app:incomingTextColor="@color/white"
+        app:incomingTextSize="17sp"
+        app:outcomingTextColor="@color/white"
+        app:outcomingTextSize="17sp" />
+
+    <LinearLayout
+        android:id="@+id/inputContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/replyMessageInput"
+            layout="@layout/item_reply_text_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone" />
+
+        <com.stfalcon.chatkit.messages.MessageInput
+            android:id="@+id/input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:isScrollContainer="true"
+            app:inputBackground="@drawable/bg_stroke_rounded_rect"
+            app:inputButtonBackground="@drawable/bg_circle_shape"
+            app:inputButtonDefaultIconColor="@color/white"
+            app:inputButtonDefaultIconDisabledColor="@color/white60"
+            app:inputHint="@string/hint_enter_a_message"
+            app:inputMaxLines="6"
+            app:inputTextColor="@color/white"
+            app:inputTextSize="18sp"
+            app:showAttachmentButton="false" />
+
+    </LinearLayout>
+
+</RelativeLayout>

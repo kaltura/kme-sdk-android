@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipeRefreshLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        tools:context=".view.activity.RoomInfoActivity">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivRoomAvatar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_default_background" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRoomNameText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/room_name"
+                android:textColor="@color/grayScale1"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/etRoomName"
+                app:layout_constraintTop_toBottomOf="@+id/ivRoomAvatar" />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/etRoomName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="false"
+                android:maxLines="1"
+                android:textColor="@color/grayScale2"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toTopOf="@id/tvRoomPlanText"
+                app:layout_constraintTop_toBottomOf="@+id/tvRoomNameText" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRoomPlanText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/plan"
+                android:textColor="@color/grayScale1"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/tvRoomPlanText"
+                app:layout_constraintTop_toBottomOf="@+id/etRoomName" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRoomPlan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/grayScale1"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/tvRoomSummaryText"
+                app:layout_constraintTop_toBottomOf="@+id/tvRoomPlanText" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRoomSummaryText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/summary"
+                android:textColor="@color/grayScale1"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/etRoomSummary"
+                app:layout_constraintTop_toBottomOf="@+id/tvRoomPlan" />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/etRoomSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:ellipsize="end"
+                android:enabled="false"
+                android:maxLines="3"
+                android:textColor="@color/grayScale2"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toTopOf="@id/tvRoomDescriptionText"
+                app:layout_constraintTop_toBottomOf="@+id/tvRoomSummaryText" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRoomDescriptionText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/description"
+                android:textColor="@color/grayScale1"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/etRoomDescription"
+                app:layout_constraintTop_toBottomOf="@+id/etRoomSummary" />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/etRoomDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:ellipsize="end"
+                android:enabled="false"
+                android:maxLines="5"
+                android:textColor="@color/grayScale2"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toTopOf="@id/tvRoomUsersText"
+                app:layout_constraintTop_toBottomOf="@+id/tvRoomDescriptionText" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRoomUsersText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/add_users"
+                android:textColor="@color/grayScale1"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/etRoomUsers"
+                app:layout_constraintTop_toBottomOf="@+id/etRoomDescription" />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/etRoomUsers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:ellipsize="end"
+                android:enabled="false"
+                android:maxLines="1"
+                android:textColor="@color/grayScale2"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvRoomUsersText" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -1,2 +1,3 @@
+include ':kmeapp'
 include ':kmesdk'
-rootProject.name = "kme-sdk-android"
+rootProject.name = "KmeSDK"

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_youtube"
+        android:title="@string/room_tools_action_youtube" />
+
+    <item
+        android:id="@+id/action_whiteboard"
+        android:title="@string/room_tools_action_whiteboard" />
+
+    <item
+        android:id="@+id/action_desk_share"
+        android:title="@string/room_tools_action_desk_share" />
+
+    <item
+        android:id="@+id/action_quizzes"
+        android:title="@string/room_tools_action_quizzes" />
+
+    <item
+        android:id="@+id/action_recording"
+        android:title="@string/room_tools_action_recording" />
+
+    <item
+        android:id="@+id/action_breakout"
+        android:title="@string/room_tools_action_breakout" />
+
+</menu>
