@@ -55,7 +55,7 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
 
     private var audioConstraints: MediaConstraints? = null
     private var sdpMediaConstraints: MediaConstraints? = null
-    private lateinit var volumeDataChannel: DataChannel
+    private var volumeDataChannel: DataChannel? = null
 
     /**
      * Creates peer connection factory
@@ -386,9 +386,10 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
      * Closes actual connection
      */
     override fun close() {
-        volumeDataChannel.unregisterObserver()
-        volumeDataChannel.close()
-        volumeDataChannel.dispose()
+        volumeDataChannel?.unregisterObserver()
+        volumeDataChannel?.close()
+        volumeDataChannel?.dispose()
+        volumeDataChannel = null
 
         peerConnection?.dispose()
         peerConnection = null
@@ -511,7 +512,7 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
          */
         override fun onDataChannel(dataChannel: DataChannel) {
             volumeDataChannel = dataChannel
-            volumeDataChannel.registerObserver(object : DataChannel.Observer {
+            volumeDataChannel?.registerObserver(object : DataChannel.Observer {
 
                 override fun onBufferedAmountChange(previousAmount: Long) {}
 
