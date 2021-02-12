@@ -2,9 +2,7 @@ package com.kme.kaltura.kmesdk.content.whiteboard
 
 import android.content.Context
 import android.graphics.*
-import android.graphics.PathMeasure.POSITION_MATRIX_FLAG
 import android.os.Build
-import android.text.DynamicLayout
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
@@ -84,7 +82,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
             style = Paint.Style.STROKE
             isAntiAlias = true
             isDither = true
-            color = Color.BLACK
+            color = Color.RED
             strokeJoin = Paint.Join.ROUND
             strokeCap = Paint.Cap.ROUND
         }
@@ -217,7 +215,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 measureRectanglePath(drawing)
             }
             drawing.isText() -> {
-                measureTextPath(drawing)
+                WhiteboardTextPath("", Path(), 0f, 0f)
             }
             drawing.isImage() -> {
                 measureImage(drawing)
@@ -283,7 +281,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 it, 0, 0,
                 it.width, it.height, transformationMatrix, true
             )
-            it.recycle()
+//            it.recycle()
 
             transformationMatrix.reset()
             transformationMatrix.postTranslate(
@@ -483,81 +481,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
         return path
     }
 
-    private fun measureTextPath(drawing: WhiteboardPayload.Drawing): WhiteboardTextPath? {
-        val parentPath = drawing.path ?: return null
-        val childrenPath = parentPath.childrenPath ?: return null
-        val rectangle = childrenPath.rectangle ?: return null
-
-        if (childrenPath.content == null || childrenPath.content.isEmpty()) return null
-
-        val parentMatrix = (parentPath.matrix ?: defaultMatrixArray).copyOf()
-        val childrenMatrix = childrenPath.matrix?.copyOf()
-
-        invalidatePaint(drawing.getDrawingPath())
-        val bounds = Rect()
-        paint.getTextBounds(childrenPath.content, 0, childrenPath.content.length, bounds)
-
-        parentMatrix[4] = parentMatrix[4].toX() + imageBounds.left
-        parentMatrix[5] = parentMatrix[5].toY() + imageBounds.top
-
-        val path = Path()
-
-        val segmentWidth = rectangle[2].toX() - rectangle[0].toX()
-        val segmentHeight = rectangle[3].toY() - rectangle[1].toY()
-
-
-        //rectangle (x, y, width, height)
-
-        val segmentLeft = rectangle[0].toX()
-        val segmentTop = rectangle[1].toY()
-        val segmentRight = segmentLeft + rectangle[2].toX()
-        val segmentBottom = segmentTop + rectangle[3].toY()
-
-        var cx1 = segmentLeft
-        var cy1 = segmentTop
-        var cx2 = segmentRight
-        var cy2 = segmentTop
-        var cx3 = segmentRight
-        var cy3 = segmentBottom
-        var cx4 = segmentLeft
-        var cy4 = segmentBottom
-
-        if (childrenMatrix != null) {
-            childrenMatrix[4] = childrenMatrix[4].toX()
-            childrenMatrix[5] = childrenMatrix[5].toY()
-
-            cx1 = segmentLeft.transformX(segmentTop, childrenMatrix)
-            cy1 = segmentTop.transformY(segmentLeft, childrenMatrix)
-            cx2 = segmentRight.transformX(segmentTop, childrenMatrix)
-            cy2 = segmentTop.transformY(segmentRight, childrenMatrix)
-            cx3 = segmentRight.transformX(segmentBottom, childrenMatrix)
-            cy3 = segmentBottom.transformY(segmentRight, childrenMatrix)
-            cx4 = segmentLeft.transformX(segmentBottom, childrenMatrix)
-            cy4 = segmentBottom.transformY(segmentLeft, childrenMatrix)
-        }
-
-        val x1 = cx1.transformX(cy1, parentMatrix)
-        val y1 = cy1.transformY(cx1, parentMatrix)
-        val x2 = cx2.transformX(cy2, parentMatrix)
-        val y2 = cy2.transformY(cx2, parentMatrix)
-        val x3 = cx3.transformX(cy3, parentMatrix)
-        val y3 = cy3.transformY(cx3, parentMatrix)
-        val x4 = cx4.transformX(cy4, parentMatrix)
-        val y4 = cy4.transformY(cx4, parentMatrix)
-
-        path.moveTo(x1, y1)
-        path.lineTo(x2, y2)
-//        path.lineTo(x3, y3)
-//        path.lineTo(x4, y4)
-
-        path.close()
-
-        val hOffset = 0f
-        val vOffset = bounds.height().toFloat()
-
-        return WhiteboardTextPath(childrenPath.content, path, vOffset, hOffset)
-    }
-
     private fun invalidatePaint(path: KmeWhiteboardPath?) {
         path?.let {
             paint.color = it.getPaintColor()
@@ -619,28 +542,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
                                 canvas?.drawBitmap(it.bitmap, it.matrix, paint)
                             }
                             is WhiteboardTextPath -> {
-                                val pm = PathMeasure(it.path, false)
-
-                                val layout = DynamicLayout(
-                                    it.text,
-                                    it.text,
-                                    TextPaint(paint),
-                                    pm.length.toInt(),
-                                    Layout.Alignment.ALIGN_CENTER,
-                                    1f,
-                                    0f,
-                                    true
-                                )
-                                canvas?.save()
-                                val matrix = Matrix()
-                                pm.getMatrix(0f, matrix, POSITION_MATRIX_FLAG)
-                                canvas?.setMatrix(matrix)
-                                layout.draw(canvas)
-                                canvas?.restore()
-
-//                                canvas?.drawPath(it.path, testPaint)
-//                                canvas?.drawTextOnPath(it.text, it.path, it.hOffset, it.vOffset, paint)
-//                                canvas?.drawTextPath(drawing)
+                                canvas?.drawTextPath(drawing)
                             }
                             else -> {
                             }
@@ -653,46 +555,43 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     private fun Canvas.drawTextPath(drawing: WhiteboardPayload.Drawing?) {
         val textDrawing = drawing?.path?.childrenPath
+        val parentMatrix = drawing?.path?.matrix ?: defaultMatrixArray
+        val childrenMatrix = textDrawing?.matrix ?: defaultMatrixArray
         if (textDrawing != null && !textDrawing.content.isNullOrEmpty()) {
-
-            var a = drawing.path?.matrix?.get(0) ?: 1f
-            var b = drawing.path?.matrix?.get(1) ?: 0f
-            var c = drawing.path?.matrix?.get(2) ?: 0f
-            var d = drawing.path?.matrix?.get(3) ?: 1f
-            var e = drawing.path?.matrix?.get(4)?.toX() ?: 0f
-            var f = drawing.path?.matrix?.get(5)?.toX() ?: 0f
-
-            var delta = a * d - b * c
-
-            var scaleX1 = 1f
-            var scaleY1 = 1f
-            var skewX1 = 0f
-            var skewY1 = 0f
-            var rotation = 0f
-
-            if (a != 0f || b != 0f) {
-                var r = sqrt(a * a + b * b)
-                rotation = if (b > 0f) acos(a / r) else -acos(a / r)
-                scaleX1 = r
-                scaleY1 = delta / r
-                skewX1 = atan((a * c + b * d) / (r * r))
-            } else if (c != 0f || d != 0f) {
-                var s = sqrt(c * c + d * d)
-                rotation =
-                    (Math.PI / 2 - (if (d > 0f) acos(-c / s) else -acos(c / s))).toFloat()
-                scaleX1 = delta / s
-                scaleY1 = s
-                skewY1 = atan((a * c + b * d) / (s * s))
-            }
-
             val bounds = Rect()
             paint.getTextBounds(textDrawing.content, 0, textDrawing.content.length, bounds)
 
-            val scaleX = drawing.path?.matrix?.get(0) ?: 1f
-            val scaleY = drawing.path?.matrix?.get(3) ?: 1f
+            val affineMatrix = floatArrayOf(
+                parentMatrix[0],
+                parentMatrix[1],
+                parentMatrix[2],
+                parentMatrix[3],
+                childrenMatrix[4].toX(),
+                childrenMatrix[5].toY()
+            )
 
-            val skewX = drawing.path?.matrix?.get(2) ?: 0f
-            val skewY = drawing.path?.matrix?.get(1) ?: 0f
+            val transformationMatrix = Matrix()
+
+            val rotation = (180 / PI * atan2(affineMatrix[1], affineMatrix[0])).toFloat()
+            val denominator = affineMatrix[0].pow(2) + affineMatrix[1].pow(2)
+            val scaleX = sqrt(denominator)
+            val scaleY =
+                (affineMatrix[0] * affineMatrix[3] - affineMatrix[2] * affineMatrix[1]) / scaleX
+            val skewX = atan(
+                (affineMatrix[0] * affineMatrix[2] + affineMatrix[1] * affineMatrix[3]) / sqrt(
+                    affineMatrix[0].pow(2) + affineMatrix[1].pow(2)
+                )
+            )
+            val skewY = 0f
+            val rectangle = textDrawing.rectangle ?: floatArrayOf(0f, 0f, 0f, 0f)
+
+//            transformationMatrix.setValues(
+//                floatArrayOf(
+//                    scaleX, skewX, 0f,
+//                    skewY, scaleY, 0f,
+//                    0f, 0f, 1f
+//                )
+//            )
 
             val width = if (textDrawing.rectangle?.size == 4) {
                 textDrawing.rectangle[2].toX()
@@ -700,13 +599,21 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 0f
             }
 
-            val scalePointX =
-                textDrawing.rectangle?.get(0)?.toX()?.times(scaleX)
-                    ?.plus(drawing.path?.matrix?.get(4)?.toX() ?: 0f) ?: 0f
-            val scalePointY = textDrawing.rectangle?.get(1)?.toY()?.times(scaleY)
-                ?.plus(drawing.path?.matrix?.get(5)?.toY() ?: 0f) ?: 0f
-            val translateX = imageBounds.left + (scalePointX)
-            val translateY = imageBounds.top + (scalePointY)
+            val height = if (textDrawing.rectangle?.size == 4) {
+                textDrawing.rectangle[3].toY()
+            } else {
+                0f
+            }
+
+            val rect = RectF(
+                affineMatrix[4] + imageBounds.left,
+                affineMatrix[5] + imageBounds.top,
+                (affineMatrix[4] + imageBounds.left + width * scaleX),
+                (affineMatrix[5] + imageBounds.top + height * scaleY)
+            )
+
+            val pivotX = drawing.path?.pivot?.get(0) ?: 0f
+            val pivotY = drawing.path?.pivot?.get(1) ?: 0f
 
             val textPaint = TextPaint(paint)
 
@@ -716,35 +623,85 @@ class KmeWhiteboardView @JvmOverloads constructor(
                     0,
                     textDrawing.content.length,
                     textPaint,
-                    width.toInt()
+                    width.roundToInt()
                 ).apply {
                     setAlignment(Layout.Alignment.ALIGN_NORMAL)
                     setIncludePad(false)
-                    setLineSpacing(0.0f, 1.0f)
+                    setLineSpacing(0.0f, 0.9f)
                 }.build()
             } else {
                 StaticLayout(
                     textDrawing.content,
                     textPaint,
-                    width.toInt(),
+                    width.roundToInt(),
                     Layout.Alignment.ALIGN_NORMAL,
-                    1.0f,
+                    0.9f,
                     0.0f,
                     false
                 )
             }
 
-            save()
+            val bitmap = Bitmap.createBitmap(
+                staticLayout.width,
+                staticLayout.height,
+                Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            staticLayout.draw(canvas)
 
-            val x = (e * (cos(rotation) + sin(rotation)) / scaleX1)
-            val y = (f * (cos(rotation) - sin(rotation)) / scaleY1)
+            drawPoint(
+                pivotX, pivotY,
+                testPaint
+            )
+            drawRect(
+                rect,
+                        testPaint
+            )
 
-            translate(x, y)
-            scale(scaleX1, scaleY1)
-            skew(skewX1, skewY1)
-            rotate(rotation * 100)
-            staticLayout.draw(this)
-            restore()
+            transformationMatrix.preTranslate(
+                        + childrenMatrix[4].toX() + imageBounds.left,
+                        + childrenMatrix[5].toY() + imageBounds.top ,
+            )
+
+            transformationMatrix.postScale(scaleX, scaleY)
+            transformationMatrix.postSkew(skewX, skewY)
+
+            transformationMatrix.postRotate(
+                rotation,
+//                (/*parentMatrix[4].toX()*/
+                        + (childrenMatrix[4].toX() + imageBounds.left) / 2,
+//                (/*parentMatrix[5].toY()*/
+                        + (childrenMatrix[5].toY() + imageBounds.top) / 2
+            )
+
+//            transformationMatrix.postTranslate(
+//                childrenMatrix[4].toX(), childrenMatrix[5].toY()
+//            )
+//
+//            val resizedBitmap = Bitmap.createBitmap(
+//                bitmap, 0, 0,
+//                bitmap.width, bitmap.height, transformationMatrix, true
+//            )
+
+
+//            transformationMatrix.reset()
+
+//            transformationMatrix.postTranslate(
+//                parentMatrix[4].toX()
+//                +childrenMatrix[4].toX() + imageBounds.left,
+//                parentMatrix[5].toY()
+//                +childrenMatrix[5].toY() + imageBounds.top,
+//            )
+
+//
+//
+//            transformationMatrix.postTranslate(
+//                 parentMatrix[4].toX(),
+//                 parentMatrix[5].toY()
+//            )
+//
+
+            drawBitmap(bitmap, transformationMatrix, null)
         }
     }
 
