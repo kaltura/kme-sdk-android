@@ -13,7 +13,7 @@ allprojects {
 Step 2. Add the dependency
 ```gradle
 dependencies {
-	       implementation 'com.github.kaltura:kme-sdk-android:1.0.1'
+	       implementation 'com.github.kaltura:kme-sdk-android:1.0.3'
 }
 ```
 ### Initialization
