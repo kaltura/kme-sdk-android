@@ -671,8 +671,6 @@ class RoomActivity : KmeActivity() {
         }
         contentFragment = null
         contentFrame.gone()
-
-        contentFragment = null
     }
 
     private val publisherAddedObserver = Observer<Boolean> {
