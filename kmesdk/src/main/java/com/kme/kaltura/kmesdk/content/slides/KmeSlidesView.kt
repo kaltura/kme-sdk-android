@@ -38,7 +38,6 @@ class KmeSlidesView @JvmOverloads constructor(
 
     private var originalImageSize: Size? = null
 
-
     init {
         LayoutInflater.from(context).inflate(R.layout.layout_slides_view, this)
     }
