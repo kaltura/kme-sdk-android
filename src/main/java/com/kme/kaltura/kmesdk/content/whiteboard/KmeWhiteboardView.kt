@@ -35,7 +35,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     private val paint: Paint = Paint()
     private var backgroundPaint: Paint? = null
-    private val testPaint: Paint = Paint()
     private val canvasPaint: Paint = Paint(Paint.DITHER_FLAG)
     private var drawCanvas: Canvas? = null
     private var canvasBitmap: Bitmap? = null
@@ -75,16 +74,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
             strokeJoin = Paint.Join.ROUND
             strokeCap = Paint.Cap.ROUND
 
-        }
-
-        testPaint.apply {
-            strokeWidth = ptToDp(2f, context)
-            style = Paint.Style.STROKE
-            isAntiAlias = true
-            isDither = true
-            color = Color.RED
-            strokeJoin = Paint.Join.ROUND
-            strokeCap = Paint.Cap.ROUND
         }
     }
 
