@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk
 import android.content.Context
 import android.graphics.*
 import android.util.DisplayMetrics
+import android.view.View
 import androidx.core.content.ContextCompat
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath.Cap.*
@@ -71,9 +72,9 @@ fun Context.getBitmap(drawableRes: Int, bounds: Rect? = null, padding: Float = 0
         val width = bounds?.width() ?: it.intrinsicWidth
         val height = bounds?.height() ?: it.intrinsicHeight
         val bitmap = Bitmap.createBitmap(
-            (width + padding).toInt(),
-            (height + padding).toInt(),
-            Bitmap.Config.ARGB_8888
+                (width + padding).toInt(),
+                (height + padding).toInt(),
+                Bitmap.Config.ARGB_8888
         )
         canvas.setBitmap(bitmap)
         drawable.bounds = bounds ?: Rect(0, 0, width, height)
@@ -81,4 +82,13 @@ fun Context.getBitmap(drawableRes: Int, bounds: Rect? = null, padding: Float = 0
         return bitmap
     }
     return null
+}
+
+fun View?.getBitmapFromView(): Bitmap? {
+    if (this == null || this.width <= 0 || this.height <= 0) return null
+    val bitmap =
+            Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    draw(canvas)
+    return bitmap
 }

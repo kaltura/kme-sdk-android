@@ -49,83 +49,81 @@ fun String.encryptWith(key: String): String {
 fun String?.toNonNull(default: String = "") = this ?: default
 
 inline fun <reified T> KmeMessage<*>.toType(): T? =
-    if (this is T)
-        @Suppress("UNCHECKED_CAST")
-        this else
-        null
+        if (this is T)
+            @Suppress("UNCHECKED_CAST")
+            this else
+            null
 
 internal fun Context?.getBitmap(
-    imageUrl: String?,
-    cookie: String?,
-    fileUrl: String?
+        imageUrl: String?,
+        cookie: String?,
+        fileUrl: String?
 ): Bitmap? {
     if (this == null || imageUrl.isNullOrEmpty()) return null
     return Glide.with(this)
-        .asBitmap()
-        .load(generateGlideUrl(imageUrl, cookie, fileUrl))
-        .submit().get()
+            .asBitmap()
+            .load(generateGlideUrl(imageUrl, cookie, fileUrl))
+            .submit().get()
 }
 
 internal fun ImageView?.glide(
-    drawable: Int,
-    onSizeReady: ((Size) -> Unit)? = null
+        drawable: Int,
+        onSizeReady: ((Size) -> Unit)? = null
 ) {
     if (this == null) return
     Glide.with(this)
-        .load(drawable)
-        .into(object : CustomTarget<Drawable>() {
-            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                this@glide.setImageDrawable(resource)
-                onSizeReady?.invoke(Size(resource.intrinsicWidth, resource.intrinsicHeight))
-            }
+            .load(drawable)
+            .skipMemoryCache(true)
+            .into(object : CustomTarget<Drawable>() {
+                override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                    this@glide.setImageDrawable(resource)
+                    onSizeReady?.invoke(Size(resource.intrinsicWidth, resource.intrinsicHeight))
+                }
 
-            override fun onLoadCleared(placeholder: Drawable?) {
-            }
-        })
+                override fun onLoadCleared(placeholder: Drawable?) {
+                }
+            })
 }
 
 internal fun ImageView?.glide(
-    decodedString: ByteArray,
-    onSizeReady: ((Size) -> Unit)? = null
+        imageUrl: String?,
+        cookie: String?,
+        fileUrl: String?,
+        func: (RequestBuilder<Drawable>.() -> RequestBuilder<Drawable>)? = null,
 ) {
     if (this == null) return
     Glide.with(this)
-        .asDrawable()
-        .load(decodedString)
-        .into(object : CustomTarget<Drawable>() {
-            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                this@glide.setImageDrawable(resource)
-                onSizeReady?.invoke(Size(resource.intrinsicWidth, resource.intrinsicHeight))
+            .load(generateGlideUrl(imageUrl, cookie, fileUrl))
+            .apply {
+                func?.let { it() }
             }
-
-            override fun onLoadCleared(placeholder: Drawable?) {
-            }
-        })
+            .into(this)
 }
 
 internal fun ImageView?.glide(
-    imageUrl: String?,
-    cookie: String?,
-    fileUrl: String?,
-    func: (RequestBuilder<Drawable>.() -> RequestBuilder<Drawable>)? = null,
-    onSizeReady: ((Size) -> Unit)? = null
+        imageUrl: String?,
+        cookie: String?,
+        fileUrl: String?,
+        func: (RequestBuilder<Drawable>.() -> RequestBuilder<Drawable>)? = null,
+        onSizeReady: ((Size) -> Unit)? = null
 ) {
     if (this == null) return
     Glide.with(this)
-        .asDrawable()
-        .load(generateGlideUrl(imageUrl, cookie, fileUrl))
-        .apply {
-            func?.let { it() }
-        }
-        .into(object : CustomTarget<Drawable>() {
-            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                this@glide.setImageDrawable(resource)
-                onSizeReady?.invoke(Size(resource.intrinsicWidth, resource.intrinsicHeight))
+            .asDrawable()
+            .load(generateGlideUrl(imageUrl, cookie, fileUrl))
+            .skipMemoryCache(true)
+            .apply {
+                func?.let { it() }
             }
+            .into(object : CustomTarget<Drawable>() {
+                override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                    this@glide.setImageDrawable(resource)
+                    onSizeReady?.invoke(Size(resource.intrinsicWidth, resource.intrinsicHeight))
+                }
 
-            override fun onLoadCleared(placeholder: Drawable?) {
-            }
-        })
+                override fun onLoadCleared(placeholder: Drawable?) {
+                }
+            })
 }
 
 internal fun generateGlideUrl(url: String?, cookie: String?, fileUrl: String?): GlideUrl? {
@@ -141,10 +139,10 @@ internal fun generateGlideUrl(url: String?, cookie: String?, fileUrl: String?): 
         }
 
         GlideUrl(
-            filesUrl,
-            LazyHeaders.Builder()
-                .addHeader("Cookie", cookie ?: "")
-                .build()
+                filesUrl,
+                LazyHeaders.Builder()
+                        .addHeader("Cookie", cookie ?: "")
+                        .build()
         )
     }
 }

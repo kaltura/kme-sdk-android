@@ -33,6 +33,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     private val TAG = javaClass.simpleName
 
+    var changeListener: IKmeWhiteboardChangeListener? = null
+
     private val paint: Paint = Paint()
     private var backgroundPaint: Paint? = null
     private val canvasPaint: Paint = Paint(Paint.DITHER_FLAG)
@@ -82,6 +84,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
         whiteboardConfig?.let {
             this.originalImageSize = it.originalImageSize
             this.imageBounds.set(it.imageBounds)
+            Log.e(TAG, "init: $imageBounds")
             invalidatePaths()
         }
     }
@@ -143,6 +146,10 @@ class KmeWhiteboardView @JvmOverloads constructor(
             }
 
             postInvalidate()
+
+            if (pathsMap.isEmpty()) {
+                changeListener?.onChanged()
+            }
         }
     }
 
@@ -528,7 +535,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
                                 canvas?.drawPath(it, paint)
                             }
                             is WhiteboardImagePath -> {
-                                canvas?.drawBitmap(it.bitmap, it.matrix, paint)
+                                canvas?.drawBitmap(it.bitmap, it.matrix, null)
                             }
                             is WhiteboardTextPath -> {
                                 canvas?.drawTextPath(drawing)
@@ -540,6 +547,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 }
             }
         }
+
+        changeListener?.onChanged()
     }
 
     private fun Canvas.drawTextPath(drawing: WhiteboardPayload.Drawing?) {
@@ -564,8 +573,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
                     parentMatrix[1],
                     parentMatrix[2],
                     parentMatrix[3],
-                    parentMatrix[4].toX(),
-                    parentMatrix[5].toY()
+                    parentMatrix[4].toX()+ imageBounds.left,
+                    parentMatrix[5].toY()+ imageBounds.top
             )
 
             val transformationMatrix = Matrix()
@@ -615,7 +624,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
                         0,
                         textDrawing.content.length,
                         textPaint,
-                        width.roundToInt()
+                        (width * scaleX).toInt()
                 ).apply {
                     setAlignment(Layout.Alignment.ALIGN_NORMAL)
                     setIncludePad(false)
@@ -625,7 +634,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 StaticLayout(
                         textDrawing.content,
                         textPaint,
-                        width.roundToInt(),
+                        (width * scaleX).toInt(),
                         Layout.Alignment.ALIGN_NORMAL,
                         0.9f,
                         0.0f,
@@ -634,11 +643,11 @@ class KmeWhiteboardView @JvmOverloads constructor(
             }
 
             transformationMatrix.setValues(
-                floatArrayOf(
-                    1f, 0f, affineMatrix1[4],
-                    0f, 1f, affineMatrix1[5],
-                    0f, 0f, 1f
-                )
+                    floatArrayOf(
+                            1f, 0f, affineMatrix1[4],
+                            0f, 1f, affineMatrix1[5],
+                            0f, 0f, 1f
+                    )
             )
 
             transformationMatrix1.setValues(
