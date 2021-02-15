@@ -1,0 +1,3 @@
+include ':kmeapp'
+include ':kmesdk'
+rootProject.name = "KmeSDK"

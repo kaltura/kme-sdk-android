@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_rename"
+        android:title="@string/action_room_note_rename" />
+
+    <item
+        android:id="@+id/action_download"
+        android:title="@string/action_room_note_download" />
+
+    <item
+        android:id="@+id/action_add_to_files"
+        android:title="@string/action_room_note_add_to_files" />
+
+    <item
+        android:id="@+id/action_delete"
+        android:title="@string/action_room_note_delete" />
+
+</menu>

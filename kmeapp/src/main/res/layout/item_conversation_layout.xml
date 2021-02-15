@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@id/dialogContainer"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    tools:background="@color/black">
+
+    <FrameLayout
+        android:id="@+id/systemDialogAvatarContainer"
+        android:layout_width="@dimen/default_avatar_size"
+        android:layout_height="@dimen/default_avatar_size"
+        android:visibility="visible"
+        android:background="@drawable/bg_circle_shape"
+        android:backgroundTint="@color/grayScale4"
+        app:layout_constraintBottom_toBottomOf="@id/dialogAvatar"
+        app:layout_constraintStart_toStartOf="@id/dialogAvatar"
+        app:layout_constraintTop_toTopOf="@id/dialogAvatar">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/systemDialogAvatar"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true" />
+
+    </FrameLayout>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@id/dialogAvatar"
+        android:layout_width="@dimen/default_avatar_size"
+        android:layout_height="@dimen/default_avatar_size"
+        android:visibility="invisible"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@tools:sample/avatars" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@id/dialogName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toTopOf="@id/dialogLastMessage"
+        app:layout_constraintEnd_toStartOf="@id/dialogDate"
+        app:layout_constraintStart_toEndOf="@id/dialogAvatar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Classroom Chat" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@id/dialogDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:ellipsize="end"
+        android:gravity="end"
+        android:maxLines="1"
+        android:textColor="@color/grayScale2"
+        android:textSize="12sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="@id/dialogName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/dialogName"
+        tools:text="03:47PM" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@id/dialogLastMessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:ellipsize="end"
+        android:layout_marginTop="2dp"
+        android:maxLines="1"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/dialogUnreadBubble"
+        app:layout_constraintStart_toStartOf="@id/dialogName"
+        app:layout_constraintTop_toBottomOf="@id/dialogName" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@id/dialogUnreadBubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialogDate"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/bubble_circle"
+        android:backgroundTint="@color/colorAccent"
+        android:ellipsize="end"
+        android:fontFamily="@string/font_fontFamily_medium"
+        android:gravity="center"
+        android:lines="1"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/dialogLastMessage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/dialogLastMessage" />
+
+    <!--Fake views-->
+
+    <ImageView
+        android:id="@id/dialogLastMessageUserAvatar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        tools:ignore="MissingConstraints" />
+
+    <FrameLayout
+        android:id="@id/dialogDividerContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        tools:ignore="MissingConstraints" />
+
+    <View
+        android:id="@id/dialogDivider"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        tools:ignore="MissingConstraints" />
+
+    <View
+        android:id="@id/dialogLastMessageUserAvatar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        tools:ignore="MissingConstraints" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

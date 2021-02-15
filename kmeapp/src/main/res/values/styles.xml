@@ -1,0 +1,131 @@
+<resources>
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorControlHighlight">@color/colorAccent</item>
+        <item name="colorSecondary">@color/colorAccent</item>
+        <item name="android:navigationBarColor">@color/colorPrimary</item>
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="tabStyle">@style/AppTheme.TabLayout</item>
+        <item name="android:windowDisablePreview">true</item>
+
+    </style>
+
+    <style name="NoActionBar" parent="AppTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="NoActionBarTransparent" parent="AppTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <style name="AppTheme.PopupStyle" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@color/colorPrimary</item>
+        <item name="android:dropDownHorizontalOffset">-16dp</item>
+        <item name="android:dropDownVerticalOffset">10dp</item>
+    </style>
+
+    <style name="AppTheme.ButtonStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="backgroundTint">@color/colorAccent</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="ContentLoadingProgressBarStyle">
+        <item name="colorAccent">@color/colorPrimary</item>
+    </style>
+
+    <style name="AppTheme.ExposedDropdownMenu" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <!-- color of box ONLY, not dropdown -->
+        <item name="boxBackgroundColor">@color/black</item>
+        <item name="endIconDrawable">@drawable/ic_arrow_down</item>
+        <item name="endIconTint">@color/white</item>
+        <!-- the box outline color depending on state
+             (default, enabled, hovered, focused, but NOT error) -->
+        <item name="boxStrokeColor">@color/transparent</item>
+        <!-- the box outline color just for errors -->
+        <item name="boxStrokeErrorColor">@color/redScale2</item>
+        <!-- enable 8dp space below the box for error message -->
+        <item name="errorEnabled">true</item>
+        <!-- Gain access to additional styling for the child AutoCompleteTextView,
+             which includes this spinner's dropdown/popup menu -->
+        <item name="materialThemeOverlay">
+            @style/AppTheme.ExposedDropdownMenu.MaterialThemeOverlay
+        </item>
+    </style>
+
+    <style name="AppTheme.ExposedDropdownMenu.MaterialThemeOverlay" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorSurface">@color/grayScale4</item>
+        <item name="colorControlHighlight">@color/colorAccent</item>
+        <item name="autoCompleteTextViewStyle">
+            @style/AppTheme.ExposedDropdownMenu.AutoCompleteStyle
+        </item>
+    </style>
+
+    <style name="AppTheme.ExposedDropdownMenu.AutoCompleteStyle">
+        <item name="android:padding">15dp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">21sp</item>
+    </style>
+
+    <style name="AppTheme.MaterialSpinnerItem" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="AppTheme.InputLayoutStyle" parent="Widget.Design.TextInputLayout">
+        <item name="android:textColorHint">@color/grayScale2</item>
+        <item name="hintTextAppearance">@style/AppTheme.HintText</item>
+        <item name="errorTextAppearance">@style/AppTheme.ErrorText</item>
+    </style>
+
+    <style name="AppTheme.InputEditTextTheme" parent="Widget.Design.TextInputLayout">
+        <item name="colorControlNormal">@color/grayScale4</item>
+        <item name="colorControlActivated">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.InputEditTextStyle" parent="AppTheme.InputEditTextTheme">
+        <item name="android:textColor">@color/grayScale2</item>
+        <item name="android:textColorHint">@color/grayScale2</item>
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="AppTheme.ErrorText" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/redScale2</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="AppTheme.HintText" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textColorHint">@color/grayScale2</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="AppTheme.TabLayout" parent="Widget.Design.TabLayout">
+        <item name="materialThemeOverlay">@style/AppTheme.ThemeOverlay.TabLayout</item>
+        <item name="tabTextAppearance">@style/AppTheme.TabLayout.TextAppearance</item>
+        <item name="tabTextColor">@color/white</item>
+        <item name="elevation">1dp</item>
+        <item name="tabIndicatorColor">@color/transparent</item>
+        <item name="android:background">@color/black</item>
+    </style>
+
+    <style name="AppTheme.ThemeOverlay.TabLayout" parent="AppTheme"/>
+
+    <style name="AppTheme.TabLayout.TextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>

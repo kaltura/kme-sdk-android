@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.kme.kaltura.kmeapplication">
+
+    <application
+        android:name=".KmeApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/kaltura_meetings_home"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/kaltura_meetings_round_home"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".view.activity.SplashActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/NoActionBarTransparent">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="@string/api_url"
+                    android:scheme="http" />
+
+                <data
+                    android:host="@string/api_url"
+                    android:scheme="https" />
+
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".view.activity.SignInActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/NoActionBar" />
+
+        <activity
+            android:name=".view.activity.SignUpActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.activity.RoomsListActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/NoActionBar" />
+
+        <activity
+            android:name=".view.activity.RoomInfoActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.activity.RoomActivity"
+            android:screenOrientation="portrait"
+            android:keepScreenOn="true"
+            android:theme="@style/NoActionBar"
+            android:windowSoftInputMode="adjustResize" />
+
+    </application>
+
+</manifest>
