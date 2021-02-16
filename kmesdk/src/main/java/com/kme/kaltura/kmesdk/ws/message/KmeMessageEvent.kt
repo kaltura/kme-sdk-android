@@ -270,6 +270,12 @@ enum class KmeMessageEvent(
     @SerializedName("whiteboardAllPagesCleared", alternate = ["whiteboardallpagescleared"])
     WHITEBOARD_ALL_PAGES_CLEARED("whiteboardAllPagesCleared"),
 
+    @SerializedName("receiveLaserPosition", alternate = ["receivelaserposition"])
+    RECEIVE_LASER_POSITION("receiveLaserPosition"),
+
+    @SerializedName("laserDeactivatedForUser", alternate = ["laserdeactivatedforuser"])
+    LASER_DEACTIVATED("laserDeactivatedForUser"),
+
     @SerializedName("receiveTransformation", alternate = ["receivetransformation"])
     RECEIVE_TRANSFORMATION("receiveTransformation"),
 

@@ -252,6 +252,12 @@ internal class KmeMessageParser(
             KmeMessageEvent.WHITEBOARD_PAGE_DATA.toString() -> {
                 text.jsonToObject<KmeWhiteboardModuleMessage<WhiteboardPageDataPayload>>()
             }
+            KmeMessageEvent.RECEIVE_LASER_POSITION.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<ReceivedLaserPositionPayload>>()
+            }
+            KmeMessageEvent.LASER_DEACTIVATED.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<LaserDeactivatedPayload>>()
+            }
             KmeMessageEvent.RECEIVE_DRAWING.toString(), KmeMessageEvent.RECEIVE_TRANSFORMATION.toString()-> {
                 val message =  text.jsonToObject<KmeWhiteboardModuleMessage<ReceiveDrawingPayload>>()
                         as KmeWhiteboardModuleMessage<ReceiveDrawingPayload>?

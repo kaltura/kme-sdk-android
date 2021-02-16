@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmeapplication.view.fragment.content
 
+import android.graphics.PointF
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -54,6 +55,14 @@ class SlidesContentFragment : Fragment() {
             viewLifecycleOwner,
             receiveDrawingObserver
         )
+        whiteboardViewModel.receiveLaserPositionLiveData.observe(
+            viewLifecycleOwner,
+            receivedLaserPositionObserver
+        )
+        whiteboardViewModel.hideLaserLiveData.observe(
+            viewLifecycleOwner,
+            hideLaserObserver
+        )
         whiteboardViewModel.deleteDrawingLiveData.observe(
             viewLifecycleOwner,
             deleteDrawingObserver
@@ -102,6 +111,14 @@ class SlidesContentFragment : Fragment() {
 
     private val receiveDrawingObserver = Observer<WhiteboardPayload.Drawing> {
         slidesView.addDrawing(it)
+    }
+
+    private val receivedLaserPositionObserver = Observer<PointF> {
+        slidesView.updateLaserPosition(it)
+    }
+
+    private val hideLaserObserver = Observer<Nothing> {
+        slidesView.hideLaser()
     }
 
     private val deleteDrawingObserver = Observer<String> {

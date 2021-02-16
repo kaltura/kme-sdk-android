@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.ws.message.whiteboard
 
+import android.graphics.PointF
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardShapeType
 
@@ -14,7 +15,7 @@ data class KmeWhiteboardPath(
     @SerializedName("strokeColor") val strokeColor: FloatArray? = null,
     @SerializedName("fillColor") val fillColor: FloatArray? = null,
     @SerializedName("strokeCap") val strokeCap: Cap? = null,
-    @SerializedName("strokeWidth") val strokeWidth: Int,
+    @SerializedName("strokeWidth") val strokeWidth: Int = 0,
     @SerializedName("opacity") val opacity: Float? = null,
     @SerializedName("blendMode") val blendMode: BlendMode? = null,
     @SerializedName("data") val data: Data? = null,
@@ -26,8 +27,13 @@ data class KmeWhiteboardPath(
     @SerializedName("content") val content: String? = null,
     @SerializedName("source") val source: String? = null,
     @SerializedName("closed") val closed: Boolean? = null,
+
     var childrenPath: KmeWhiteboardPath? = null,
-    var pathType: String? = null
+
+    var pathType: String? = null,
+
+    var isLaser: Boolean = false,
+    var laserPosition: PointF? = null
 ) {
 
     enum class Cap {

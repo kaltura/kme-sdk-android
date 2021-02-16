@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmeapplication.viewmodel.content
 
+import android.graphics.PointF
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -36,6 +37,16 @@ class WhiteboardContentViewModel(
     val receiveDrawingLiveData
         get() = receiveDrawing as LiveData<WhiteboardPayload.Drawing>
 
+    private val receiveLaserPosition =
+        MutableLiveData<PointF>()
+    val receiveLaserPositionLiveData
+        get() = receiveLaserPosition as LiveData<PointF>
+
+    private val hideLaser =
+        MutableLiveData<Nothing>()
+    val hideLaserLiveData
+        get() = hideLaser as LiveData<Nothing>
+
     private val deleteDrawing =
         MutableLiveData<String>()
     val deleteDrawingLiveData
@@ -52,12 +63,16 @@ class WhiteboardContentViewModel(
     var pageId: String? = null
         private set
 
+    private val laserPosition by lazy { PointF(0f, 0f) }
+
     fun subscribe() {
         kmeSdk.roomController.listen(
             whiteboardHandler,
             KmeMessageEvent.WHITEBOARD_PAGE_DATA,
             KmeMessageEvent.WHITEBOARD_PAGE_CLEARED,
             KmeMessageEvent.WHITEBOARD_ALL_PAGES_CLEARED,
+            KmeMessageEvent.RECEIVE_LASER_POSITION,
+            KmeMessageEvent.LASER_DEACTIVATED,
             KmeMessageEvent.RECEIVE_DRAWING,
             KmeMessageEvent.RECEIVE_TRANSFORMATION,
             KmeMessageEvent.WHITEBOARD_SET_ACTIVE_PAGE,
@@ -80,6 +95,18 @@ class WhiteboardContentViewModel(
                     contentMessage?.payload?.drawings?.let {
                         whiteboardPageData.postValue(it)
                     }
+                }
+                KmeMessageEvent.RECEIVE_LASER_POSITION -> {
+                    val contentMessage: KmeWhiteboardModuleMessage<ReceivedLaserPositionPayload>? =
+                        message.toType()
+
+                    contentMessage?.payload?.let {
+                        laserPosition.set(it.laserX, it.laserY)
+                        receiveLaserPosition.postValue(laserPosition)
+                    }
+                }
+                KmeMessageEvent.LASER_DEACTIVATED -> {
+                    hideLaser.postValue(null)
                 }
                 KmeMessageEvent.RECEIVE_DRAWING, KmeMessageEvent.RECEIVE_TRANSFORMATION -> {
                     val contentMessage: KmeWhiteboardModuleMessage<ReceiveDrawingPayload>? =

@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.ws.message.module
 
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
+import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardActionType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardToolType
@@ -40,6 +41,17 @@ class KmeWhiteboardModuleMessage<T : KmeWhiteboardModuleMessage.WhiteboardPayloa
     data class BackgroundTypeChangedPayload(
         @SerializedName("user_id") val userId: String? = null,
         @SerializedName("background_type") val backgroundType: KmeWhiteboardBackgroundType? = null
+    ) : WhiteboardPayload()
+
+    data class ReceivedLaserPositionPayload(
+        @SerializedName("laser_x") val laserX: Float,
+        @SerializedName("laser_y") val laserY: Float,
+        @SerializedName("user_id") val userId: String? = null,
+        @SerializedName("user_type") val userType: KmeUserType? = null
+    ) : WhiteboardPayload()
+
+    data class LaserDeactivatedPayload(
+        @SerializedName("user_id") val userId: String? = null
     ) : WhiteboardPayload()
 
     data class SetActivePagePayload(

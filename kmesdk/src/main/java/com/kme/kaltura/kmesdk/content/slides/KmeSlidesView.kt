@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.content.slides
 
 import android.content.Context
+import android.graphics.PointF
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.Size
@@ -262,6 +263,14 @@ class KmeSlidesView @JvmOverloads constructor(
 
     override fun addDrawing(drawing: WhiteboardPayload.Drawing) {
         whiteboardLayout.addDrawing(drawing)
+    }
+
+    override fun updateLaserPosition(point: PointF) {
+        whiteboardLayout.updateLaserPosition(point)
+    }
+
+    override fun hideLaser() {
+        whiteboardLayout.hideLaser()
     }
 
     override fun updateBackground(backgroundType: KmeWhiteboardBackgroundType?) {
