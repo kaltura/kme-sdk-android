@@ -10,6 +10,9 @@ enum class KmeUserType(
     RECORDER("recorder"),
 
     @SerializedName("user", alternate = ["USER"])
-    USER("user")
+    USER("user"),
+
+    @SerializedName("guest", alternate = ["GUEST"])
+    GUEST("guest")
 
 }

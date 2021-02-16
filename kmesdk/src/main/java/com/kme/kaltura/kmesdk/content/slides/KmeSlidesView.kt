@@ -2,7 +2,6 @@ package com.kme.kaltura.kmesdk.content.slides
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -70,6 +69,8 @@ class KmeSlidesView @JvmOverloads constructor(
     }
 
     private fun setupPreviews() {
+        rvSlides.visibility = if (config.showPreview) VISIBLE else GONE
+
         slidesAdapter = SlidesAdapter(config.cookie, config.fileUrl).apply {
             setData(slides)
         }
@@ -81,7 +82,6 @@ class KmeSlidesView @JvmOverloads constructor(
 
     private fun notifySlideSelected(selectedSlide: Slide) {
         val indexOf = slides.indexOf(selectedSlide)
-        Log.e("TAG", "notifySlideSelected: $indexOf")
         if (indexOf >= 0) {
             slides.forEachIndexed { index, slide ->
                 slide.isSelected = index == indexOf
@@ -152,11 +152,26 @@ class KmeSlidesView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Show a preview list of current slides
+     */
+    override fun showPreview() {
+        rvSlides.visibility = VISIBLE
+    }
+
+    /**
+     * Hide a preview list of current slides
+     */
+    override fun hidePreview() {
+        rvSlides.visibility = GONE
+    }
+
     class Config(
         val cookie: String,
         val fileUrl: String,
     ) {
         var currentSlide: Int = 0
+        var showPreview: Boolean = true
     }
 
 }

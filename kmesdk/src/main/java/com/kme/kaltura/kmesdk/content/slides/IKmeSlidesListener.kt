@@ -48,4 +48,14 @@ interface IKmeSlidesListener {
      */
     fun toSlide(slideNumber: Int)
 
+    /**
+     * Show a preview list of current slides
+     */
+    fun showPreview()
+
+    /**
+     * Hide a preview list of current slides
+     */
+    fun hidePreview()
+
 }

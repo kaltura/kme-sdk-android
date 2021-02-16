@@ -11,6 +11,7 @@ import com.kme.kaltura.kmeapplication.R
 import com.kme.kaltura.kmeapplication.viewmodel.content.ActiveContentViewModel
 import com.kme.kaltura.kmesdk.content.slides.KmeSlidesView
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
+import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import kotlinx.android.synthetic.main.activity_sign_in.*
 import kotlinx.android.synthetic.main.fragment_slides_content.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -42,6 +43,10 @@ class SlidesContentFragment : Fragment() {
             viewLifecycleOwner,
             slideChangedObserver
         )
+        activeContentViewModel.showSlidesPreviewLiveData.observe(
+            viewLifecycleOwner,
+            showSlidesPreviewObserver
+        )
     }
 
     private val setActiveContentObserver = Observer<SetActiveContentPayload> {
@@ -51,6 +56,7 @@ class SlidesContentFragment : Fragment() {
                 activeContentViewModel.getFilesUrl()
             ).apply {
                 currentSlide = it.metadata.currentSlide ?: 0
+                showPreview = activeContentViewModel.userType() != KmeUserType.GUEST
             }
 
             slidesView.init(config)
@@ -62,6 +68,14 @@ class SlidesContentFragment : Fragment() {
 
     private val slideChangedObserver = Observer<Int> {
         slidesView.toSlide(it)
+    }
+
+    private val showSlidesPreviewObserver = Observer<Boolean> {
+        if (it) {
+            slidesView.showPreview()
+        } else {
+            slidesView.hidePreview()
+        }
     }
 
     companion object {
