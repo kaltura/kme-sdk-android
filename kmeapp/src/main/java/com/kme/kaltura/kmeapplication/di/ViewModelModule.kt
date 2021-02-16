@@ -3,12 +3,13 @@ package com.kme.kaltura.kmeapplication.di
 import com.kme.kaltura.kmeapplication.viewmodel.*
 import com.kme.kaltura.kmeapplication.viewmodel.content.ActiveContentViewModel
 import com.kme.kaltura.kmeapplication.viewmodel.content.DesktopShareViewModel
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val viewModel = module {
 
-    viewModel { SignInViewModel(get()) }
+    viewModel { SignInViewModel(get(), androidContext()) }
     viewModel { UserCompaniesViewModel(get(), get()) }
     viewModel { RoomsListViewModel(get()) }
     viewModel { RoomInfoViewModel(get()) }
