@@ -253,8 +253,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
             val rotation = (180 / PI * atan2(affineMatrix[1], affineMatrix[0])).toFloat()
             val denominator = affineMatrix[0].pow(2) + affineMatrix[1].pow(2)
-            val scaleX = sqrt(denominator)
-            val scaleY =
+            var scaleX = sqrt(denominator)
+            var scaleY =
                     (affineMatrix[0] * affineMatrix[3] - affineMatrix[2] * affineMatrix[1]) / scaleX
             val skewX = atan(
                     (affineMatrix[0] * affineMatrix[2] + affineMatrix[1] * affineMatrix[3]) / sqrt(
@@ -262,6 +262,11 @@ class KmeWhiteboardView @JvmOverloads constructor(
                     )
             )
             val skewY = 0f
+
+            originalImageSize?.let { size ->
+                scaleX = scaleX * imageBounds.width() / size.width
+                scaleY = scaleY * imageBounds.height() / size.height
+            }
 
             transformationMatrix.setValues(
                     floatArrayOf(
@@ -277,7 +282,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
                     it, 0, 0,
                     it.width, it.height, transformationMatrix, true
             )
-//            it.recycle()
 
             transformationMatrix.reset()
             transformationMatrix.postTranslate(
@@ -573,8 +577,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
                     parentMatrix[1],
                     parentMatrix[2],
                     parentMatrix[3],
-                    parentMatrix[4].toX()+ imageBounds.left,
-                    parentMatrix[5].toY()+ imageBounds.top
+                    parentMatrix[4].toX() + imageBounds.left,
+                    parentMatrix[5].toY() + imageBounds.top
             )
 
             val transformationMatrix = Matrix()
