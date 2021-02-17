@@ -15,7 +15,7 @@ import com.kme.kaltura.kmeapplication.util.extensions.gone
 import com.kme.kaltura.kmeapplication.util.extensions.toNonNull
 import com.kme.kaltura.kmeapplication.util.extensions.visible
 import com.kme.kaltura.kmeapplication.view.activity.RoomActivity.Companion.openRoomActivity
-import com.kme.kaltura.kmeapplication.view.activity.SignInActivity.Companion.openSignInActivity
+import com.kme.kaltura.kmeapplication.view.activity.SplashActivity.Companion.openSplashActivity
 import com.kme.kaltura.kmeapplication.view.adapter.RoomsListAdapter
 import com.kme.kaltura.kmeapplication.view.adapter.UserCompaniesAdapter
 import com.kme.kaltura.kmeapplication.viewmodel.RoomsListViewModel
@@ -59,6 +59,8 @@ class RoomsListActivity : KmeActivity(), SwipeRefreshLayout.OnRefreshListener {
         viewModel.selectedCompanyLiveData.observe(this, selectedCompanyObserver)
         viewModel.userCompaniesLiveData.observe(this, companiesListObserver)
         viewModel.userCompaniesErrorLiveData.observe(this, companiesListErrorObserver)
+
+        viewModel.logoutLiveData.observe(this, logoutObserver)
     }
 
     private fun setupUI() {
@@ -83,7 +85,6 @@ class RoomsListActivity : KmeActivity(), SwipeRefreshLayout.OnRefreshListener {
             alert(R.string.logout, R.string.logout_message) {
                 positiveButton(android.R.string.ok) {
                     viewModel.logout()
-                    openSignInActivity()
                 }
 
                 negativeButton(android.R.string.cancel)
@@ -177,6 +178,14 @@ class RoomsListActivity : KmeActivity(), SwipeRefreshLayout.OnRefreshListener {
 
     private val companiesListErrorObserver = Observer<String?> {
         Snackbar.make(root, R.string.error, Snackbar.LENGTH_SHORT).show()
+    }
+
+    private val logoutObserver = Observer<Boolean> {
+        if (it) {
+            openSplashActivity()
+        } else {
+            Snackbar.make(root, R.string.error, Snackbar.LENGTH_SHORT).show()
+        }
     }
 
     companion object {

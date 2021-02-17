@@ -37,6 +37,9 @@ class RoomsListViewModel(
     private val selectedCompany = MutableLiveData<KmeUserCompany>()
     val selectedCompanyLiveData get() = selectedCompany as LiveData<KmeUserCompany>
 
+    private val logout = MutableLiveData<Boolean>()
+    val logoutLiveData get() = logout as LiveData<Boolean>
+
     fun fetchUserCompanies() {
         isLoading.value = true
         kmeSdk.userController.getUserInformation(success = {
@@ -76,7 +79,14 @@ class RoomsListViewModel(
     }
 
     fun logout() {
-        kmeSdk.userController.logout()
+        isLoading.value = true
+        kmeSdk.userController.logout(success = {
+            isLoading.value = false
+            logout.postValue(true)
+        }, error = {
+            isLoading.value = false
+            logout.postValue(false)
+        })
     }
 
     private fun KmeGetUserInfoResponse.getDefaultCompany(): KmeUserCompany? {

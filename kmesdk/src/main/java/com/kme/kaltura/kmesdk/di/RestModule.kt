@@ -3,10 +3,9 @@ package com.kme.kaltura.kmesdk.di
 import com.google.gson.GsonBuilder
 import com.kme.kaltura.kmesdk.BuildConfig
 import com.kme.kaltura.kmesdk.R
-import com.kme.kaltura.kmesdk.rest.KmeCookieJar
-import com.kme.kaltura.kmesdk.rest.KmeIntToBooleanTypeAdapter
-import com.kme.kaltura.kmesdk.rest.KmeStringToBooleanTypeAdapter
+import com.kme.kaltura.kmesdk.rest.*
 import com.kme.kaltura.kmesdk.rest.KmeTokenInterceptor
+import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 import com.kme.kaltura.kmesdk.rest.service.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -28,6 +27,7 @@ val restModule = module {
             .registerTypeAdapter(Boolean::class.javaPrimitiveType, KmeIntToBooleanTypeAdapter())
             .registerTypeAdapter(Boolean::class.javaObjectType, KmeStringToBooleanTypeAdapter())
             .registerTypeAdapter(Boolean::class.javaPrimitiveType, KmeStringToBooleanTypeAdapter())
+            .registerTypeAdapter(KmeResponseData::class.javaObjectType, KmeResponseDataTypeAdapter())
             .create()
     }
     single {

@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk.rest
 import com.kme.kaltura.kmesdk.rest.response.KmeResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.UnknownHostException
 
@@ -31,16 +32,21 @@ suspend fun <T> safeApiCall(
                 is ConnectException,
                 is UnknownHostException -> KmeApiException.NetworkException(cause = e)
                 is KmeApiException.InternalApiException -> e
-                is KmeApiException.HttpException -> {
-                    when (e.errorCode) {
+                is KmeApiException.HttpException, is HttpException -> {
+                    val errorCode = if (e is KmeApiException.HttpException)
+                        e.errorCode
+                    else
+                        (e as HttpException).code()
+
+                    when (errorCode) {
                         in 400..499 -> {
-                            KmeApiException.HttpException.ClientException(e.message, e.errorCode, e)
+                            KmeApiException.HttpException.ClientException(e.message, errorCode, e)
                         }
                         in 500..599 -> KmeApiException.HttpException.ServerException(
-                            errorCode = e.errorCode,
+                            errorCode = errorCode,
                             cause = e
                         )
-                        else -> KmeApiException.HttpException(errorCode = e.errorCode, cause = e)
+                        else -> KmeApiException.HttpException(errorCode = errorCode, cause = e)
                     }
                 }
                 else -> KmeApiException.SomethingBadHappenedException(cause = e)
