@@ -23,11 +23,6 @@ class MediaContentFragment : Fragment() {
 
     private val activeContentViewModel: ActiveContentViewModel by sharedViewModel()
 
-    private var syncPlayerEvent: PlayerControlsEvent? = null
-    private var syncPlayerPosition: Float = 0f
-
-    private var canPlay: Boolean = false
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,10 +42,6 @@ class MediaContentFragment : Fragment() {
         activeContentViewModel.setActiveContentLiveData.observe(
             viewLifecycleOwner,
             setActiveContentObserver
-        )
-        activeContentViewModel.syncPlayerStateLiveData.observe(
-            viewLifecycleOwner,
-            syncPlayerStateObserver
         )
     }
 
@@ -82,8 +73,6 @@ class MediaContentFragment : Fragment() {
 
     private fun subscribePlayerEvents() {
         mediaView.addListener(this, PlayerEvent.canPlay) {
-            canPlay = true
-            syncPlayerState()
             controlsView?.setProgressBarVisibility(false)
             controlsView?.setControlsVisibility(true)
         }
@@ -125,44 +114,21 @@ class MediaContentFragment : Fragment() {
         }
     }
 
-    private fun setMedia(url: String) {
-        canPlay = false
-        mediaView.setMedia(url)
-    }
-
     private val setActiveContentObserver = Observer<SetActiveContentPayload> {
         it.metadata.let { metadata ->
             val contentType = it.contentType
-            val contentUrl: String? =
-                if (contentType == KmeContentType.YOUTUBE)
-                    metadata.fileId
-                else
-                    metadata.src
 
-            if (contentType != null && contentUrl != null) {
-                val config = KmeMediaView.Config(contentType, activeContentViewModel.getCookie())
-                    .apply {
-                        autoPlay = false
-                    }
+            if (contentType != null) {
+                val config = KmeMediaView.Config(
+                    contentType,
+                    metadata,
+                    activeContentViewModel.getCookie()
+                ).apply {
+                    autoPlay = false
+                }
 
                 mediaView.init(config)
                 subscribePlayerEvents()
-                setMedia(contentUrl)
-            }
-        }
-    }
-
-    private val syncPlayerStateObserver = Observer<Pair<PlayerControlsEvent?, Float>> {
-        syncPlayerEvent = it.first
-        syncPlayerPosition = it.second
-        syncPlayerState()
-    }
-
-    private fun syncPlayerState() {
-        if (canPlay) {
-            mediaView.seekTo(syncPlayerPosition.toLong())
-            syncPlayerEvent?.let {
-                handlePlayerState(it)
             }
         }
     }
