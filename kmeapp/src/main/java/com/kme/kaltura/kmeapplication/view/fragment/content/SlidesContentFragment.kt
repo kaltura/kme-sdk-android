@@ -13,8 +13,10 @@ import com.kme.kaltura.kmeapplication.viewmodel.content.WhiteboardContentViewMod
 import com.kme.kaltura.kmeapplication.viewmodel.content.ActiveContentViewModel
 import com.kme.kaltura.kmesdk.content.slides.KmeSlidesView
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
 import kotlinx.android.synthetic.main.activity_sign_in.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
+import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
 import kotlinx.android.synthetic.main.fragment_slides_content.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
