@@ -6,7 +6,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
 /**
  * An interface for slides in the room
  */
-interface IKmeSlidesListener : IKmeWhiteboardListener{
+interface IKmeSlidesListener : IKmeWhiteboardListener {
 
     /**
      * Initialize function. Setting config
@@ -41,6 +41,16 @@ interface IKmeSlidesListener : IKmeWhiteboardListener{
      * @param slideNumber position of a slide
      */
     fun toSlide(slideNumber: Int)
+
+    /**
+     * Show a preview list of current slides
+     */
+    fun showPreview()
+
+    /**
+     * Hide a preview list of current slides
+     */
+    fun hidePreview()
 
     fun setActivePage(activePageId: String?)
 

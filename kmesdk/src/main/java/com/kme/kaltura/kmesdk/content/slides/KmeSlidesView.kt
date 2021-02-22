@@ -164,6 +164,7 @@ class KmeSlidesView @JvmOverloads constructor(
     }
 
     private fun setupSlidesPreview() {
+        rvSlides.visibility = if (config.showPreview) VISIBLE else GONE
         slidesAdapter = SlidesAdapter(config.cookie, config.fileUrl).apply {
             setData(slides)
         }
@@ -292,12 +293,27 @@ class KmeSlidesView @JvmOverloads constructor(
         whiteboardLayout.removeDrawings()
     }
 
+    /**
+     * Show a preview list of current slides
+     */
+    override fun showPreview() {
+        rvSlides.visibility = VISIBLE
+    }
+
+    /**
+     * Hide a preview list of current slides
+     */
+    override fun hidePreview() {
+        rvSlides.visibility = GONE
+    }
+
     class Config(
             val payload: KmeActiveContentModuleMessage.SetActiveContentPayload,
             val cookie: String,
             val fileUrl: String,
     ) {
         var currentSlide: Int = 0
+        var showPreview: Boolean = true
     }
 
 }
