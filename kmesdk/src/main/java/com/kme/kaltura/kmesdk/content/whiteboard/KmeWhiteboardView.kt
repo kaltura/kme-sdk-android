@@ -165,11 +165,13 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 measurePath(it)
             }
 
-            postInvalidate()
-
-            if (pathsMap.isEmpty()) {
-                changeListener?.onChanged()
+            launch(Dispatchers.Main) {
+                if (pathsMap.isEmpty()) {
+                    changeListener?.onChanged()
+                }
             }
+
+            postInvalidate()
         }
     }
 
