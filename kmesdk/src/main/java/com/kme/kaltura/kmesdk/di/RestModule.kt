@@ -4,7 +4,6 @@ import com.google.gson.GsonBuilder
 import com.kme.kaltura.kmesdk.BuildConfig
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.rest.*
-import com.kme.kaltura.kmesdk.rest.*
 import com.kme.kaltura.kmesdk.rest.KmeTokenInterceptor
 import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 import com.kme.kaltura.kmesdk.rest.service.*
