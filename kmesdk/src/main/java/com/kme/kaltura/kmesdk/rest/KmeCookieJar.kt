@@ -23,8 +23,8 @@ class KmeCookieJar(
     override fun saveFromResponse(url: HttpUrl, cookieList: List<Cookie>) {
         if (url.toString().contains("fe/metadata")) {
             prefs.putString(KmePrefsKeys.COOKIE, cookieList.joinToString(";"))
+            cookies.addAll(cookieList)
         }
-        cookies.addAll(cookieList)
     }
 
     /**

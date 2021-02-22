@@ -36,6 +36,9 @@ enum class KmeMessageModule(
     @SerializedName("Streaming", alternate = ["streaming"])
     STREAMING("Streaming"),
 
+    @SerializedName("Whiteboard", alternate = ["whiteboard"])
+    WHITEBOARD("Whiteboard"),
+
     @SerializedName("Recording", alternate = ["recording"])
     RECORDING("Recording"),
 

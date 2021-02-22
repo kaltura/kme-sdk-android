@@ -29,6 +29,7 @@ import com.kme.kaltura.kmeapplication.view.fragment.content.SlidesContentFragmen
 import com.kme.kaltura.kmeapplication.viewmodel.*
 import com.kme.kaltura.kmeapplication.viewmodel.content.ActiveContentViewModel
 import com.kme.kaltura.kmeapplication.viewmodel.content.DesktopShareViewModel
+import com.kme.kaltura.kmeapplication.viewmodel.content.WhiteboardContentViewModel
 import com.kme.kaltura.kmesdk.rest.response.room.KmeBaseRoom
 import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeRoomNote
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason
@@ -57,6 +58,7 @@ class RoomActivity : KmeActivity() {
     private val notesViewModel: RoomNoteViewModel by viewModel()
     private val roomInfoViewModel: RoomInfoViewModel by viewModel()
     private val activeContentViewModel: ActiveContentViewModel by viewModel()
+    private val whiteboardLiveData: WhiteboardContentViewModel by viewModel()
     private val roomSettingsViewModel: RoomSettingsViewModel by viewModel()
     private val conversationsViewModel: ConversationsViewModel by viewModel()
     private val peerConnectionViewModel: PeerConnectionViewModel by viewModel()
@@ -121,6 +123,7 @@ class RoomActivity : KmeActivity() {
 
         chatViewModel.subscribe()
         activeContentViewModel.subscribe()
+        whiteboardLiveData.subscribe()
 
         ifNonNull(companyId, roomId) { companyId, roomId ->
             viewModel.connect(companyId, roomId, roomAlias)
@@ -632,7 +635,7 @@ class RoomActivity : KmeActivity() {
                         showContentFragment()
                     }
                 }
-                IMAGE, SLIDES -> {
+                IMAGE, SLIDES, WHITEBOARD -> {
                     if (contentFragment !is SlidesContentFragment) {
                         contentFragment = SlidesContentFragment.newInstance()
                         showContentFragment()

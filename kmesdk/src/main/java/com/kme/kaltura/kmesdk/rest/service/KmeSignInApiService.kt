@@ -70,7 +70,6 @@ interface KmeSignInApiService {
      *
      * @return [KmeLogoutResponse] object in success case
      */
-    @FormUrlEncoded
     @POST("signin/logout")
     suspend fun logout(): KmeLogoutResponse
 

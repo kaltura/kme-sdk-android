@@ -3,17 +3,24 @@ package com.kme.kaltura.kmesdk.content.playkit
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.Observer
 import com.kaltura.playkit.*
 import com.kaltura.playkit.player.PKHttpClientManager
 import com.kaltura.tvplayer.KalturaPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
 import com.kme.kaltura.kmesdk.R
+import com.kme.kaltura.kmesdk.di.KmeKoinComponent
+import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
+import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTubePlayerTracker
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import org.koin.core.inject
 import java.util.concurrent.TimeUnit
 
 /**
@@ -21,7 +28,10 @@ import java.util.concurrent.TimeUnit
  */
 class KmeMediaView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr), IKmeMediaPlaybackListener {
+) : FrameLayout(context, attrs, defStyleAttr),
+    KmeKoinComponent, IKmeMediaPlaybackListener {
+
+    private val defaultPlayerEventHandler: KmeDefaultPlayerEventHandler by inject()
 
     private lateinit var config: Config
 
@@ -31,6 +41,10 @@ class KmeMediaView @JvmOverloads constructor(
     private var youtubePlayerView: YouTubePlayerView? = null
     private var youtubeTracker: YouTubePlayerTracker? = null
     private var youtubePlayerListener: AbstractYouTubePlayerListener? = null
+
+    private var syncPlayerState: KmePlayerState? = null
+    private var syncPlayerPosition: Float = 0f
+    private var canPlay: Boolean = false
 
     /**
      * Init media view
@@ -49,6 +63,27 @@ class KmeMediaView @JvmOverloads constructor(
             setupKalturaPlayer()
             setupKalturaPlayerView()
         }
+
+        if (config.useDefaultHandler) {
+            setupDefaultPlayerEventHandler()
+        }
+
+        val contentUrl: String? =
+            if (config.contentType == KmeContentType.YOUTUBE)
+                config.metadata.fileId
+            else
+                config.metadata.src
+
+        contentUrl?.let { setMedia(it) }
+    }
+
+    private fun setupDefaultPlayerEventHandler() {
+        addListener(this, PlayerEvent.canPlay) {
+            canPlay = true
+            syncPlayerState()
+        }
+        defaultPlayerEventHandler.syncPlayerStateLiveData.observeForever(syncPlayerStateObserver)
+        defaultPlayerEventHandler.subscribe()
     }
 
     /**
@@ -58,7 +93,7 @@ class KmeMediaView @JvmOverloads constructor(
         check(::config.isInitialized) {
             "${javaClass.simpleName} is not initialized."
         }
-
+        canPlay = false
         setupMedia(url)
     }
 
@@ -167,6 +202,30 @@ class KmeMediaView @JvmOverloads constructor(
         return listOf(mediaSource)
     }
 
+    private fun syncPlayerState() {
+        if (canPlay) {
+            seekTo(syncPlayerPosition.toLong())
+            syncPlayerState?.let {
+                handlePlayerState(it)
+            }
+        }
+    }
+
+    private fun handlePlayerState(state: KmePlayerState) {
+        when (state) {
+            KmePlayerState.PLAY -> {
+                if (isEnded()) {
+                    replay()
+                } else {
+                    play()
+                }
+            }
+            KmePlayerState.PAUSE -> {
+                pause()
+            }
+        }
+    }
+
     /**
      * Getting current playing position
      */
@@ -246,6 +305,12 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
+    private val syncPlayerStateObserver = Observer<Pair<KmePlayerState?, Float>> {
+        syncPlayerState = it.first
+        syncPlayerPosition = it.second
+        syncPlayerState()
+    }
+
     /**
      * Adding listener for specific event
      */
@@ -286,6 +351,10 @@ class KmeMediaView @JvmOverloads constructor(
         removeAllViews()
         releaseKalturaPlayer()
         releaseYoutubePlayer()
+        removeListeners(this)
+        if (config.useDefaultHandler) {
+            defaultPlayerEventHandler.release()
+        }
     }
 
     private fun releaseKalturaPlayer() {
@@ -310,9 +379,11 @@ class KmeMediaView @JvmOverloads constructor(
 
     class Config(
         val contentType: KmeContentType,
+        val metadata: KmeActiveContentModuleMessage.ActiveContentPayload.Metadata,
         val cookie: String,
     ) {
         var autoPlay: Boolean = true
+        var useDefaultHandler = true
     }
 
     companion object {

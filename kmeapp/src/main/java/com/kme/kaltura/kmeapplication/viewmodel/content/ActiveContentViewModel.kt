@@ -34,11 +34,6 @@ class ActiveContentViewModel(
     val setActiveContentLiveData
         get() = setActiveContent as LiveData<SetActiveContentPayload>
 
-    private val syncPlayerState =
-        MutableLiveData<Pair<PlayerControlsEvent?, Float>>()
-    val syncPlayerStateLiveData
-        get() = syncPlayerState as LiveData<Pair<PlayerControlsEvent?, Float>>
-
     private val slideChanged =
         MutableLiveData<Int>()
     val slideChangedLiveData
@@ -54,14 +49,6 @@ class ActiveContentViewModel(
             activeContentHandler,
             KmeMessageEvent.INIT_ACTIVE_CONTENT,
             KmeMessageEvent.SET_ACTIVE_CONTENT
-        )
-
-        kmeSdk.roomController.listen(
-            playerStateHandler,
-            KmeMessageEvent.SYNC_PLAYER_STATE,
-            KmeMessageEvent.PLAYER_PLAYING,
-            KmeMessageEvent.PLAYER_PAUSED,
-            KmeMessageEvent.PLAYER_SEEK_TO
         )
 
         kmeSdk.roomController.listen(
@@ -101,47 +88,6 @@ class ActiveContentViewModel(
 
                     contentMessage?.payload?.let {
                         setActiveContent.postValue(it)
-                    }
-                }
-            }
-        }
-    }
-
-    private val playerStateHandler = object : IKmeMessageListener {
-        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-            when (message.name) {
-                KmeMessageEvent.SYNC_PLAYER_STATE -> {
-                    val contentMessage: KmeVideoModuleMessage<SyncPlayerStatePayload>? =
-                        message.toType()
-
-                    contentMessage?.payload?.let {
-                        syncPlayerState.postValue(
-                            Pair(it.playerState?.toControlsEvent(), it.time?.toFloat() ?: 0f)
-                        )
-                    }
-                }
-                KmeMessageEvent.PLAYER_PLAYING -> {
-                    val contentMessage: KmeVideoModuleMessage<VideoPayload>? = message.toType()
-                    contentMessage?.payload?.let {
-                        syncPlayerState.postValue(
-                            Pair(PlayerControlsEvent.PLAY, it.time?.toFloat() ?: 0f)
-                        )
-                    }
-                }
-                KmeMessageEvent.PLAYER_PAUSED -> {
-                    val contentMessage: KmeVideoModuleMessage<VideoPayload>? = message.toType()
-                    contentMessage?.payload?.let {
-                        syncPlayerState.postValue(
-                            Pair(PlayerControlsEvent.PAUSE, it.time?.toFloat() ?: 0f)
-                        )
-                    }
-                }
-                KmeMessageEvent.PLAYER_SEEK_TO -> {
-                    val contentMessage: KmeVideoModuleMessage<VideoPayload>? = message.toType()
-                    contentMessage?.payload?.let {
-                        syncPlayerState.postValue(
-                            Pair(PlayerControlsEvent.SEEK_TO, it.time?.toFloat() ?: 0f)
-                        )
                     }
                 }
             }

@@ -1,20 +1,33 @@
 package com.kme.kaltura.kmesdk.content.slides
 
 import android.content.Context
+import android.graphics.PointF
+import android.graphics.RectF
 import android.util.AttributeSet
+import android.util.Size
 import android.view.LayoutInflater
+import android.view.ViewTreeObserver
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kme.kaltura.kmesdk.R
+import com.kme.kaltura.kmesdk.content.whiteboard.IKmeWhiteboardChangeListener
+import com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardView
+import com.kme.kaltura.kmesdk.getBitmapFromView
 import com.kme.kaltura.kmesdk.glide
+import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.ActiveContentPayload.Page
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.ActiveContentPayload.Slide
+import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
+import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
 import kotlinx.android.synthetic.main.layout_slides_view.view.*
+
 
 /**
  * An implementation of slides view in the room
  */
 class KmeSlidesView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), IKmeSlidesListener {
 
     private lateinit var config: Config
@@ -22,6 +35,11 @@ class KmeSlidesView @JvmOverloads constructor(
     private var slides: MutableList<Slide> = mutableListOf()
     private var slidesAdapter: SlidesAdapter? = null
     private var selectedSlide: Slide? = null
+
+    private var pages: MutableList<Page> = mutableListOf()
+    private var selectedPage: Page? = null
+
+    private var originalImageSize: Size? = null
 
     init {
         LayoutInflater.from(context).inflate(R.layout.layout_slides_view, this)
@@ -34,43 +52,119 @@ class KmeSlidesView @JvmOverloads constructor(
         this.config = config
 
         fabZoomIn.setOnClickListener {
-            ivSlide.zoomIn()
+            zoomLayout.zoomIn()
         }
         fabZoomOut.setOnClickListener {
-            ivSlide.zoomOut()
+            zoomLayout.zoomOut()
         }
+
+        whiteboardLayout.changeListener = object : IKmeWhiteboardChangeListener {
+            override fun onChanged() {
+                val bitmapFromView = whiteboardContainer.getBitmapFromView()
+                zoomLayout.setImageBitmap(bitmapFromView)
+            }
+        }
+
+        if (KmeContentType.SLIDES == config.payload.contentType) {
+            setSlides(config.payload)
+        } else if (KmeContentType.WHITEBOARD == config.payload.contentType) {
+            setWhiteboardPages(config.payload)
+        }
+    }
+
+    private fun setWhiteboardPages(payload: KmeActiveContentModuleMessage.SetActiveContentPayload) {
+        payload.metadata.pages?.let {
+            rvSlides?.visibility = GONE
+
+            this.pages.clear()
+            this.pages.addAll(it)
+
+            setActivePage(payload.metadata.activePageId)
+        }
+    }
+
+    override fun setActivePage(activePageId: String?) {
+        selectedPage = getPageById(activePageId)
+        if (selectedPage == null) {
+            val newPage = Page(activePageId).apply {
+                backgroundMetadata = KmeWhiteboardBackgroundType.BLANK
+            }
+            selectedPage = newPage
+            this.pages.add(newPage)
+        }
+        removeDrawings()
+        setupPageContentView()
     }
 
     /**
      * Set actual slides
      */
-    override fun setSlides(slides: List<Slide>) {
-        check(::config.isInitialized) {
-            "${javaClass.simpleName} is not initialized."
-        }
-        this.slides.clear()
-        this.slides.addAll(slides)
-        this.slides.sortedBy { slide -> slide.slideNumber?.toInt() ?: 0 }
+    private fun setSlides(payload: KmeActiveContentModuleMessage.SetActiveContentPayload) {
+        payload.metadata.slides?.let {
+            rvSlides?.visibility = VISIBLE
 
-        selectedSlide = getSlideByNumber(config.currentSlide)
+            this.slides.clear()
+            this.slides.addAll(it)
+            this.slides.sortedBy { slide -> slide.slideNumber?.toInt() ?: 0 }
 
-        setupContentView()
-        setupPreviews()
+            selectedSlide = getSlideByNumber(config.currentSlide)
 
-        selectedSlide?.let {
-            notifySlideSelected(it)
-        }
-    }
+            setupSlideContentView()
+            setupSlidesPreview()
 
-    private fun setupContentView() {
-        selectedSlide?.let {
-            ivSlide.glide(it.url, config.cookie, config.fileUrl)
+            selectedSlide?.let { selectedSlide ->
+                notifySlideSelected(selectedSlide)
+            }
         }
     }
 
-    private fun setupPreviews() {
+
+    private fun setupPageContentView() {
+        originalImageSize = null
+
+        ivSlide.glide(R.drawable.bg_blank_whiteboard) { originalSize ->
+            originalImageSize = Size(1280, 720)
+            setupWhiteboardView()
+        }
+    }
+
+    private fun setupSlideContentView() {
+        originalImageSize = null
+
+        selectedSlide?.let {
+            ivSlide.glide(it.url, config.cookie, config.fileUrl) { originalSize ->
+                originalImageSize = originalSize
+                setupWhiteboardView()
+            }
+        }
+    }
+
+    private fun setupWhiteboardView() {
+        ivSlide.viewTreeObserver.addOnPreDrawListener(object :
+                ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                val drawable = ivSlide.drawable
+                if (drawable != null) {
+                    val imageBounds = RectF()
+                    ivSlide.imageMatrix.mapRect(imageBounds, RectF(drawable.bounds))
+                    originalImageSize?.let { imageSize ->
+                        val whiteboardConfig =
+                                KmeWhiteboardView.Config(imageSize, imageBounds).apply {
+                                    cookie = config.cookie
+                                    fileUrl = config.fileUrl
+                                    backgroundType = selectedPage?.backgroundMetadata
+                                }
+                        init(whiteboardConfig)
+                    }
+                    ivSlide.viewTreeObserver.removeOnPreDrawListener(this)
+                }
+                return true
+            }
+        })
+    }
+
+    private fun setupSlidesPreview() {
         rvSlides.visibility = if (config.showPreview) VISIBLE else GONE
-
         slidesAdapter = SlidesAdapter(config.cookie, config.fileUrl).apply {
             setData(slides)
         }
@@ -89,13 +183,17 @@ class KmeSlidesView @JvmOverloads constructor(
             slidesAdapter?.setData(slides)
             rvSlides.post {
                 (rvSlides.layoutManager as LinearLayoutManager?)
-                    ?.scrollToPositionWithOffset(indexOf, 0)
+                        ?.scrollToPositionWithOffset(indexOf, 0)
             }
         }
     }
 
     private fun getSlideByNumber(number: Int): Slide? {
         return slides.find { slide -> slide.slideNumber?.toInt() == number }
+    }
+
+    private fun getPageById(pageId: String?): Page? {
+        return pages.find { page -> page.id == pageId }
     }
 
     /**
@@ -119,7 +217,7 @@ class KmeSlidesView @JvmOverloads constructor(
             val nextSlide = getSlideByNumber(number)
             nextSlide?.let { slide ->
                 selectedSlide = slide
-                setupContentView()
+                setupSlideContentView()
                 notifySlideSelected(slide)
             }
         }
@@ -134,7 +232,7 @@ class KmeSlidesView @JvmOverloads constructor(
             val prevSlide = getSlideByNumber(number)
             prevSlide?.let { slide ->
                 selectedSlide = slide
-                setupContentView()
+                setupSlideContentView()
                 notifySlideSelected(slide)
             }
         }
@@ -147,9 +245,52 @@ class KmeSlidesView @JvmOverloads constructor(
         val slide = getSlideByNumber(slideNumber)
         slide?.let { it ->
             selectedSlide = it
-            setupContentView()
+            setupSlideContentView()
             notifySlideSelected(slide)
         }
+    }
+
+    override fun init(whiteboardConfig: KmeWhiteboardView.Config?) {
+        whiteboardLayout.init(whiteboardConfig)
+    }
+
+    override fun setDrawings(drawings: List<WhiteboardPayload.Drawing>) {
+        whiteboardLayout.setDrawings(drawings)
+
+        selectedPage?.let {
+            updateBackground(it.backgroundMetadata)
+        }
+    }
+
+    override fun addDrawing(drawing: WhiteboardPayload.Drawing) {
+        whiteboardLayout.addDrawing(drawing)
+    }
+
+    override fun updateLaserPosition(point: PointF) {
+        whiteboardLayout.updateLaserPosition(point)
+    }
+
+    override fun hideLaser() {
+        whiteboardLayout.hideLaser()
+    }
+
+    override fun updateBackground(backgroundType: KmeWhiteboardBackgroundType?) {
+        selectedPage?.let {
+            val index = pages.indexOf(it)
+            if (index >= 0) {
+                it.backgroundMetadata = backgroundType
+                pages[index] = it
+            }
+        }
+        whiteboardLayout.updateBackground(backgroundType)
+    }
+
+    override fun removeDrawing(layer: String) {
+        whiteboardLayout.removeDrawing(layer)
+    }
+
+    override fun removeDrawings() {
+        whiteboardLayout.removeDrawings()
     }
 
     /**
@@ -167,8 +308,9 @@ class KmeSlidesView @JvmOverloads constructor(
     }
 
     class Config(
-        val cookie: String,
-        val fileUrl: String,
+            val payload: KmeActiveContentModuleMessage.SetActiveContentPayload,
+            val cookie: String,
+            val fileUrl: String,
     ) {
         var currentSlide: Int = 0
         var showPreview: Boolean = true

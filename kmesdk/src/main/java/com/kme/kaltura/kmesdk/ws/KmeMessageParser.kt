@@ -24,6 +24,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.Sli
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.SyncPlayerStatePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.*
 
 private const val KEY_NAME = "name"
 
@@ -68,6 +69,9 @@ internal class KmeMessageParser(
     @Suppress("UNCHECKED_CAST")
     private fun parseMessage(name: String, text: String): KmeMessage<KmeMessage.Payload>? {
         return when (name) {
+            KmeMessageEvent.COMBINED_EVENT.toString() -> {
+                text.jsonToObject<KmeMessage<KmeMessage.Payload>>()
+            }
             KmeMessageEvent.INSTRUCTOR_IS_OFFLINE.toString() -> {
                 text.jsonToObject<KmeRoomInitModuleMessage<InstructorIsOfflinePayload>>()
             }
@@ -244,6 +248,50 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.SLIDE_CHANGED.toString() -> {
                 text.jsonToObject<KmeSlidesPlayerModuleMessage<SlideChangedPayload>>()
+            }
+            KmeMessageEvent.WHITEBOARD_PAGE_DATA.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<WhiteboardPageDataPayload>>()
+            }
+            KmeMessageEvent.RECEIVE_LASER_POSITION.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<ReceivedLaserPositionPayload>>()
+            }
+            KmeMessageEvent.LASER_DEACTIVATED.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<LaserDeactivatedPayload>>()
+            }
+            KmeMessageEvent.RECEIVE_DRAWING.toString(), KmeMessageEvent.RECEIVE_TRANSFORMATION.toString()-> {
+                val message =  text.jsonToObject<KmeWhiteboardModuleMessage<ReceiveDrawingPayload>>()
+                        as KmeWhiteboardModuleMessage<ReceiveDrawingPayload>?
+
+                message?.payload?.drawing = WhiteboardPayload.Drawing().apply {
+                    this.layer =  message?.payload?.drawingLayer
+                    this.type = message?.payload?.drawingType
+                    this.tool = message?.payload?.drawingTool
+                    this.userId = message?.payload?.drawingUserId
+                    this.userType = message?.payload?.drawingUserType
+                    this.path = message?.payload?.drawingPath
+                    this.createdDate = message?.payload?.drawingCreatedDate
+                    this.fullUsername = message?.payload?.drawingFullUsername
+                }
+
+                return message as KmeMessage<KmeMessage.Payload>?
+            }
+            KmeMessageEvent.DELETE_DRAWING.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<DeleteDrawingPayload>>()
+            }
+            KmeMessageEvent.WHITEBOARD_PAGE_CLEARED.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<WhiteboardPageClearedPayload>>()
+            }
+            KmeMessageEvent.WHITEBOARD_ALL_PAGES_CLEARED.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<WhiteboardPageClearedPayload>>()
+            }
+            KmeMessageEvent.WHITEBOARD_BACKGROUND_TYPE_CHANGED.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<BackgroundTypeChangedPayload>>()
+            }
+            KmeMessageEvent.WHITEBOARD_SET_ACTIVE_PAGE.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<SetActivePagePayload>>()
+            }
+            KmeMessageEvent.WHITEBOARD_PAGE_CREATED.toString() -> {
+                text.jsonToObject<KmeWhiteboardModuleMessage<PageCreatedPayload>>()
             }
             else -> null
         }

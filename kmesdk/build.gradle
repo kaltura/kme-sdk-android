@@ -41,7 +41,7 @@ android {
 
     dokka {
         outputFormat = 'javadoc'
-        outputDirectory = "$buildDir/documentation"
+        outputDirectory = "../docs"
     }
 }
 

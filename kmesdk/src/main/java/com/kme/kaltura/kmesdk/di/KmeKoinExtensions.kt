@@ -22,6 +22,7 @@ object KmeKoinContext {
             modules(preferencesModule)
             modules(webSocketModule)
             modules(webRTCModule)
+            modules(helpersModule)
         }.koin
     }
 

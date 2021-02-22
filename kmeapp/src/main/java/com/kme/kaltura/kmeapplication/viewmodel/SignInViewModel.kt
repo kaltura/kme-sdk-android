@@ -1,16 +1,18 @@
 package com.kme.kaltura.kmeapplication.viewmodel
 
+import android.content.Context
+import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.kme.kaltura.kmeapplication.R
 import com.kme.kaltura.kmesdk.KME
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeGuestLoginResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeGuestLoginResponse.*
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse.*
+import com.kme.kaltura.kmesdk.rest.response.signin.KmeGuestLoginResponse.KmeGuestLoginData
+import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse.KmeLoginData
 
 class SignInViewModel(
-    private val kmeSdk: KME
+        private val kmeSdk: KME,
+        private val context: Context
 ) : ViewModel() {
 
     private val isLoading = MutableLiveData<Boolean>()
@@ -26,6 +28,9 @@ class SignInViewModel(
     val loginErrorLiveData get() = loginError as LiveData<String?>
 
     fun login(email: String, password: String) {
+        if (!validateLogin(email, password)) {
+            return
+        }
         isLoading.value = true
         kmeSdk.signInController.login(email, password, success = {
             isLoading.value = false
@@ -37,6 +42,9 @@ class SignInViewModel(
     }
 
     fun guest(name: String, email: String, roomAlias: String) {
+        if (!validateGuestLogin(name, email)) {
+            return
+        }
         isLoading.value = true
         kmeSdk.signInController.guest(name, email, roomAlias, success = {
             isLoading.value = false
@@ -45,6 +53,44 @@ class SignInViewModel(
             isLoading.value = false
             loginError.value = it.message
         })
+    }
+
+    private fun validateLogin(email: String, password: String): Boolean {
+        if (email.isEmpty()) {
+            loginError.value = context.getString(R.string.empty_email)
+            return false
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            loginError.value = context.getString(R.string.incorrect_email)
+            return false
+        }
+
+        if (password.isEmpty()) {
+            loginError.value = context.getString(R.string.empty_password)
+            return false
+        }
+
+        return true
+    }
+
+    private fun validateGuestLogin(name: String, email: String): Boolean {
+        if (name.isEmpty()) {
+            loginError.value = context.getString(R.string.empty_guest_name)
+            return false
+        }
+
+        if (email.isEmpty()) {
+            loginError.value = context.getString(R.string.empty_email)
+            return false
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            loginError.value = context.getString(R.string.incorrect_email)
+            return false
+        }
+
+        return true
     }
 
 }
