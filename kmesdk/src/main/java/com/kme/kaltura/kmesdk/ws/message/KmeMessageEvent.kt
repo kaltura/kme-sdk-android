@@ -5,6 +5,9 @@ enum class KmeMessageEvent(
     @SerializedName("name") val moduleName: String
 ) {
 
+    @SerializedName("combinedEvent", alternate = ["combinedevent"])
+    COMBINED_EVENT("combinedEvent"),
+
     /*
     * RoomInit
     * */
@@ -254,6 +257,42 @@ enum class KmeMessageEvent(
 
     @SerializedName("recorderFailed", alternate = ["recorderfailed"])
     RECORDING_FAILED("recorderFailed"),
+
+    /*
+    * Whiteboard
+    * */
+    @SerializedName("whiteboardPageData", alternate = ["whiteboardpagedata"])
+    WHITEBOARD_PAGE_DATA("whiteboardPageData"),
+
+    @SerializedName("whiteboardPageCleared", alternate = ["whiteboardpagecleared"])
+    WHITEBOARD_PAGE_CLEARED("whiteboardPageCleared"),
+
+    @SerializedName("whiteboardAllPagesCleared", alternate = ["whiteboardallpagescleared"])
+    WHITEBOARD_ALL_PAGES_CLEARED("whiteboardAllPagesCleared"),
+
+    @SerializedName("receiveLaserPosition", alternate = ["receivelaserposition"])
+    RECEIVE_LASER_POSITION("receiveLaserPosition"),
+
+    @SerializedName("laserDeactivatedForUser", alternate = ["laserdeactivatedforuser"])
+    LASER_DEACTIVATED("laserDeactivatedForUser"),
+
+    @SerializedName("receiveTransformation", alternate = ["receivetransformation"])
+    RECEIVE_TRANSFORMATION("receiveTransformation"),
+
+    @SerializedName("receiveDrawing", alternate = ["receivedrawing"])
+    RECEIVE_DRAWING("receiveDrawing"),
+
+    @SerializedName("drawingDeleted", alternate = ["drawingdeleted"])
+    DELETE_DRAWING("drawingDeleted"),
+
+    @SerializedName("whiteboardBackgroundTypeChanged", alternate = ["whiteboardbackgroundtypechanged"])
+    WHITEBOARD_BACKGROUND_TYPE_CHANGED("whiteboardBackgroundTypeChanged"),
+
+    @SerializedName("whiteboardActivePageSet", alternate = ["whiteboardActivePageSet"])
+    WHITEBOARD_SET_ACTIVE_PAGE("whiteboardActivePageSet"),
+
+    @SerializedName("whiteboardPageCreated", alternate = ["whiteboardpagecreated"])
+    WHITEBOARD_PAGE_CREATED("whiteboardPageCreated"),
 
     /*
     * Share Desktop
