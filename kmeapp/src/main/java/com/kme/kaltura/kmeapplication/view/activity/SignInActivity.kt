@@ -147,7 +147,11 @@ class SignInActivity : AppCompatActivity() {
     }
 
     private val loginErrorObserver = Observer<String?> {
-        Snackbar.make(root, R.string.error, Snackbar.LENGTH_SHORT).show()
+        it?.let {
+            Snackbar.make(root, it, Snackbar.LENGTH_SHORT).show()
+        } ?: run {
+            Snackbar.make(root, R.string.error, Snackbar.LENGTH_SHORT).show()
+        }
     }
 
     companion object {

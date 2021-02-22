@@ -7,13 +7,38 @@
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <com.otaliastudios.zoom.ZoomImageView
-        android:id="@+id/ivSlide"
+        android:id="@+id/zoomLayout"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/rvSlides"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+    </com.otaliastudios.zoom.ZoomImageView>
+
+    <FrameLayout
+        android:id="@+id/whiteboardContainer"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/rvSlides"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivSlide"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardView
+            android:id="@+id/whiteboardLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSlides"

@@ -9,6 +9,9 @@ enum class KmeContentType(
     @SerializedName("video")
     VIDEO("video"),
 
+    @SerializedName("whiteboard")
+    WHITEBOARD("whiteboard"),
+
     @SerializedName("audio")
     AUDIO("audio"),
 

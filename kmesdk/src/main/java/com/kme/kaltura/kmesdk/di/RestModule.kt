@@ -4,9 +4,11 @@ import com.google.gson.GsonBuilder
 import com.kme.kaltura.kmesdk.BuildConfig
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.rest.*
+import com.kme.kaltura.kmesdk.rest.*
 import com.kme.kaltura.kmesdk.rest.KmeTokenInterceptor
 import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 import com.kme.kaltura.kmesdk.rest.service.*
+import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -28,6 +30,7 @@ val restModule = module {
             .registerTypeAdapter(Boolean::class.javaObjectType, KmeStringToBooleanTypeAdapter())
             .registerTypeAdapter(Boolean::class.javaPrimitiveType, KmeStringToBooleanTypeAdapter())
             .registerTypeAdapter(KmeResponseData::class.javaObjectType, KmeResponseDataTypeAdapter())
+            .registerTypeAdapter(KmeWhiteboardPath::class.java, KmeWhiteboardPathTypeAdapter())
             .create()
     }
     single {

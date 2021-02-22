@@ -8,6 +8,10 @@
     <string name="login">login</string>
     <string name="join_as_guest">Join as guest</string>
     <string name="join_as_user">Join as user</string>
+    <string name="empty_email">Email field cannot be empty</string>
+    <string name="incorrect_email">Email is incorrect</string>
+    <string name="empty_guest_name">Name field cannot be empty</string>
+    <string name="empty_password">Password field cannot be empty</string>
 
     <string name="not_valid_room_link">This room link is not valid.</string>
 
