@@ -6,6 +6,7 @@ import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlatformType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
+import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -13,7 +14,7 @@ data class KmeParticipant(
 
     @SerializedName("user_id") var userId: Long? = null,
     @SerializedName("region_id") var regionId: Long? = null,
-    @SerializedName("user_type") var userType: String? = null,
+    @SerializedName("user_type") var userType: KmeUserType? = null,
     @SerializedName("avatar") var avatar: String? = null,
     @SerializedName("user_role") var userRole: KmeUserRole? = null,
     @SerializedName("full_name") var fullName: String? = null,

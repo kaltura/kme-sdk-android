@@ -7,6 +7,7 @@ import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.user.KmeGetUserInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.user.KmeUserInfoData
 import com.kme.kaltura.kmesdk.rest.safeApiCall
+import com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeUserApiService
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
@@ -20,6 +21,7 @@ import org.koin.core.inject
  */
 class KmeUserControllerImpl : KmeController(), IKmeUserController {
 
+    private val signInApiService: KmeSignInApiService by inject()
     private val userApiService: KmeUserApiService by inject()
     private val kmePreferences: IKmePreferences by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
@@ -126,10 +128,23 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
     /**
      * Removes actual user information
      */
-    override fun logout() {
-        currentUserInfo = null
-        currentParticipant = null
-        kmePreferences.clear()
+    override fun logout(
+        success: () -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        uiScope.launch {
+            safeApiCall(
+                { signInApiService.logout() },
+                success = {
+                    currentUserInfo = null
+                    currentParticipant = null
+                    kmePreferences.clear()
+                    success()
+                },
+                error
+            )
+        }
+
     }
 
 }

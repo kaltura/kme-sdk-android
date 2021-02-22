@@ -100,9 +100,16 @@ internal class KmeWebSocketHandler(
     private fun post(text: String) {
         val message = messageParser.parse(text)
         message?.let {
-            val event = it.name
-            if (event != null) {
-                messageManager.post(event, message)
+            val events = it.payload?.events
+            if (!events.isNullOrEmpty()) {
+                for (json in events) {
+                    post(json)
+                }
+            } else {
+                val event = it.name
+                if (event != null) {
+                    messageManager.post(event, message)
+                }
             }
         }
     }

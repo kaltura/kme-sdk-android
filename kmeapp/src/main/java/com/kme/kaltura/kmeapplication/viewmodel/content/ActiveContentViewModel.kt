@@ -3,6 +3,7 @@ package com.kme.kaltura.kmeapplication.viewmodel.content
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.kme.kaltura.kmeapplication.util.extensions.ifNonNull
 import com.kme.kaltura.kmeapplication.util.extensions.toNonNull
 import com.kme.kaltura.kmeapplication.view.view.content.controls.PlayerControlsEvent
 import com.kme.kaltura.kmesdk.KME
@@ -12,6 +13,8 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.SetParticipantModerator
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage
@@ -19,6 +22,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.SyncPlayer
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState.*
+import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 
 class ActiveContentViewModel(
@@ -30,15 +34,15 @@ class ActiveContentViewModel(
     val setActiveContentLiveData
         get() = setActiveContent as LiveData<SetActiveContentPayload>
 
-    private val syncPlayerState =
-        MutableLiveData<Pair<PlayerControlsEvent?, Float>>()
-    val syncPlayerStateLiveData
-        get() = syncPlayerState as LiveData<Pair<PlayerControlsEvent?, Float>>
-
     private val slideChanged =
         MutableLiveData<Int>()
     val slideChangedLiveData
         get() = slideChanged as LiveData<Int>
+
+    private val showSlidesPreview =
+        MutableLiveData<Boolean>()
+    val showSlidesPreviewLiveData
+        get() = showSlidesPreview as LiveData<Boolean>
 
     fun subscribe() {
         kmeSdk.roomController.listen(
@@ -48,22 +52,21 @@ class ActiveContentViewModel(
         )
 
         kmeSdk.roomController.listen(
-            playerStateHandler,
-            KmeMessageEvent.SYNC_PLAYER_STATE,
-            KmeMessageEvent.PLAYER_PLAYING,
-            KmeMessageEvent.PLAYER_PAUSED,
-            KmeMessageEvent.PLAYER_SEEK_TO
+            slidePlayerHandler,
+            KmeMessageEvent.SLIDE_CHANGED
         )
 
         kmeSdk.roomController.listen(
-            slidePlayerHandler,
-            KmeMessageEvent.SLIDE_CHANGED
+            userRoleChangeHandler,
+            KmeMessageEvent.SET_PARTICIPANT_MODERATOR
         )
     }
 
     fun getCookie(): String = kmeSdk.getCookies().toNonNull()
 
     fun getFilesUrl(): String = kmeSdk.getFilesUrl().toNonNull()
+
+    fun userType(): KmeUserType? = kmeSdk.userController.getCurrentParticipant()?.userType
 
     fun enabledControls(): Boolean = kmeSdk.userController.getCurrentParticipant()
         ?.userPermissions?.playlistModule?.defaultSettings?.isModerator == KmePermissionValue.ON
@@ -91,47 +94,6 @@ class ActiveContentViewModel(
         }
     }
 
-    private val playerStateHandler = object : IKmeMessageListener {
-        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-            when (message.name) {
-                KmeMessageEvent.SYNC_PLAYER_STATE -> {
-                    val contentMessage: KmeVideoModuleMessage<SyncPlayerStatePayload>? =
-                        message.toType()
-
-                    contentMessage?.payload?.let {
-                        syncPlayerState.postValue(
-                            Pair(it.playerState?.toControlsEvent(), it.time?.toFloat() ?: 0f)
-                        )
-                    }
-                }
-                KmeMessageEvent.PLAYER_PLAYING -> {
-                    val contentMessage: KmeVideoModuleMessage<VideoPayload>? = message.toType()
-                    contentMessage?.payload?.let {
-                        syncPlayerState.postValue(
-                            Pair(PlayerControlsEvent.PLAY, it.time?.toFloat() ?: 0f)
-                        )
-                    }
-                }
-                KmeMessageEvent.PLAYER_PAUSED -> {
-                    val contentMessage: KmeVideoModuleMessage<VideoPayload>? = message.toType()
-                    contentMessage?.payload?.let {
-                        syncPlayerState.postValue(
-                            Pair(PlayerControlsEvent.PAUSE, it.time?.toFloat() ?: 0f)
-                        )
-                    }
-                }
-                KmeMessageEvent.PLAYER_SEEK_TO -> {
-                    val contentMessage: KmeVideoModuleMessage<VideoPayload>? = message.toType()
-                    contentMessage?.payload?.let {
-                        syncPlayerState.postValue(
-                            Pair(PlayerControlsEvent.SEEK_TO, it.time?.toFloat() ?: 0f)
-                        )
-                    }
-                }
-            }
-        }
-    }
-
     private val slidePlayerHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
@@ -139,6 +101,27 @@ class ActiveContentViewModel(
                     val msg: KmeSlidesPlayerModuleMessage<SlideChangedPayload>? = message.toType()
                     msg?.payload?.let {
                         slideChanged.postValue(it.nextActiveSlide)
+                    }
+                }
+            }
+        }
+    }
+
+    private val userRoleChangeHandler = object : IKmeMessageListener {
+        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
+            when (message.name) {
+                KmeMessageEvent.SET_PARTICIPANT_MODERATOR -> {
+                    val userRoleChangedMessage: KmeParticipantsModuleMessage<SetParticipantModerator>? =
+                        message.toType()
+
+                    ifNonNull(
+                        userRoleChangedMessage?.payload?.targetUserId,
+                        userRoleChangedMessage?.payload?.isModerator
+                    ) { userId, isModerator ->
+                        val youId = kmeSdk.userController.getCurrentUserInfo()?.getUserId() ?: 0
+                        if (youId == userId) {
+                            showSlidesPreview.postValue(isModerator)
+                        }
                     }
                 }
             }

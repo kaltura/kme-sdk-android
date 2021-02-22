@@ -1,11 +1,12 @@
 package com.kme.kaltura.kmesdk.content.slides
 
+import com.kme.kaltura.kmesdk.content.whiteboard.IKmeWhiteboardListener
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
 
 /**
  * An interface for slides in the room
  */
-interface IKmeSlidesListener {
+interface IKmeSlidesListener : IKmeWhiteboardListener {
 
     /**
      * Initialize function. Setting config
@@ -13,13 +14,6 @@ interface IKmeSlidesListener {
      * @param config sets metadata for slides
      */
     fun init(config: KmeSlidesView.Config)
-
-    /**
-     * Set actual slides
-     *
-     * @param slides room slides to set
-     */
-    fun setSlides(slides: List<KmeActiveContentModuleMessage.ActiveContentPayload.Slide>)
 
     /**
      * Getting actual slide
@@ -47,5 +41,17 @@ interface IKmeSlidesListener {
      * @param slideNumber position of a slide
      */
     fun toSlide(slideNumber: Int)
+
+    /**
+     * Show a preview list of current slides
+     */
+    fun showPreview()
+
+    /**
+     * Hide a preview list of current slides
+     */
+    fun hidePreview()
+
+    fun setActivePage(activePageId: String?)
 
 }
