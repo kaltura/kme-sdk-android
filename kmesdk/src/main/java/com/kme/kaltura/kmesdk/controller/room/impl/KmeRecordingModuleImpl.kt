@@ -40,6 +40,9 @@ class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
         }
     }
 
+    /**
+     * Starts recording
+     */
     override fun startRecording(
         roomId: Long,
         companyId: Long,
@@ -56,6 +59,9 @@ class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
         ))
     }
 
+    /**
+     * Stops active recording
+     */
     override fun stopRecording(roomId: Long, companyId: Long) {
         webSocketModule.send(buildStopRoomRecordingMessage(
             roomId,
