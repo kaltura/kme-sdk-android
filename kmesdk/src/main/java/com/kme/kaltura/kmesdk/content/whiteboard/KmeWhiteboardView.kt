@@ -22,6 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import okhttp3.internal.toImmutableList
 import java.util.*
 import kotlin.math.*
@@ -51,6 +52,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private var measureJob: Job? = null
 
     private val eraseXfermode by lazy { PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
+
+    private val drawingDoneSignal = Mutex()
 
     private var imageWidth: Float = 0f
     private var imageHeight: Float = 0f
@@ -134,11 +137,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
         invalidatePaths()
     }
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        invalidatePaths()
-    }
-
     override fun updateLaserPosition(point: PointF) {
         laserDrawing.path?.laserPosition = point
         addDrawing(laserDrawing)
@@ -149,19 +147,19 @@ class KmeWhiteboardView @JvmOverloads constructor(
     }
 
     private fun invalidatePaths() {
-        measureJob?.cancel()
         measureBounds()
 
         if (imageBounds.isEmpty || imageWidth <= 0 || imageHeight <= 0) return
 
         measureJob = measureScope.launch {
+            drawingDoneSignal.lock()
+
             val unmodifiedDrawings: List<WhiteboardPayload.Drawing> = drawings.toImmutableList()
             invalidateBackground()
 
             pathsMap.clear()
 
             unmodifiedDrawings.forEach {
-                Log.e(TAG, "invalidatePaths: ${it.path}")
                 measurePath(it)
             }
 
@@ -170,7 +168,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
                     changeListener?.onChanged()
                 }
             }
-
             postInvalidate()
         }
     }
@@ -192,6 +189,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     private fun invalidateBackground() {
         val backgroundType = config?.backgroundType
+
+        Log.e(TAG, "invalidateBackground: $backgroundType")
 
         val bitmap = when (backgroundType) {
             DOTS -> context.getBitmap(R.drawable.ic_dot, null, 10f)
@@ -593,6 +592,9 @@ class KmeWhiteboardView @JvmOverloads constructor(
             }
         }
 
+        if (drawingDoneSignal.isLocked) {
+            drawingDoneSignal.unlock()
+        }
         changeListener?.onChanged()
     }
 
