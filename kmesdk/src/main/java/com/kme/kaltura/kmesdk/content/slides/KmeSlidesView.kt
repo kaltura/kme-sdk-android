@@ -27,7 +27,7 @@ import kotlinx.android.synthetic.main.layout_slides_view.view.*
  * An implementation of slides view in the room
  */
 class KmeSlidesView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), IKmeSlidesListener {
 
     private lateinit var config: Config
@@ -92,7 +92,6 @@ class KmeSlidesView @JvmOverloads constructor(
             selectedPage = newPage
             this.pages.add(newPage)
         }
-        removeDrawings()
         setupPageContentView()
     }
 
@@ -141,7 +140,7 @@ class KmeSlidesView @JvmOverloads constructor(
 
     private fun setupWhiteboardView() {
         ivSlide.viewTreeObserver.addOnPreDrawListener(object :
-                ViewTreeObserver.OnPreDrawListener {
+            ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 val drawable = ivSlide.drawable
                 if (drawable != null) {
@@ -149,11 +148,16 @@ class KmeSlidesView @JvmOverloads constructor(
                     ivSlide.imageMatrix.mapRect(imageBounds, RectF(drawable.bounds))
                     originalImageSize?.let { imageSize ->
                         val whiteboardConfig =
-                                KmeWhiteboardView.Config(imageSize, imageBounds).apply {
-                                    cookie = config.cookie
-                                    fileUrl = config.fileUrl
-                                    backgroundType = selectedPage?.backgroundMetadata
-                                }
+                            KmeWhiteboardView.Config(imageSize, imageBounds).apply {
+                                cookie = config.cookie
+                                fileUrl = config.fileUrl
+                                backgroundType =
+                                    if (KmeContentType.WHITEBOARD == config.payload.contentType) {
+                                        selectedPage?.backgroundMetadata
+                                    } else {
+                                        null
+                                    }
+                            }
                         init(whiteboardConfig)
                     }
                     ivSlide.viewTreeObserver.removeOnPreDrawListener(this)
@@ -183,7 +187,7 @@ class KmeSlidesView @JvmOverloads constructor(
             slidesAdapter?.setData(slides)
             rvSlides.post {
                 (rvSlides.layoutManager as LinearLayoutManager?)
-                        ?.scrollToPositionWithOffset(indexOf, 0)
+                    ?.scrollToPositionWithOffset(indexOf, 0)
             }
         }
     }
@@ -308,9 +312,9 @@ class KmeSlidesView @JvmOverloads constructor(
     }
 
     class Config(
-            val payload: KmeActiveContentModuleMessage.SetActiveContentPayload,
-            val cookie: String,
-            val fileUrl: String,
+        val payload: KmeActiveContentModuleMessage.SetActiveContentPayload,
+        val cookie: String,
+        val fileUrl: String,
     ) {
         var currentSlide: Int = 0
         var showPreview: Boolean = true
