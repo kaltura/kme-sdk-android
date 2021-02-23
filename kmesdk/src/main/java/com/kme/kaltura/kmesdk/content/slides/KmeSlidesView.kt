@@ -102,6 +102,7 @@ class KmeSlidesView @JvmOverloads constructor(
         payload.metadata.slides?.let {
             rvSlides?.visibility = VISIBLE
 
+            this.selectedPage = null
             this.slides.clear()
             this.slides.addAll(it)
             this.slides.sortedBy { slide -> slide.slideNumber?.toInt() ?: 0 }
