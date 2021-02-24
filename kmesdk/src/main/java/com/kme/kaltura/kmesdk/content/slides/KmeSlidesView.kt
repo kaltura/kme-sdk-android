@@ -83,6 +83,9 @@ class KmeSlidesView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Set active page from board list
+     */
     override fun setActivePage(activePageId: String?) {
         selectedPage = getPageById(activePageId)
         if (selectedPage == null) {
@@ -255,10 +258,16 @@ class KmeSlidesView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Initialize function. Setting config.
+     */
     override fun init(whiteboardConfig: KmeWhiteboardView.Config?) {
         whiteboardLayout.init(whiteboardConfig)
     }
 
+    /**
+     * Sets the list of drawings.
+     */
     override fun setDrawings(drawings: List<WhiteboardPayload.Drawing>) {
         whiteboardLayout.setDrawings(drawings)
 
@@ -267,18 +276,30 @@ class KmeSlidesView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Adds the drawing.
+     */
     override fun addDrawing(drawing: WhiteboardPayload.Drawing) {
         whiteboardLayout.addDrawing(drawing)
     }
 
+    /**
+     * Updates the current position of the laser pointer. Show pointer if not already created.
+     */
     override fun updateLaserPosition(point: PointF) {
         whiteboardLayout.updateLaserPosition(point)
     }
 
+    /**
+     * Hide the laser pointer.
+     */
     override fun hideLaser() {
         whiteboardLayout.hideLaser()
     }
 
+    /**
+     * Updates the whiteboard background.
+     */
     override fun updateBackground(backgroundType: KmeWhiteboardBackgroundType?) {
         selectedPage?.let {
             val index = pages.indexOf(it)
@@ -290,10 +311,16 @@ class KmeSlidesView @JvmOverloads constructor(
         whiteboardLayout.updateBackground(backgroundType)
     }
 
+    /**
+     * Removes the existing drawing from the whiteboard view.
+     */
     override fun removeDrawing(layer: String) {
         whiteboardLayout.removeDrawing(layer)
     }
 
+    /**
+     * Removes all drawings from the whiteboard view.
+     */
     override fun removeDrawings() {
         whiteboardLayout.removeDrawings()
     }

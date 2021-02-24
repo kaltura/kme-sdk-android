@@ -2,9 +2,7 @@ package com.kme.kaltura.kmesdk.content.playkit
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.kme.kaltura.kmesdk.KME
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
@@ -16,8 +14,7 @@ class KmeDefaultPlayerEventHandler(
     private val roomController: IKmeRoomController
 ) {
 
-    private val syncPlayerState =
-        MutableLiveData<Pair<KmePlayerState?, Float>>()
+    private val syncPlayerState = MutableLiveData<Pair<KmePlayerState?, Float>>()
     val syncPlayerStateLiveData
         get() = syncPlayerState as LiveData<Pair<KmePlayerState?, Float>>
 
@@ -45,7 +42,8 @@ class KmeDefaultPlayerEventHandler(
                     }
                 }
                 KmeMessageEvent.PLAYER_PLAYING -> {
-                    val contentMessage: KmeVideoModuleMessage<KmeVideoModuleMessage.VideoPayload>? = message.toType()
+                    val contentMessage: KmeVideoModuleMessage<KmeVideoModuleMessage.VideoPayload>? =
+                        message.toType()
                     contentMessage?.payload?.let {
                         syncPlayerState.postValue(
                             Pair(KmePlayerState.PLAY, it.time?.toFloat() ?: 0f)
@@ -53,7 +51,8 @@ class KmeDefaultPlayerEventHandler(
                     }
                 }
                 KmeMessageEvent.PLAYER_PAUSED -> {
-                    val contentMessage: KmeVideoModuleMessage<KmeVideoModuleMessage.VideoPayload>? = message.toType()
+                    val contentMessage: KmeVideoModuleMessage<KmeVideoModuleMessage.VideoPayload>? =
+                        message.toType()
                     contentMessage?.payload?.let {
                         syncPlayerState.postValue(
                             Pair(KmePlayerState.PAUSE, it.time?.toFloat() ?: 0f)
@@ -61,7 +60,8 @@ class KmeDefaultPlayerEventHandler(
                     }
                 }
                 KmeMessageEvent.PLAYER_SEEK_TO -> {
-                    val contentMessage: KmeVideoModuleMessage<KmeVideoModuleMessage.VideoPayload>? = message.toType()
+                    val contentMessage: KmeVideoModuleMessage<KmeVideoModuleMessage.VideoPayload>? =
+                        message.toType()
                     contentMessage?.payload?.let {
                         syncPlayerState.postValue(
                             Pair(KmePlayerState.SEEK_TO, it.time?.toFloat() ?: 0f)

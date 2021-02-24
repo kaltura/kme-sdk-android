@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
+import android.annotation.SuppressLint
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeChatModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
@@ -18,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.inject
+import java.util.*
 
 /**
  * An implementation actions related to chat
@@ -140,6 +142,7 @@ class KmeChatModuleImpl : KmeController(), IKmeChatModule {
     /**
      * Change visibility of public chat
      */
+    @SuppressLint("DefaultLocale")
     override fun changePublicChatVisibility(
         roomId: Long,
         value: KmePermissionValue,

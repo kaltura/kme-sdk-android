@@ -8,13 +8,22 @@ import androidx.core.content.ContextCompat
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath.Cap.*
 
-
+/*
+* Converts point to dpi.
+*
+* @return Float The point value in dpi.
+* */
 internal fun ptToDp(pt: Float, context: Context): Float {
     val dpi = context.resources.displayMetrics.densityDpi.toFloat()
     val px = pt / 72 * dpi // pt is exactly 1/72 of an inch on any screen density
     return px / (dpi / DisplayMetrics.DENSITY_DEFAULT)
 }
 
+/**
+ * Getting the color value from KmeWhiteboardPath.class.
+ *
+ * @return Int The color value. By default, return Color.BLACK
+ */
 fun KmeWhiteboardPath?.getPaintColor(): Int {
     val childrenColor = this?.childrenPath?.fillColor
     return when {
@@ -33,6 +42,11 @@ fun KmeWhiteboardPath?.getPaintColor(): Int {
     }
 }
 
+/**
+ * Getting the color value from RGB array.
+ *
+ * @return Int The color value.
+ */
 fun FloatArray.toColor(): Int {
     return -0x1000000 or
             ((this[0] * 255.0f + 0.5f).toInt() shl 16) or
@@ -40,6 +54,9 @@ fun FloatArray.toColor(): Int {
             (this[2] * 255.0f + 0.5f).toInt()
 }
 
+/*
+* Converts KmeWhiteboardPath.Cap to android.graphics.Paint.Cap
+* */
 fun KmeWhiteboardPath.Cap?.getPaintCap(): Paint.Cap {
     return when (this) {
         ROUND -> Paint.Cap.ROUND
@@ -49,6 +66,9 @@ fun KmeWhiteboardPath.Cap?.getPaintCap(): Paint.Cap {
     }
 }
 
+/*
+* Getting android.graphics.Paint.Style from KmeWhiteboardPath.class
+* */
 fun KmeWhiteboardPath?.getPaintStyle(): Paint.Style {
     return if (this?.childrenPath != null || this?.fillColor?.isNotEmpty() == true || !this?.content.isNullOrEmpty()) {
         Paint.Style.FILL
@@ -57,10 +77,16 @@ fun KmeWhiteboardPath?.getPaintStyle(): Paint.Style {
     }
 }
 
+/*
+* Returns true if the current path is in erase mode.
+* */
 fun KmeWhiteboardPath.BlendMode?.isEraseMode(): Boolean {
     return KmeWhiteboardPath.BlendMode.DESTINATION_OUT == this
 }
 
+/*
+* Converts the alpha channel of a color to Int value
+* */
 fun Float?.getPaintAlpha(): Int {
     return this?.times(255 + 0.5f)?.toInt() ?: 255
 }

@@ -5,7 +5,6 @@ import com.kme.kaltura.kmesdk.encryptWith
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.response.KmeResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeGuestLoginResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLogoutResponse

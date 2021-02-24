@@ -52,6 +52,11 @@ interface IKmeSlidesListener : IKmeWhiteboardListener {
      */
     fun hidePreview()
 
+    /**
+     * Set active page from board list
+     *
+     * @param activePageId id of the active page
+     */
     fun setActivePage(activePageId: String?)
 
 }
