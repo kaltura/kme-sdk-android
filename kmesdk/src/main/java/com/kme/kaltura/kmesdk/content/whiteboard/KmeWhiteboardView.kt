@@ -27,7 +27,9 @@ import okhttp3.internal.toImmutableList
 import java.util.*
 import kotlin.math.*
 
-
+/**
+ * An implementation of whiteboard view in the room
+ */
 class KmeWhiteboardView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr), IKmeWhiteboardListener {
@@ -94,6 +96,9 @@ class KmeWhiteboardView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Initialize function. Setting config.
+     */
     override fun init(whiteboardConfig: Config?) {
         this.config = whiteboardConfig
         whiteboardConfig?.let {
@@ -103,12 +108,18 @@ class KmeWhiteboardView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Sets the list of drawings.
+     */
     override fun setDrawings(drawings: List<WhiteboardPayload.Drawing>) {
         this.drawings.clear()
         this.drawings.addAll(drawings)
         invalidatePaths()
     }
 
+    /**
+     * Adds the drawing.
+     */
     override fun addDrawing(drawing: WhiteboardPayload.Drawing) {
         val index =
             this.drawings.indexOfFirst { savedDrawing -> savedDrawing.layer == drawing.layer }
@@ -122,30 +133,48 @@ class KmeWhiteboardView @JvmOverloads constructor(
         invalidatePaths()
     }
 
+    /**
+     * Updates the whiteboard background.
+     */
     override fun updateBackground(backgroundType: KmeWhiteboardBackgroundType?) {
         this.config?.backgroundType = backgroundType
         invalidatePaths()
     }
 
+    /**
+     * Removes the existing drawing from the whiteboard view.
+     */
     override fun removeDrawing(layer: String) {
         this.drawings.removeAll { drawing -> drawing.layer == layer }
         invalidatePaths()
     }
 
+    /**
+     * Removes all drawings from the whiteboard view.
+     */
     override fun removeDrawings() {
         this.drawings.clear()
         invalidatePaths()
     }
 
+    /**
+     * Updates the current position of the laser pointer. Show pointer if not already created.
+     */
     override fun updateLaserPosition(point: PointF) {
         laserDrawing.path?.laserPosition = point
         addDrawing(laserDrawing)
     }
 
+    /**
+     * Hide the laser pointer.
+     */
     override fun hideLaser() {
         laserDrawing.layer?.let { removeDrawing(it) }
     }
 
+    /**
+     * Function invalidates all data before drawing
+     */
     private fun invalidatePaths() {
         measureBounds()
 
@@ -225,6 +254,10 @@ class KmeWhiteboardView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Creates and measures a path for the next drawing steps.
+     * Prepares a drawing object for other types that can be drawn on the Canvas.
+     */
     @Suppress("IMPLICIT_CAST_TO_ANY")
     private fun measurePath(drawing: WhiteboardPayload.Drawing) {
         val path = when {
@@ -255,6 +288,12 @@ class KmeWhiteboardView @JvmOverloads constructor(
         pathsMap[drawing] = path
     }
 
+    /**
+     * Creates [WhiteboardImagePath] instance and apply transformation matrix for this one.
+     *
+     * @return WhiteboardImagePath The image container contains bitmap with transformation matrix
+     * that will be applied before rendering this bitmap.
+     */
     private fun measureImage(drawing: WhiteboardPayload.Drawing): WhiteboardImagePath? {
         val cookie: String = this.config?.cookie ?: return null
         val fileUrl: String = this.config?.fileUrl ?: return null
@@ -319,6 +358,12 @@ class KmeWhiteboardView @JvmOverloads constructor(
         return null
     }
 
+    /**
+     * Creates [WhiteboardImagePath] instance and apply transformation matrix for this one.
+     *
+     * @return WhiteboardImagePath The image container contains the laser pointer bitmap with
+     * transformation matrix that will be applied before rendering this bitmap.
+     */
     private fun measureLaser(drawing: WhiteboardPayload.Drawing): WhiteboardImagePath? {
         val laserPosition = drawing.path?.laserPosition ?: return null
 
@@ -335,6 +380,12 @@ class KmeWhiteboardView @JvmOverloads constructor(
         return null
     }
 
+    /**
+     * Creates and measures a pencil path. Measures a pencil path by [android.graphics.Path.cubicTo] function.
+     * All required points are obtained from an array of segments from [drawing].
+     *
+     * @return Path The path representing a pencil path from drawing object.
+     */
     private fun measurePencilPath(drawing: WhiteboardPayload.Drawing): Path? {
         val drawingPath = drawing.getDrawingPath() ?: return null
         val segments =
@@ -403,6 +454,12 @@ class KmeWhiteboardView @JvmOverloads constructor(
         return path
     }
 
+    /**
+     * Creates and measures a line path. Measures a line path by [android.graphics.Path.lineTo]
+     * functions. All required points are obtained from an array of segments from [drawing].
+     *
+     * @return Path The path representing a line path from drawing object.
+     */
     private fun measureLinePath(drawing: WhiteboardPayload.Drawing): Path? {
         val drawingPath = drawing.getDrawingPath() ?: return null
         val segments = drawingPath.segments.validateSegments<List<List<Float>>>() ?: return null
@@ -428,6 +485,13 @@ class KmeWhiteboardView @JvmOverloads constructor(
         return path
     }
 
+    /**
+     * Creates and measures a closed path. Measures a closed path by [android.graphics.Path.lineTo]
+     * functions with [android.graphics.Path.close]. All required points are obtained from
+     * an array of segments from [drawing].
+     *
+     * @return Path The path representing a closed path from drawing object.
+     */
     private fun measureClosedPath(drawing: WhiteboardPayload.Drawing): Path? {
         val drawingPath = drawing.getDrawingPath() ?: return null
         val segments = drawingPath.segments.validateSegments<List<List<Float>>>() ?: return null
@@ -456,6 +520,13 @@ class KmeWhiteboardView @JvmOverloads constructor(
         return path
     }
 
+    /**
+     * Creates and measures a rectangle path. Measures a rectangle path by [android.graphics.Path.lineTo]
+     * functions with [android.graphics.Path.close]. All required points are obtained from
+     * an array of segments from [drawing].
+     *
+     * @return Path The path representing a rectangle path from drawing object.
+     */
     private fun measureRectanglePath(drawing: WhiteboardPayload.Drawing): Path? {
         val parentPath = drawing.path
         val childrenPath = parentPath?.childrenPath
@@ -521,6 +592,9 @@ class KmeWhiteboardView @JvmOverloads constructor(
         return path
     }
 
+    /*
+    * Updates the paint before rendering any drawings
+    * */
     private fun invalidatePaint(path: KmeWhiteboardPath?) {
         path?.let {
             paint.color = it.getPaintColor()

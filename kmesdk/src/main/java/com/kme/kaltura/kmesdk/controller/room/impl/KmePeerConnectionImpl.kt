@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
@@ -203,6 +204,7 @@ internal class KmePeerConnectionImpl(
     /**
      * Callback fired once local SDP is created and set
      */
+    @SuppressLint("DefaultLocale")
     override fun onLocalDescription(sdp: SessionDescription) {
         listener?.onLocalDescription(
             requestedUserIdStream,

@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.ws.message
 
+import android.annotation.SuppressLint
 import com.google.gson.annotations.SerializedName
 enum class KmeMessageEvent(
     @SerializedName("name") val moduleName: String
@@ -307,6 +308,7 @@ enum class KmeMessageEvent(
     @SerializedName("desktopShareQualityUpdated", alternate = ["desktopsharequalityupdated"])
     DESKTOP_SHARE_QUALITY_UPDATED("desktopShareQualityUpdated");
 
+    @SuppressLint("DefaultLocale")
     override fun toString(): String {
         return moduleName.toLowerCase()
     }
