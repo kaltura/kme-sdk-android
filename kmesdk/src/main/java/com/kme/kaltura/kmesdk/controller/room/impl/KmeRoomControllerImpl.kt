@@ -152,6 +152,7 @@ class KmeRoomControllerImpl(
             }
 
             override fun onClosing(code: Int, reason: String) {
+                stopService()
                 listener.onClosing(code, reason)
             }
 
