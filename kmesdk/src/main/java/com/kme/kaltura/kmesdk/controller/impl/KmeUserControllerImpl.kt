@@ -125,26 +125,10 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
         this.currentParticipant = participant
     }
 
-    /**
-     * Removes actual user information
-     */
-    override fun logout(
-        success: () -> Unit,
-        error: (exception: KmeApiException) -> Unit
-    ) {
-        uiScope.launch {
-            safeApiCall(
-                { signInApiService.logout() },
-                success = {
-                    currentUserInfo = null
-                    currentParticipant = null
-                    kmePreferences.clear()
-                    success()
-                },
-                error
-            )
-        }
-
+    override fun clearUserInfo() {
+        currentUserInfo = null
+        currentParticipant = null
+        kmePreferences.clear()
     }
 
 }

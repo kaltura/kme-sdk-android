@@ -1,11 +1,12 @@
 package com.kme.kaltura.kmesdk.controller.impl
 
+import android.webkit.CookieManager
 import com.kme.kaltura.kmesdk.controller.IKmeSignInController
+import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.encryptWith
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.response.KmeResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeGuestLoginResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.KmeLogoutResponse
@@ -23,6 +24,7 @@ import org.koin.core.inject
 class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
 
     private val signInApiService: KmeSignInApiService by inject()
+    private val userController: IKmeUserController by inject()
     private val prefs: IKmePreferences by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -66,17 +68,19 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
         error: (exception: KmeApiException) -> Unit
     ) {
         val encryptedPassword = password.encryptWith(PASS_ENCRYPT_KEY)
-        uiScope.launch {
-            safeApiCall(
-                { signInApiService.login(email, encryptedPassword) },
-                { response ->
-                    response.data?.accessToken?.let { token ->
-                        prefs.putString(KmePrefsKeys.ACCESS_TOKEN, token)
-                    }
-                    success(response)
-                },
-                error
-            )
+        removeCookies {
+            uiScope.launch {
+                safeApiCall(
+                    { signInApiService.login(email, encryptedPassword) },
+                    { response ->
+                        response.data?.accessToken?.let { token ->
+                            prefs.putString(KmePrefsKeys.ACCESS_TOKEN, token)
+                        }
+                        success(response)
+                    },
+                    error
+                )
+            }
         }
     }
 
@@ -90,12 +94,14 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
         success: (response: KmeGuestLoginResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
-        uiScope.launch {
-            safeApiCall(
-                { signInApiService.guest(name, email, roomAlias, roomAlias) },
-                success,
-                error
-            )
+        removeCookies {
+            uiScope.launch {
+                safeApiCall(
+                    { signInApiService.guest(name, email, roomAlias, roomAlias) },
+                    success,
+                    error
+                )
+            }
         }
     }
 
@@ -109,9 +115,25 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
         uiScope.launch {
             safeApiCall(
                 { signInApiService.logout() },
-                success,
+                { response ->
+                    userController.clearUserInfo()
+                    removeCookies {
+                        success(response)
+                    }
+                },
                 error
             )
+        }
+    }
+
+    private fun removeCookies(callback: () -> Unit) {
+        val cookieManager = CookieManager.getInstance()
+        if (cookieManager.hasCookies()) {
+            cookieManager.removeAllCookies {
+                callback()
+            }
+        } else {
+            callback()
         }
     }
 
