@@ -80,7 +80,7 @@ class RoomsListViewModel(
 
     fun logout() {
         isLoading.value = true
-        kmeSdk.userController.logout(success = {
+        kmeSdk.signInController.logout(success = {
             isLoading.value = false
             logout.postValue(true)
         }, error = {
