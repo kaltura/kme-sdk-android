@@ -23,8 +23,8 @@ class RoomViewModel(
     private val isLoading = MutableLiveData<Boolean>()
     val isLoadingLiveData get() = isLoading as LiveData<Boolean>
 
-    private val isConnected = MutableLiveData<Nothing>()
-    val isConnectedLiveData get() = isConnected as LiveData<Nothing>
+    private val isConnected = MutableLiveData<Boolean>()
+    val isConnectedLiveData get() = isConnected as LiveData<Boolean>
 
     private val webRTCData = MutableLiveData<Nothing>()
     val webRTCServerLiveData get() = webRTCData as LiveData<Nothing>
@@ -43,9 +43,6 @@ class RoomViewModel(
 
     private val isConnectionFailure = MutableLiveData<Throwable?>()
     val isConnectionFailureLiveData get() = isConnectionFailure as LiveData<Throwable?>
-
-    private val isClosed = MutableLiveData<Nothing>()
-    val isClosedLiveData get() = isClosed as LiveData<Nothing>
 
     private val roomError = MutableLiveData<String?>()
     val roomInfoErrorLiveData get() = roomError as LiveData<String?>
@@ -91,6 +88,12 @@ class RoomViewModel(
     private var companyId: Long = 0
     private var roomId: Long = 0
     private lateinit var roomAlias: String
+
+    fun reconnect() {
+        if (isConnected.value == false && companyId != 0L && roomId != 0L && ::roomAlias.isInitialized) {
+            connect(companyId, roomId, roomAlias)
+        }
+    }
 
     fun connect(companyId: Long, roomId: Long, roomAlias: String) {
         this.companyId = companyId
@@ -145,7 +148,7 @@ class RoomViewModel(
     }
 
     override fun onOpen() {
-        isConnected.value = null
+        isConnected.value = true
 
         if (!isAdmin() || isModerator()) {
             handRaised.value = false
@@ -174,13 +177,15 @@ class RoomViewModel(
 
     override fun onFailure(throwable: Throwable) {
         isConnectionFailure.value = throwable
+        isConnected.value = false
     }
 
     override fun onClosing(code: Int, reason: String) {
+        isConnected.value = false
     }
 
     override fun onClosed(code: Int, reason: String) {
-        isClosed.value = null
+        isConnected.value = false
     }
 
     fun submitPassword(password: String) {
