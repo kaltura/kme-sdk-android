@@ -26,7 +26,7 @@ internal class KmeTokenInterceptor(
         val token = kmePreferences.getString(KmePrefsKeys.ACCESS_TOKEN)
         if (!token.isNullOrEmpty()) {
             val url: HttpUrl = request.url.newBuilder().addQueryParameter("access-token", token).build()
-            request = request.newBuilder().url(url).build();
+            request = request.newBuilder().url(url).build()
         }
         return chain.proceed(request)
     }

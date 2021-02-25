@@ -77,6 +77,11 @@ class RoomActivity : KmeActivity() {
     private var renderersFragment: RoomRenderersFragment? = null
     private var toolbarTitle: String? = null
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.reconnect()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_room)
@@ -487,7 +492,7 @@ class RoomActivity : KmeActivity() {
         peerConnectionViewModel.setRoomState(it)
     }
 
-    private val isConnectedObserver = Observer<Nothing?> {
+    private val isConnectedObserver = Observer<Boolean> {
     }
 
     private val allUnreadMessageCounterObserver = Observer<Int> {

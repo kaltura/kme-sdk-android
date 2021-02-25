@@ -80,9 +80,6 @@ interface IKmeUserController {
     /**
      * Removes actual user information
      */
-    fun logout(
-        success: () -> Unit,
-        error: (exception: KmeApiException) -> Unit
-    )
+    fun clearUserInfo()
 
 }

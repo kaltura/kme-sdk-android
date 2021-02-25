@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.ws.message
 
+import android.annotation.SuppressLint
 import com.google.gson.annotations.SerializedName
 
 enum class KmeMessageModule(
@@ -45,6 +46,7 @@ enum class KmeMessageModule(
     @SerializedName("DesktopShare", alternate = ["desktopshare"])
     DESKTOP_SHARE("DesktopShare");
 
+    @SuppressLint("DefaultLocale")
     override fun toString(): String {
         return moduleName.toLowerCase()
     }

@@ -3,8 +3,6 @@ package com.kme.kaltura.kmesdk.content.playkit
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.Observer
 import com.kaltura.playkit.*
 import com.kaltura.playkit.player.PKHttpClientManager
@@ -347,6 +345,10 @@ class KmeMediaView @JvmOverloads constructor(
 
     fun isYoutube() = config.contentType == KmeContentType.YOUTUBE
 
+    /*
+    * Releases all available player instances. Removes all player views.
+    * Unsubscribe from player events.
+    * */
     fun release() {
         removeAllViews()
         releaseKalturaPlayer()
