@@ -29,20 +29,11 @@ class ActiveContentViewModel(
     private val kmeSdk: KME
 ) : ViewModel() {
 
-    private val setActiveContent =
-        MutableLiveData<SetActiveContentPayload>()
-    val setActiveContentLiveData
-        get() = setActiveContent as LiveData<SetActiveContentPayload>
+    private val setActiveContent = MutableLiveData<SetActiveContentPayload>()
+    val setActiveContentLiveData get() = setActiveContent as LiveData<SetActiveContentPayload>
 
-    private val slideChanged =
-        MutableLiveData<Int>()
-    val slideChangedLiveData
-        get() = slideChanged as LiveData<Int>
-
-    private val showSlidesPreview =
-        MutableLiveData<Boolean>()
-    val showSlidesPreviewLiveData
-        get() = showSlidesPreview as LiveData<Boolean>
+    private val slideChanged = MutableLiveData<Int>()
+    val slideChangedLiveData get() = slideChanged as LiveData<Int>
 
     fun subscribe() {
         kmeSdk.roomController.listen(
@@ -54,11 +45,6 @@ class ActiveContentViewModel(
         kmeSdk.roomController.listen(
             slidePlayerHandler,
             KmeMessageEvent.SLIDE_CHANGED
-        )
-
-        kmeSdk.roomController.listen(
-            userRoleChangeHandler,
-            KmeMessageEvent.SET_PARTICIPANT_MODERATOR
         )
     }
 
@@ -104,36 +90,6 @@ class ActiveContentViewModel(
                     }
                 }
             }
-        }
-    }
-
-    private val userRoleChangeHandler = object : IKmeMessageListener {
-        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-            when (message.name) {
-                KmeMessageEvent.SET_PARTICIPANT_MODERATOR -> {
-                    val userRoleChangedMessage: KmeParticipantsModuleMessage<SetParticipantModerator>? =
-                        message.toType()
-
-                    ifNonNull(
-                        userRoleChangedMessage?.payload?.targetUserId,
-                        userRoleChangedMessage?.payload?.isModerator
-                    ) { userId, isModerator ->
-                        val youId = kmeSdk.userController.getCurrentUserInfo()?.getUserId() ?: 0
-                        if (youId == userId) {
-                            showSlidesPreview.postValue(isModerator)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun KmePlayerState.toControlsEvent(): PlayerControlsEvent {
-        return when (this) {
-            PLAY -> PlayerControlsEvent.PLAY
-            SEEK_TO -> PlayerControlsEvent.SEEK_TO
-            PLAYING -> PlayerControlsEvent.PLAYING
-            PAUSED, ENDED, PAUSE, STOP -> PlayerControlsEvent.PAUSE
         }
     }
 
