@@ -1,6 +1,7 @@
 com.kme.kaltura.kmesdk
 com.kme.kaltura.kmesdk.content.playkit
 com.kme.kaltura.kmesdk.content.slides
+com.kme.kaltura.kmesdk.content.whiteboard
 com.kme.kaltura.kmesdk.controller
 com.kme.kaltura.kmesdk.controller.impl
 com.kme.kaltura.kmesdk.controller.room
@@ -31,3 +32,4 @@ com.kme.kaltura.kmesdk.ws.message.module
 com.kme.kaltura.kmesdk.ws.message.participant
 com.kme.kaltura.kmesdk.ws.message.type
 com.kme.kaltura.kmesdk.ws.message.type.permissions
+com.kme.kaltura.kmesdk.ws.message.whiteboard
