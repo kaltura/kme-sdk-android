@@ -3,9 +3,7 @@ package com.kme.kaltura.kmeapplication.viewmodel.content
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.kme.kaltura.kmeapplication.util.extensions.ifNonNull
 import com.kme.kaltura.kmeapplication.util.extensions.toNonNull
-import com.kme.kaltura.kmeapplication.view.view.content.controls.PlayerControlsEvent
 import com.kme.kaltura.kmesdk.KME
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -13,15 +11,8 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.SetParticipantModerator
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.SyncPlayerStatePayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPayload
-import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
-import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 
@@ -91,6 +82,11 @@ class ActiveContentViewModel(
                 }
             }
         }
+    }
+
+    fun getKalturaPartnerId(): Int {
+        val partnerId = kmeSdk.roomController.roomSettings?.roomInfo?.integrations?.kaltura?.company?.id
+        return partnerId?.toInt() ?: 0
     }
 
 }

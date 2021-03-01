@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.rest.response.user
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import com.kme.kaltura.kmesdk.rest.response.room.settings.FeatureFlags
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
 import kotlinx.android.parcel.Parcelize
 
@@ -30,22 +31,6 @@ data class KmeUserCompany(
     data class Branding(
         @SerializedName("background_color") val backgroundColor: String?,
         @SerializedName("text_color") val textColor: String?
-    ) : Parcelable
-
-    @Parcelize
-    data class FeatureFlags(
-        @SerializedName("data_channel") val dataChannel: Boolean?,
-        @SerializedName("ice_negotiation_flow") val iceNegotiationFlow: Boolean?,
-        @SerializedName("ice_ipv6") val iceIpv6: Boolean?,
-        @SerializedName("nr2_rooms") val nr2Rooms: Boolean?,
-        @SerializedName("audio_slides") val audioSlides: Boolean?,
-        @SerializedName("streams_watchdog") val streamsWatchdog: Boolean?,
-        @SerializedName("is_janus_dump") val isJanusDump: Boolean?,
-        @SerializedName("mathjax_enabled") val mathjaxEnabled: Boolean?,
-        @SerializedName("whiteboard_snapshot") val whiteboardSnapshot: Boolean?,
-        @SerializedName("ios_safari_stuck_video_watchdog") val iosSafariStuckVideoWatchdog: Boolean?,
-        @SerializedName("phone_bridge") val phoneBridge: Boolean?,
-        @SerializedName("youtube_search") val youtubeSearch: Boolean?,
     ) : Parcelable
 
 }

@@ -140,6 +140,7 @@
 
     <!--General-->
     <string name="error_active_content">Failed to load content data</string>
+    <string name="error_cant_load_media">Failed to load media data</string>
     <string name="error">Error</string>
     <string name="search">Search</string>
 
