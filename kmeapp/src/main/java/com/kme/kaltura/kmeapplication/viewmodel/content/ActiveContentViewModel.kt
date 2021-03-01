@@ -3,7 +3,6 @@ package com.kme.kaltura.kmeapplication.viewmodel.content
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.kme.kaltura.kmeapplication.util.extensions.ifNonNull
 import com.kme.kaltura.kmeapplication.util.extensions.toNonNull
 import com.kme.kaltura.kmesdk.KME
 import com.kme.kaltura.kmesdk.toType
@@ -12,8 +11,6 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.SetParticipantModerator
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
@@ -23,20 +20,11 @@ class ActiveContentViewModel(
     private val kmeSdk: KME
 ) : ViewModel() {
 
-    private val setActiveContent =
-        MutableLiveData<SetActiveContentPayload>()
-    val setActiveContentLiveData
-        get() = setActiveContent as LiveData<SetActiveContentPayload>
+    private val setActiveContent = MutableLiveData<SetActiveContentPayload>()
+    val setActiveContentLiveData get() = setActiveContent as LiveData<SetActiveContentPayload>
 
-    private val slideChanged =
-        MutableLiveData<Int>()
-    val slideChangedLiveData
-        get() = slideChanged as LiveData<Int>
-
-    private val showSlidesPreview =
-        MutableLiveData<Boolean>()
-    val showSlidesPreviewLiveData
-        get() = showSlidesPreview as LiveData<Boolean>
+    private val slideChanged = MutableLiveData<Int>()
+    val slideChangedLiveData get() = slideChanged as LiveData<Int>
 
     fun subscribe() {
         kmeSdk.roomController.listen(
@@ -48,11 +36,6 @@ class ActiveContentViewModel(
         kmeSdk.roomController.listen(
             slidePlayerHandler,
             KmeMessageEvent.SLIDE_CHANGED
-        )
-
-        kmeSdk.roomController.listen(
-            userRoleChangeHandler,
-            KmeMessageEvent.SET_PARTICIPANT_MODERATOR
         )
     }
 
@@ -95,27 +78,6 @@ class ActiveContentViewModel(
                     val msg: KmeSlidesPlayerModuleMessage<SlideChangedPayload>? = message.toType()
                     msg?.payload?.let {
                         slideChanged.postValue(it.nextActiveSlide)
-                    }
-                }
-            }
-        }
-    }
-
-    private val userRoleChangeHandler = object : IKmeMessageListener {
-        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-            when (message.name) {
-                KmeMessageEvent.SET_PARTICIPANT_MODERATOR -> {
-                    val userRoleChangedMessage: KmeParticipantsModuleMessage<SetParticipantModerator>? =
-                        message.toType()
-
-                    ifNonNull(
-                        userRoleChangedMessage?.payload?.targetUserId,
-                        userRoleChangedMessage?.payload?.isModerator
-                    ) { userId, isModerator ->
-                        val youId = kmeSdk.userController.getCurrentUserInfo()?.getUserId() ?: 0
-                        if (youId == userId) {
-                            showSlidesPreview.postValue(isModerator)
-                        }
                     }
                 }
             }

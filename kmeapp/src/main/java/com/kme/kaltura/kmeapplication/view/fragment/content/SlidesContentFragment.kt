@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
 import com.kme.kaltura.kmeapplication.R
+import com.kme.kaltura.kmeapplication.viewmodel.RoomSettingsViewModel
 import com.kme.kaltura.kmeapplication.viewmodel.content.WhiteboardContentViewModel
 import com.kme.kaltura.kmeapplication.viewmodel.content.ActiveContentViewModel
 import com.kme.kaltura.kmesdk.content.slides.KmeSlidesView
@@ -24,6 +25,7 @@ class SlidesContentFragment : Fragment() {
 
     private val activeContentViewModel: ActiveContentViewModel by sharedViewModel()
     private val whiteboardViewModel: WhiteboardContentViewModel by sharedViewModel()
+    private val roomSettingsViewModel: RoomSettingsViewModel by sharedViewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,10 +50,7 @@ class SlidesContentFragment : Fragment() {
             viewLifecycleOwner,
             slideChangedObserver
         )
-        activeContentViewModel.showSlidesPreviewLiveData.observe(
-            viewLifecycleOwner,
-            showSlidesPreviewObserver
-        )
+
         whiteboardViewModel.whiteboardPageLiveData.observe(
             viewLifecycleOwner,
             whiteboardPageDataObserver
@@ -83,6 +82,11 @@ class SlidesContentFragment : Fragment() {
         whiteboardViewModel.setActivePageLiveData.observe(
             viewLifecycleOwner,
             setActivePageObserver
+        )
+
+        roomSettingsViewModel.youModeratorLiveData.observe(
+            viewLifecycleOwner,
+            showSlidesPreviewObserver
         )
     }
 
@@ -151,4 +155,5 @@ class SlidesContentFragment : Fragment() {
         @JvmStatic
         fun newInstance() = SlidesContentFragment()
     }
+
 }
