@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import com.google.android.material.snackbar.Snackbar
+import com.kaltura.netkit.utils.ErrorElement
 import com.kaltura.playkit.PlayerEvent
 import com.kme.kaltura.kmeapplication.R
 import com.kme.kaltura.kmeapplication.view.view.content.controls.BaseControlsView
@@ -13,8 +15,10 @@ import com.kme.kaltura.kmeapplication.view.view.content.controls.PlayerControlsE
 import com.kme.kaltura.kmeapplication.view.view.content.controls.PlayerControlsEvent.*
 import com.kme.kaltura.kmeapplication.viewmodel.content.ActiveContentViewModel
 import com.kme.kaltura.kmesdk.content.playkit.KmeMediaView
+import com.kme.kaltura.kmesdk.content.playkit.OnLoadKalturaErrorListener
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
+import kotlinx.android.synthetic.main.activity_sign_in.*
 import kotlinx.android.synthetic.main.fragment_media_content.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.util.concurrent.TimeUnit
@@ -72,12 +76,19 @@ class MediaContentFragment : Fragment() {
     }
 
     private fun subscribePlayerEvents() {
+        mediaView.kalturaErrorListener = object : OnLoadKalturaErrorListener {
+            override fun onLoadKalturaMediaError(error: ErrorElement) {
+                controlsView?.setProgressBarVisibility(false)
+                Snackbar.make(mediaView, R.string.error_cant_load_media, Snackbar.LENGTH_SHORT).show()
+            }
+        }
         mediaView.addListener(this, PlayerEvent.canPlay) {
             controlsView?.setProgressBarVisibility(false)
             controlsView?.setControlsVisibility(true)
         }
         mediaView.addListener(this, PlayerEvent.error) {
             controlsView?.setProgressBarVisibility(false)
+            Snackbar.make(mediaView, R.string.error_cant_load_media, Snackbar.LENGTH_SHORT).show()
         }
         mediaView.addListener(this, PlayerEvent.seeking) {
             controlsView?.setTimePosition(
@@ -124,6 +135,7 @@ class MediaContentFragment : Fragment() {
                     metadata,
                     activeContentViewModel.getCookie()
                 ).apply {
+                    partnerId = activeContentViewModel.getKalturaPartnerId()
                     autoPlay = false
                 }
 

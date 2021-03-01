@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmeapplication.util.extensions.ifNonNull
 import com.kme.kaltura.kmeapplication.util.extensions.toNonNull
-import com.kme.kaltura.kmeapplication.view.view.content.controls.PlayerControlsEvent
 import com.kme.kaltura.kmesdk.KME
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -17,11 +16,6 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.SetParticipantModerator
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.SyncPlayerStatePayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPayload
-import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
-import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 
@@ -128,13 +122,9 @@ class ActiveContentViewModel(
         }
     }
 
-    private fun KmePlayerState.toControlsEvent(): PlayerControlsEvent {
-        return when (this) {
-            PLAY -> PlayerControlsEvent.PLAY
-            SEEK_TO -> PlayerControlsEvent.SEEK_TO
-            PLAYING -> PlayerControlsEvent.PLAYING
-            PAUSED, ENDED, PAUSE, STOP -> PlayerControlsEvent.PAUSE
-        }
+    fun getKalturaPartnerId(): Int {
+        val partnerId = kmeSdk.roomController.roomSettings?.roomInfo?.integrations?.kaltura?.company?.id
+        return partnerId?.toInt() ?: 0
     }
 
 }

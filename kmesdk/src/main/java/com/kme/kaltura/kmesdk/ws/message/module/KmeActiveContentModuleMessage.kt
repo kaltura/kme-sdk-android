@@ -30,6 +30,8 @@ class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveCont
             @SerializedName("boards") val boards: List<Board>? = null,
             @SerializedName("pages") val pages: List<Page>? = null,
             @SerializedName("board_id") val boardId: String? = null,
+            @SerializedName("entryId") val entryId: String? = null,
+            @SerializedName("ks") val ks: String? = null,
             @SerializedName("active_page") val activePageId: String? = null
         ) : Parcelable
 
