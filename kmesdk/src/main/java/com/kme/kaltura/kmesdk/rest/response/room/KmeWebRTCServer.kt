@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.rest.response.room
 
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
+import com.kme.kaltura.kmesdk.rest.response.room.settings.FeatureFlags
 
 data class KmeWebRTCServer(
     @SerializedName("WSS_URL") val wssUrl: String?,
@@ -13,6 +14,7 @@ data class KmeWebRTCServer(
     @SerializedName("room_info") val roomInfo: KmeRoom?,
     @SerializedName("firebase_token") val firebaseToken: String?,
     @SerializedName("callstats") val callStats: CallStats?,
+    @SerializedName("feature_flags") val featureFlags: FeatureFlags?,
     @SerializedName("tk") val tk: String?,
     @SerializedName("lang") val lang: String?,
     @SerializedName("server_time") val serverTime: Int?,
