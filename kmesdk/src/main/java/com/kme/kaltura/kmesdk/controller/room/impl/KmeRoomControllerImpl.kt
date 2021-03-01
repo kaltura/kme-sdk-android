@@ -9,8 +9,6 @@ import android.os.IBinder
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
-import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
@@ -35,6 +33,7 @@ class KmeRoomControllerImpl(
 ) : KmeController(), IKmeRoomController {
 
     private val roomApiService: KmeRoomApiService by inject()
+
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
     private val settingsModule: IKmeSettingsModule by inject()
@@ -68,7 +67,8 @@ class KmeRoomControllerImpl(
      */
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            val binder: KmeRoomService.RoomServiceBinder = service as KmeRoomService.RoomServiceBinder
+            val binder: KmeRoomService.RoomServiceBinder =
+                service as KmeRoomService.RoomServiceBinder
             roomService = binder.service
             roomService?.connect(url, companyId, roomId, isReconnect, token, listener)
         }
@@ -79,40 +79,58 @@ class KmeRoomControllerImpl(
     }
 
     /**
-     * Getting data for p2p connection
+     * Connect to the room via web socket. Update actual user information first.
      */
-    override fun getWebRTCLiveServer(
+    override fun joinRoom(
+        roomId: Long,
         roomAlias: String,
-        success: (response: KmeGetWebRTCServerResponse) -> Unit,
-        error: (exception: KmeApiException) -> Unit
+        companyId: Long,
+        isReconnect: Boolean,
+        listener: IKmeWSConnectionListener
+    ) {
+        userController.getUserInformation(
+            roomAlias,
+            success = {
+                fetchWebRTCLiveServer(
+                    roomId,
+                    roomAlias,
+                    companyId,
+                    isReconnect,
+                    listener
+                )
+            }, error = {
+                listener.onFailure(Throwable(it))
+                error(it)
+            }
+        )
+    }
+
+    private fun fetchWebRTCLiveServer(
+        roomId: Long,
+        roomAlias: String,
+        companyId: Long,
+        isReconnect: Boolean,
+        listener: IKmeWSConnectionListener
     ) {
         uiScope.launch {
             safeApiCall(
                 { roomApiService.getWebRTCLiveServer(roomAlias) },
                 success = {
                     roomSettings = it.data
-                    success(it)
+
+                    val wssUrl = it.data?.wssUrl
+                    val token = it.data?.token
+                    if (wssUrl != null && token != null) {
+                        startService(wssUrl, companyId, roomId, isReconnect, token, listener)
+                    }
                 },
                 error = {
                     roomSettings = null
+                    listener.onFailure(Throwable(it))
                     error(it)
                 }
             )
         }
-    }
-
-    /**
-     * Establish socket connection
-     */
-    override fun connect(
-        url: String,
-        companyId: Long,
-        roomId: Long,
-        isReconnect: Boolean,
-        token: String,
-        listener: IKmeWSConnectionListener
-    ) {
-        startService(url, companyId, roomId, isReconnect, token, listener)
     }
 
     /**
@@ -198,6 +216,18 @@ class KmeRoomControllerImpl(
             }
         }
     }
+
+    /**
+     * Establish socket connection
+     */
+    override fun connect(
+        url: String,
+        companyId: Long,
+        roomId: Long,
+        isReconnect: Boolean,
+        token: String,
+        listener: IKmeWSConnectionListener
+    ) { /*Nothing to do*/ }
 
     /**
      * Check is socket connected

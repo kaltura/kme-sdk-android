@@ -97,7 +97,6 @@ class RoomActivity : KmeActivity() {
         roomId = intent?.extras?.get(ROOM_ID_EXTRA) as Long?
 
         viewModel.isLoadingLiveData.observe(this, isLoadingObserver)
-        viewModel.webRTCServerLiveData.observe(this, webRTCServerObserver)
 
         viewModel.isConnectedLiveData.observe(this, isConnectedObserver)
         viewModel.roomStateLoadedLiveData.observe(this, roomStateLoadedObserver)
@@ -112,7 +111,7 @@ class RoomActivity : KmeActivity() {
             this,
             roomParticipantLimitReachedObserver
         )
-        viewModel.roomInfoErrorLiveData.observe(this, roomInfoErrorObserver)
+        viewModel.errorLiveData.observe(this, roomErrorObserver)
         viewModel.closeConnectionLiveData.observe(this, closeConnectionObserver)
         viewModel.youModeratorLiveData.observe(this, youModeratorObserver)
         viewModel.handRaisedLiveData.observe(this, raiseHandObserver)
@@ -141,7 +140,7 @@ class RoomActivity : KmeActivity() {
         roomInfoViewModel.fetchRoomInfo(roomAlias)
         roomInfoViewModel.isLoadingLiveData.observe(this, isLoadingObserver)
         roomInfoViewModel.roomInfoLiveData.observe(this, roomInfoObserver)
-        roomInfoViewModel.roomInfoErrorLiveData.observe(this, roomInfoErrorObserver)
+        roomInfoViewModel.roomInfoErrorLiveData.observe(this, roomErrorObserver)
     }
 
     private fun setupRoomSettingsViewModel() {
@@ -467,20 +466,6 @@ class RoomActivity : KmeActivity() {
         }
     }
 
-    private val webRTCServerObserver = Observer<Nothing> {
-        setupRoomSettingsViewModel()
-        setupParticipantsViewModel()
-        setupRecordingViewModel()
-
-        ifNonNull(companyId, roomId) { companyId, roomId ->
-            peerConnectionViewModel.setRoomData(companyId, roomId)
-            participantsViewModel.setRoomData(companyId, roomId)
-            notesViewModel.setRoomData(companyId, roomId)
-            desktopShareViewModel.setRoomData(companyId, roomId)
-            recordingViewModel.setRoomData(companyId, roomId)
-        }
-    }
-
     private val roomStateLoadedObserver = Observer<RoomStatePayload> {
         setupConversationsViewModel()
         setupNotesViewModel()
@@ -493,6 +478,17 @@ class RoomActivity : KmeActivity() {
     }
 
     private val isConnectedObserver = Observer<Boolean> {
+        setupRoomSettingsViewModel()
+        setupParticipantsViewModel()
+        setupRecordingViewModel()
+
+        ifNonNull(companyId, roomId) { companyId, roomId ->
+            peerConnectionViewModel.setRoomData(companyId, roomId)
+            participantsViewModel.setRoomData(companyId, roomId)
+            notesViewModel.setRoomData(companyId, roomId)
+            desktopShareViewModel.setRoomData(companyId, roomId)
+            recordingViewModel.setRoomData(companyId, roomId)
+        }
     }
 
     private val allUnreadMessageCounterObserver = Observer<Int> {
@@ -583,7 +579,7 @@ class RoomActivity : KmeActivity() {
             }
         }
 
-    private val roomInfoErrorObserver = Observer<String?> {
+    private val roomErrorObserver = Observer<String?> {
         Snackbar.make(root, it ?: getString(R.string.error), Snackbar.LENGTH_SHORT).show()
     }
 
