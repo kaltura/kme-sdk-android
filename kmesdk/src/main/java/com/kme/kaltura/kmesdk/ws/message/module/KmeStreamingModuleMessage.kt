@@ -81,6 +81,13 @@ class KmeStreamingModuleMessage<T : KmeStreamingModuleMessage.StreamingPayload> 
         @SerializedName("room_id") var roomId: Long? = null
     ) : StreamingPayload()
 
+    data class UserSpeakingPayload(
+        @SerializedName("room_id") var roomId: Long,
+        @SerializedName("company_id") var companyId: Long,
+        @SerializedName("user_id") var userId: Long,
+        @SerializedName("volumeData") var volume: String
+    ) : StreamingPayload()
+
     open class StreamingPayload : KmeMessage.Payload() {
         data class SDP(
             @SerializedName("type") val type: String? = null,

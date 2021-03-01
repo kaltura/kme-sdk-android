@@ -42,6 +42,12 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         userController.getCurrentUserInfo()?.getUserId() ?: 0
     }
 
+    // TODO: get indicationFlag properly
+    private val indicationFlag: Boolean by lazy {
+//        roomController.roomSettings?
+        true
+    }
+
     private var roomId: Long = 0
     private var companyId: Long = 0
     private lateinit var turnUrl: String
@@ -75,7 +81,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
             KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER,
             KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
             KmeMessageEvent.USER_DISCONNECTED,
-            KmeMessageEvent.USER_MEDIA_STATE_CHANGED
+            KmeMessageEvent.USER_MEDIA_STATE_CHANGED,
+            KmeMessageEvent.USER_SPEAKING
         )
         isInitialized = true
     }
@@ -98,6 +105,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 )
             )
 
+            // TODO: add indicator for speaking flow publishing (ws or dc)
             publisher = get()
             publisher?.setTurnServer(turnUrl, turnUser, turnCred)
             publisher?.setLocalRenderer(renderer)
@@ -237,8 +245,18 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                     val msg: KmeStreamingModuleMessage<UserDisconnectedPayload>? = message.toType()
                     msg?.payload?.userId?.toString()?.let { disconnect(it) }
                 }
+                KmeMessageEvent.USER_SPEAKING -> {
+                    val msg: KmeStreamingModuleMessage<UserSpeakingPayload>? = message.toType()
+                    val userId = msg?.payload?.userId
+                    val volume = msg?.payload?.volume?.replace(",", ".")?.toDoubleOrNull()
+                    if (userId != null && volume != null) {
+                        // TODO: proper value for speaking indication
+                        listener.onUserSpeaking(userId.toString(), volume.toDouble() >= 1.0)
+                    }
+                }
                 KmeMessageEvent.USER_MEDIA_STATE_CHANGED -> {
-                    val msg: KmeParticipantsModuleMessage<UserMediaStateChangedPayload>? = message.toType()
+                    val msg: KmeParticipantsModuleMessage<UserMediaStateChangedPayload>? =
+                        message.toType()
                     msg?.payload?.userId?.let {
                         if (it == publisherId) {
                             blockMediaStateEvents = false
@@ -323,7 +341,18 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         webSocketModule.send(msg)
     }
 
+    // TODO: get speaking value from pc
     override fun onUserSpeaking(requestedUserIdStream: String, isSpeaking: Boolean) {
+        if (publisherId.toString() == requestedUserIdStream) {
+            webSocketModule.send(
+                buildUserSpeakingMessage(
+                    roomId,
+                    companyId,
+                    publisherId,
+                    "1,5"
+                )
+            )
+        }
         listener.onUserSpeaking(requestedUserIdStream, isSpeaking)
     }
 

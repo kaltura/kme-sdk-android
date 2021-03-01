@@ -113,6 +113,9 @@ enum class KmeMessageEvent(
     @SerializedName("userDisconnected", alternate = ["userdisconnected"])
     USER_DISCONNECTED("userDisconnected"),
 
+    @SerializedName("userSpeaking", alternate = ["userspeaking"])
+    USER_SPEAKING("userSpeaking"),
+
     /*
     * Chat
     * */
