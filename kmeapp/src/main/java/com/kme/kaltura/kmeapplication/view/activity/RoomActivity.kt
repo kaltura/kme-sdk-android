@@ -630,7 +630,7 @@ class RoomActivity : KmeActivity() {
         val contentType = it.contentType
         if (contentType != null) {
             when (contentType) {
-                VIDEO, AUDIO, YOUTUBE -> {
+                VIDEO, AUDIO, YOUTUBE, KALTURA -> {
                     if (contentFragment !is MediaContentFragment) {
                         contentFragment = MediaContentFragment.newInstance()
                         showContentFragment()

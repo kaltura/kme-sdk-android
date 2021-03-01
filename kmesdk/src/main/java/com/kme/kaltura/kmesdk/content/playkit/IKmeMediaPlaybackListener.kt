@@ -15,13 +15,6 @@ interface IKmeMediaPlaybackListener {
     fun init(config: KmeMediaView.Config)
 
     /**
-     * Setting media file url
-     *
-     * @param url url of a media file
-     */
-    fun setMedia(url: String)
-
-    /**
      * Getting current playing position
      */
     val currentPosition: Long

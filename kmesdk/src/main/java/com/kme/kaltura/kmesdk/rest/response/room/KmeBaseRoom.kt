@@ -105,6 +105,9 @@ open class KmeBaseRoom : KmeResponseData(){
     val conferenceTokenUrl: String? = null
     @SerializedName("companyData")
     val companyData: CompanyData? = null
+    @SerializedName("integrations")
+    val integrations: KmeIntegrations? = null
+
 
     data class Instructor(
         @SerializedName("name") val name: String?
