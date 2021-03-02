@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.rest
+package com.kme.kaltura.kmesdk.rest.adapter
 
 import com.google.gson.Gson
 import com.google.gson.JsonDeserializationContext
