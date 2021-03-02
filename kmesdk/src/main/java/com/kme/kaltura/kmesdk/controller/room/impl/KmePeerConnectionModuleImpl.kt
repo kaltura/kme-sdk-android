@@ -41,12 +41,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     private val publisherId: Long by lazy {
         userController.getCurrentUserInfo()?.getUserId() ?: 0
     }
-
-    // TODO: get indicationFlag properly
-    private val indicationFlag: Boolean by lazy {
-//        roomController.roomSettings?
-        true
+    private val useWsEvents: Boolean by lazy {
+        roomController.roomSettings?.featureFlags?.nr2DataChannelViaRs ?: true
     }
+    private var bringToFrontPrev = 0
 
     private var roomId: Long = 0
     private var companyId: Long = 0
@@ -105,11 +103,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 )
             )
 
-            // TODO: add indicator for speaking flow publishing (ws or dc)
             publisher = get()
             publisher?.setTurnServer(turnUrl, turnUser, turnCred)
             publisher?.setLocalRenderer(renderer)
-            publisher?.createPeerConnection(true, requestedUserIdStream, this)
+            publisher?.createPeerConnection(true, requestedUserIdStream, !useWsEvents, this)
             peerConnections[requestedUserIdStream] = publisher!!
         }
     }
@@ -135,7 +132,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         val viewer: IKmePeerConnection by inject()
         viewer.setTurnServer(turnUrl, turnUser, turnCred)
         viewer.setRemoteRenderer(renderer)
-        viewer.createPeerConnection(false, requestedUserIdStream, this)
+        viewer.createPeerConnection(false, requestedUserIdStream, !useWsEvents, this)
         peerConnections[requestedUserIdStream] = viewer
     }
 
@@ -341,19 +338,24 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         webSocketModule.send(msg)
     }
 
-    // TODO: get speaking value from pc
-    override fun onUserSpeaking(requestedUserIdStream: String, isSpeaking: Boolean) {
+    override fun onUserSpeaking(requestedUserIdStream: String, amplitude: Int) {
+        val bringToFront = if (amplitude < VALUE_TO_DETECT) 0 else 1
+        val volumeData = "$bringToFront,$amplitude"
+
+        if (bringToFront == bringToFrontPrev) return
+        bringToFrontPrev = bringToFront
+
         if (publisherId.toString() == requestedUserIdStream) {
             webSocketModule.send(
                 buildUserSpeakingMessage(
                     roomId,
                     companyId,
                     publisherId,
-                    "1,5"
+                    volumeData
                 )
             )
         }
-        listener.onUserSpeaking(requestedUserIdStream, isSpeaking)
+        listener.onUserSpeaking(requestedUserIdStream, bringToFront == 1)
     }
 
     override fun onIceDisconnected() {
@@ -370,6 +372,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
     override fun onPeerConnectionError(requestedUserIdStream: String, description: String) {
         listener.onPeerConnectionError(requestedUserIdStream, description)
+    }
+
+    companion object {
+        private const val VALUE_TO_DETECT = 150
     }
 
 }

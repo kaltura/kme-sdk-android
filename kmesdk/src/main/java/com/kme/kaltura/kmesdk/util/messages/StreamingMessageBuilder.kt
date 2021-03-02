@@ -125,7 +125,7 @@ internal fun buildUserSpeakingMessage(
 ): KmeStreamingModuleMessage<UserSpeakingPayload> {
     return KmeStreamingModuleMessage<UserSpeakingPayload>().apply {
         module = KmeMessageModule.STREAMING
-        name = KmeMessageEvent.USER_SPEAKING
+        name = KmeMessageEvent.USER_SPOKE
         type = KmeMessageEventType.VOID
         payload = UserSpeakingPayload(
             roomId,

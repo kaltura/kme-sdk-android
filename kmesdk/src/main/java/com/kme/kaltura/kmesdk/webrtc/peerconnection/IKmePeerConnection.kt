@@ -27,6 +27,7 @@ interface IKmePeerConnection {
      * @param remoteVideoSink remote video sink
      * @param videoCapturer video capturer
      * @param isPublisher indicates type of connection
+     * @param useDataChannel indicates if data channel is used for speaking indication
      * @param iceServers collection of ice servers
      */
     fun createPeerConnection(
@@ -35,6 +36,7 @@ interface IKmePeerConnection {
         remoteVideoSink: VideoSink,
         videoCapturer: VideoCapturer?,
         isPublisher: Boolean,
+        useDataChannel: Boolean,
         iceServers: MutableList<PeerConnection.IceServer>
     )
 

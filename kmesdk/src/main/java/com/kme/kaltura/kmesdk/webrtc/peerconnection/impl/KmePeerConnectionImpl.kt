@@ -32,6 +32,7 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
     private var soundAmplitudeMeter: KmeSoundAmplitudeMeter? = null
     private var iceServers: MutableList<IceServer> = mutableListOf()
     private var isPublisher = false
+    private var useDataChannel = false
     private var events: IKmePeerConnectionEvents? = null
 
     private var videoCapturerStopped = false
@@ -104,12 +105,14 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         remoteVideoSink: VideoSink,
         videoCapturer: VideoCapturer?,
         isPublisher: Boolean,
+        useDataChannel: Boolean,
         iceServers: MutableList<IceServer>
     ) {
         this.localVideoSink = localVideoSink
         this.remoteVideoSink = remoteVideoSink
         this.videoCapturer = videoCapturer
         this.isPublisher = isPublisher
+        this.useDataChannel = useDataChannel
         this.iceServers = iceServers
 
         createMediaConstraints()
@@ -180,7 +183,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
                 val volumeInit = DataChannel.Init()
                 volumeInit.ordered = false
                 volumeInit.maxRetransmits = 0
-                volumeDataChannel = it.createDataChannel("volumeDataChannel", volumeInit)
+                if (useDataChannel) {
+                    volumeDataChannel = it.createDataChannel("volumeDataChannel", volumeInit)
+                }
 
                 soundAmplitudeMeter = KmeSoundAmplitudeMeter(it, this)
             }
@@ -437,11 +442,11 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
     /**
      * Fired once sound amplitude measured
      */
-    override fun onAmplitudeMeasured(bringToFront: Boolean, amplitude: Double) {
-        events?.onUserSpeaking(bringToFront)
+    override fun onAmplitudeMeasured(amplitude: Int) {
+        events?.onUserSpeaking(amplitude)
 
         volumeDataChannel?.let {
-            val data = (if (bringToFront) "1" else "0") + ",$amplitude"
+            val data = (if (amplitude > 150) "1" else "0") + ",$amplitude"
             val buffer: ByteBuffer = ByteBuffer.wrap(data.toByteArray())
             it.send(DataChannel.Buffer(buffer, false))
         }
@@ -467,6 +472,7 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         override fun onIceConnectionChange(newState: IceConnectionState) {
             when (newState) {
                 IceConnectionState.CONNECTED -> {
+                    if (isPublisher) soundAmplitudeMeter?.startMeasure()
                     events?.onIceConnected()
                 }
                 IceConnectionState.COMPLETED -> {
@@ -479,7 +485,8 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
                 IceConnectionState.FAILED -> {
                     events?.onPeerConnectionError("ICE connection failed.")
                 }
-                else -> {}
+                else -> {
+                }
             }
         }
 
@@ -511,26 +518,28 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
          * Fired once data channel created
          */
         override fun onDataChannel(dataChannel: DataChannel) {
-            volumeDataChannel = dataChannel
-            volumeDataChannel?.registerObserver(object : DataChannel.Observer {
+            if (useDataChannel) {
+                volumeDataChannel = dataChannel
+                volumeDataChannel?.registerObserver(object : DataChannel.Observer {
 
-                override fun onBufferedAmountChange(previousAmount: Long) {}
+                    override fun onBufferedAmountChange(previousAmount: Long) {}
 
-                override fun onStateChange() {}
+                    override fun onStateChange() {}
 
-                override fun onMessage(buffer: DataChannel.Buffer) {
-                    if (buffer.binary) {
-                        return
+                    override fun onMessage(buffer: DataChannel.Buffer) {
+                        if (buffer.binary) {
+                            return
+                        }
+                        val byteBuffer = buffer.data
+                        val bytes = ByteArray(byteBuffer.capacity())
+                        byteBuffer[bytes]
+
+                        val volumeData = String(bytes, Charset.forName("UTF-8"))
+                            .split(",")
+                        events?.onUserSpeaking(volumeData[1].toInt())
                     }
-                    val byteBuffer = buffer.data
-                    val bytes = ByteArray(byteBuffer.capacity())
-                    byteBuffer[bytes]
-
-                    val volumeData = String(bytes, Charset.forName("UTF-8"))
-                        .split(",")
-                    events?.onUserSpeaking(volumeData[0] == "1")
-                }
-            })
+                })
+            }
         }
 
         override fun onRenegotiationNeeded() {
@@ -592,10 +601,12 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         private const val AUDIO_CODEC_OPUS = "opus"
         private const val AUDIO_CODEC_ISAC = "ISAC"
         private const val VIDEO_CODEC_PARAM_START_BITRATE = "x-google-start-bitrate"
-        private const val VIDEO_FLEXFEC_FIELDTRIAL = "WebRTC-FlexFEC-03-Advertised/Enabled/WebRTC-FlexFEC-03/Enabled/"
+        private const val VIDEO_FLEXFEC_FIELDTRIAL =
+            "WebRTC-FlexFEC-03-Advertised/Enabled/WebRTC-FlexFEC-03/Enabled/"
         private const val VIDEO_VP8_INTEL_HW_ENCODER_FIELDTRIAL = "WebRTC-IntelVP8/Enabled/"
         private const val VIDEO_H264_HIGH_PROFILE_FIELDTRIAL = "WebRTC-H264HighProfile/Enabled/"
-        private const val DISABLE_WEBRTC_AGC_FIELDTRIAL = "WebRTC-Audio-MinimizeResamplingOnMobile/Enabled/"
+        private const val DISABLE_WEBRTC_AGC_FIELDTRIAL =
+            "WebRTC-Audio-MinimizeResamplingOnMobile/Enabled/"
         private const val VIDEO_FRAME_EMIT_FIELDTRIAL: String = "VideoFrameEmit/Enabled/"
         private const val AUDIO_CODEC_PARAM_BITRATE = "maxaveragebitrate"
         private const val AUDIO_ECHO_CANCELLATION_CONSTRAINT = "googEchoCancellation"

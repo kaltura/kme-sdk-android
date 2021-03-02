@@ -41,11 +41,13 @@ internal interface IKmePeerConnection {
      *
      * @param isPublisher indicates type of connection
      * @param requestedUserIdStream id of a stream
+     * @param useDataChannel indicates if data channel is used for speaking indication
      * @param listener listener for p2p events
      */
     fun createPeerConnection(
         isPublisher: Boolean,
         requestedUserIdStream: String,
+        useDataChannel: Boolean,
         listener: IKmePeerConnectionClientEvents
     )
 
