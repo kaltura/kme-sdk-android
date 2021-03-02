@@ -14,6 +14,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.DesktopShareQualityUpdatedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.DesktopShareStateUpdatedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.CreateNotePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.NotePayload
@@ -292,6 +293,21 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.WHITEBOARD_PAGE_CREATED.toString() -> {
                 text.jsonToObject<KmeWhiteboardModuleMessage<PageCreatedPayload>>()
+            }
+            KmeMessageEvent.QUICK_POLL_STATE.toString() -> {
+                text.jsonToObject<KmeQuickPollModuleMessage<GetQuickPollStatePayload>>()
+            }
+            KmeMessageEvent.QUICK_POLL_STARTED.toString() -> {
+                text.jsonToObject<KmeQuickPollModuleMessage<QuickPollStartedPayload>>()
+            }
+            KmeMessageEvent.QUICK_POLL_ANSWERS.toString() -> {
+                text.jsonToObject<KmeQuickPollModuleMessage<QuickPollAnswersStatePayload>>()
+            }
+            KmeMessageEvent.QUICK_POLL_ENDED.toString() -> {
+                text.jsonToObject<KmeQuickPollModuleMessage<QuickPollEndedPayload>>()
+            }
+            KmeMessageEvent.QUICK_POLL_USER_ANSWERED.toString() -> {
+                text.jsonToObject<KmeQuickPollModuleMessage<QuickPollUserAnsweredPayload>>()
             }
             else -> null
         }
