@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.ws.message.module
 
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
+import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
 
 class KmeQuickPollModuleMessage<T : KmeQuickPollModuleMessage.QuickPollPayload> :
     KmeMessage<T>() {
@@ -21,7 +22,7 @@ class KmeQuickPollModuleMessage<T : KmeQuickPollModuleMessage.QuickPollPayload> 
         @SerializedName("name") val name: String?,
         @SerializedName("poll_id") val pollId: String?,
         @SerializedName("poll_status") val status: String?,
-        @SerializedName("poll_type") val type: String?,
+        @SerializedName("poll_type") val type: KmeQuickPollType?,
         @SerializedName("target_audience") val targetAudience: String?,
         @SerializedName("user_count") val userCount: Int?
     ) : QuickPollPayload()

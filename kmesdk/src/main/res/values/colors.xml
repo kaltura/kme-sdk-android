@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="yellow">#ffd62f</color>
+    <color name="orange">#fb9d0b</color>
     <color name="green">#26A69A</color>
+    <color name="blue">#42A5F5</color>
     <color name="white">#FFFFFF</color>
     <color name="grey">#878787</color>
+    <color name="grey1">#353535</color>
     <color name="red">#EC407A</color>
+
     <color name="transparentColor">#00ffffff</color>
+    <color name="transparentColor1">#ab000000</color>
 </resources>

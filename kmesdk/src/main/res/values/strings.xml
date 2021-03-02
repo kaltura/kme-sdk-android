@@ -4,4 +4,11 @@
     <string name="unknown_duration">"-- / --"</string>
     <string name="zoom_in">Zoom In</string>
     <string name="zoom_out">Zoom Out</string>
+    <string name="choice_a">A</string>
+    <string name="choice_b">B</string>
+    <string name="choice_c">C</string>
+    <string name="choice_d">D</string>
+    <string name="quick_poll_anonymous_poll">Anonymous Poll</string>
+    <string name="quick_poll_average_vote">Average vote</string>
+    <string name="quick_poll_average_result">&#160;/ %d Answered. %d%</string>
 </resources>
