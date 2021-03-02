@@ -127,7 +127,6 @@ class KmeRoomControllerImpl(
                 error = {
                     roomSettings = null
                     listener.onFailure(Throwable(it))
-                    error(it)
                 }
             )
         }
