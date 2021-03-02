@@ -137,6 +137,9 @@ internal class KmeMessageParser(
             KmeMessageEvent.USER_DISCONNECTED.toString() -> {
                 text.jsonToObject<KmeStreamingModuleMessage<UserDisconnectedPayload>>()
             }
+            KmeMessageEvent.USER_SPEAKING.toString() -> {
+                text.jsonToObject<KmeStreamingModuleMessage<UserSpeakingPayload>>()
+            }
             KmeMessageEvent.RECEIVE_CONVERSATIONS.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<ReceiveConversationsPayload>>()
             }

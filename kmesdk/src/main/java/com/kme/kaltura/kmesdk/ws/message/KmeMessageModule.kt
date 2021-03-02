@@ -34,8 +34,8 @@ enum class KmeMessageModule(
     @SerializedName("SlidesPlayer", alternate = ["slidesplayer"])
     SLIDES_PLAYER("SlidesPlayer"),
 
-    @SerializedName("Streaming", alternate = ["streaming"])
-    STREAMING("Streaming"),
+    @SerializedName("streaming", alternate = ["streaming"])
+    STREAMING("streaming"),
 
     @SerializedName("Whiteboard", alternate = ["whiteboard"])
     WHITEBOARD("Whiteboard"),
