@@ -85,7 +85,7 @@ class KmeStreamingModuleMessage<T : KmeStreamingModuleMessage.StreamingPayload> 
         @SerializedName("room_id") var roomId: Long,
         @SerializedName("company_id") var companyId: Long,
         @SerializedName("user_id") var userId: Long,
-        @SerializedName("volumeData") var volume: String
+        @SerializedName("volumeData") var volumeData: String
     ) : StreamingPayload()
 
     open class StreamingPayload : KmeMessage.Payload() {

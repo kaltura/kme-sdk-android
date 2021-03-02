@@ -245,10 +245,9 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 KmeMessageEvent.USER_SPEAKING -> {
                     val msg: KmeStreamingModuleMessage<UserSpeakingPayload>? = message.toType()
                     val userId = msg?.payload?.userId
-                    val volume = msg?.payload?.volume?.replace(",", ".")?.toDoubleOrNull()
-                    if (userId != null && volume != null) {
-                        // TODO: proper value for speaking indication
-                        listener.onUserSpeaking(userId.toString(), volume.toDouble() >= 1.0)
+                    val volumeData = msg?.payload?.volumeData?.split(",")
+                    if (userId != null && volumeData != null) {
+                        listener.onUserSpeaking(userId.toString(), volumeData[0].toInt() == 1)
                     }
                 }
                 KmeMessageEvent.USER_MEDIA_STATE_CHANGED -> {
