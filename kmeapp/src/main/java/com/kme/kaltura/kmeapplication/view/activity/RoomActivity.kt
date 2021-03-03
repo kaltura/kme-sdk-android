@@ -30,6 +30,7 @@ import com.kme.kaltura.kmeapplication.viewmodel.*
 import com.kme.kaltura.kmeapplication.viewmodel.content.ActiveContentViewModel
 import com.kme.kaltura.kmeapplication.viewmodel.content.DesktopShareViewModel
 import com.kme.kaltura.kmeapplication.viewmodel.content.WhiteboardContentViewModel
+import com.kme.kaltura.kmesdk.content.poll.KmeQuickPollView
 import com.kme.kaltura.kmesdk.rest.response.room.KmeBaseRoom
 import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeRoomNote
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason
@@ -200,6 +201,7 @@ class RoomActivity : KmeActivity() {
     private fun setupUI() {
         setupToolbar()
         setupBottomSheet()
+        setupQuickPollView()
         setupBackStackChanged()
 
         renderersFragment = RoomRenderersFragment.newInstance()
@@ -389,6 +391,10 @@ class RoomActivity : KmeActivity() {
                 backgroundColor = ContextCompat.getColor(this@RoomActivity, R.color.colorAccent)
             }
         }
+    }
+
+    private fun setupQuickPollView() {
+        quickPollView.init(KmeQuickPollView.Config())
     }
 
     private fun showConversationFragment() {

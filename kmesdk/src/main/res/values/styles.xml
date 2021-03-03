@@ -1,0 +1,9 @@
+<resources>
+
+    <style name="FloatingActionButton.Border" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="colorAccent">@color/grey1</item>
+        <item name="colorControlHighlight">@color/grey1</item>
+        <item name="colorSecondary">@color/grey1</item>
+    </style>
+
+</resources>
