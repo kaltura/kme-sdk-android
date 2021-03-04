@@ -45,8 +45,8 @@ class KmeQuickPollView @JvmOverloads constructor(
     }
 
     private fun setupDefaultEventHandler() {
-        defaultEventHandler.pollStartedLiveData.observeForever { startPoll(it) }
-        defaultEventHandler.pollEndedLiveData.observeForever { endPoll(it) }
+        defaultEventHandler.pollStartedLiveData.observeForever { it?.let { startPoll(it) } }
+        defaultEventHandler.pollEndedLiveData.observeForever { it?.let { endPoll(it) } }
         defaultEventHandler.subscribe()
     }
 
@@ -97,10 +97,12 @@ class KmeQuickPollView @JvmOverloads constructor(
         visibility = VISIBLE
         state = State.RESULT_VIEW
         pollView = null
-        pollResultsView = KmeQuickPollResultsView(context).also {
-            it.closeListener = this
-            it.init(payload)
-            addView(it)
+        pollResultsView = KmeQuickPollResultsView(context).also { resultsView ->
+            currentPollPayload?.let {
+                resultsView.closeListener = this
+                resultsView.init(it, payload)
+                addView(resultsView)
+            }
         }
     }
 
@@ -112,6 +114,8 @@ class KmeQuickPollView @JvmOverloads constructor(
     }
 
     override fun onDetachedFromWindow() {
+        removeAllViews()
+        visibility = GONE
         if (config.useDefaultHandler) {
             defaultEventHandler.release()
         }

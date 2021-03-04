@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.*
 import android.util.DisplayMetrics
 import android.view.View
+import androidx.annotation.DrawableRes
+import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath.Cap.*
@@ -17,6 +19,16 @@ internal fun ptToDp(pt: Float, context: Context): Float {
     val dpi = context.resources.displayMetrics.densityDpi.toFloat()
     val px = pt / 72 * dpi // pt is exactly 1/72 of an inch on any screen density
     return px / (dpi / DisplayMetrics.DENSITY_DEFAULT)
+}
+
+fun dpToPx(dp: Float, context: Context): Float {
+    val scale: Float = context.resources.displayMetrics.density
+    return dp * scale + 0.5f
+}
+
+fun spToPx(sp: Float, context: Context): Float {
+    val scale: Float = context.resources.displayMetrics.scaledDensity
+    return sp * scale
 }
 
 /**
@@ -91,16 +103,16 @@ fun Float?.getPaintAlpha(): Int {
     return this?.times(255 + 0.5f)?.toInt() ?: 255
 }
 
-fun Context.getBitmap(drawableRes: Int, bounds: Rect? = null, padding: Float = 0f): Bitmap? {
+fun Context.getBitmap(@DrawableRes drawableRes: Int, bounds: Rect? = null, padding: Float = 0f): Bitmap? {
     val drawable = ContextCompat.getDrawable(this, drawableRes)
     drawable?.let {
         val canvas = Canvas()
         val width = bounds?.width() ?: it.intrinsicWidth
         val height = bounds?.height() ?: it.intrinsicHeight
         val bitmap = Bitmap.createBitmap(
-                (width + padding).toInt(),
-                (height + padding).toInt(),
-                Bitmap.Config.ARGB_8888
+            (width + padding).toInt(),
+            (height + padding).toInt(),
+            Bitmap.Config.ARGB_8888
         )
         canvas.setBitmap(bitmap)
         drawable.bounds = bounds ?: Rect(0, 0, width, height)

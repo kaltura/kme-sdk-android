@@ -32,7 +32,6 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
-        android:background="@color/orange"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fabClose" />
 
@@ -41,7 +40,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="1dp"
-        android:background="@color/blue"
         android:clipChildren="false"
         android:padding="25dp"
         app:layout_constraintBottom_toBottomOf="@id/borders"
@@ -52,6 +50,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
+            android:visibility="gone"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif"
             android:textColor="@color/white"
@@ -61,8 +60,8 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Quick poll title" />
 
-        <FrameLayout
-            android:id="@+id/llResultsContainer"
+        <LinearLayout
+            android:id="@+id/progressContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -80,13 +79,13 @@
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/llResultsContainer" />
+            app:layout_constraintTop_toBottomOf="@id/progressContainer" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/groupAverageResult"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:constraint_referenced_ids="tvAverageResult, ivAverageIcon, tvAverageResultNumber, tvResultsCount, tvResults" />
+            app:constraint_referenced_ids="tvAverageResult, ivAverageIcon, tvAverageResultNumber" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvAverageResult"

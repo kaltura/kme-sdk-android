@@ -61,6 +61,8 @@ class KmeDefaultPollEventHandler(
 
     fun release() {
         roomController.remove(quickPollHandler)
+        pollStarted.value = null
+        pollEnded.value = null
     }
 
 }

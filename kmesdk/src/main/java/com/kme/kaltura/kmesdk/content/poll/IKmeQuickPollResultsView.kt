@@ -4,6 +4,9 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage
 
 interface IKmeQuickPollResultsView {
 
-    fun init(payload: KmeQuickPollModuleMessage.QuickPollEndedPayload)
+    fun init(
+        currentPollPayload: KmeQuickPollModuleMessage.QuickPollStartedPayload,
+        endPollPayload: KmeQuickPollModuleMessage.QuickPollEndedPayload
+    )
 
 }
