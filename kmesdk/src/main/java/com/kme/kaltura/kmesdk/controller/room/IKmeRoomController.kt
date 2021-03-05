@@ -18,6 +18,7 @@ interface IKmeRoomController : IKmeWebSocketModule {
     val recordingModule: IKmeRecordingModule
     val desktopShareModule: IKmeDesktopShareModule
     val audioModule: IKmeAudioModule
+    val contentModule: IKmeContentModule
 
     /**
      * Getting WebRTC server data
@@ -33,13 +34,15 @@ interface IKmeRoomController : IKmeWebSocketModule {
      * @param isReconnect reconnection flag
      * @param listener connection listener
      */
-    fun joinRoom(
+    fun connect(
         roomId: Long,
         roomAlias: String,
         companyId: Long,
         isReconnect: Boolean = true,
         listener: IKmeWSConnectionListener
     )
+
+    fun subscribeForContent(listener: IKmeContentModule.KmeContentListener)
 
     /**
      * Add listeners for socket messages

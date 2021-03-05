@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmeapplication.view.view.content.controls
+package com.kme.kaltura.kmesdk.content.playkit.controls
 
 import android.content.Context
 import android.util.AttributeSet
@@ -10,17 +10,18 @@ import androidx.annotation.AttrRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.forEach
-import com.kme.kaltura.kmeapplication.R
-import com.kme.kaltura.kmeapplication.util.extensions.gone
-import com.kme.kaltura.kmeapplication.util.extensions.isVisible
-import com.kme.kaltura.kmeapplication.util.extensions.visible
-import com.kme.kaltura.kmeapplication.view.view.content.controls.PlayerControlsEvent.*
-import kotlinx.android.synthetic.main.layout_media_view_controls.view.*
-
+import com.kme.kaltura.kmesdk.R
+import com.kme.kaltura.kmesdk.content.playkit.controls.PlayerControlsEvent.*
+import com.kme.kaltura.kmesdk.databinding.LayoutMediaViewControlsBinding
+import com.kme.kaltura.kmesdk.gone
+import com.kme.kaltura.kmesdk.isVisible
+import com.kme.kaltura.kmesdk.visible
 
 class VideoControlsView : BaseControlsView {
 
-    private val accentColor: Int
+    private val accentColor: Int = ContextCompat.getColor(context, R.color.colorAccent)
+    private var binding: LayoutMediaViewControlsBinding =
+        LayoutMediaViewControlsBinding.inflate(LayoutInflater.from(context), this, true)
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -29,15 +30,12 @@ class VideoControlsView : BaseControlsView {
         attrs,
         defStyleAttr
     ) {
-        LayoutInflater.from(context).inflate(R.layout.layout_media_view_controls, this)
-
-        accentColor = ContextCompat.getColor(context, R.color.colorAccent)
         setupControlsClickHandler()
         setupSeekBar()
     }
 
     private fun setupControlsClickHandler() {
-        ivPlayPause.setOnClickListener {
+        binding.ivPlayPause.setOnClickListener {
             if (isPlaying) {
                 controlsEventListener?.onEvent(PAUSE)
             } else {
@@ -48,27 +46,31 @@ class VideoControlsView : BaseControlsView {
     }
 
     private fun setupSeekBar() {
-        DrawableCompat.setTint(seekBar.thumb, accentColor)
-        DrawableCompat.setTint(seekBar.progressDrawable, accentColor)
-        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-            }
+        with(binding) {
+            DrawableCompat.setTint(seekBar.thumb, accentColor)
+            DrawableCompat.setTint(seekBar.progressDrawable, accentColor)
+            seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                }
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            }
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                }
 
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                seekBarChangeListener?.onProgressChanged(progress, fromUser)
-            }
-        })
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    seekBarChangeListener?.onProgressChanged(progress, fromUser)
+                }
+            })
+        }
     }
 
-    override fun isControlsVisible(): Boolean = controlsFrame.isVisible()
+    override fun isControlsVisible(): Boolean = binding.controlsFrame.isVisible()
 
     override fun setControlsMode(isEnabled: Boolean) {
-        controlsFrame.isEnabled = isEnabled
-        controlsFrame.forEach {
-            setControlsMode(isEnabled, it)
+        with(binding) {
+            controlsFrame.isEnabled = isEnabled
+            controlsFrame.forEach {
+                setControlsMode(isEnabled, it)
+            }
         }
     }
 
@@ -87,45 +89,45 @@ class VideoControlsView : BaseControlsView {
 
     override fun setProgressBarVisibility(toShow: Boolean) {
         if (toShow) {
-            progressBar.visible()
+            binding.progressBar.visible()
         } else {
-            progressBar.gone()
+            binding.progressBar.gone()
         }
     }
 
     override fun setSeekBarVisibility(toShow: Boolean) {
         if (toShow) {
-            seekBar.visible()
+            binding.seekBar.visible()
         } else {
-            seekBar.gone()
+            binding.seekBar.gone()
         }
     }
 
     override fun setSeekBarProgress(progress: Int) {
-        seekBar.progress = progress
+        binding.seekBar.progress = progress
     }
 
     override fun setSeekBarMode(isEnabled: Boolean) {
-        seekBar.isEnabled = isEnabled
+        binding.seekBar.isEnabled = isEnabled
     }
 
     override fun setSeekBarSecondaryProgress(secondaryProgress: Int) {
-        seekBar.secondaryProgress = secondaryProgress
+        binding.seekBar.secondaryProgress = secondaryProgress
     }
 
     override fun setPlayPauseVisibility(toShow: Boolean) {
         if (toShow) {
-            ivPlayPause.visible()
+            binding.ivPlayPause.visible()
         } else {
-            ivPlayPause.gone()
+            binding.ivPlayPause.gone()
         }
     }
 
     override fun setTimeVisibility(toShow: Boolean) {
         if (toShow) {
-            tvDuration.visible()
+            binding.tvDuration.visible()
         } else {
-            tvDuration.gone()
+            binding.tvDuration.gone()
         }
     }
 
@@ -135,7 +137,7 @@ class VideoControlsView : BaseControlsView {
 
         setSeekBarProgress(progressBarValue(timeSeconds, durationSeconds))
 
-        tvDuration.text =
+        binding.tvDuration.text =
             String.format(context.getString(R.string.media_time_format, currentTime, durationTime))
     }
 
@@ -143,12 +145,12 @@ class VideoControlsView : BaseControlsView {
         when (event) {
             PAUSE, STOPPED -> {
                 isPlaying = false
-                ivPlayPause.setImageResource(R.drawable.ic_play_circle)
+                binding.ivPlayPause.setImageResource(R.drawable.ic_play_circle)
                 resetAutoHideControls()
             }
             PLAY, PLAYING -> {
                 isPlaying = true
-                ivPlayPause.setImageResource(R.drawable.ic_pause_circle)
+                binding.ivPlayPause.setImageResource(R.drawable.ic_pause_circle)
                 resetAutoHideControls()
             }
         }
@@ -157,9 +159,10 @@ class VideoControlsView : BaseControlsView {
     override fun setControlsVisibility(doShow: Boolean) {
         super.setControlsVisibility(doShow)
         if (doShow) {
-            controlsFrame.visible()
+            binding.controlsFrame.visible()
         } else {
-            controlsFrame.gone()
+            binding.controlsFrame.gone()
         }
     }
+
 }

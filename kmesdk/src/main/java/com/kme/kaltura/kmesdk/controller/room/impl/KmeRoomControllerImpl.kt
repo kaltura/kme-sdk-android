@@ -46,6 +46,7 @@ class KmeRoomControllerImpl(
     override val recordingModule: IKmeRecordingModule by inject()
     override val desktopShareModule: IKmeDesktopShareModule by inject()
     override val audioModule: IKmeAudioModule by inject()
+    override val contentModule: IKmeContentModule by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -81,12 +82,12 @@ class KmeRoomControllerImpl(
     /**
      * Connect to the room via web socket. Update actual user information first.
      */
-    override fun joinRoom(
+    override fun connect(
         roomId: Long,
         roomAlias: String,
         companyId: Long,
         isReconnect: Boolean,
-        listener: IKmeWSConnectionListener
+        listener: IKmeWSConnectionListener,
     ) {
         userController.getUserInformation(
             roomAlias,
@@ -103,6 +104,10 @@ class KmeRoomControllerImpl(
                 error(it)
             }
         )
+    }
+
+    override fun subscribeForContent(listener: IKmeContentModule.KmeContentListener) {
+        contentModule.subscribe(listener)
     }
 
     private fun fetchWebRTCLiveServer(
@@ -153,7 +158,6 @@ class KmeRoomControllerImpl(
 
         this.listener = object : IKmeWSConnectionListener {
             override fun onOpen() {
-
                 messageManager.listen(
                     currentParticipantHandler,
                     KmeMessageEvent.ROOM_STATE
