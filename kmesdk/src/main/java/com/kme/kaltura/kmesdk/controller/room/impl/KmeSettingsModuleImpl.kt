@@ -14,7 +14,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.SetParticipantModerator
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionModule
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
@@ -47,22 +47,19 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
                 KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED -> {
-                    val settingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload>? =
+                    val settingsMessage: KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload>? =
                         message.toType()
-                    val settingsPayload = settingsMessage?.payload
 
-                    val currentParticipant = when (settingsPayload?.moduleName) {
+                    val settingsPayload = settingsMessage?.payload
+                    when (settingsPayload?.moduleName) {
                         KmePermissionModule.CHAT_MODULE -> {
                             handleChatSetting(
                                 settingsPayload.permissionsKey,
                                 settingsPayload.permissionsValue
                             )
                         }
-                        else -> null
-                    }
-
-                    if (currentParticipant != null) {
-                        userController.updateParticipant(currentParticipant)
+                        else -> {
+                        }
                     }
                 }
                 KmeMessageEvent.SET_PARTICIPANT_MODERATOR -> {
@@ -72,10 +69,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
                     val userId = settingsMessage?.payload?.targetUserId
                     val isModerator = settingsMessage?.payload?.isModerator
                     if (userId != null && isModerator != null) {
-                        val currentParticipant = handleModeratorSetting(userId, isModerator)
-                        if (currentParticipant != null) {
-                            userController.updateParticipant(currentParticipant)
-                        }
+                        handleModeratorSetting(userId, isModerator)
                     }
                 }
                 else -> {
@@ -90,7 +84,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
     private fun handleChatSetting(
         key: KmePermissionKey?,
         value: KmePermissionValue?
-    ): KmeParticipant? {
+    ) {
         val currentParticipant = userController.getCurrentParticipant()
         if (currentParticipant != null) {
             val userPermissions = currentParticipant.userPermissions ?: KmeSettingsV2()
@@ -115,8 +109,6 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
             userPermissions.chatModule = chatModule
             currentParticipant.userPermissions = userPermissions
         }
-
-        return currentParticipant
     }
 
     /**
@@ -125,13 +117,11 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
     private fun handleModeratorSetting(
         userId: Long,
         isModerator: Boolean
-    ): KmeParticipant? {
+    ) {
         val currentParticipant = userController.getCurrentParticipant()
         if (currentParticipant != null && userId == currentParticipant.userId) {
             currentParticipant.isModerator = isModerator
-            return currentParticipant
         }
-        return null
     }
 
 }

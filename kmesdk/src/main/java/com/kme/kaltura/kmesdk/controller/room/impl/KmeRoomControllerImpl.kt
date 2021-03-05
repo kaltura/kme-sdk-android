@@ -20,6 +20,7 @@ import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.RoomStatePayload
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -106,10 +107,6 @@ class KmeRoomControllerImpl(
         )
     }
 
-    override fun subscribeForContent(listener: IKmeContentModule.KmeContentListener) {
-        contentModule.subscribe(listener)
-    }
-
     private fun fetchWebRTCLiveServer(
         roomId: Long,
         roomAlias: String,
@@ -135,6 +132,13 @@ class KmeRoomControllerImpl(
                 }
             )
         }
+    }
+
+    /**
+     * Subscribes to the shared content in the room
+     */
+    override fun subscribeForContent(listener: IKmeContentModule.KmeContentListener) {
+        contentModule.subscribe(listener)
     }
 
     /**
@@ -203,16 +207,12 @@ class KmeRoomControllerImpl(
     private val currentParticipantHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             if (KmeMessageEvent.ROOM_STATE == message.name) {
-                val stateMessage: KmeRoomInitModuleMessage<KmeRoomInitModuleMessage.RoomStatePayload>? =
-                    message.toType()
-                val participantsList =
-                    stateMessage?.payload?.participants?.values?.toMutableList()
+                val msg: KmeRoomInitModuleMessage<RoomStatePayload>? = message.toType()
 
+                val participantsList = msg?.payload?.participants?.values?.toMutableList()
                 val currentUserId = userController.getCurrentUserInfo()?.getUserId()
-
                 val currentParticipant =
                     participantsList?.find { kmeParticipant -> kmeParticipant.userId == currentUserId }
-
                 currentParticipant?.userPermissions = roomSettings?.roomInfo?.settingsV2
 
                 userController.updateParticipant(currentParticipant)
