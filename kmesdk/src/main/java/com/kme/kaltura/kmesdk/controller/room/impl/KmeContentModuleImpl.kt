@@ -84,7 +84,7 @@ class KmeContentModuleImpl : KmeController(), IKmeContentModule {
                     contentView = KmeSlidesContentFragment.newInstance(payload)
                 }
                 WHITEBOARD -> {
-                    if (!payload.metadata.boards.isNullOrEmpty()) {
+                    if (!payload.metadata.pages.isNullOrEmpty()) {
                         contentView = KmeSlidesContentFragment.newInstance(payload)
                     }
                 }

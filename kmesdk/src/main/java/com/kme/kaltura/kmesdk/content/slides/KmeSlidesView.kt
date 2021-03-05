@@ -123,7 +123,7 @@ class KmeSlidesView @JvmOverloads constructor(
     private fun setupPageContentView() {
         originalImageSize = null
 
-        binding.ivSlide.glide(R.drawable.bg_blank_whiteboard) { originalSize ->
+        binding.ivSlide.glide(R.drawable.bg_blank_whiteboard) {
             originalImageSize = Size(1280, 720)
             setupWhiteboardView()
         }
@@ -334,6 +334,9 @@ class KmeSlidesView @JvmOverloads constructor(
      * Show a preview list of current slides
      */
     override fun showPreview() {
+        if (this.pages.isNotEmpty()) {
+            return
+        }
         binding.rvSlides.visibility = VISIBLE
     }
 
@@ -341,6 +344,9 @@ class KmeSlidesView @JvmOverloads constructor(
      * Hide a preview list of current slides
      */
     override fun hidePreview() {
+        if (this.pages.isNotEmpty()) {
+            return
+        }
         binding.rvSlides.visibility = GONE
     }
 
