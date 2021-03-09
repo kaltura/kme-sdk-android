@@ -1,10 +1,10 @@
-package com.kme.kaltura.kmeapplication.viewmodel.content
+package com.kme.kaltura.kmesdk.content.whiteboard
 
 import android.graphics.PointF
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.kme.kaltura.kmesdk.KME
+import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
@@ -13,49 +13,33 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
 
-class WhiteboardContentViewModel(
-    private val kmeSdk: KME
+class KmeWhiteboardContentViewModel(
+    private val roomController: IKmeRoomController
 ) : ViewModel() {
 
-    private val whiteboardPageData =
-        MutableLiveData<List<WhiteboardPayload.Drawing>>()
-    val whiteboardPageLiveData
-        get() = whiteboardPageData as LiveData<List<WhiteboardPayload.Drawing>>
+    private val whiteboardPageData = MutableLiveData<List<WhiteboardPayload.Drawing>>()
+    val whiteboardPageLiveData get() = whiteboardPageData as LiveData<List<WhiteboardPayload.Drawing>>
 
-    private val whiteboardCleared =
-        MutableLiveData<Nothing>()
-    val whiteboardClearedLiveData
-        get() = whiteboardCleared as LiveData<Nothing>
+    private val whiteboardCleared = MutableLiveData<Nothing>()
+    val whiteboardClearedLiveData get() = whiteboardCleared as LiveData<Nothing>
 
-    private val backgroundChanged =
-        MutableLiveData<KmeWhiteboardBackgroundType>()
-    val backgroundChangedLiveData
-        get() = backgroundChanged as LiveData<KmeWhiteboardBackgroundType>
+    private val backgroundChanged = MutableLiveData<KmeWhiteboardBackgroundType>()
+    val backgroundChangedLiveData get() = backgroundChanged as LiveData<KmeWhiteboardBackgroundType>
 
-    private val receiveDrawing =
-        MutableLiveData<WhiteboardPayload.Drawing>()
-    val receiveDrawingLiveData
-        get() = receiveDrawing as LiveData<WhiteboardPayload.Drawing>
+    private val receiveDrawing = MutableLiveData<WhiteboardPayload.Drawing>()
+    val receiveDrawingLiveData get() = receiveDrawing as LiveData<WhiteboardPayload.Drawing>
 
-    private val receiveLaserPosition =
-        MutableLiveData<PointF>()
-    val receiveLaserPositionLiveData
-        get() = receiveLaserPosition as LiveData<PointF>
+    private val receiveLaserPosition = MutableLiveData<PointF>()
+    val receiveLaserPositionLiveData get() = receiveLaserPosition as LiveData<PointF>
 
-    private val hideLaser =
-        MutableLiveData<Nothing>()
-    val hideLaserLiveData
-        get() = hideLaser as LiveData<Nothing>
+    private val hideLaser = MutableLiveData<Nothing>()
+    val hideLaserLiveData get() = hideLaser as LiveData<Nothing>
 
-    private val deleteDrawing =
-        MutableLiveData<String>()
-    val deleteDrawingLiveData
-        get() = deleteDrawing as LiveData<String>
+    private val deleteDrawing = MutableLiveData<String>()
+    val deleteDrawingLiveData get() = deleteDrawing as LiveData<String>
 
-    private val setActivePage =
-        MutableLiveData<String>()
-    val setActivePageLiveData
-        get() = setActivePage as LiveData<String>
+    private val setActivePage = MutableLiveData<String>()
+    val setActivePageLiveData get() = setActivePage as LiveData<String>
 
     var boardId: String? = null
         private set
@@ -66,7 +50,7 @@ class WhiteboardContentViewModel(
     private val laserPosition by lazy { PointF(0f, 0f) }
 
     fun subscribe() {
-        kmeSdk.roomController.listen(
+        roomController.listen(
             whiteboardHandler,
             KmeMessageEvent.WHITEBOARD_PAGE_DATA,
             KmeMessageEvent.WHITEBOARD_PAGE_CLEARED,
@@ -172,8 +156,15 @@ class WhiteboardContentViewModel(
                         setActivePage.postValue(pageId)
                     }
                 }
+                else -> {
+                }
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        roomController.removeListener(whiteboardHandler)
     }
 
 }

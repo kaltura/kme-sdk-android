@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.content.whiteboard.IKmeWhiteboardChangeListener
 import com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardView
+import com.kme.kaltura.kmesdk.databinding.LayoutSlidesViewBinding
 import com.kme.kaltura.kmesdk.getBitmapFromView
 import com.kme.kaltura.kmesdk.glide
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
@@ -20,8 +21,6 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.Ac
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
-import kotlinx.android.synthetic.main.layout_slides_view.view.*
-
 
 /**
  * An implementation of slides view in the room
@@ -31,6 +30,8 @@ class KmeSlidesView @JvmOverloads constructor(
 ) : ConstraintLayout(context, attrs, defStyleAttr), IKmeSlidesListener {
 
     private lateinit var config: Config
+    private var binding: LayoutSlidesViewBinding =
+        LayoutSlidesViewBinding.inflate(LayoutInflater.from(context), this)
 
     private var slides: MutableList<Slide> = mutableListOf()
     private var slidesAdapter: SlidesAdapter? = null
@@ -41,27 +42,25 @@ class KmeSlidesView @JvmOverloads constructor(
 
     private var originalImageSize: Size? = null
 
-    init {
-        LayoutInflater.from(context).inflate(R.layout.layout_slides_view, this)
-    }
-
     /**
      * Initialize function. Setting config
      */
     override fun init(config: Config) {
         this.config = config
 
-        fabZoomIn.setOnClickListener {
-            zoomLayout.zoomIn()
-        }
-        fabZoomOut.setOnClickListener {
-            zoomLayout.zoomOut()
-        }
+        with(binding) {
+            fabZoomIn.setOnClickListener {
+                zoomLayout.zoomIn()
+            }
+            fabZoomOut.setOnClickListener {
+                zoomLayout.zoomOut()
+            }
 
-        whiteboardLayout.changeListener = object : IKmeWhiteboardChangeListener {
-            override fun onChanged() {
-                val bitmapFromView = whiteboardContainer.getBitmapFromView()
-                zoomLayout.setImageBitmap(bitmapFromView)
+            whiteboardLayout.changeListener = object : IKmeWhiteboardChangeListener {
+                override fun onChanged() {
+                    val bitmapFromView = whiteboardContainer.getBitmapFromView()
+                    zoomLayout.setImageBitmap(bitmapFromView)
+                }
             }
         }
 
@@ -74,7 +73,7 @@ class KmeSlidesView @JvmOverloads constructor(
 
     private fun setWhiteboardPages(payload: KmeActiveContentModuleMessage.SetActiveContentPayload) {
         payload.metadata.pages?.let {
-            rvSlides?.visibility = GONE
+            binding.rvSlides.visibility = GONE
 
             this.pages.clear()
             this.pages.addAll(it)
@@ -103,7 +102,7 @@ class KmeSlidesView @JvmOverloads constructor(
      */
     private fun setSlides(payload: KmeActiveContentModuleMessage.SetActiveContentPayload) {
         payload.metadata.slides?.let {
-            rvSlides?.visibility = VISIBLE
+            binding.rvSlides.visibility = VISIBLE
 
             this.selectedPage = null
             this.slides.clear()
@@ -121,11 +120,10 @@ class KmeSlidesView @JvmOverloads constructor(
         }
     }
 
-
     private fun setupPageContentView() {
         originalImageSize = null
 
-        ivSlide.glide(R.drawable.bg_blank_whiteboard) { originalSize ->
+        binding.ivSlide.glide(R.drawable.bg_blank_whiteboard) {
             originalImageSize = Size(1280, 720)
             setupWhiteboardView()
         }
@@ -135,7 +133,7 @@ class KmeSlidesView @JvmOverloads constructor(
         originalImageSize = null
 
         selectedSlide?.let {
-            ivSlide.glide(it.url, config.cookie, config.fileUrl) { originalSize ->
+            binding.ivSlide.glide(it.url, config.cookie, config.fileUrl) { originalSize ->
                 originalImageSize = originalSize
                 setupWhiteboardView()
             }
@@ -143,42 +141,46 @@ class KmeSlidesView @JvmOverloads constructor(
     }
 
     private fun setupWhiteboardView() {
-        ivSlide.viewTreeObserver.addOnPreDrawListener(object :
-            ViewTreeObserver.OnPreDrawListener {
-            override fun onPreDraw(): Boolean {
-                val drawable = ivSlide.drawable
-                if (drawable != null) {
-                    val imageBounds = RectF()
-                    ivSlide.imageMatrix.mapRect(imageBounds, RectF(drawable.bounds))
-                    originalImageSize?.let { imageSize ->
-                        val whiteboardConfig =
-                            KmeWhiteboardView.Config(imageSize, imageBounds).apply {
-                                cookie = config.cookie
-                                fileUrl = config.fileUrl
-                                backgroundType =
-                                    if (KmeContentType.WHITEBOARD == config.payload.contentType) {
-                                        selectedPage?.backgroundMetadata
-                                    } else {
-                                        null
-                                    }
-                            }
-                        init(whiteboardConfig)
+        with(binding) {
+            ivSlide.viewTreeObserver.addOnPreDrawListener(object :
+                ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    val drawable = ivSlide.drawable
+                    if (drawable != null) {
+                        val imageBounds = RectF()
+                        ivSlide.imageMatrix.mapRect(imageBounds, RectF(drawable.bounds))
+                        originalImageSize?.let { imageSize ->
+                            val whiteboardConfig =
+                                KmeWhiteboardView.Config(imageSize, imageBounds).apply {
+                                    cookie = config.cookie
+                                    fileUrl = config.fileUrl
+                                    backgroundType =
+                                        if (KmeContentType.WHITEBOARD == config.payload.contentType) {
+                                            selectedPage?.backgroundMetadata
+                                        } else {
+                                            null
+                                        }
+                                }
+                            init(whiteboardConfig)
+                        }
+                        ivSlide.viewTreeObserver.removeOnPreDrawListener(this)
                     }
-                    ivSlide.viewTreeObserver.removeOnPreDrawListener(this)
+                    return true
                 }
-                return true
-            }
-        })
+            })
+        }
     }
 
     private fun setupSlidesPreview() {
-        rvSlides.visibility = if (config.showPreview) VISIBLE else GONE
-        slidesAdapter = SlidesAdapter(config.cookie, config.fileUrl).apply {
-            setData(slides)
-        }
-        rvSlides.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = slidesAdapter
+        with(binding) {
+            rvSlides.visibility = if (config.showPreview) VISIBLE else GONE
+            slidesAdapter = SlidesAdapter(config.cookie, config.fileUrl).apply {
+                setData(slides)
+            }
+            rvSlides.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = slidesAdapter
+            }
         }
     }
 
@@ -189,9 +191,12 @@ class KmeSlidesView @JvmOverloads constructor(
                 slide.isSelected = index == indexOf
             }
             slidesAdapter?.setData(slides)
-            rvSlides.post {
-                (rvSlides.layoutManager as LinearLayoutManager?)
-                    ?.scrollToPositionWithOffset(indexOf, 0)
+
+            with(binding) {
+                rvSlides.post {
+                    (rvSlides.layoutManager as LinearLayoutManager?)
+                        ?.scrollToPositionWithOffset(indexOf, 0)
+                }
             }
         }
     }
@@ -262,14 +267,14 @@ class KmeSlidesView @JvmOverloads constructor(
      * Initialize function. Setting config.
      */
     override fun init(whiteboardConfig: KmeWhiteboardView.Config?) {
-        whiteboardLayout.init(whiteboardConfig)
+        binding.whiteboardLayout.init(whiteboardConfig)
     }
 
     /**
      * Sets the list of drawings.
      */
     override fun setDrawings(drawings: List<WhiteboardPayload.Drawing>) {
-        whiteboardLayout.setDrawings(drawings)
+        binding.whiteboardLayout.setDrawings(drawings)
 
         selectedPage?.let {
             updateBackground(it.backgroundMetadata)
@@ -280,21 +285,21 @@ class KmeSlidesView @JvmOverloads constructor(
      * Adds the drawing.
      */
     override fun addDrawing(drawing: WhiteboardPayload.Drawing) {
-        whiteboardLayout.addDrawing(drawing)
+        binding.whiteboardLayout.addDrawing(drawing)
     }
 
     /**
      * Updates the current position of the laser pointer. Show pointer if not already created.
      */
     override fun updateLaserPosition(point: PointF) {
-        whiteboardLayout.updateLaserPosition(point)
+        binding.whiteboardLayout.updateLaserPosition(point)
     }
 
     /**
      * Hide the laser pointer.
      */
     override fun hideLaser() {
-        whiteboardLayout.hideLaser()
+        binding.whiteboardLayout.hideLaser()
     }
 
     /**
@@ -308,35 +313,41 @@ class KmeSlidesView @JvmOverloads constructor(
                 pages[index] = it
             }
         }
-        whiteboardLayout.updateBackground(backgroundType)
+        binding.whiteboardLayout.updateBackground(backgroundType)
     }
 
     /**
      * Removes the existing drawing from the whiteboard view.
      */
     override fun removeDrawing(layer: String) {
-        whiteboardLayout.removeDrawing(layer)
+        binding.whiteboardLayout.removeDrawing(layer)
     }
 
     /**
      * Removes all drawings from the whiteboard view.
      */
     override fun removeDrawings() {
-        whiteboardLayout.removeDrawings()
+        binding.whiteboardLayout.removeDrawings()
     }
 
     /**
      * Show a preview list of current slides
      */
     override fun showPreview() {
-        rvSlides.visibility = VISIBLE
+        if (this.pages.isNotEmpty()) {
+            return
+        }
+        binding.rvSlides.visibility = VISIBLE
     }
 
     /**
      * Hide a preview list of current slides
      */
     override fun hidePreview() {
-        rvSlides.visibility = GONE
+        if (this.pages.isNotEmpty()) {
+            return
+        }
+        binding.rvSlides.visibility = GONE
     }
 
     class Config(

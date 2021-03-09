@@ -10,14 +10,10 @@ interface IKmeDesktopShareModule {
     /**
      * Start listen desktop share events
      *
-     * @param roomId id of a room
-     * @param companyId id of a company
      * @param renderer view for video rendering
      * @param callback callback for desktop share events
      */
     fun startListenDesktopShare(
-        roomId: Long,
-        companyId: Long,
         renderer: KmeSurfaceRendererView,
         callback: KmeDesktopShareEvents
     )

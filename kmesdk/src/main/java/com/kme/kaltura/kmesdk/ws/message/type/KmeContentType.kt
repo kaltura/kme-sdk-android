@@ -6,6 +6,9 @@ enum class KmeContentType(
     @SerializedName("content_type") val contentType: String
 ) {
 
+    @SerializedName("conference_view")
+    CONFERENCE_VIEW("conference_view"),
+
     @SerializedName("video")
     VIDEO("video"),
 

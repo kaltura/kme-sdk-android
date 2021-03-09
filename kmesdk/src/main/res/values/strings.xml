@@ -4,4 +4,14 @@
     <string name="unknown_duration">"-- / --"</string>
     <string name="zoom_in">Zoom In</string>
     <string name="zoom_out">Zoom Out</string>
+
+    <string name="media_time_format">%s/%s</string>
+
+    <!--Share Screen-->
+    <string name="share_screen_wait_title">Please wait</string>
+    <string name="share_screen_wait_message">Moderator didn\'t start screen share</string>
+
+    <!--General-->
+    <string name="error_active_content">Failed to load content data</string>
+    <string name="error_cant_load_media">Failed to load media data</string>
 </resources>

@@ -1,54 +1,66 @@
-package com.kme.kaltura.kmeapplication.view.fragment.content
+package com.kme.kaltura.kmesdk.content.slides
 
 import android.graphics.PointF
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
-import com.kme.kaltura.kmeapplication.R
-import com.kme.kaltura.kmeapplication.viewmodel.RoomSettingsViewModel
-import com.kme.kaltura.kmeapplication.viewmodel.content.WhiteboardContentViewModel
-import com.kme.kaltura.kmeapplication.viewmodel.content.ActiveContentViewModel
-import com.kme.kaltura.kmesdk.content.slides.KmeSlidesView
+import com.kme.kaltura.kmesdk.R
+import com.kme.kaltura.kmesdk.content.KmeContentView
+import com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardContentViewModel
+import com.kme.kaltura.kmesdk.databinding.FragmentSlidesContentBinding
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
-import kotlinx.android.synthetic.main.activity_sign_in.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
-import kotlinx.android.synthetic.main.fragment_slides_content.*
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.core.inject
 
-class SlidesContentFragment : Fragment() {
+class KmeSlidesContentFragment : KmeContentView() {
 
-    private val activeContentViewModel: ActiveContentViewModel by sharedViewModel()
-    private val whiteboardViewModel: WhiteboardContentViewModel by sharedViewModel()
-    private val roomSettingsViewModel: RoomSettingsViewModel by sharedViewModel()
+    private val slidesContentViewModel: KmeSlidesContentViewModel by inject()
+    private val whiteboardViewModel: KmeWhiteboardContentViewModel by inject()
+
+    private var _binding: FragmentSlidesContentBinding? = null
+    private val binding get() = _binding!!
+
+    private val content: SetActiveContentPayload? by lazy { arguments?.getParcelable(CONTENT_PAYLOAD) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_slides_content, container, false)
+        _binding = FragmentSlidesContentBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        content?.let {
+            setContentPayload(it)
+        } ?: run {
+            Snackbar.make(binding.root, R.string.error_active_content, Snackbar.LENGTH_SHORT).show()
+        }
         setupViewModel()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun setupViewModel() {
-        activeContentViewModel.setActiveContentLiveData.observe(
-            viewLifecycleOwner,
-            setActiveContentObserver
-        )
-        activeContentViewModel.slideChangedLiveData.observe(
+        slidesContentViewModel.slideChangedLiveData.observe(
             viewLifecycleOwner,
             slideChangedObserver
+        )
+        slidesContentViewModel.youModeratorLiveData.observe(
+            viewLifecycleOwner,
+            showSlidesPreviewObserver
         )
 
         whiteboardViewModel.whiteboardPageLiveData.observe(
@@ -83,77 +95,77 @@ class SlidesContentFragment : Fragment() {
             viewLifecycleOwner,
             setActivePageObserver
         )
-
-        roomSettingsViewModel.youModeratorLiveData.observe(
-            viewLifecycleOwner,
-            showSlidesPreviewObserver
-        )
     }
 
-    private val setActiveContentObserver = Observer<SetActiveContentPayload> {
-        it?.let { payload ->
+    private fun setContentPayload(contentPayload: SetActiveContentPayload) {
+        contentPayload.let { payload ->
             val config = KmeSlidesView.Config(
                 payload,
-                activeContentViewModel.getCookie(),
-                activeContentViewModel.getFilesUrl()
+                slidesContentViewModel.getCookie(),
+                slidesContentViewModel.getFilesUrl()
             ).apply {
                 currentSlide = payload.metadata.currentSlide ?: 0
-                showPreview = activeContentViewModel.userType() != KmeUserType.GUEST
+                showPreview = slidesContentViewModel.userType() != KmeUserType.GUEST
             }
-
-            slidesView.init(config)
-        } ?: run {
-            Snackbar.make(root, R.string.error_active_content, Snackbar.LENGTH_SHORT).show()
+            binding.slidesView.init(config)
         }
     }
 
     private val slideChangedObserver = Observer<Int> {
-        slidesView.toSlide(it)
+        binding.slidesView.toSlide(it)
     }
 
     private val showSlidesPreviewObserver = Observer<Boolean> {
         if (it) {
-            slidesView.showPreview()
+            binding.slidesView.showPreview()
         } else {
-            slidesView.hidePreview()
+            binding.slidesView.hidePreview()
         }
     }
 
     private val whiteboardPageDataObserver = Observer<List<WhiteboardPayload.Drawing>> {
-        slidesView.setDrawings(it)
+        binding.slidesView.setDrawings(it)
     }
 
     private val whiteboardPageClearedObserver = Observer<Nothing> {
-        slidesView.removeDrawings()
+        binding.slidesView.removeDrawings()
     }
 
     private val receiveDrawingObserver = Observer<WhiteboardPayload.Drawing> {
-        slidesView.addDrawing(it)
+        binding.slidesView.addDrawing(it)
     }
 
     private val receivedLaserPositionObserver = Observer<PointF> {
-        slidesView.updateLaserPosition(it)
+        binding.slidesView.updateLaserPosition(it)
     }
 
     private val hideLaserObserver = Observer<Nothing> {
-        slidesView.hideLaser()
+        binding.slidesView.hideLaser()
     }
 
     private val deleteDrawingObserver = Observer<String> {
-        slidesView.removeDrawing(it)
+        binding.slidesView.removeDrawing(it)
     }
 
     private val backgroundTypeChangedObserver = Observer<KmeWhiteboardBackgroundType> {
-        slidesView.updateBackground(it)
+        binding.slidesView.updateBackground(it)
     }
 
     private val setActivePageObserver = Observer<String> {
-        slidesView.setActivePage(it)
+        binding.slidesView.setActivePage(it)
     }
 
     companion object {
+        const val CONTENT_PAYLOAD = "CONTENT_PAYLOAD"
+
         @JvmStatic
-        fun newInstance() = SlidesContentFragment()
+        fun newInstance(
+            payload: SetActiveContentPayload
+        ) = KmeSlidesContentFragment().apply {
+            arguments = Bundle().apply {
+                putParcelable(CONTENT_PAYLOAD, payload)
+            }
+        }
     }
 
 }
