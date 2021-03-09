@@ -47,6 +47,10 @@ android {
         outputFormat = 'javadoc'
         outputDirectory = "../docs"
     }
+
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 ext.okhttp_version = '4.9.0'

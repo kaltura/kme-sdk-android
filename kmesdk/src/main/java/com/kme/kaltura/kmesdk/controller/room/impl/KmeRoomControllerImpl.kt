@@ -20,6 +20,7 @@ import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.RoomStatePayload
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,6 +47,7 @@ class KmeRoomControllerImpl(
     override val recordingModule: IKmeRecordingModule by inject()
     override val desktopShareModule: IKmeDesktopShareModule by inject()
     override val audioModule: IKmeAudioModule by inject()
+    override val contentModule: IKmeContentModule by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -81,12 +83,12 @@ class KmeRoomControllerImpl(
     /**
      * Connect to the room via web socket. Update actual user information first.
      */
-    override fun joinRoom(
+    override fun connect(
         roomId: Long,
         roomAlias: String,
         companyId: Long,
         isReconnect: Boolean,
-        listener: IKmeWSConnectionListener
+        listener: IKmeWSConnectionListener,
     ) {
         userController.getUserInformation(
             roomAlias,
@@ -127,10 +129,16 @@ class KmeRoomControllerImpl(
                 error = {
                     roomSettings = null
                     listener.onFailure(Throwable(it))
-                    error(it)
                 }
             )
         }
+    }
+
+    /**
+     * Subscribes to the shared content in the room
+     */
+    override fun subscribeForContent(listener: IKmeContentModule.KmeContentListener) {
+        contentModule.subscribe(listener)
     }
 
     /**
@@ -154,7 +162,6 @@ class KmeRoomControllerImpl(
 
         this.listener = object : IKmeWSConnectionListener {
             override fun onOpen() {
-
                 messageManager.listen(
                     currentParticipantHandler,
                     KmeMessageEvent.ROOM_STATE
@@ -200,16 +207,12 @@ class KmeRoomControllerImpl(
     private val currentParticipantHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             if (KmeMessageEvent.ROOM_STATE == message.name) {
-                val stateMessage: KmeRoomInitModuleMessage<KmeRoomInitModuleMessage.RoomStatePayload>? =
-                    message.toType()
-                val participantsList =
-                    stateMessage?.payload?.participants?.values?.toMutableList()
+                val msg: KmeRoomInitModuleMessage<RoomStatePayload>? = message.toType()
 
+                val participantsList = msg?.payload?.participants?.values?.toMutableList()
                 val currentUserId = userController.getCurrentUserInfo()?.getUserId()
-
                 val currentParticipant =
                     participantsList?.find { kmeParticipant -> kmeParticipant.userId == currentUserId }
-
                 currentParticipant?.userPermissions = roomSettings?.roomInfo?.settingsV2
 
                 userController.updateParticipant(currentParticipant)

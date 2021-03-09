@@ -39,7 +39,7 @@ interface IKmePeerConnectionClientEvents {
     /**
      * Callback fired to indicate current talking user
      */
-    fun onUserSpeaking(requestedUserIdStream: String, isSpeaking: Boolean)
+    fun onUserSpeaking(requestedUserIdStream: String, amplitude: Int)
 
     /**
      * Callback fired once connection is closed (IceConnectionState is

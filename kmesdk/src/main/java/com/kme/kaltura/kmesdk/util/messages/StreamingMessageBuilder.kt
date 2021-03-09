@@ -116,3 +116,22 @@ internal fun buildGatheringViewDoneMessage(
         )
     }
 }
+
+internal fun buildUserSpeakingMessage(
+    roomId: Long,
+    companyId: Long,
+    userId: Long,
+    volumeData: String
+): KmeStreamingModuleMessage<UserSpeakingPayload> {
+    return KmeStreamingModuleMessage<UserSpeakingPayload>().apply {
+        module = KmeMessageModule.STREAMING
+        name = KmeMessageEvent.USER_SPOKE
+        type = KmeMessageEventType.VOID
+        payload = UserSpeakingPayload(
+            roomId,
+            companyId,
+            userId,
+            volumeData
+        )
+    }
+}

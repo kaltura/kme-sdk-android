@@ -28,7 +28,7 @@ class KmeSoundAmplitudeMeter(
      */
     fun stopMeasure() {
         meterHandler.removeCallbacks(soundMeasureRunnable)
-        soundAmplitudeListener?.onAmplitudeMeasured(false, 0.0)
+        soundAmplitudeListener?.onAmplitudeMeasured(0)
     }
 
     /**
@@ -44,8 +44,7 @@ class KmeSoundAmplitudeMeter(
                 ) {
                     val value = statObject.value.members.getValue(STATISTICS_AUDIO_LEVEL_KEY)
                     val amplitude = "%.3f".format(value).replace(",", ".").toDouble()
-                    val bringToFront = amplitude > SOUND_METER_VALUE_TO_DETECT
-                    soundAmplitudeListener?.onAmplitudeMeasured(bringToFront, amplitude)
+                    soundAmplitudeListener?.onAmplitudeMeasured((amplitude * 1000).toInt())
                     return@getStats
                 }
             }
@@ -54,14 +53,10 @@ class KmeSoundAmplitudeMeter(
     }
 
     companion object {
-
         private const val SOUND_METER_DELAY: Long = 500
-        private const val SOUND_METER_VALUE_TO_DETECT: Double = 0.01
-
         private const val STATISTICS_MEDIA_SOURCE_KEY = "media-source"
         private const val STATISTICS_TRACK_ID_KEY = "trackIdentifier"
         private const val STATISTICS_AUDIO_LEVEL_KEY = "audioLevel"
-
     }
 
 }

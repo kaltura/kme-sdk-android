@@ -11,9 +11,11 @@ import kotlinx.android.parcel.Parcelize
 class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveContentPayload> :
     KmeMessage<T>() {
 
+    @Parcelize
     data class SetActiveContentPayload(val metadata: Metadata) : ActiveContentPayload()
 
-    open class ActiveContentPayload : Payload() {
+    @Parcelize
+    open class ActiveContentPayload : Payload(), Parcelable {
         @Parcelize
         data class Metadata(
             @SerializedName("playlistFileId") val playlistFileId: String? = null,
@@ -30,6 +32,8 @@ class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveCont
             @SerializedName("boards") val boards: List<Board>? = null,
             @SerializedName("pages") val pages: List<Page>? = null,
             @SerializedName("board_id") val boardId: String? = null,
+            @SerializedName("entryId") val entryId: String? = null,
+            @SerializedName("ks") val ks: String? = null,
             @SerializedName("active_page") val activePageId: String? = null
         ) : Parcelable
 

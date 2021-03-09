@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.KME
+import com.kme.kaltura.kmesdk.content.KmeContentView
+import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
@@ -75,6 +77,9 @@ class RoomViewModel(
     private val roomStateLoaded = MutableLiveData<RoomStatePayload>()
     val roomStateLoadedLiveData get() = roomStateLoaded as LiveData<RoomStatePayload>
 
+    private val sharedContent = MutableLiveData<KmeContentView>()
+    val sharedContentLiveData get() = sharedContent as LiveData<KmeContentView>
+
     private val youModerator = MutableLiveData<Boolean>()
     val youModeratorLiveData get() = youModerator as LiveData<Boolean>
 
@@ -94,7 +99,16 @@ class RoomViewModel(
         this.roomAlias = roomAlias
 
         isLoading.value = true
-        kmeSdk.roomController.joinRoom(roomId, roomAlias, companyId, true, this)
+        kmeSdk.roomController.connect(roomId, roomAlias, companyId, true, this)
+        kmeSdk.roomController.subscribeForContent(object : IKmeContentModule.KmeContentListener {
+            override fun onContentAvailable(view: KmeContentView) {
+                sharedContent.value = view
+            }
+
+            override fun onContentNotAvailable() {
+                sharedContent.value = null
+            }
+        })
     }
 
     override fun onOpen() {

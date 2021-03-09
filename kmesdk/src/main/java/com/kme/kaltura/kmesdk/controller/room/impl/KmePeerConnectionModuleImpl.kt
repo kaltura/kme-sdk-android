@@ -41,6 +41,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     private val publisherId: Long by lazy {
         userController.getCurrentUserInfo()?.getUserId() ?: 0
     }
+    private val useWsEvents: Boolean by lazy {
+        roomController.roomSettings?.featureFlags?.nr2DataChannelViaRs ?: true
+    }
+    private var bringToFrontPrev = 0
 
     private var roomId: Long = 0
     private var companyId: Long = 0
@@ -75,7 +79,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
             KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER,
             KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
             KmeMessageEvent.USER_DISCONNECTED,
-            KmeMessageEvent.USER_MEDIA_STATE_CHANGED
+            KmeMessageEvent.USER_MEDIA_STATE_CHANGED,
+            KmeMessageEvent.USER_SPEAKING
         )
         isInitialized = true
     }
@@ -101,7 +106,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
             publisher = get()
             publisher?.setTurnServer(turnUrl, turnUser, turnCred)
             publisher?.setLocalRenderer(renderer)
-            publisher?.createPeerConnection(true, requestedUserIdStream, this)
+            publisher?.createPeerConnection(true, requestedUserIdStream, !useWsEvents, this)
             peerConnections[requestedUserIdStream] = publisher!!
         }
     }
@@ -127,7 +132,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         val viewer: IKmePeerConnection by inject()
         viewer.setTurnServer(turnUrl, turnUser, turnCred)
         viewer.setRemoteRenderer(renderer)
-        viewer.createPeerConnection(false, requestedUserIdStream, this)
+        viewer.createPeerConnection(false, requestedUserIdStream, !useWsEvents, this)
         peerConnections[requestedUserIdStream] = viewer
     }
 
@@ -237,8 +242,17 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                     val msg: KmeStreamingModuleMessage<UserDisconnectedPayload>? = message.toType()
                     msg?.payload?.userId?.toString()?.let { disconnect(it) }
                 }
+                KmeMessageEvent.USER_SPEAKING -> {
+                    val msg: KmeStreamingModuleMessage<UserSpeakingPayload>? = message.toType()
+                    val userId = msg?.payload?.userId
+                    val volumeData = msg?.payload?.volumeData?.split(",")
+                    if (userId != null && volumeData != null) {
+                        listener.onUserSpeaking(userId.toString(), volumeData[0].toInt() == 1)
+                    }
+                }
                 KmeMessageEvent.USER_MEDIA_STATE_CHANGED -> {
-                    val msg: KmeParticipantsModuleMessage<UserMediaStateChangedPayload>? = message.toType()
+                    val msg: KmeParticipantsModuleMessage<UserMediaStateChangedPayload>? =
+                        message.toType()
                     msg?.payload?.userId?.let {
                         if (it == publisherId) {
                             blockMediaStateEvents = false
@@ -323,8 +337,24 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         webSocketModule.send(msg)
     }
 
-    override fun onUserSpeaking(requestedUserIdStream: String, isSpeaking: Boolean) {
-        listener.onUserSpeaking(requestedUserIdStream, isSpeaking)
+    override fun onUserSpeaking(requestedUserIdStream: String, amplitude: Int) {
+        val bringToFront = if (amplitude < VALUE_TO_DETECT) 0 else 1
+        val volumeData = "$bringToFront,$amplitude"
+
+        if (bringToFront == bringToFrontPrev) return
+        bringToFrontPrev = bringToFront
+
+        if (publisherId.toString() == requestedUserIdStream) {
+            webSocketModule.send(
+                buildUserSpeakingMessage(
+                    roomId,
+                    companyId,
+                    publisherId,
+                    volumeData
+                )
+            )
+        }
+        listener.onUserSpeaking(requestedUserIdStream, bringToFront == 1)
     }
 
     override fun onIceDisconnected() {
@@ -341,6 +371,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
     override fun onPeerConnectionError(requestedUserIdStream: String, description: String) {
         listener.onPeerConnectionError(requestedUserIdStream, description)
+    }
+
+    companion object {
+        private const val VALUE_TO_DETECT = 150
     }
 
 }

@@ -19,6 +19,7 @@ object KmeKoinContext {
             modules(restModule)
             modules(controllersModule)
             modules(roomModules)
+            modules(contentShareViewModels)
             modules(preferencesModule)
             modules(webSocketModule)
             modules(webRTCModule)

@@ -12,7 +12,7 @@
         android:background="@drawable/bg_rounded_rect"
         android:backgroundTint="@color/grayScale7" />
 
-    <com.kme.kaltura.kmeapplication.view.view.content.controls.VideoControlsView
+    <com.kme.kaltura.kmesdk.content.playkit.controls.VideoControlsView
         android:id="@+id/controlsView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

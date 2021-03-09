@@ -20,5 +20,6 @@ val roomModules = module {
     single<IKmeSettingsModule> { KmeSettingsModuleImpl() }
     single<IKmeDesktopShareModule> { KmeDesktopShareModuleImpl() }
     single<IKmeAudioModule> { KmeAudioModuleImpl() }
+    single<IKmeContentModule> { KmeContentModuleImpl() }
 
 }

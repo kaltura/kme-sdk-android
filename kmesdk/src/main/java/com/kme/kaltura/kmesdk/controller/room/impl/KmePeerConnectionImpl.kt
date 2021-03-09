@@ -65,6 +65,7 @@ internal class KmePeerConnectionImpl(
     override fun createPeerConnection(
         isPublisher: Boolean,
         requestedUserIdStream: String,
+        useDataChannel: Boolean,
         listener: IKmePeerConnectionClientEvents
     ) {
         this.isPublisher = isPublisher
@@ -107,6 +108,7 @@ internal class KmePeerConnectionImpl(
             remoteVideoSink,
             videoCapturer,
             isPublisher,
+            useDataChannel,
             iceServers
         )
     }
@@ -246,8 +248,8 @@ internal class KmePeerConnectionImpl(
     /**
      * Callback fired to indicate current talking user
      */
-    override fun onUserSpeaking(isSpeaking: Boolean) {
-        listener?.onUserSpeaking(requestedUserIdStream, isSpeaking)
+    override fun onUserSpeaking(amplitude: Int) {
+        listener?.onUserSpeaking(requestedUserIdStream, amplitude)
     }
 
     /**

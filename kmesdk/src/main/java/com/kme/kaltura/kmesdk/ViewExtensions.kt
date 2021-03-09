@@ -6,11 +6,65 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.View.MeasureSpec
 import androidx.annotation.DrawableRes
+import android.widget.RadioGroup
+import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.view.drawToBitmap
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath.Cap.*
 
+fun View?.visible() {
+    if (this == null) return
+    if (!isVisible()) {
+        this.visibility = View.VISIBLE
+    }
+}
+
+fun View?.isVisible(): Boolean {
+    if (this == null) return false
+    return visibility == View.VISIBLE
+}
+
+fun View?.gone() {
+    if (this == null) return
+    if (!isGone()) {
+        this.visibility = View.GONE
+    }
+}
+
+fun View?.isGone(): Boolean {
+    if (this == null) return true
+    return visibility == View.GONE
+}
+
+fun View?.invisible() {
+    if (this == null) return
+    if (!isInvisible()) {
+        this.visibility = View.INVISIBLE
+    }
+}
+
+fun View?.isInvisible(): Boolean {
+    if (this == null) return false
+    return visibility == View.INVISIBLE
+}
+
+fun TextView?.goneIfTextEmpty() {
+    if (this == null) return
+    if (text.isNullOrEmpty()) {
+        gone()
+    } else {
+        visible()
+    }
+}
+
+fun RadioGroup?.goneIfEmpty() {
+    if (this == null) return
+    if (childCount == 0) {
+        gone()
+    } else {
+        visible()
+    }
+}
 
 /*
 * Converts point to dpi.
