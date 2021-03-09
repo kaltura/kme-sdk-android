@@ -4,11 +4,13 @@ import android.content.Context
 import android.graphics.*
 import android.util.DisplayMetrics
 import android.view.View
+import android.view.View.MeasureSpec
 import androidx.annotation.DrawableRes
-import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.drawToBitmap
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath.Cap.*
+
 
 /*
 * Converts point to dpi.
@@ -103,7 +105,11 @@ fun Float?.getPaintAlpha(): Int {
     return this?.times(255 + 0.5f)?.toInt() ?: 255
 }
 
-fun Context.getBitmap(@DrawableRes drawableRes: Int, bounds: Rect? = null, padding: Float = 0f): Bitmap? {
+fun Context.getBitmap(
+    @DrawableRes drawableRes: Int,
+    bounds: Rect? = null,
+    padding: Float = 0f
+): Bitmap? {
     val drawable = ContextCompat.getDrawable(this, drawableRes)
     drawable?.let {
         val canvas = Canvas()
@@ -123,10 +129,24 @@ fun Context.getBitmap(@DrawableRes drawableRes: Int, bounds: Rect? = null, paddi
 }
 
 fun View?.getBitmapFromView(): Bitmap? {
-    if (this == null || this.width <= 0 || this.height <= 0) return null
-    val bitmap =
+    if (this == null) return null
+    return if (this.width > 0 && this.height > 0) {
+        val bitmap =
             Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(bitmap)
-    draw(canvas)
-    return bitmap
+        val canvas = Canvas(bitmap)
+        draw(canvas)
+        bitmap
+    } else if (layoutParams.width > 0 && layoutParams.height > 0) {
+        val specWidth = MeasureSpec.makeMeasureSpec(layoutParams.width, MeasureSpec.AT_MOST)
+        val specHeight = MeasureSpec.makeMeasureSpec(layoutParams.height, MeasureSpec.AT_MOST)
+        measure(specWidth, specHeight)
+        layout(left, top, right, bottom)
+        val bitmap =
+            Bitmap.createBitmap(layoutParams.width, layoutParams.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        draw(canvas)
+        bitmap
+    } else {
+        return null
+    }
 }

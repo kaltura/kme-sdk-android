@@ -7,44 +7,26 @@
     android:layout_marginBottom="13dp"
     android:background="@drawable/bg_quick_poll">
 
-    <FrameLayout
+    <include
         android:id="@+id/btnYes"
+        layout="@layout/layout_poll_btn_yes_no"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginEnd="16dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:clickable="true"
-        android:focusable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btnNo"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <include layout="@layout/layout_poll_btn_yes"/>
-
-    </FrameLayout>
-
-    <FrameLayout
+    <include
         android:id="@+id/btnNo"
+        layout="@layout/layout_poll_btn_yes_no"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginStart="16dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:clickable="true"
-        android:focusable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/btnYes"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_circle"
-            android:backgroundTint="@color/orange"
-            android:src="@drawable/ic_poll_no"
-            android:tint="@android:color/black" />
-
-    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

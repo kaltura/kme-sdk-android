@@ -4,9 +4,9 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom|center"
-    android:layout_marginBottom="13dp"
     android:layout_marginStart="16dp"
     android:layout_marginEnd="16dp"
+    android:layout_marginBottom="13dp"
     android:background="@drawable/bg_quick_poll">
 
     <com.willy.ratingbar.ScaleRatingBar
@@ -17,6 +17,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:srb_isIndicator="false"
+        app:srb_clickable="true"
+        app:srb_scrollable="true"
+        app:srb_drawableEmpty="@drawable/ic_star_empty"
+        app:srb_drawableFilled="@drawable/ic_star"
         app:srb_starHeight="44dp"
         app:srb_starPadding="16dp"
         app:srb_starWidth="44dp" />

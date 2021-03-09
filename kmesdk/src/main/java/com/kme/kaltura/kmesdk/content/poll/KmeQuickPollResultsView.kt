@@ -4,17 +4,19 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.FrameLayout
-import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.kme.kaltura.kmesdk.R
-import com.kme.kaltura.kmesdk.databinding.LayoutPollResultsBinding
+import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollMultipleChoiceView.Companion.styleView
+import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollRatingView.Companion.styleView
+import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollReactionsView.Companion.styleView
+import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollYesNoView.Companion.styleView
+import com.kme.kaltura.kmesdk.databinding.*
+import com.kme.kaltura.kmesdk.getBitmapFromView
 import com.kme.kaltura.kmesdk.util.TopCurvedEdgeTreatment
-import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.QuickPollEndedPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.QuickPollStartedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType.*
 
@@ -27,6 +29,15 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
     private var binding: LayoutPollResultsBinding? = null
 
     private val layoutInflater by lazy { LayoutInflater.from(context) }
+    private val progressViewPadding by lazy {
+        resources.getDimensionPixelSize(R.dimen.quick_poll_results_item_padding)
+    }
+    private val iconLayoutParams by lazy {
+        MarginLayoutParams(
+            resources.getDimensionPixelSize(R.dimen.quick_poll_results_icon_size),
+            resources.getDimensionPixelSize(R.dimen.quick_poll_results_icon_size)
+        )
+    }
 
     init {
         binding = LayoutPollResultsBinding.inflate(layoutInflater, this, true)
@@ -60,7 +71,7 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
     ) {
         val userCount = currentPollPayload.userCount ?: 0
         val resultsCount = endPollPayload.answers?.size ?: 0
-        val resultsPercentCount = resultsCount / userCount * 100
+        val resultsPercentCount = (resultsCount.toFloat() / userCount.toFloat() * 100).toInt()
 
         binding?.tvAnonymousPoll?.visibility = if (currentPollPayload.isAnonymous == true)
             VISIBLE
@@ -68,9 +79,9 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
             GONE
 
         if (currentPollPayload.type == RATING) {
-            val averageResult = resultsCount / userCount * 100
+            val averageResult = "%.2f".format(endPollPayload.answers?.getAverageRating())
             binding?.groupAverageResult?.visibility = VISIBLE
-            binding?.tvAverageResultNumber?.text = averageResult.toString()
+            binding?.tvAverageResultNumber?.text = averageResult
         } else {
             binding?.groupAverageResult?.visibility = GONE
         }
@@ -87,44 +98,83 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
         currentPollPayload: QuickPollStartedPayload,
         endPollPayload: QuickPollEndedPayload
     ) {
-        val viewsCount = when (currentPollPayload.type) {
+        val pollType = currentPollPayload.type ?: return
+        val answersCount = endPollPayload.answers?.size ?: 0
+
+        val viewsCount = when (pollType) {
             YES_NO -> 2
             REACTIONS -> 3
             RATING -> 5
             MULTIPLE_CHOICE -> 4
-            else -> 0
         }
 
-        for (i in 0..viewsCount) {
-            generateProgressView()
+        for (i in 0 until viewsCount) {
+            val answersTypeCount =
+                endPollPayload.answers?.filter { answer -> answer.answer == i }?.size ?: 0
+            val progress = (answersTypeCount.toFloat() / answersCount.toFloat() * 100).toInt()
+            val bitmap = generateIconBitmap(pollType, i)
+            val progressView = generateProgressView(bitmap, answersTypeCount)
+            progressView.setPadding(0, progressViewPadding, 0, progressViewPadding)
+
+            binding?.progressContainer?.addView(progressView)
+
+            progressView.applyProgress(progress, true)
         }
     }
 
-    private fun generateIconBitmap(pollType: KmeQuickPollType, answerType: Int) : Bitmap {
-        return when (pollType) {
-            YES_NO -> {
-                if (answerType == 0) {
-                    initializeIconView(R.layout.layout_poll_btn_yes)
-                } else {
-                    initializeIconView(R.layout.layout_poll_btn_no)
-                }
+    private fun generateIconBitmap(
+        pollType: KmeQuickPollType,
+        answerType: Int
+    ): Bitmap? {
+        val view = when (pollType) {
+            YES_NO -> LayoutPollBtnYesNoBinding.inflate(layoutInflater).apply {
+                styleView(context, answerType)
             }
-            REACTIONS -> 3
-            RATING -> 5
-            MULTIPLE_CHOICE -> 4
-            else -> 0
-        }
+            REACTIONS -> LayoutPollBtnReactionBinding.inflate(layoutInflater).apply {
+                styleView(context, answerType)
+            }
+            RATING -> LayoutPollBtnRatingBinding.inflate(layoutInflater).apply {
+                styleView(answerType)
+            }
+            MULTIPLE_CHOICE -> LayoutPollBtnChoiceBinding.inflate(layoutInflater).apply {
+                styleView(
+                    context,
+                    answerType,
+                    resources.getDimension(R.dimen.quick_poll_results_btn_value_text_size)
+                )
+            }
+        }.root
+
+        view.layoutParams = iconLayoutParams
+        return view.getBitmapFromView()
     }
 
-    private fun initializeIconView(@LayoutRes layout: Int) : Bitmap  {
-       val view = layoutInflater.inflate(layout, null, false)
-    }
-
-    private fun generateProgressView(iconBitmap: Bitmap, answersCount: Int): KmeQuickPollProgressBar {
+    private fun generateProgressView(
+        iconBitmap: Bitmap?,
+        answersCount: Int
+    ): KmeQuickPollProgressBar {
         return KmeQuickPollProgressBar(context, null, R.style.QuickPollProgressBar_Default).apply {
-            setIcon(iconBitmap)
-            setPrefix(answersCount.toString())
+            iconBitmap?.let {
+                setIcon(it)
+            }
+            setPrefix(
+                String.format(
+                    resources.getString(R.string.quick_poll_answers_count_prefix),
+                    answersCount
+                )
+            )
         }
+    }
+
+    private fun List<QuickPollPayload.Answer>?.getAverageRating(): Float {
+        if (isNullOrEmpty()) return 0f
+
+        val starsCount = 5
+        val totalAnswers = size
+        val maxRating = totalAnswers * starsCount
+        val sumOfRating = sumBy { it.answer?.inc() ?: 0 }.toFloat()
+
+        return sumOfRating * starsCount / maxRating
     }
 
     override fun onDetachedFromWindow() {
@@ -135,4 +185,5 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
     interface OnCloseResultsListener {
         fun onCloseResultsView()
     }
+
 }

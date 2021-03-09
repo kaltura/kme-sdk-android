@@ -8,7 +8,6 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
-import androidx.annotation.DrawableRes
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.dpToPx
 import com.kme.kaltura.kmesdk.getBitmap
@@ -62,7 +61,7 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
 
     private val progressAnimator by lazy {
         ValueAnimator.ofInt(0, 100).apply {
-            duration = 1500L
+            duration = 1000L
             interpolator = AccelerateDecelerateInterpolator()
         }
     }
@@ -97,9 +96,12 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
         )
         icon = attributes.getInt(
             R.styleable.QuickPollProgressBar_left_icon,
-            R.drawable.ic_star
+            0
         )
-        iconBitmap = context.getBitmap(icon, iconBounds)
+
+        if (icon != 0) {
+            iconBitmap = context.getBitmap(icon, iconBounds)
+        }
 
         applyProgress(attributes.getInt(R.styleable.QuickPollProgressBar_progress_current, 0))
         setMax(attributes.getInt(R.styleable.QuickPollProgressBar_progress_max, 100))
@@ -130,11 +132,14 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
     }
 
     override fun getSuggestedMinimumHeight(): Int {
-        return (iconBitmap?.width ?: textSize.coerceAtLeast(reachedBarHeight).toInt())
+        return (iconBitmap?.height ?: textSize.coerceAtLeast(reachedBarHeight).toInt())
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        setMeasuredDimension(measure(widthMeasureSpec, true), measure(heightMeasureSpec, false))
+        setMeasuredDimension(
+            measure(widthMeasureSpec, true),
+            measure(heightMeasureSpec, false)
+        )
     }
 
     private fun measure(measureSpec: Int, isWidth: Boolean): Int {
@@ -169,13 +174,16 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
                     maxProgress * currentProgress + paddingLeft + reachedBarHeight / 2
 
             reachedRectF.left = offset + paddingLeft.toFloat() + iconBounds.width()
-            reachedRectF.top = height / 2.0f - reachedBarHeight / 2.0f
+            reachedRectF.top =
+                (height + paddingTop - paddingBottom) / 2.0f - reachedBarHeight / 2.0f
             reachedRectF.right = reachedRectF.left + (right * animationProgress / 100)
-            reachedRectF.bottom = height / 2.0f + reachedBarHeight / 2.0f
+            reachedRectF.bottom =
+                (height + paddingTop - paddingBottom) / 2.0f + reachedBarHeight / 2.0f
 
             drawTextStart = reachedRectF.right + offset
         }
-        drawTextEnd = height / 2.0f - (textPaint.descent() + textPaint.ascent()) / 2.0f
+        drawTextEnd =
+            (height + paddingTop - paddingBottom) / 2.0f - (textPaint.descent() + textPaint.ascent()) / 2.0f
         if (drawTextStart + drawTextWidth >= width - paddingRight) {
             drawTextStart = width - paddingRight - drawTextWidth
             reachedRectF.right = drawTextStart - offset
@@ -190,7 +198,14 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         measureProgressRect()
-        iconBitmap?.let { canvas.drawBitmap(it, 0f, 0f, reachedBarPaint) }
+        iconBitmap?.let {
+            canvas.drawBitmap(
+                it,
+                paddingLeft.toFloat(),
+                height / 2f - it.width / 2f,
+                reachedBarPaint
+            )
+        }
         canvas.drawRoundRect(
             reachedRectF,
             reachedRectF.height(),
