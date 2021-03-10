@@ -43,6 +43,9 @@ enum class KmeMessageModule(
     @SerializedName("Recording", alternate = ["recording"])
     RECORDING("Recording"),
 
+    @SerializedName("quickPoll", alternate = ["quickpoll"])
+    QUICK_POLL("quickPoll"),
+
     @SerializedName("DesktopShare", alternate = ["desktopshare"])
     DESKTOP_SHARE("DesktopShare");
 

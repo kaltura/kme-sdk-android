@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="quick_poll_fab_cradle_margin">8dp</dimen>
+    <dimen name="quick_poll_fab_cradle_corner_radius">8dp</dimen>
+    <dimen name="quick_poll_cradle_vertical_offset">25dp</dimen>
+    <dimen name="quick_poll_results_view_corner_radius">14dp</dimen>
+    <dimen name="quick_poll_fab_size">50dp</dimen>
+    <dimen name="quick_poll_results_icon_size">30dp</dimen>
+    <dimen name="quick_poll_results_item_padding">8dp</dimen>
+    <dimen name="quick_poll_results_btn_value_text_size">14sp</dimen>
+    <dimen name="quick_poll_btn_value_text_size">24sp</dimen>
+</resources>

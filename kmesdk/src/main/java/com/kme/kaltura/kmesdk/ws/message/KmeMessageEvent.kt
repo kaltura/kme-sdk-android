@@ -268,6 +268,7 @@ enum class KmeMessageEvent(
     /*
     * Whiteboard
     * */
+
     @SerializedName("whiteboardPageData", alternate = ["whiteboardpagedata"])
     WHITEBOARD_PAGE_DATA("whiteboardPageData"),
 
@@ -300,6 +301,31 @@ enum class KmeMessageEvent(
 
     @SerializedName("whiteboardPageCreated", alternate = ["whiteboardpagecreated"])
     WHITEBOARD_PAGE_CREATED("whiteboardPageCreated"),
+
+    /*
+    * Quick Poll
+    * */
+
+    @SerializedName("pollStarted", alternate = ["pollstarted"])
+    QUICK_POLL_STARTED("pollStarted"),
+
+    @SerializedName("pollEnded", alternate = ["pollended"])
+    QUICK_POLL_ENDED("pollEnded"),
+
+    @SerializedName("passEventToMs", alternate = ["passeventtoms"])
+    QUICK_POLL_SEND_ANSWER("passEventToMs"),
+
+    @SerializedName("userAnsweredPoll", alternate = ["useransweredpoll"])
+    QUICK_POLL_USER_ANSWERED("userAnsweredPoll"),
+
+    @SerializedName("getModuleState", alternate = ["getmodulestate"])
+    QUICK_POLL_GET_STATE("getModuleState"),
+
+    @SerializedName("moduleState", alternate = ["modulestate"])
+    QUICK_POLL_STATE("moduleState"),
+
+    @SerializedName("pollAnswers", alternate = ["pollanswers"])
+    QUICK_POLL_ANSWERS("pollAnswers"),
 
     /*
     * Share Desktop

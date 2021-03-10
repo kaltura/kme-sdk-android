@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.*
 import android.util.DisplayMetrics
 import android.view.View
+import android.view.View.MeasureSpec
+import androidx.annotation.DrawableRes
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -73,6 +75,16 @@ internal fun ptToDp(pt: Float, context: Context): Float {
     val dpi = context.resources.displayMetrics.densityDpi.toFloat()
     val px = pt / 72 * dpi // pt is exactly 1/72 of an inch on any screen density
     return px / (dpi / DisplayMetrics.DENSITY_DEFAULT)
+}
+
+fun dpToPx(dp: Float, context: Context): Float {
+    val scale: Float = context.resources.displayMetrics.density
+    return dp * scale + 0.5f
+}
+
+fun spToPx(sp: Float, context: Context): Float {
+    val scale: Float = context.resources.displayMetrics.scaledDensity
+    return sp * scale
 }
 
 /**
@@ -147,16 +159,20 @@ fun Float?.getPaintAlpha(): Int {
     return this?.times(255 + 0.5f)?.toInt() ?: 255
 }
 
-fun Context.getBitmap(drawableRes: Int, bounds: Rect? = null, padding: Float = 0f): Bitmap? {
+fun Context.getBitmap(
+    @DrawableRes drawableRes: Int,
+    bounds: Rect? = null,
+    padding: Float = 0f
+): Bitmap? {
     val drawable = ContextCompat.getDrawable(this, drawableRes)
     drawable?.let {
         val canvas = Canvas()
         val width = bounds?.width() ?: it.intrinsicWidth
         val height = bounds?.height() ?: it.intrinsicHeight
         val bitmap = Bitmap.createBitmap(
-                (width + padding).toInt(),
-                (height + padding).toInt(),
-                Bitmap.Config.ARGB_8888
+            (width + padding).toInt(),
+            (height + padding).toInt(),
+            Bitmap.Config.ARGB_8888
         )
         canvas.setBitmap(bitmap)
         drawable.bounds = bounds ?: Rect(0, 0, width, height)
@@ -167,10 +183,24 @@ fun Context.getBitmap(drawableRes: Int, bounds: Rect? = null, padding: Float = 0
 }
 
 fun View?.getBitmapFromView(): Bitmap? {
-    if (this == null || this.width <= 0 || this.height <= 0) return null
-    val bitmap =
+    if (this == null) return null
+    return if (this.width > 0 && this.height > 0) {
+        val bitmap =
             Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(bitmap)
-    draw(canvas)
-    return bitmap
+        val canvas = Canvas(bitmap)
+        draw(canvas)
+        bitmap
+    } else if (layoutParams.width > 0 && layoutParams.height > 0) {
+        val specWidth = MeasureSpec.makeMeasureSpec(layoutParams.width, MeasureSpec.AT_MOST)
+        val specHeight = MeasureSpec.makeMeasureSpec(layoutParams.height, MeasureSpec.AT_MOST)
+        measure(specWidth, specHeight)
+        layout(left, top, right, bottom)
+        val bitmap =
+            Bitmap.createBitmap(layoutParams.width, layoutParams.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        draw(canvas)
+        bitmap
+    } else {
+        return null
+    }
 }

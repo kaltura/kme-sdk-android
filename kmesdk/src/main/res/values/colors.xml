@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="orange">#fb9d0b</color>
+    <color name="blue">#42A5F5</color>
     <color name="grey">#878787</color>
+    <color name="grey1">#353535</color>
+
     <color name="transparentColor">#00ffffff</color>
+    <color name="transparentColor1">#ab000000</color>
 
     <color name="colorPrimary">#000000</color>
     <color name="colorPrimaryDark">#000000</color>

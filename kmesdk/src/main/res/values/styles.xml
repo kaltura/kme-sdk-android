@@ -1,0 +1,25 @@
+<resources>
+
+    <style name="FloatingActionButton.Border" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="colorAccent">@color/grey1</item>
+        <item name="colorControlHighlight">@color/grey1</item>
+        <item name="colorSecondary">@color/grey1</item>
+    </style>
+
+    <style name="QuickPollProgressBar_Default">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+
+        <item name="progress_max">100</item>
+        <item name="progress_current">0</item>
+
+        <item name="progress_reached_color">@color/white</item>
+
+        <item name="progress_text_size">14sp</item>
+        <item name="progress_text_color">@color/white</item>
+
+        <item name="progress_reached_bar_height">12dp</item>
+        <item name="left_icon">@drawable/ic_star</item>
+    </style>
+
+</resources>
