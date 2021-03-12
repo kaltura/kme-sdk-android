@@ -39,14 +39,17 @@ class PeerConnectionViewModel(
     private val speakerEnabled = MutableLiveData<Boolean>()
     val speakerEnabledLiveData get() = speakerEnabled as LiveData<Boolean>
 
-    private val micEnabled = MutableLiveData<Boolean>()
-    val micEnabledLiveData get() = micEnabled as LiveData<Boolean>
-
     private val liveEnabled = MutableLiveData<Boolean>()
     val liveEnabledLiveData get() = liveEnabled as LiveData<Boolean>
 
-    private val cameraEnabled = MutableLiveData<Boolean>()
-    val cameraEnabledLiveData get() = cameraEnabled as LiveData<Boolean>
+    private val micEnabled = MutableLiveData<Boolean>()
+    val micEnabledLiveData get() = micEnabled as LiveData<Boolean>
+
+    private val camEnabled = MutableLiveData<Boolean>()
+    val camEnabledLiveData get() = camEnabled as LiveData<Boolean>
+
+    private val frontCamEnabled = MutableLiveData<Boolean>()
+    val frontCameraEnabledLiveData get() = frontCamEnabled as LiveData<Boolean>
 
     private val publisherId: Long by lazy {
         kmeSdk.userController.getCurrentUserInfo()?.getUserId() ?: 0
@@ -100,28 +103,38 @@ class PeerConnectionViewModel(
     private fun startPublish(localRenderer: KmeSurfaceRendererView) {
         kmeSdk.roomController.peerConnectionModule.addPublisher(
             publisherId.toString(),
-            localRenderer
+            localRenderer,
+            micEnabled.value ?: true,
+            camEnabled.value ?: true,
+            frontCamEnabled.value ?: true
         )
 
-        cameraEnabled.value = true
-        micEnabled.value = true
         publisherAdded.value = true
     }
 
-    fun startPublish() {
-        publisherAdded.value = false
+    fun startPublish(
+        micEnabled: Boolean,
+        camEnabled: Boolean,
+        frontCamEnabled: Boolean
+    ) {
+        this.publisherAdded.value = false
+
+        this.micEnabled.value = micEnabled
+        this.camEnabled.value = camEnabled
+        this.frontCamEnabled.value = frontCamEnabled
+
         createPublisherRenderer(publisherId)
     }
 
     fun toggleCamera() {
-        cameraEnabled.value?.let { isCameraEnabled ->
+        camEnabled.value?.let { isCameraEnabled ->
             kmeSdk.roomController.peerConnectionModule.enableCamera(!isCameraEnabled)
         }
     }
 
     // Also called after publisher's actions
     fun toggleCamByAdmin(enable: Boolean, forAll: Boolean) {
-        cameraEnabled.value?.let {
+        camEnabled.value?.let {
             if (it == enable) return
 
             val isAdmin = kmeSdk.userController.isAdminFor(companyId)
@@ -130,7 +143,7 @@ class PeerConnectionViewModel(
                 return
             }
 
-            cameraEnabled.value = enable
+            camEnabled.value = enable
             kmeSdk.roomController.peerConnectionModule.enableCamera(enable)
         }
     }

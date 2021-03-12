@@ -70,6 +70,10 @@
     <string name="room_tools_action_stop_recording">Stop Recording</string>
     <string name="room_tools_action_breakout">Breakout</string>
 
+    <!--Preview-->
+    <string name="room_preview_title">Set your Cam &amp; Mic</string>
+    <string name="room_preview_accept">Go</string>
+
     <!--Recording-->
     <string name="recording_initializing_dialog_title">Initializing recording</string>
     <string name="recording_initializing_dialog_message">Recording will start momentarily</string>

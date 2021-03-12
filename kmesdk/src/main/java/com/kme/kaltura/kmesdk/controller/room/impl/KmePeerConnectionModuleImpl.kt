@@ -34,6 +34,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     private val roomController: IKmeRoomController by inject()
     private val userController: IKmeUserController by inject()
 
+    private var preview: IKmePeerConnection? = null
     private var publisher: IKmePeerConnection? = null
     private var peerConnections: MutableMap<String, IKmePeerConnection> = mutableMapOf()
     private var payloads: MutableList<SdpOfferToViewerPayload> = mutableListOf()
@@ -86,11 +87,31 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     }
 
     /**
+     * Creates a video preview
+     */
+    override fun startPreview(previewRenderer: KmeSurfaceRendererView) {
+        if (preview == null) {
+            preview = get()
+            preview?.startPreview(previewRenderer)
+        }
+    }
+
+    /**
+     * Stops a video preview
+     */
+    override fun stopPreview() {
+        preview = null
+    }
+
+    /**
      * Creates publisher connection
      */
     override fun addPublisher(
         requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView
+        renderer: KmeSurfaceRendererView,
+        micEnabled: Boolean,
+        camEnabled: Boolean,
+        frontCamEnabled: Boolean
     ) {
         checkData()
 
@@ -99,14 +120,17 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 buildMediaInitMessage(
                     roomId,
                     companyId,
-                    publisherId
+                    publisherId,
+                    if (micEnabled) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE,
+                    if (camEnabled) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE
                 )
             )
 
             publisher = get()
             publisher?.setTurnServer(turnUrl, turnUser, turnCred)
             publisher?.setLocalRenderer(renderer)
-            publisher?.createPeerConnection(true, requestedUserIdStream, !useWsEvents, this)
+            publisher?.setPreferredSettings(micEnabled, camEnabled, frontCamEnabled)
+            publisher?.createPeerConnection(requestedUserIdStream, !useWsEvents, this)
             peerConnections[requestedUserIdStream] = publisher!!
         }
     }
@@ -132,7 +156,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         val viewer: IKmePeerConnection by inject()
         viewer.setTurnServer(turnUrl, turnUser, turnCred)
         viewer.setRemoteRenderer(renderer)
-        viewer.createPeerConnection(false, requestedUserIdStream, !useWsEvents, this)
+        viewer.createPeerConnection(requestedUserIdStream, !useWsEvents, this)
         peerConnections[requestedUserIdStream] = viewer
     }
 
@@ -146,9 +170,12 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      *
      */
     override fun enableCamera(isEnable: Boolean) {
-        if (blockMediaStateEvents) return
-        sendChangeMediaStateMessage(isEnable, KmeMediaStateType.WEBCAM)
-        publisher?.enableCamera(isEnable)
+        publisher?.let {
+            if (blockMediaStateEvents) return
+            sendChangeMediaStateMessage(isEnable, KmeMediaStateType.WEBCAM)
+            it.enableCamera(isEnable)
+        }
+        preview?.enableCamera(isEnable)
     }
 
     /**
@@ -164,6 +191,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      * Switch between publisher's existing cameras
      */
     override fun switchCamera() {
+        preview?.switchCamera()
         publisher?.switchCamera()
     }
 
@@ -179,6 +207,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         peerConnections[requestedUserIdStream]?.disconnectPeerConnection()
         peerConnections.remove(requestedUserIdStream)
         if (publisherId.toString() == requestedUserIdStream) {
+            preview = null
             publisher = null
         }
         listener.onPeerConnectionRemoved(requestedUserIdStream)
@@ -191,6 +220,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         peerConnections.forEach { (_, connection) -> connection.disconnectPeerConnection() }
         peerConnections.clear()
         payloads.clear()
+        preview = null
         publisher = null
     }
 

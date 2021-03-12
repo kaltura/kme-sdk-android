@@ -10,8 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
-import android.os.Handler
-import android.os.Looper
+import kotlinx.coroutines.*
 
 /**
  * An implementation for handling bluetooth audio device switches
@@ -28,8 +27,6 @@ class KmeBluetoothManager(
         SCO_DISCONNECTING, SCO_CONNECTING, SCO_CONNECTED
     }
 
-    private var handler: Handler? = null
-
     private var scoConnectionAttempts = 0
     private var bluetoothState: State? = null
 
@@ -40,14 +37,12 @@ class KmeBluetoothManager(
     private var bluetoothServiceListener: ServiceListener? = null
     private var bluetoothHeadsetReceiver: BroadcastReceiver? = null
 
-    private val bluetoothTimeoutRunnable = Runnable { bluetoothTimeout() }
+    private val backgroundScope = CoroutineScope(Dispatchers.IO)
 
     init {
         bluetoothState = State.UNINITIALIZED
         bluetoothServiceListener = BluetoothServiceListener()
         bluetoothHeadsetReceiver = BluetoothHeadsetBroadcastReceiver()
-
-        handler = Handler(Looper.getMainLooper())
     }
 
     fun getState(): State? {
@@ -181,11 +176,16 @@ class KmeBluetoothManager(
     }
 
     private fun startTimer() {
-        handler?.postDelayed(bluetoothTimeoutRunnable, BLUETOOTH_SCO_TIMEOUT_MS)
+        backgroundScope.launch {
+            while (true) {
+                bluetoothTimeout()
+                delay(BLUETOOTH_SCO_TIMEOUT_MS)
+            }
+        }
     }
 
     private fun cancelTimer() {
-        handler?.removeCallbacks(bluetoothTimeoutRunnable)
+        backgroundScope.cancel()
     }
 
     private fun bluetoothTimeout() {

@@ -90,7 +90,7 @@ class RoomRenderersFragment : KmeFragment() {
             viewLifecycleOwner,
             publisherMicObserver
         )
-        peerConnectionViewModel.cameraEnabledLiveData.observe(
+        peerConnectionViewModel.camEnabledLiveData.observe(
             viewLifecycleOwner,
             publisherCameraObserver
         )
@@ -160,8 +160,11 @@ class RoomRenderersFragment : KmeFragment() {
             ?.let { participant ->
                 clearRecyclerViewPool()
 
-                participant.webcamState = KmeMediaDeviceState.LIVE
-                participant.micState = KmeMediaDeviceState.LIVE
+                val micEnabled = peerConnectionViewModel.micEnabledLiveData.value ?: true
+                val camEnabled = peerConnectionViewModel.camEnabledLiveData.value ?: true
+
+                participant.micState = if (micEnabled) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE
+                participant.webcamState = if (camEnabled) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE
 
                 val renderer = KmeSurfaceRendererView(activity, null)
                 adapter.addRenderer(participant, renderer)
