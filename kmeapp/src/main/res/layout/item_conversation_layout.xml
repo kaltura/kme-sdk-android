@@ -127,11 +127,4 @@
         android:visibility="gone"
         tools:ignore="MissingConstraints" />
 
-    <View
-        android:id="@id/dialogLastMessageUserAvatar"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        tools:ignore="MissingConstraints" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

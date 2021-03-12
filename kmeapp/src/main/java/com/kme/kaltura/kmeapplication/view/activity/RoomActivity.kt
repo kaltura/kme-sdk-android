@@ -22,6 +22,8 @@ import com.kme.kaltura.kmeapplication.R
 import com.kme.kaltura.kmeapplication.data.MappedConversation
 import com.kme.kaltura.kmeapplication.util.extensions.*
 import com.kme.kaltura.kmeapplication.view.IBottomSheetCallback
+import com.kme.kaltura.kmeapplication.view.dialog.ConnectionPreviewDialog
+import com.kme.kaltura.kmeapplication.view.dialog.ConnectionPreviewDialog.PreviewListener
 import com.kme.kaltura.kmeapplication.view.fragment.*
 import com.kme.kaltura.kmeapplication.viewmodel.*
 import com.kme.kaltura.kmesdk.content.KmeContentView
@@ -44,7 +46,7 @@ import kotlinx.android.synthetic.main.layout_room_main_tabs.*
 import kotlinx.android.synthetic.main.toolbar_room.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class RoomActivity : KmeActivity() {
+class RoomActivity : KmeActivity(), PreviewListener {
 
     private val viewModel: RoomViewModel by viewModel()
     private val recordingViewModel: RoomRecordingViewModel by viewModel()
@@ -62,7 +64,9 @@ class RoomActivity : KmeActivity() {
 
     private var companyId: Long? = null
     private var roomId: Long? = null
+    private var previewSettingsSet = false
 
+    private var previewDialog: ConnectionPreviewDialog? = null
     private var alertDialog: AlertDialog? = null
     private var currentBottomSheetFragment: Fragment? = null
     private var contentFragment: Fragment? = null
@@ -113,7 +117,7 @@ class RoomActivity : KmeActivity() {
         peerConnectionViewModel.userSpeakingLiveData.observe(this, currentlySpeakingObserver)
         peerConnectionViewModel.speakerEnabledLiveData.observe(this, speakerObserver)
         peerConnectionViewModel.micEnabledLiveData.observe(this, micObserver)
-        peerConnectionViewModel.cameraEnabledLiveData.observe(this, cameraObserver)
+        peerConnectionViewModel.camEnabledLiveData.observe(this, cameraObserver)
         peerConnectionViewModel.liveEnabledLiveData.observe(this, liveObserver)
 
         chatViewModel.subscribe()
@@ -243,22 +247,18 @@ class RoomActivity : KmeActivity() {
         }
 
         btnToggleMicro.setOnClickListener {
-            peerConnectionViewModel.toggleMic()
+            if (previewSettingsSet) {
+                peerConnectionViewModel.toggleMic()
+            } else {
+                showPreviewSettings()
+            }
         }
 
         btnToggleCamera.setOnClickListener {
-            if (hasPermissions(PERMISSIONS)) {
-                if (peerConnectionViewModel.isPublishing()) {
-                    peerConnectionViewModel.toggleCamera()
-                } else {
-                    peerConnectionViewModel.startPublish()
-                }
+            if (previewSettingsSet) {
+                peerConnectionViewModel.toggleCamera()
             } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    PERMISSIONS,
-                    CODE_PERMISSION_ALL
-                )
+                showPreviewSettings()
             }
         }
     }
@@ -470,6 +470,8 @@ class RoomActivity : KmeActivity() {
         // Set participants first
         participantsViewModel.setRoomState(it)
         peerConnectionViewModel.setRoomState(it)
+
+        showPreviewSettings()
     }
 
     private val isConnectedObserver = Observer<Boolean> {
@@ -579,6 +581,7 @@ class RoomActivity : KmeActivity() {
 
     private val closeConnectionObserver =
         Observer<KmeRoomInitModuleMessage<CloseWebSocketPayload>?> { message ->
+            previewDialog?.dismiss()
             alertDialog.hideIfExist()
             alertDialog = when (message?.payload?.reason) {
                 KmeMessageReason.DUPLICATED_TAB -> {
@@ -851,6 +854,29 @@ class RoomActivity : KmeActivity() {
         alertDialog = null
     }
 
+    private fun showPreviewSettings() {
+        if (hasPermissions(PERMISSIONS)) {
+            previewDialog = ConnectionPreviewDialog.newInstance()
+            previewDialog?.setListener(this)
+            previewDialog?.show(supportFragmentManager, ConnectionPreviewDialog.TAG)
+        } else {
+            ActivityCompat.requestPermissions(this, PERMISSIONS, CODE_PERMISSION_ALL)
+        }
+    }
+
+    override fun onPreviewSettingsAccepted(
+        micEnabled: Boolean,
+        camEnabled: Boolean,
+        frontCamEnabled: Boolean
+    ) {
+        previewSettingsSet = true
+        peerConnectionViewModel.startPublish(
+            micEnabled,
+            camEnabled,
+            frontCamEnabled
+        )
+    }
+
     private fun hasPermissions(permissions: Array<String>): Boolean = permissions.all {
         ActivityCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
     }
@@ -862,7 +888,15 @@ class RoomActivity : KmeActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == CODE_PERMISSION_ALL) {
-            peerConnectionViewModel.startPublish()
+            for (result in grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    return
+                }
+            }
+
+            previewDialog = ConnectionPreviewDialog.newInstance()
+            previewDialog?.setListener(this)
+            previewDialog?.show(supportFragmentManager, ConnectionPreviewDialog.TAG)
         }
     }
 

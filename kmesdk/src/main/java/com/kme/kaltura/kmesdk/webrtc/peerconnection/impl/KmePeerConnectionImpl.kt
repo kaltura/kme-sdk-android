@@ -7,6 +7,7 @@ import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnection
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
 import com.kme.kaltura.kmesdk.webrtc.stats.KmeSoundAmplitudeListener
 import com.kme.kaltura.kmesdk.webrtc.stats.KmeSoundAmplitudeMeter
+import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
 import org.webrtc.audio.JavaAudioDeviceModule.builder
@@ -36,7 +37,8 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
     private var events: IKmePeerConnectionEvents? = null
 
     private var videoCapturerStopped = false
-    private var renderVideo = true
+    private var preferredMicEnabled: Boolean = true
+    private var preferredCamEnabled: Boolean = true
 
     private var queuedRemoteCandidates: MutableList<IceCandidate>? = null
     private lateinit var localSdp: SessionDescription
@@ -57,6 +59,38 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
     private var audioConstraints: MediaConstraints? = null
     private var sdpMediaConstraints: MediaConstraints? = null
     private var volumeDataChannel: DataChannel? = null
+
+    /**
+     * Creates a local video preview
+     */
+    override fun startPreview(
+        context: Context,
+        videoCapturer: VideoCapturer?,
+        previewRenderer: KmeSurfaceRendererView
+    ) {
+        this.videoCapturer = videoCapturer
+        this.localVideoSink = previewRenderer
+
+        peerConnection = factory?.createPeerConnection(RTCConfiguration(listOf()), pcObserver)
+        peerConnection?.let {
+            if (videoCapturer != null) {
+                it.addTrack(createLocalVideoTrack(context, videoCapturer), listOf("ARDAMS"))
+            }
+            soundAmplitudeMeter = KmeSoundAmplitudeMeter(it, this)
+            soundAmplitudeMeter?.startMeasure()
+        }
+    }
+
+    /**
+     * Set preferred settings for establish p2p connection
+     */
+    override fun setPreferredSettings(
+        preferredMicEnabled: Boolean,
+        preferredCamEnabled: Boolean
+    ) {
+        this.preferredMicEnabled = preferredMicEnabled
+        this.preferredCamEnabled = preferredCamEnabled
+    }
 
     /**
      * Creates peer connection factory
@@ -200,7 +234,7 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
     private fun createLocalAudioTrack(): AudioTrack? {
         localAudioSource = factory?.createAudioSource(audioConstraints)
         localAudioTrack = factory?.createAudioTrack(AUDIO_TRACK_ID, localAudioSource)
-        localAudioTrack?.setEnabled(true)
+        localAudioTrack?.setEnabled(preferredMicEnabled)
         return localAudioTrack
     }
 
@@ -216,7 +250,7 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         }
 
         localVideoTrack = factory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)
-        localVideoTrack?.setEnabled(renderVideo)
+        localVideoTrack?.setEnabled(preferredCamEnabled)
         localVideoTrack?.addSink(localVideoSink)
         return localVideoTrack
     }
@@ -240,9 +274,8 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     override fun setAudioEnabled(enable: Boolean) {
-        if (isPublisher) {
-            if (enable) soundAmplitudeMeter?.startMeasure() else soundAmplitudeMeter?.stopMeasure()
-        }
+        preferredMicEnabled = enable
+        if (enable) soundAmplitudeMeter?.startMeasure() else soundAmplitudeMeter?.stopMeasure()
         localAudioTrack?.setEnabled(enable)
     }
 
@@ -251,9 +284,7 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
      */
     @RequiresPermission(Manifest.permission.CAMERA)
     override fun setVideoEnabled(enable: Boolean) {
-        renderVideo = enable
-        localVideoTrack?.setEnabled(renderVideo)
-        remoteVideoTrack?.setEnabled(renderVideo)
+        localVideoTrack?.setEnabled(enable)
     }
 
     /**
@@ -364,12 +395,10 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
      */
     @RequiresPermission(Manifest.permission.CAMERA)
     override fun switchCamera() {
-        if (videoCapturer == null) {
-            return  // No video is sent or only one camera is available or error happened.
-        }
-        if (videoCapturer is CameraVideoCapturer) {
-            val cameraVideoCapturer = videoCapturer as CameraVideoCapturer
-            cameraVideoCapturer.switchCamera(null)
+        videoCapturer?.let {
+            if (it is CameraVideoCapturer) {
+                it.switchCamera(null)
+            }
         }
     }
 
@@ -381,9 +410,8 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         height: Int,
         frameRate: Int
     ) {
-        if (videoCapturer == null) {
-            return
-        }
+        if (videoCapturer == null) return
+
         localVideoSource?.adaptOutputFormat(width, height, frameRate)
     }
 
@@ -472,11 +500,10 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         override fun onIceConnectionChange(newState: IceConnectionState) {
             when (newState) {
                 IceConnectionState.CONNECTED -> {
-                    if (isPublisher) soundAmplitudeMeter?.startMeasure()
+                    if (isPublisher && preferredMicEnabled) soundAmplitudeMeter?.startMeasure()
                     events?.onIceConnected()
                 }
                 IceConnectionState.COMPLETED -> {
-                    if (isPublisher) soundAmplitudeMeter?.startMeasure()
                     events?.onIceGatheringDone()
                 }
                 IceConnectionState.DISCONNECTED -> {
@@ -505,7 +532,7 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
 
             if (stream.videoTracks.size == 1) {
                 remoteVideoTrack = stream.videoTracks[0]
-                remoteVideoTrack?.setEnabled(renderVideo)
+                remoteVideoTrack?.setEnabled(true)
                 remoteVideoTrack?.addSink(remoteVideoSink)
             }
         }

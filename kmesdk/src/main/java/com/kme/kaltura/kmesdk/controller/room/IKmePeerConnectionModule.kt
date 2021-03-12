@@ -28,6 +28,16 @@ interface IKmePeerConnectionModule: IKmePeerConnectionClientEvents {
     )
 
     /**
+     * Creates a video preview
+     */
+    fun startPreview(previewRenderer: KmeSurfaceRendererView)
+
+    /**
+     * Stops a video preview
+     */
+    fun stopPreview()
+
+    /**
      * Creates publisher connection
      *
      * @param requestedUserIdStream id of a user (publisher)
@@ -35,7 +45,10 @@ interface IKmePeerConnectionModule: IKmePeerConnectionClientEvents {
      */
     fun addPublisher(
         requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView
+        renderer: KmeSurfaceRendererView,
+        micEnabled: Boolean,
+        camEnabled: Boolean,
+        frontCamEnabled: Boolean
     )
 
     /**

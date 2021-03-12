@@ -10,6 +10,7 @@
     <color name="blackTransparent">#66000000</color>
     <color name="blackTransparent1">#E8000000</color>
     <color name="blackTransparent2">#F5000000</color>
+    <color name="blackTransparent3">#ab000000</color>
 
     <color name="grayDarkTransparent">#ae858585</color>
     <color name="grayScale1">#696969</color>
@@ -24,6 +25,7 @@
     <color name="green">#26A69A</color>
     <color name="greenScale1">#197067</color>
     <color name="greenScale2">#00CA00</color>
+    <color name="greenScale3">#3cd2af</color>
 
     <color name="red">#E32726</color>
     <color name="redScale1">#EC407A</color>

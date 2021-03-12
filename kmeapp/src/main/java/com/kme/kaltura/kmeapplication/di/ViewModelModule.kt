@@ -16,6 +16,7 @@ val viewModel = module {
     viewModel { RoomNoteViewModel(get(), get()) }
     viewModel { RoomSettingsViewModel(get()) }
     viewModel { PeerConnectionViewModel(get()) }
+    viewModel { ConnectionPreviewViewModel(get()) }
     viewModel { RoomRenderersViewModel(get()) }
     viewModel { ParticipantsViewModel(get(), get()) }
     viewModel { ChatViewModel(get(), get()) }
