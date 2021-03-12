@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="center">
+    android:layout_gravity="bottom">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabClose"
@@ -121,7 +121,7 @@
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:layout_marginStart="4dp"
-            android:src="@drawable/ic_star"
+            android:src="@drawable/ic_poll_star"
             android:tint="@color/orange"
             app:layout_constraintBottom_toBottomOf="@id/tvAverageResultNumber"
             app:layout_constraintStart_toEndOf="@id/tvAverageResultNumber"

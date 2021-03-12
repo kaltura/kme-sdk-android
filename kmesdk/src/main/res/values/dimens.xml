@@ -8,5 +8,6 @@
     <dimen name="quick_poll_results_icon_size">30dp</dimen>
     <dimen name="quick_poll_results_item_padding">8dp</dimen>
     <dimen name="quick_poll_results_btn_value_text_size">14sp</dimen>
-    <dimen name="quick_poll_btn_value_text_size">24sp</dimen>
+    <dimen name="quick_poll_btn_size">40dp</dimen>
+    <dimen name="quick_poll_active_btn_size">48dp</dimen>
 </resources>

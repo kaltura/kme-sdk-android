@@ -34,7 +34,7 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
     var reachedBarHeight = 0f
         private set
 
-    private var icon = R.drawable.ic_star
+    private var icon = R.drawable.ic_poll_star
 
     var prefix = ""
         private set
@@ -75,27 +75,27 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
         )
 
         reachedBarColor = attributes.getColor(
-            R.styleable.QuickPollProgressBar_progress_reached_color,
+            R.styleable.QuickPollProgressBar_progressReachedColor,
             Color.WHITE
         )
         textColor = attributes.getColor(
-            R.styleable.QuickPollProgressBar_progress_text_color,
+            R.styleable.QuickPollProgressBar_progressTextColor,
             Color.WHITE
         )
         textSize = attributes.getDimension(
-            R.styleable.QuickPollProgressBar_progress_text_size,
+            R.styleable.QuickPollProgressBar_progressTextSize,
             spToPx(14f, context)
         )
         reachedBarHeight = attributes.getDimension(
-            R.styleable.QuickPollProgressBar_progress_reached_bar_height,
+            R.styleable.QuickPollProgressBar_progressReachedBarHeight,
             dpToPx(12f, context)
         )
         offset = attributes.getDimension(
-            R.styleable.QuickPollProgressBar_progress_text_offset,
+            R.styleable.QuickPollProgressBar_progressTextOffset,
             dpToPx(10f, context)
         )
         icon = attributes.getInt(
-            R.styleable.QuickPollProgressBar_left_icon,
+            R.styleable.QuickPollProgressBar_leftIcon,
             0
         )
 
@@ -103,8 +103,8 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
             iconBitmap = context.getBitmap(icon, iconBounds)
         }
 
-        applyProgress(attributes.getInt(R.styleable.QuickPollProgressBar_progress_current, 0))
-        setMax(attributes.getInt(R.styleable.QuickPollProgressBar_progress_max, 100))
+        applyProgress(attributes.getInt(R.styleable.QuickPollProgressBar_currentProgress, 0))
+        setMax(attributes.getInt(R.styleable.QuickPollProgressBar_progressMax, 100))
 
         attributes.recycle()
 

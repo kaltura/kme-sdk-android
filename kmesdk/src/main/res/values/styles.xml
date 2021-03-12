@@ -10,16 +10,16 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
 
-        <item name="progress_max">100</item>
-        <item name="progress_current">0</item>
+        <item name="progressMax">100</item>
+        <item name="currentProgress">0</item>
 
-        <item name="progress_reached_color">@color/white</item>
+        <item name="progressReachedColor">@color/white</item>
 
-        <item name="progress_text_size">14sp</item>
-        <item name="progress_text_color">@color/white</item>
+        <item name="progressTextSize">14sp</item>
+        <item name="progressTextColor">@color/white</item>
 
-        <item name="progress_reached_bar_height">12dp</item>
-        <item name="left_icon">@drawable/ic_star</item>
+        <item name="progressReachedBarHeight">12dp</item>
+        <item name="leftIcon">@drawable/ic_poll_star</item>
     </style>
 
 </resources>
