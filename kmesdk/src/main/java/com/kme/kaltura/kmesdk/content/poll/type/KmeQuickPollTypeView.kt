@@ -43,8 +43,11 @@ abstract class KmeQuickPollTypeView<B : ViewBinding> @JvmOverloads constructor(
     private val inactiveButtonSize by lazy { resources.getDimensionPixelSize(R.dimen.quick_poll_btn_size) }
     private val activeButtonSize by lazy { resources.getDimensionPixelSize(R.dimen.quick_poll_active_btn_size) }
 
+    private val defaultAnimationDuration = 300L
+
     private var isTimeoutAnimationCanceled = false
     private var prevAnimatedView: View? = null
+    private var prevAnswerType: Int? = null
 
     private val timeoutAnswerAnimation by lazy {
         ValueAnimator.ofInt(0, 100).apply {
@@ -56,7 +59,7 @@ abstract class KmeQuickPollTypeView<B : ViewBinding> @JvmOverloads constructor(
     private val buttonAnimation by lazy {
         ValueAnimator.ofInt(inactiveButtonSize, activeButtonSize).apply {
             interpolator = AccelerateDecelerateInterpolator()
-            duration = 300L
+            duration = defaultAnimationDuration
         }
     }
 
@@ -70,8 +73,11 @@ abstract class KmeQuickPollTypeView<B : ViewBinding> @JvmOverloads constructor(
     }
 
     protected fun View.performAnswerJob(answer: Int) {
-        cancelAnswerTimeout()
-        startAnswerAnimation(answer)
+        if (prevAnswerType != answer) {
+            prevAnswerType = answer
+            cancelAnswerTimeout()
+            startAnswerAnimation(answer)
+        }
     }
 
     private fun cancelAnswerTimeout() {
@@ -105,7 +111,12 @@ abstract class KmeQuickPollTypeView<B : ViewBinding> @JvmOverloads constructor(
                 isTimeoutAnimationCanceled = false
                 prevAnimatedView = this@startAnswerAnimation
                 getTimeoutProgressBar()?.apply {
+                    alpha = 0f
                     visibility = VISIBLE
+                    animate()
+                        .alpha(1f)
+                        .setDuration(defaultAnimationDuration)
+                        .start()
                 }
             }
 
@@ -118,8 +129,6 @@ abstract class KmeQuickPollTypeView<B : ViewBinding> @JvmOverloads constructor(
             }
 
             doOnEnd {
-//                getTimeoutProgressBar()?.apply { animate().alpha(0f).start() }
-
                 if (!isTimeoutAnimationCanceled) {
                     listener?.onAnswered(type, answer)
                 }

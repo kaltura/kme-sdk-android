@@ -15,22 +15,22 @@ class KmeQuickPollMultipleChoiceView @JvmOverloads constructor(
         binding?.apply {
 
             styleView(btnChoiceA, 0)
-            btnChoiceA.root.setOnClickListener {
+            btnChoiceA.resizableContainer.setOnClickListener {
                 it.performAnswerJob(0)
             }
 
             styleView(btnChoiceB, 1)
-            btnChoiceB.root.setOnClickListener {
+            btnChoiceB.resizableContainer.setOnClickListener {
                 it.performAnswerJob(1)
             }
 
             styleView(btnChoiceC, 2)
-            btnChoiceC.root.setOnClickListener {
+            btnChoiceC.resizableContainer.setOnClickListener {
                 it.performAnswerJob(2)
             }
 
             styleView(btnChoiceD, 3)
-            btnChoiceD.root.setOnClickListener {
+            btnChoiceD.resizableContainer.setOnClickListener {
                 it.performAnswerJob(3)
             }
         }

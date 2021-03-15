@@ -2,9 +2,6 @@ package com.kme.kaltura.kmesdk.content.poll.type
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.databinding.LayoutPollBtnBinding
 import com.kme.kaltura.kmesdk.databinding.LayoutPollYesNoBinding
@@ -17,18 +14,18 @@ class KmeQuickPollYesNoView @JvmOverloads constructor(
     init {
         binding?.apply {
             styleView(btnYes, 0)
-            btnYes.root.setOnClickListener {
+            btnYes.resizableContainer.setOnClickListener {
                 it.performAnswerJob(0)
             }
 
             styleView(btnNo, 1)
-            btnNo.root.setOnClickListener {
+            btnNo.resizableContainer.setOnClickListener {
                 it.performAnswerJob(1)
             }
         }
     }
 
-    override fun getViewBinding() =  LayoutPollYesNoBinding.inflate(layoutInflater, this, true)
+    override fun getViewBinding() = LayoutPollYesNoBinding.inflate(layoutInflater, this, true)
 
     override val type: KmeQuickPollType = KmeQuickPollType.YES_NO
 

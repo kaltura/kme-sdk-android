@@ -5,12 +5,15 @@ import android.graphics.*
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.View.MeasureSpec
-import androidx.annotation.DrawableRes
+import android.view.ViewGroup
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.forEach
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath.Cap.*
+
 
 fun View?.visible() {
     if (this == null) return
@@ -190,13 +193,26 @@ fun View?.getBitmapFromView(): Bitmap? {
         val canvas = Canvas(bitmap)
         draw(canvas)
         bitmap
-    } else if (layoutParams.width > 0 && layoutParams.height > 0) {
-        val specWidth = MeasureSpec.makeMeasureSpec(layoutParams.width, MeasureSpec.AT_MOST)
-        val specHeight = MeasureSpec.makeMeasureSpec(layoutParams.height, MeasureSpec.AT_MOST)
+    } else if (this.layoutParams.width > 0 && this.layoutParams.height > 0) {
+        val specWidth = MeasureSpec.makeMeasureSpec(this.layoutParams.width, MeasureSpec.EXACTLY)
+        val specHeight = MeasureSpec.makeMeasureSpec(this.layoutParams.height, MeasureSpec.EXACTLY)
+
         measure(specWidth, specHeight)
-        layout(left, top, right, bottom)
-        val bitmap =
-            Bitmap.createBitmap(layoutParams.width, layoutParams.height, Bitmap.Config.ARGB_8888)
+        layout(0, 0, this.measuredWidth, this.measuredHeight)
+
+        if (this is ViewGroup) {
+            forEach { child ->
+                child.measure(specWidth, specHeight)
+                child.layout(0, 0, this.measuredWidth, this.measuredHeight)
+            }
+        }
+
+        val bitmap = Bitmap.createBitmap(
+            this.measuredWidth,
+            this.measuredHeight,
+            Bitmap.Config.ARGB_8888
+        )
+
         val canvas = Canvas(bitmap)
         draw(canvas)
         bitmap

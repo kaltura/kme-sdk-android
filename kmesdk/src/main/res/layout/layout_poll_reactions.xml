@@ -9,8 +9,8 @@
     <include
         android:id="@+id/btnReaction0"
         layout="@layout/layout_poll_btn"
-        android:layout_width="@dimen/quick_poll_btn_size"
-        android:layout_height="@dimen/quick_poll_btn_size"
+        android:layout_width="@dimen/quick_poll_active_btn_size"
+        android:layout_height="@dimen/quick_poll_active_btn_size"
         android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toTopOf="@id/tvAnonymousPoll"
         app:layout_constraintEnd_toStartOf="@id/btnReaction1"
@@ -20,8 +20,8 @@
     <include
         android:id="@+id/btnReaction1"
         layout="@layout/layout_poll_btn"
-        android:layout_width="@dimen/quick_poll_btn_size"
-        android:layout_height="@dimen/quick_poll_btn_size"
+        android:layout_width="@dimen/quick_poll_active_btn_size"
+        android:layout_height="@dimen/quick_poll_active_btn_size"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="@id/btnReaction0"
@@ -32,8 +32,8 @@
     <include
         android:id="@+id/btnReaction2"
         layout="@layout/layout_poll_btn"
-        android:layout_width="@dimen/quick_poll_btn_size"
-        android:layout_height="@dimen/quick_poll_btn_size"
+        android:layout_width="@dimen/quick_poll_active_btn_size"
+        android:layout_height="@dimen/quick_poll_active_btn_size"
         android:layout_marginStart="16dp"
         app:layout_constraintBottom_toBottomOf="@id/btnReaction0"
         app:layout_constraintEnd_toEndOf="parent"

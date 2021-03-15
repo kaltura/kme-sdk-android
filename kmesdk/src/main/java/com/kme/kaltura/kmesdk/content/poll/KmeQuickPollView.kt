@@ -97,11 +97,11 @@ class KmeQuickPollView @JvmOverloads constructor(
 
     override fun showResults(payload: QuickPollEndedPayload) {
         removeAllViews()
-        visibility = VISIBLE
-        state = State.RESULT_VIEW
-        pollView = null
-        pollResultsView = KmeQuickPollResultsView(context).also { resultsView ->
-            currentPollPayload?.let {
+        currentPollPayload?.let {
+            visibility = VISIBLE
+            state = State.RESULT_VIEW
+            pollView = null
+            pollResultsView = KmeQuickPollResultsView(context).also { resultsView ->
                 resultsView.closeListener = this
                 resultsView.init(it, payload)
                 addView(resultsView)

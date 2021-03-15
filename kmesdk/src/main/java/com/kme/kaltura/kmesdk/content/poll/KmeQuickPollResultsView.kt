@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk.content.poll
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
@@ -35,10 +36,12 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
         resources.getDimensionPixelSize(R.dimen.quick_poll_results_item_padding)
     }
     private val iconLayoutParams by lazy {
-        MarginLayoutParams(
+        LayoutParams(
             resources.getDimensionPixelSize(R.dimen.quick_poll_results_icon_size),
             resources.getDimensionPixelSize(R.dimen.quick_poll_results_icon_size)
-        )
+        ).apply {
+            gravity = Gravity.CENTER
+        }
     }
 
     init {
@@ -71,27 +74,28 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
         currentPollPayload: QuickPollStartedPayload,
         endPollPayload: QuickPollEndedPayload
     ) {
-        val userCount = currentPollPayload.userCount ?: 0
-        val resultsCount = endPollPayload.answers?.size ?: 0
-        val resultsPercentCount = (resultsCount.toFloat() / userCount.toFloat() * 100).toInt()
-
         binding?.tvAnonymousPoll?.visibility = if (currentPollPayload.isAnonymous == true)
             VISIBLE
         else
             GONE
 
         if (currentPollPayload.type == RATING) {
+            val userCount = currentPollPayload.userCount ?: 0
+            val resultsCount = endPollPayload.answers?.size ?: 0
+            val resultsPercentCount = (resultsCount.toFloat() / userCount.toFloat() * 100).toInt()
             val averageResult = "%.2f".format(endPollPayload.answers?.getAverageRating())
+
             binding?.groupAverageResult?.visibility = VISIBLE
             binding?.tvAverageResultNumber?.text = averageResult
+            binding?.tvResultsCount?.text = resultsCount.toString()
+            binding?.tvResults?.text = String.format(
+                resources.getString(R.string.quick_poll_average_result),
+                userCount,
+                resultsPercentCount
+            )
         } else {
             binding?.groupAverageResult?.visibility = GONE
         }
-
-        binding?.tvResultsCount?.text = resultsCount.toString()
-        binding?.tvResults?.text = String.format(
-            resources.getString(R.string.quick_poll_average_result), userCount, resultsPercentCount
-        )
 
         setupProgressViews(currentPollPayload, endPollPayload)
     }

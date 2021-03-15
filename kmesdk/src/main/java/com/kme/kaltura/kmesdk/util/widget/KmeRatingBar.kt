@@ -55,10 +55,6 @@ class KmeRatingBar @JvmOverloads constructor(
 
     private val layoutInflater by lazy { LayoutInflater.from(context) }
 
-    private val defaultDrawable by lazy {
-        ContextCompat.getDrawable(context, R.drawable.ic_poll_empty_star)
-    }
-
     init {
         init()
     }

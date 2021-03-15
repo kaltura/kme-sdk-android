@@ -9,8 +9,8 @@
     <include
         android:id="@+id/btnChoiceA"
         layout="@layout/layout_poll_btn"
-        android:layout_width="@dimen/quick_poll_btn_size"
-        android:layout_height="@dimen/quick_poll_btn_size"
+        android:layout_width="@dimen/quick_poll_active_btn_size"
+        android:layout_height="@dimen/quick_poll_active_btn_size"
         android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toTopOf="@id/tvAnonymousPoll"
         app:layout_constraintEnd_toStartOf="@id/btnChoiceB"
@@ -20,8 +20,8 @@
     <include
         android:id="@+id/btnChoiceB"
         layout="@layout/layout_poll_btn"
-        android:layout_width="@dimen/quick_poll_btn_size"
-        android:layout_height="@dimen/quick_poll_btn_size"
+        android:layout_width="@dimen/quick_poll_active_btn_size"
+        android:layout_height="@dimen/quick_poll_active_btn_size"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="@id/btnChoiceA"
@@ -32,8 +32,8 @@
     <include
         android:id="@+id/btnChoiceC"
         layout="@layout/layout_poll_btn"
-        android:layout_width="@dimen/quick_poll_btn_size"
-        android:layout_height="@dimen/quick_poll_btn_size"
+        android:layout_width="@dimen/quick_poll_active_btn_size"
+        android:layout_height="@dimen/quick_poll_active_btn_size"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="@id/btnChoiceA"
@@ -44,8 +44,8 @@
     <include
         android:id="@+id/btnChoiceD"
         layout="@layout/layout_poll_btn"
-        android:layout_width="@dimen/quick_poll_btn_size"
-        android:layout_height="@dimen/quick_poll_btn_size"
+        android:layout_width="@dimen/quick_poll_active_btn_size"
+        android:layout_height="@dimen/quick_poll_active_btn_size"
         android:layout_marginStart="16dp"
         app:layout_constraintBottom_toBottomOf="@id/btnChoiceA"
         app:layout_constraintEnd_toEndOf="parent"

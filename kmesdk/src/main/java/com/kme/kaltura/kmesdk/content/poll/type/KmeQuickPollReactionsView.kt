@@ -15,17 +15,17 @@ class KmeQuickPollReactionsView @JvmOverloads constructor(
         binding?.apply {
 
             styleView(btnReaction0, 0)
-            btnReaction0.root.setOnClickListener {
+            btnReaction0.resizableContainer.setOnClickListener {
                 it.performAnswerJob(0)
             }
 
             styleView(btnReaction1, 1)
-            btnReaction1.root.setOnClickListener {
+            btnReaction1.resizableContainer.setOnClickListener {
                 it.performAnswerJob(1)
             }
 
             styleView(btnReaction2, 2)
-            btnReaction2.root.setOnClickListener {
+            btnReaction2.resizableContainer.setOnClickListener {
                 it.performAnswerJob(2)
             }
         }

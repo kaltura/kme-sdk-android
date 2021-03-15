@@ -50,11 +50,11 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
-            android:visibility="gone"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif"
             android:textColor="@color/white"
             android:textSize="18sp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -72,6 +72,7 @@
             android:id="@+id/tvAnonymousPoll"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:fontFamily="sans-serif"
             android:gravity="start"
             android:text="@string/quick_poll_anonymous_poll"
@@ -85,12 +86,13 @@
             android:id="@+id/groupAverageResult"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:constraint_referenced_ids="tvAverageResult, ivAverageIcon, tvAverageResultNumber" />
+            app:constraint_referenced_ids="tvAverageResult, ivAverageIcon, tvAverageResultNumber, tvResultsCount, tvResults" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvAverageResult"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:fontFamily="sans-serif"
             android:gravity="start"
             android:text="@string/quick_poll_average_vote"
@@ -131,6 +133,7 @@
             android:id="@+id/tvResultsCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:fontFamily="sans-serif"
             android:gravity="start"
             android:textColor="@color/white"
@@ -150,9 +153,10 @@
             android:text="@string/quick_poll_average_result"
             android:textColor="@color/white"
             android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/tvResultsCount"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/tvResultsCount"
-            app:layout_constraintTop_toBottomOf="@id/tvAverageResult" />
+            app:layout_constraintTop_toTopOf="@id/tvResultsCount" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
