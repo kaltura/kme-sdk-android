@@ -82,13 +82,12 @@ class ConnectionPreviewDialog : DialogFragment() {
                 amplitudeMeter?.start()
             }
             while (true) {
-                amplitudeMeter?.getAmplitude()?.let {
-                    val amplitude =
-                        if (it > SoundAmplitudeMeter.MAX_AMPLITUDE) SoundAmplitudeMeter.MAX_AMPLITUDE else it
-                    val value =
-                        (amplitude * SoundAmplitudeView.MAX_VALUE) / SoundAmplitudeMeter.MAX_AMPLITUDE
-
-                    CoroutineScope(Dispatchers.Main).launch {
+                CoroutineScope(Dispatchers.Main).launch {
+                    amplitudeMeter?.getAmplitude()?.let {
+                        val amplitude =
+                            if (it > SoundAmplitudeMeter.MAX_AMPLITUDE) SoundAmplitudeMeter.MAX_AMPLITUDE else it
+                        val value =
+                            (amplitude * SoundAmplitudeView.MAX_VALUE) / SoundAmplitudeMeter.MAX_AMPLITUDE
                         binding.amplitudeView.setValue(value)
                     }
                 }
