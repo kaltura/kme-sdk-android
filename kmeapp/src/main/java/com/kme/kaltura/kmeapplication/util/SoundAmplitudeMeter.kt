@@ -37,6 +37,7 @@ class SoundAmplitudeMeter(
     fun stop() {
         mRecorder?.let {
             it.stop()
+            it.reset()
             it.release()
             File(rootFolder?.toString() + "/$TMP_FILE_NAME").delete()
         }

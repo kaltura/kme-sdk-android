@@ -78,7 +78,9 @@ class ConnectionPreviewDialog : DialogFragment() {
 
     private fun startMeasure() {
         measureScope.launch {
-            amplitudeMeter?.start()
+            CoroutineScope(Dispatchers.Main).launch {
+                amplitudeMeter?.start()
+            }
             while (true) {
                 amplitudeMeter?.getAmplitude()?.let {
                     val amplitude =
