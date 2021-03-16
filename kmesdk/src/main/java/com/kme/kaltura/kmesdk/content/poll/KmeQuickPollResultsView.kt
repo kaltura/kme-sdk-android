@@ -3,17 +3,20 @@ package com.kme.kaltura.kmesdk.content.poll
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.kme.kaltura.kmesdk.R
-import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollMultipleChoiceView.Companion.styleView
+import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollMultipleChoiceView
 import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollRatingView.Companion.styleView
-import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollReactionsView.Companion.styleView
-import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollYesNoView.Companion.styleView
-import com.kme.kaltura.kmesdk.databinding.*
+import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollReactionsView
+import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollYesNoView
+import com.kme.kaltura.kmesdk.databinding.LayoutPollBtnBinding
+import com.kme.kaltura.kmesdk.databinding.LayoutPollBtnRatingBinding
+import com.kme.kaltura.kmesdk.databinding.LayoutPollResultsBinding
 import com.kme.kaltura.kmesdk.getBitmapFromView
 import com.kme.kaltura.kmesdk.util.TopCurvedEdgeTreatment
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
@@ -33,10 +36,12 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
         resources.getDimensionPixelSize(R.dimen.quick_poll_results_item_padding)
     }
     private val iconLayoutParams by lazy {
-        MarginLayoutParams(
+        LayoutParams(
             resources.getDimensionPixelSize(R.dimen.quick_poll_results_icon_size),
             resources.getDimensionPixelSize(R.dimen.quick_poll_results_icon_size)
-        )
+        ).apply {
+            gravity = Gravity.CENTER
+        }
     }
 
     init {
@@ -69,27 +74,28 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
         currentPollPayload: QuickPollStartedPayload,
         endPollPayload: QuickPollEndedPayload
     ) {
-        val userCount = currentPollPayload.userCount ?: 0
-        val resultsCount = endPollPayload.answers?.size ?: 0
-        val resultsPercentCount = (resultsCount.toFloat() / userCount.toFloat() * 100).toInt()
-
         binding?.tvAnonymousPoll?.visibility = if (currentPollPayload.isAnonymous == true)
             VISIBLE
         else
             GONE
 
         if (currentPollPayload.type == RATING) {
+            val userCount = currentPollPayload.userCount ?: 0
+            val resultsCount = endPollPayload.answers?.size ?: 0
+            val resultsPercentCount = (resultsCount.toFloat() / userCount.toFloat() * 100).toInt()
             val averageResult = "%.2f".format(endPollPayload.answers?.getAverageRating())
+
             binding?.groupAverageResult?.visibility = VISIBLE
             binding?.tvAverageResultNumber?.text = averageResult
+            binding?.tvResultsCount?.text = resultsCount.toString()
+            binding?.tvResults?.text = String.format(
+                resources.getString(R.string.quick_poll_average_result),
+                userCount,
+                resultsPercentCount
+            )
         } else {
             binding?.groupAverageResult?.visibility = GONE
         }
-
-        binding?.tvResultsCount?.text = resultsCount.toString()
-        binding?.tvResults?.text = String.format(
-            resources.getString(R.string.quick_poll_average_result), userCount, resultsPercentCount
-        )
 
         setupProgressViews(currentPollPayload, endPollPayload)
     }
@@ -127,21 +133,17 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
         answerType: Int
     ): Bitmap? {
         val view = when (pollType) {
-            YES_NO -> LayoutPollBtnYesNoBinding.inflate(layoutInflater).apply {
-                styleView(context, answerType)
+            YES_NO -> LayoutPollBtnBinding.inflate(layoutInflater).apply {
+                KmeQuickPollYesNoView.styleView(this, answerType)
             }
-            REACTIONS -> LayoutPollBtnReactionBinding.inflate(layoutInflater).apply {
-                styleView(context, answerType)
+            REACTIONS -> LayoutPollBtnBinding.inflate(layoutInflater).apply {
+                KmeQuickPollReactionsView.styleView(this, answerType)
             }
             RATING -> LayoutPollBtnRatingBinding.inflate(layoutInflater).apply {
                 styleView(answerType)
             }
-            MULTIPLE_CHOICE -> LayoutPollBtnChoiceBinding.inflate(layoutInflater).apply {
-                styleView(
-                    context,
-                    answerType,
-                    resources.getDimension(R.dimen.quick_poll_results_btn_value_text_size)
-                )
+            MULTIPLE_CHOICE -> LayoutPollBtnBinding.inflate(layoutInflater).apply {
+                KmeQuickPollMultipleChoiceView.styleView(this, answerType)
             }
         }.root
 

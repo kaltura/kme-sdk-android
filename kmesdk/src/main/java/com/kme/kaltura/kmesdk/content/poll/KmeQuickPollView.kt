@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
+import androidx.viewbinding.ViewBinding
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollTypeView
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
@@ -27,7 +28,7 @@ class KmeQuickPollView @JvmOverloads constructor(
     private val defaultEventHandler: KmeDefaultPollEventHandler by inject()
     private val roomController: IKmeRoomController by inject()
 
-    private var pollView: KmeQuickPollTypeView? = null
+    private var pollView: KmeQuickPollTypeView<out ViewBinding>? = null
     private var pollResultsView: KmeQuickPollResultsView? = null
     private var currentPollPayload: QuickPollStartedPayload? = null
 
@@ -70,10 +71,12 @@ class KmeQuickPollView @JvmOverloads constructor(
         removeAllViews()
 
         currentPollPayload = payload
-        pollView = KmeQuickPollTypeView.getView(context, payload.type)?.also {
-            it.listener = this
-            addView(it)
+        pollView = KmeQuickPollTypeView.getView(context, payload.type)?.apply {
+            isAnonymousPoll = payload.isAnonymous == true
+            listener = this@KmeQuickPollView
         }
+
+        pollView?.let { addView(it) }
     }
 
     override fun endPoll(payload: QuickPollEndedPayload) {
@@ -94,11 +97,11 @@ class KmeQuickPollView @JvmOverloads constructor(
 
     override fun showResults(payload: QuickPollEndedPayload) {
         removeAllViews()
-        visibility = VISIBLE
-        state = State.RESULT_VIEW
-        pollView = null
-        pollResultsView = KmeQuickPollResultsView(context).also { resultsView ->
-            currentPollPayload?.let {
+        currentPollPayload?.let {
+            visibility = VISIBLE
+            state = State.RESULT_VIEW
+            pollView = null
+            pollResultsView = KmeQuickPollResultsView(context).also { resultsView ->
                 resultsView.closeListener = this
                 resultsView.init(it, payload)
                 addView(resultsView)

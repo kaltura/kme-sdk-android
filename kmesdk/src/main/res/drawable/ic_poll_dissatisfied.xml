@@ -1,0 +1,40 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    <path
+        android:fillColor="#E45625"
+        android:fillType="evenOdd"
+        android:pathData="M20,19.999m-20,0a20,20 0,1 1,40 0a20,20 0,1 1,-40 0" />
+    <path
+        android:fillAlpha="0.6"
+        android:fillType="evenOdd"
+        android:pathData="M20,19.999m-20,0a20,20 0,1 1,40 0a20,20 0,1 1,-40 0"
+        android:strokeAlpha="0.6">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="20"
+                android:endY="39.8498"
+                android:startX="20"
+                android:startY="17.242601"
+                android:type="linear">
+                <item
+                    android:color="#FFFFD62F"
+                    android:offset="0" />
+                <item
+                    android:color="#FFFB9D0B"
+                    android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:fillColor="#000"
+        android:fillType="evenOdd"
+        android:pathData="M12.77,12.8c1.532,0 2.772,1.202 2.772,2.686 0,1.482 -1.24,2.685 -2.771,2.685 -1.532,0 -2.772,-1.203 -2.772,-2.685 0,-1.484 1.24,-2.686 2.772,-2.686M27.23,12.8c1.529,0 2.769,1.202 2.769,2.686 0,1.482 -1.24,2.685 -2.77,2.685s-2.77,-1.203 -2.77,-2.685c0,-1.484 1.24,-2.686 2.77,-2.686M19.333,27.367c4.297,0 10.667,5.32 10.667,4.207 0,-1.112 -4.882,-7.13 -10.667,-7.015 -4.325,0.006 -8.127,2.863 -9.333,7.015 0,1.113 5.04,-4.207 9.333,-4.207" />
+    <path
+        android:fillColor="#000"
+        android:fillType="evenOdd"
+        android:pathData="M12.77,12.8c1.532,0 2.772,1.202 2.772,2.686 0,1.482 -1.24,2.685 -2.771,2.685 -1.532,0 -2.772,-1.203 -2.772,-2.685 0,-1.484 1.24,-2.686 2.772,-2.686M27.23,12.8c1.529,0 2.769,1.202 2.769,2.686 0,1.482 -1.24,2.685 -2.77,2.685s-2.77,-1.203 -2.77,-2.685c0,-1.484 1.24,-2.686 2.77,-2.686M19.333,27.367c4.297,0 10.667,5.32 10.667,4.207 0,-1.112 -4.882,-7.13 -10.667,-7.015 -4.325,0.006 -8.127,2.863 -9.333,7.015 0,1.113 5.04,-4.207 9.333,-4.207" />
+</vector>

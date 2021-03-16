@@ -1,0 +1,36 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    <path
+        android:fillColor="#A2F77B"
+        android:pathData="M20,19.999m-20,0a20,20 0,1 1,40 0a20,20 0,1 1,-40 0" />
+    <path
+        android:fillAlpha="0.6"
+        android:pathData="M20,19.999m-20,0a20,20 0,1 1,40 0a20,20 0,1 1,-40 0"
+        android:strokeAlpha="0.6">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="20"
+                android:endY="17.242601"
+                android:startX="20"
+                android:startY="39.8498"
+                android:type="linear">
+                <item
+                    android:color="#FF7ABE2A"
+                    android:offset="0" />
+                <item
+                    android:color="#FFABD121"
+                    android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:fillColor="#000"
+        android:pathData="M12.787,10.952c1.54,0 2.787,1.598 2.787,3.572 0,1.973 -1.248,3.571 -2.787,3.571S10,16.497 10,14.525c0,-1.974 1.248,-3.572 2.787,-3.572M27.215,10.952c1.54,0 2.787,1.598 2.787,3.572 0,1.973 -1.248,3.571 -2.787,3.571s-2.787,-1.598 -2.787,-3.571c0,-1.974 1.248,-3.572 2.787,-3.572M19.334,28.625C23.629,28.625 30,23.305 30,24.419c0,1.112 -4.88,7.127 -10.666,7.011 -4.324,-0.002 -8.128,-2.859 -9.334,-7.011 0,-1.113 5.038,4.206 9.334,4.206" />
+    <path
+        android:fillColor="#000"
+        android:pathData="M12.787,10.952c1.54,0 2.787,1.598 2.787,3.572 0,1.973 -1.248,3.571 -2.787,3.571S10,16.497 10,14.525c0,-1.974 1.248,-3.572 2.787,-3.572M27.215,10.952c1.54,0 2.787,1.598 2.787,3.572 0,1.973 -1.248,3.571 -2.787,3.571s-2.787,-1.598 -2.787,-3.571c0,-1.974 1.248,-3.572 2.787,-3.572M19.334,28.625C23.629,28.625 30,23.305 30,24.419c0,1.112 -4.88,7.127 -10.666,7.011 -4.324,-0.002 -8.128,-2.859 -9.334,-7.011 0,-1.113 5.038,4.206 9.334,4.206" />
+</vector>

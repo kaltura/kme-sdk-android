@@ -4,42 +4,64 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom|center"
-    android:layout_marginBottom="13dp"
     android:background="@drawable/bg_quick_poll">
 
     <include
         android:id="@+id/btnReaction0"
-        layout="@layout/layout_poll_btn_reaction"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        layout="@layout/layout_poll_btn"
+        android:layout_width="@dimen/quick_poll_active_btn_size"
+        android:layout_height="@dimen/quick_poll_active_btn_size"
         android:layout_marginEnd="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/tvAnonymousPoll"
         app:layout_constraintEnd_toStartOf="@id/btnReaction1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <include
         android:id="@+id/btnReaction1"
-        layout="@layout/layout_poll_btn_reaction"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        layout="@layout/layout_poll_btn"
+        android:layout_width="@dimen/quick_poll_active_btn_size"
+        android:layout_height="@dimen/quick_poll_active_btn_size"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/btnReaction0"
         app:layout_constraintEnd_toStartOf="@id/btnReaction2"
         app:layout_constraintStart_toEndOf="@id/btnReaction0"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/btnReaction0" />
 
     <include
         android:id="@+id/btnReaction2"
-        layout="@layout/layout_poll_btn_reaction"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        layout="@layout/layout_poll_btn"
+        android:layout_width="@dimen/quick_poll_active_btn_size"
+        android:layout_height="@dimen/quick_poll_active_btn_size"
         android:layout_marginStart="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/btnReaction0"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/btnReaction1"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/btnReaction0" />
 
+    <include
+        android:id="@+id/tvAnonymousPoll"
+        layout="@layout/layout_poll_anonymous"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/timeoutProgress"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnReaction0" />
+
+    <include
+        android:id="@+id/timeoutProgress"
+        layout="@layout/layout_poll_timeout_progress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvAnonymousPoll" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
