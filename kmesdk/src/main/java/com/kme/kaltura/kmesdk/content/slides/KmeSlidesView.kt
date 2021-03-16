@@ -263,11 +263,16 @@ class KmeSlidesView @JvmOverloads constructor(
         }
     }
 
+    override fun enableAnnotations(enable: Boolean) {
+        binding.whiteboardLayout.enableAnnotations(enable)
+    }
+
     /**
      * Initialize function. Setting config.
      */
     override fun init(whiteboardConfig: KmeWhiteboardView.Config?) {
         binding.whiteboardLayout.init(whiteboardConfig)
+        enableAnnotations(config.isAnnotationsEnabled)
     }
 
     /**
@@ -355,6 +360,7 @@ class KmeSlidesView @JvmOverloads constructor(
         val cookie: String,
         val fileUrl: String,
     ) {
+        var isAnnotationsEnabled: Boolean = true
         var currentSlide: Int = 0
         var showPreview: Boolean = true
     }

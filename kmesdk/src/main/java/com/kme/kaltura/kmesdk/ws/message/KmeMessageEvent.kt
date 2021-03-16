@@ -210,6 +210,8 @@ enum class KmeMessageEvent(
 
     @SerializedName("slideChanged", alternate = ["slideChanged"])
     SLIDE_CHANGED("slideChanged"),
+    @SerializedName("annotationsStateChanged", alternate = ["annotationsstatechanged"])
+    ANNOTATIONS_STATE_CHANGED("annotationsStateChanged"),
 
     /*
     * Video

@@ -58,6 +58,10 @@ class KmeSlidesContentFragment : KmeContentView() {
             viewLifecycleOwner,
             slideChangedObserver
         )
+        slidesContentViewModel.annotationStateChangedLiveData.observe(
+            viewLifecycleOwner,
+            annotationStateChangedObserver
+        )
         slidesContentViewModel.youModeratorLiveData.observe(
             viewLifecycleOwner,
             showSlidesPreviewObserver
@@ -104,6 +108,7 @@ class KmeSlidesContentFragment : KmeContentView() {
                 slidesContentViewModel.getCookie(),
                 slidesContentViewModel.getFilesUrl()
             ).apply {
+                isAnnotationsEnabled = slidesContentViewModel.isAnnotationsEnabled()
                 currentSlide = payload.metadata.currentSlide ?: 0
                 showPreview = slidesContentViewModel.userType() != KmeUserType.GUEST
             }
@@ -113,6 +118,10 @@ class KmeSlidesContentFragment : KmeContentView() {
 
     private val slideChangedObserver = Observer<Int> {
         binding.slidesView.toSlide(it)
+    }
+
+    private val annotationStateChangedObserver = Observer<Boolean> {
+        binding.slidesView.enableAnnotations(it)
     }
 
     private val showSlidesPreviewObserver = Observer<Boolean> {

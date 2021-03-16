@@ -10,6 +10,10 @@ class KmeSlidesPlayerModuleMessage<T : KmeSlidesPlayerModuleMessage.SlidePlayerP
         @SerializedName("next_active_slide") val nextActiveSlide: Int
     ) : SlidePlayerPayload()
 
+    data class AnnotationStateChangedPayload(
+        @SerializedName("annotations_enabled") val annotationsEnabled: Boolean
+    ) : SlidePlayerPayload()
+
     open class SlidePlayerPayload : Payload()
 
 }

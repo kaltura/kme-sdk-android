@@ -21,6 +21,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.RoomStatePayload
+import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,6 +53,9 @@ class KmeRoomControllerImpl(
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     override var roomSettings: KmeWebRTCServer? = null
+        private set
+
+    override var roomMetadata: KmeRoomMetaData? = null
         private set
 
     private var roomService: KmeRoomService? = null
@@ -163,7 +167,7 @@ class KmeRoomControllerImpl(
         this.listener = object : IKmeWSConnectionListener {
             override fun onOpen() {
                 messageManager.listen(
-                    currentParticipantHandler,
+                    roomStateHandler,
                     KmeMessageEvent.ROOM_STATE
                 )
 
@@ -204,10 +208,12 @@ class KmeRoomControllerImpl(
     /**
      * Handle room state to store actual user data
      */
-    private val currentParticipantHandler = object : IKmeMessageListener {
+    private val roomStateHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             if (KmeMessageEvent.ROOM_STATE == message.name) {
                 val msg: KmeRoomInitModuleMessage<RoomStatePayload>? = message.toType()
+
+                roomMetadata = msg?.payload?.metaData
 
                 val participantsList = msg?.payload?.participants?.values?.toMutableList()
                 val currentUserId = userController.getCurrentUserInfo()?.getUserId()
@@ -230,7 +236,8 @@ class KmeRoomControllerImpl(
         isReconnect: Boolean,
         token: String,
         listener: IKmeWSConnectionListener
-    ) { /*Nothing to do*/ }
+    ) { /*Nothing to do*/
+    }
 
     /**
      * Check is socket connected
