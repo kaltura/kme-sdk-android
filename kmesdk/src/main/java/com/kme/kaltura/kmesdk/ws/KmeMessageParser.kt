@@ -21,7 +21,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.NotePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomRecordingMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.SyncPlayerStatePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPayload
@@ -252,6 +252,9 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.SLIDE_CHANGED.toString() -> {
                 text.jsonToObject<KmeSlidesPlayerModuleMessage<SlideChangedPayload>>()
+            }
+            KmeMessageEvent.ANNOTATIONS_STATE_CHANGED.toString() -> {
+                text.jsonToObject<KmeSlidesPlayerModuleMessage<AnnotationStateChangedPayload>>()
             }
             KmeMessageEvent.WHITEBOARD_PAGE_DATA.toString() -> {
                 text.jsonToObject<KmeWhiteboardModuleMessage<WhiteboardPageDataPayload>>()

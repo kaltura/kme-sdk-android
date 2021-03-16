@@ -15,7 +15,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 
 class KmeSlidesContentViewModel(
@@ -28,6 +28,9 @@ class KmeSlidesContentViewModel(
     private val slideChanged = MutableLiveData<Int>()
     val slideChangedLiveData get() = slideChanged as LiveData<Int>
 
+    private val annotationStateChanged = MutableLiveData<Boolean>()
+    val annotationStateChangedLiveData get() = annotationStateChanged as LiveData<Boolean>
+
     private val youModerator = MutableLiveData<Boolean>()
     val youModeratorLiveData get() = youModerator as LiveData<Boolean>
 
@@ -35,9 +38,12 @@ class KmeSlidesContentViewModel(
         roomController.listen(
             slidePlayerHandler,
             KmeMessageEvent.SLIDE_CHANGED,
+            KmeMessageEvent.ANNOTATIONS_STATE_CHANGED,
             KmeMessageEvent.SET_PARTICIPANT_MODERATOR
         )
     }
+
+    fun isAnnotationsEnabled(): Boolean = roomController.roomMetadata?.annotationsEnabled ?: true
 
     fun getCookie(): String = prefs.getString(KmePrefsKeys.COOKIE).toNonNull()
 
@@ -53,6 +59,13 @@ class KmeSlidesContentViewModel(
 
                     msg?.payload?.let {
                         slideChanged.postValue(it.nextActiveSlide)
+                    }
+                }
+                KmeMessageEvent.ANNOTATIONS_STATE_CHANGED -> {
+                    val msg: KmeSlidesPlayerModuleMessage<AnnotationStateChangedPayload>? = message.toType()
+
+                    msg?.payload?.let {
+                        annotationStateChanged.postValue(it.annotationsEnabled)
                     }
                 }
                 KmeMessageEvent.SET_PARTICIPANT_MODERATOR -> {

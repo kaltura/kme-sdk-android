@@ -5,7 +5,7 @@ import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
-import com.kme.kaltura.kmesdk.ws.message.type.KmeClassMode
+import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 
 class KmeRoomInitModuleMessage<T : KmeRoomInitModuleMessage.RoomInitPayload> : KmeMessage<T>() {
 
@@ -67,38 +67,9 @@ class KmeRoomInitModuleMessage<T : KmeRoomInitModuleMessage.RoomInitPayload> : K
     ) : RoomInitPayload()
 
     data class RoomStatePayload(
-        @SerializedName("metaData") val metaData: MetaData?,
+        @SerializedName("metaData") val metaData: KmeRoomMetaData?,
         @SerializedName("participants") val participants: Map<String, KmeParticipant>?,
-    ) : RoomInitPayload() {
-
-        data class MetaData(
-            @SerializedName("class_mode") val classMode: KmeClassMode? = null,
-            @SerializedName("room_password") val roomPassword: String? = null,
-            @SerializedName("room_id") val roomId: Long? = null,
-            @SerializedName("company_id") val companyId: Long? = null,
-            @SerializedName("presenter_id") val presenterId: Long? = null,
-            @SerializedName("alias") val alias: String? = null,
-            @SerializedName("status") val status: String? = null,
-            @SerializedName("max_users") val maxUsers: Int? = null,
-            @SerializedName("max_guests") val maxGuests: Int? = null,
-            @SerializedName("annotations_enabled") val annotationsEnabled: Boolean? = null,
-            @SerializedName("auto_clear_chat_end_of_session") val autoClearChatEndOfSession: Boolean? = null,
-            @SerializedName("managingRoomServersColons") val managingRoomServersColons: String? = null,
-            @SerializedName("roomRedisKey") val roomRedisKey: String? = null,
-            @SerializedName("participantsTableRedisKey") val participantsTableRedisKey: String? = null,
-            @SerializedName("roomSystemConversationsKey") val roomSystemConversationsKey: String? = null,
-            @SerializedName("roomActiveContentKey") val roomActiveContentKey: String? = null,
-            @SerializedName("roomWhiteboardKey") val roomWhiteboardKey: String? = null,
-            @SerializedName("roomDesktopShareKey") val roomDesktopShareKey: String? = null,
-            @SerializedName("roomRecordingRedisKey") val roomRecordingRedisKey: String? = null,
-            @SerializedName("roomCaptionRedisKey") val roomCaptionRedisKey: String? = null,
-            @SerializedName("streamsTableRedisKey") val streamsTableRedisKey: String? = null,
-            @SerializedName("sessionTimeoutTime") val sessionTimeoutTime: Long? = null,
-            @SerializedName("roomSettingsRedisKey") val roomSettingsRedisKey: String? = null,
-            @SerializedName("participants_order") val participantsOrder: String? = null
-        )
-
-    }
+    ) : RoomInitPayload()
 
     data class NewUserJoinedPayload(
         @SerializedName("country") val country: String? = null,

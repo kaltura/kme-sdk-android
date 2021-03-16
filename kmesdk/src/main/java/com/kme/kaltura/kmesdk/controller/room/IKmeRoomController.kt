@@ -4,6 +4,7 @@ import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 
 /**
  * An interface for room data
@@ -24,6 +25,12 @@ interface IKmeRoomController : IKmeWebSocketModule {
      * Getting WebRTC server data
      */
     val roomSettings: KmeWebRTCServer?
+
+
+    /**
+     * Getting current room metadata
+     */
+    val roomMetadata: KmeRoomMetaData?
 
     /**
      * Connect to the room via web socket. Update actual user information first.
