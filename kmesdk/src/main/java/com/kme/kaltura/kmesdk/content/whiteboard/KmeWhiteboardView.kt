@@ -7,7 +7,6 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.AttributeSet
-import android.util.Log
 import android.util.Size
 import android.view.View
 import androidx.core.graphics.toRect
@@ -85,7 +84,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     init {
         setLayerType(LAYER_TYPE_SOFTWARE, null)
         paint.apply {
-            strokeWidth = ptToDp(6f, context)
+            strokeWidth = 6f
             style = Paint.Style.STROKE
             isAntiAlias = true
             isDither = true
@@ -706,7 +705,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private fun invalidatePaint(path: KmeWhiteboardPath?) {
         path?.let {
             paint.color = it.getPaintColor()
-            paint.strokeWidth = ptToDp(it.strokeWidth.toFloat(), context)
+            paint.strokeWidth = it.strokeWidth.toFloat()
             paint.strokeCap = path.strokeCap.getPaintCap()
             paint.alpha = path.opacity.getPaintAlpha()
             paint.style = path.getPaintStyle()
