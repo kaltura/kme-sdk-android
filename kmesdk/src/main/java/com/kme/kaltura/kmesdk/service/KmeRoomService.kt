@@ -5,6 +5,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
@@ -17,6 +18,7 @@ import org.koin.android.ext.android.inject
 class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
 
     private val webSocketModule: IKmeWebSocketModule by inject()
+    private val peerConnectionModule: IKmePeerConnectionModule by inject()
 
     private val binder: IBinder = RoomServiceBinder()
 
@@ -63,6 +65,7 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
      */
     override fun disconnect() {
         webSocketModule.disconnect()
+        peerConnectionModule.disconnectAll()
         stopForeground(true)
         stopSelf()
     }

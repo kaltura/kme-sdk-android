@@ -23,6 +23,19 @@ internal interface IKmePeerConnection {
     )
 
     /**
+     * Set preferred settings for establish p2p connection
+     *
+     * @param micEnabled flag for enable/disable micro
+     * @param camEnabled flag for enable/disable camera
+     * @param frontCamEnabled flag for enable/disable front camera
+     */
+    fun setPreferredSettings(
+        micEnabled: Boolean,
+        camEnabled: Boolean,
+        frontCamEnabled: Boolean
+    )
+
+    /**
      * Setting view for local stream rendering
      *
      * @param localRenderer view to render on
@@ -37,15 +50,20 @@ internal interface IKmePeerConnection {
     fun setRemoteRenderer(remoteRenderer: KmeSurfaceRendererView)
 
     /**
+     * Creates a local video preview
+     */
+    fun startPreview(previewRenderer: KmeSurfaceRendererView)
+
+    /**
      * Creates p2p connection
      *
-     * @param isPublisher indicates type of connection
      * @param requestedUserIdStream id of a stream
+     * @param useDataChannel indicates if data channel is used for speaking indication
      * @param listener listener for p2p events
      */
     fun createPeerConnection(
-        isPublisher: Boolean,
         requestedUserIdStream: String,
+        useDataChannel: Boolean,
         listener: IKmePeerConnectionClientEvents
     )
 

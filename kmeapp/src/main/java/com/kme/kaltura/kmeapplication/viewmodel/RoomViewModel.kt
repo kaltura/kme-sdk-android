@@ -4,7 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.KME
-import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
+import com.kme.kaltura.kmesdk.content.KmeContentView
+import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
@@ -26,9 +27,6 @@ class RoomViewModel(
     private val isConnected = MutableLiveData<Boolean>()
     val isConnectedLiveData get() = isConnected as LiveData<Boolean>
 
-    private val webRTCData = MutableLiveData<Nothing>()
-    val webRTCServerLiveData get() = webRTCData as LiveData<Nothing>
-
     private val joinedRoom = MutableLiveData<Nothing>()
     val joinedRoomLiveData get() = joinedRoom as LiveData<Nothing>
 
@@ -41,11 +39,8 @@ class RoomViewModel(
     private val userRejected = MutableLiveData<Nothing>()
     val userRejectedLiveData get() = userRejected as LiveData<Nothing>
 
-    private val isConnectionFailure = MutableLiveData<Throwable?>()
-    val isConnectionFailureLiveData get() = isConnectionFailure as LiveData<Throwable?>
-
-    private val roomError = MutableLiveData<String?>()
-    val roomInfoErrorLiveData get() = roomError as LiveData<String?>
+    private val error = MutableLiveData<String?>()
+    val errorLiveData get() = error as LiveData<String?>
 
     private val roomParticipantLimitReached =
         MutableLiveData<KmeRoomInitModuleMessage<RoomParticipantLimitReachedPayload>?>()
@@ -82,6 +77,9 @@ class RoomViewModel(
     private val roomStateLoaded = MutableLiveData<RoomStatePayload>()
     val roomStateLoadedLiveData get() = roomStateLoaded as LiveData<RoomStatePayload>
 
+    private val sharedContent = MutableLiveData<KmeContentView>()
+    val sharedContentLiveData get() = sharedContent as LiveData<KmeContentView>
+
     private val youModerator = MutableLiveData<Boolean>()
     val youModeratorLiveData get() = youModerator as LiveData<Boolean>
 
@@ -100,54 +98,23 @@ class RoomViewModel(
         this.roomId = roomId
         this.roomAlias = roomAlias
 
-        fetchUserInfo()
-    }
-
-    private fun fetchUserInfo() {
         isLoading.value = true
-        kmeSdk.userController.getUserInformation(
-            roomAlias,
-            success = {
-                isLoading.value = false
-                fetchWebRTCLiveServer()
-            }, error = {
-                isLoading.value = false
+        kmeSdk.roomController.connect(roomId, roomAlias, companyId, true, this)
+        kmeSdk.roomController.subscribeForContent(object : IKmeContentModule.KmeContentListener {
+            override fun onContentAvailable(view: KmeContentView) {
+                sharedContent.value = view
             }
-        )
-    }
 
-    private fun fetchWebRTCLiveServer() {
-        isLoading.value = true
-        kmeSdk.roomController.getWebRTCLiveServer(
-            roomAlias,
-            success = {
-                isLoading.value = false
-                it.data?.let { kmeWebRTCServer ->
-                    connectToRoom(kmeWebRTCServer)
-                } ?: run {
-                    roomError.value = null
-                }
-            }, error = {
-                isLoading.value = false
-                roomError.value = it.message
+            override fun onContentNotAvailable() {
+                sharedContent.value = null
             }
-        )
-    }
-
-    private fun connectToRoom(webRTCServer: KmeWebRTCServer) {
-        val wssUrl = webRTCServer.wssUrl
-        val token = webRTCServer.token
-
-        if (wssUrl != null && token != null) {
-            kmeSdk.roomController.connect(wssUrl, companyId, roomId, true, token, this)
-            youModerator.value = (isAdmin() || isModerator())
-            webRTCData.value = null
-        } else {
-            roomError.value = null
-        }
+        })
     }
 
     override fun onOpen() {
+        youModerator.value = (isAdmin() || isModerator())
+
+        isLoading.value = false
         isConnected.value = true
 
         if (!isAdmin() || isModerator()) {
@@ -176,16 +143,19 @@ class RoomViewModel(
     }
 
     override fun onFailure(throwable: Throwable) {
-        isConnectionFailure.value = throwable
+        error.value = throwable.localizedMessage
         isConnected.value = false
+        isLoading.value = false
     }
 
     override fun onClosing(code: Int, reason: String) {
         isConnected.value = false
+        isLoading.value = false
     }
 
     override fun onClosed(code: Int, reason: String) {
         isConnected.value = false
+        isLoading.value = false
     }
 
     fun submitPassword(password: String) {

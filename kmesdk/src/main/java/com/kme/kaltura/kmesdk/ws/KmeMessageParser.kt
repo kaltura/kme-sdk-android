@@ -14,13 +14,14 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.DesktopShareQualityUpdatedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.DesktopShareStateUpdatedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.CreateNotePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.NotePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomRecordingMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.SyncPlayerStatePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPayload
@@ -137,6 +138,9 @@ internal class KmeMessageParser(
             KmeMessageEvent.USER_DISCONNECTED.toString() -> {
                 text.jsonToObject<KmeStreamingModuleMessage<UserDisconnectedPayload>>()
             }
+            KmeMessageEvent.USER_SPEAKING.toString() -> {
+                text.jsonToObject<KmeStreamingModuleMessage<UserSpeakingPayload>>()
+            }
             KmeMessageEvent.RECEIVE_CONVERSATIONS.toString() -> {
                 text.jsonToObject<KmeChatModuleMessage<ReceiveConversationsPayload>>()
             }
@@ -249,6 +253,9 @@ internal class KmeMessageParser(
             KmeMessageEvent.SLIDE_CHANGED.toString() -> {
                 text.jsonToObject<KmeSlidesPlayerModuleMessage<SlideChangedPayload>>()
             }
+            KmeMessageEvent.ANNOTATIONS_STATE_CHANGED.toString() -> {
+                text.jsonToObject<KmeSlidesPlayerModuleMessage<AnnotationStateChangedPayload>>()
+            }
             KmeMessageEvent.WHITEBOARD_PAGE_DATA.toString() -> {
                 text.jsonToObject<KmeWhiteboardModuleMessage<WhiteboardPageDataPayload>>()
             }
@@ -292,6 +299,21 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.WHITEBOARD_PAGE_CREATED.toString() -> {
                 text.jsonToObject<KmeWhiteboardModuleMessage<PageCreatedPayload>>()
+            }
+            KmeMessageEvent.QUICK_POLL_STATE.toString() -> {
+                text.jsonToObject<KmeQuickPollModuleMessage<GetQuickPollStatePayload>>()
+            }
+            KmeMessageEvent.QUICK_POLL_STARTED.toString() -> {
+                text.jsonToObject<KmeQuickPollModuleMessage<QuickPollStartedPayload>>()
+            }
+            KmeMessageEvent.QUICK_POLL_ANSWERS.toString() -> {
+                text.jsonToObject<KmeQuickPollModuleMessage<QuickPollAnswersStatePayload>>()
+            }
+            KmeMessageEvent.QUICK_POLL_ENDED.toString() -> {
+                text.jsonToObject<KmeQuickPollModuleMessage<QuickPollEndedPayload>>()
+            }
+            KmeMessageEvent.QUICK_POLL_USER_ANSWERED.toString() -> {
+                text.jsonToObject<KmeQuickPollModuleMessage<QuickPollUserAnsweredPayload>>()
             }
             else -> null
         }

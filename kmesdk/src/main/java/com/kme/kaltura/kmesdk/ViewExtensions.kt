@@ -4,9 +4,70 @@ import android.content.Context
 import android.graphics.*
 import android.util.DisplayMetrics
 import android.view.View
+import android.view.View.MeasureSpec
+import android.view.ViewGroup
+import android.widget.RadioGroup
+import android.widget.TextView
+import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.forEach
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath.Cap.*
+
+
+fun View?.visible() {
+    if (this == null) return
+    if (!isVisible()) {
+        this.visibility = View.VISIBLE
+    }
+}
+
+fun View?.isVisible(): Boolean {
+    if (this == null) return false
+    return visibility == View.VISIBLE
+}
+
+fun View?.gone() {
+    if (this == null) return
+    if (!isGone()) {
+        this.visibility = View.GONE
+    }
+}
+
+fun View?.isGone(): Boolean {
+    if (this == null) return true
+    return visibility == View.GONE
+}
+
+fun View?.invisible() {
+    if (this == null) return
+    if (!isInvisible()) {
+        this.visibility = View.INVISIBLE
+    }
+}
+
+fun View?.isInvisible(): Boolean {
+    if (this == null) return false
+    return visibility == View.INVISIBLE
+}
+
+fun TextView?.goneIfTextEmpty() {
+    if (this == null) return
+    if (text.isNullOrEmpty()) {
+        gone()
+    } else {
+        visible()
+    }
+}
+
+fun RadioGroup?.goneIfEmpty() {
+    if (this == null) return
+    if (childCount == 0) {
+        gone()
+    } else {
+        visible()
+    }
+}
 
 /*
 * Converts point to dpi.
@@ -17,6 +78,16 @@ internal fun ptToDp(pt: Float, context: Context): Float {
     val dpi = context.resources.displayMetrics.densityDpi.toFloat()
     val px = pt / 72 * dpi // pt is exactly 1/72 of an inch on any screen density
     return px / (dpi / DisplayMetrics.DENSITY_DEFAULT)
+}
+
+fun dpToPx(dp: Float, context: Context): Float {
+    val scale: Float = context.resources.displayMetrics.density
+    return dp * scale + 0.5f
+}
+
+fun spToPx(sp: Float, context: Context): Float {
+    val scale: Float = context.resources.displayMetrics.scaledDensity
+    return sp * scale
 }
 
 /**
@@ -91,16 +162,20 @@ fun Float?.getPaintAlpha(): Int {
     return this?.times(255 + 0.5f)?.toInt() ?: 255
 }
 
-fun Context.getBitmap(drawableRes: Int, bounds: Rect? = null, padding: Float = 0f): Bitmap? {
+fun Context.getBitmap(
+    @DrawableRes drawableRes: Int,
+    bounds: Rect? = null,
+    padding: Float = 0f
+): Bitmap? {
     val drawable = ContextCompat.getDrawable(this, drawableRes)
     drawable?.let {
         val canvas = Canvas()
         val width = bounds?.width() ?: it.intrinsicWidth
         val height = bounds?.height() ?: it.intrinsicHeight
         val bitmap = Bitmap.createBitmap(
-                (width + padding).toInt(),
-                (height + padding).toInt(),
-                Bitmap.Config.ARGB_8888
+            (width + padding).toInt(),
+            (height + padding).toInt(),
+            Bitmap.Config.ARGB_8888
         )
         canvas.setBitmap(bitmap)
         drawable.bounds = bounds ?: Rect(0, 0, width, height)
@@ -111,10 +186,37 @@ fun Context.getBitmap(drawableRes: Int, bounds: Rect? = null, padding: Float = 0
 }
 
 fun View?.getBitmapFromView(): Bitmap? {
-    if (this == null || this.width <= 0 || this.height <= 0) return null
-    val bitmap =
+    if (this == null) return null
+    return if (this.width > 0 && this.height > 0) {
+        val bitmap =
             Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(bitmap)
-    draw(canvas)
-    return bitmap
+        val canvas = Canvas(bitmap)
+        draw(canvas)
+        bitmap
+    } else if (this.layoutParams.width > 0 && this.layoutParams.height > 0) {
+        val specWidth = MeasureSpec.makeMeasureSpec(this.layoutParams.width, MeasureSpec.EXACTLY)
+        val specHeight = MeasureSpec.makeMeasureSpec(this.layoutParams.height, MeasureSpec.EXACTLY)
+
+        measure(specWidth, specHeight)
+        layout(0, 0, this.measuredWidth, this.measuredHeight)
+
+        if (this is ViewGroup) {
+            forEach { child ->
+                child.measure(specWidth, specHeight)
+                child.layout(0, 0, this.measuredWidth, this.measuredHeight)
+            }
+        }
+
+        val bitmap = Bitmap.createBitmap(
+            this.measuredWidth,
+            this.measuredHeight,
+            Bitmap.Config.ARGB_8888
+        )
+
+        val canvas = Canvas(bitmap)
+        draw(canvas)
+        bitmap
+    } else {
+        return null
+    }
 }

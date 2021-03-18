@@ -1,10 +1,10 @@
 package com.kme.kaltura.kmesdk.controller.room
 
-import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 
 /**
  * An interface for room data
@@ -19,24 +19,42 @@ interface IKmeRoomController : IKmeWebSocketModule {
     val recordingModule: IKmeRecordingModule
     val desktopShareModule: IKmeDesktopShareModule
     val audioModule: IKmeAudioModule
+    val contentModule: IKmeContentModule
 
     /**
-     * Getting WevRTC server data if exist
+     * Getting WebRTC server data
      */
     val roomSettings: KmeWebRTCServer?
 
+
     /**
-     * Getting data for p2p connection
-     *
-     * @param roomAlias alias of a room
-     * @param success function to handle success result. Contains [KmeGetWebRTCServerResponse] object
-     * @param error function to handle error result. Contains [KmeApiException] object
+     * Getting current room metadata
      */
-    fun getWebRTCLiveServer(
+    val roomMetadata: KmeRoomMetaData?
+
+    /**
+     * Connect to the room via web socket. Update actual user information first.
+     *
+     * @param roomId id of a room
+     * @param roomAlias alias of a room
+     * @param companyId alias of a company
+     * @param isReconnect reconnection flag
+     * @param listener connection listener
+     */
+    fun connect(
+        roomId: Long,
         roomAlias: String,
-        success: (response: KmeGetWebRTCServerResponse) -> Unit,
-        error: (exception: KmeApiException) -> Unit
+        companyId: Long,
+        isReconnect: Boolean = true,
+        listener: IKmeWSConnectionListener
     )
+
+    /**
+     * Subscribes to the shared content in the room
+     *
+     * @param listener content share listener
+     */
+    fun subscribeForContent(listener: IKmeContentModule.KmeContentListener)
 
     /**
      * Add listeners for socket messages

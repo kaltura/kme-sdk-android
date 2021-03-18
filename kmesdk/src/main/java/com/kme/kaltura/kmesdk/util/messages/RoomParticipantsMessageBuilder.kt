@@ -12,7 +12,9 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 internal fun buildMediaInitMessage(
     roomId: Long,
     companyId: Long,
-    userId: Long
+    userId: Long,
+    micState: KmeMediaDeviceState,
+    webcamState: KmeMediaDeviceState
 ): KmeParticipantsModuleMessage<UserMediaStateInitPayload> {
     return KmeParticipantsModuleMessage<UserMediaStateInitPayload>().apply {
         constraint = listOf(KmeConstraint.INCLUDE_SELF)
@@ -24,8 +26,8 @@ internal fun buildMediaInitMessage(
             roomId,
             companyId,
             KmeMediaDeviceState.LIVE_INIT,
-            KmeMediaDeviceState.LIVE,
-            KmeMediaDeviceState.LIVE
+            micState,
+            webcamState
         )
     }
 }

@@ -49,9 +49,9 @@ interface IKmePeerConnectionEvents {
     /**
      * Callback fired to indicate current talking user
      *
-     * @param isSpeaking indicates is user currently speaking
+     * @param amplitude [Int] representation of measured value
      */
-    fun onUserSpeaking(isSpeaking: Boolean)
+    fun onUserSpeaking(amplitude: Int)
 
     /**
      * Callback fired once connection is closed (IceConnectionState is

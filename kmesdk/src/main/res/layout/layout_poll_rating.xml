@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|center"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:background="@drawable/bg_quick_poll">
+
+    <com.kme.kaltura.kmesdk.util.widget.KmeRatingBar
+        android:id="@+id/ratingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:drawableEmptyRate="@drawable/ic_poll_empty_star"
+        app:drawableFilledRate="@drawable/ic_poll_star"
+        app:emptyStarHeight="40dp"
+        app:emptyStarWidth="40dp"
+        app:filledStarHeight="44dp"
+        app:filledStarWidth="44dp"
+        app:layout_constraintBottom_toTopOf="@id/tvAnonymousPoll"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:starSpacing="20dp" />
+
+    <include
+        android:id="@+id/tvAnonymousPoll"
+        layout="@layout/layout_poll_anonymous"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/timeoutProgress"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ratingBar" />
+
+    <include
+        android:id="@+id/timeoutProgress"
+        layout="@layout/layout_poll_timeout_progress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvAnonymousPoll" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

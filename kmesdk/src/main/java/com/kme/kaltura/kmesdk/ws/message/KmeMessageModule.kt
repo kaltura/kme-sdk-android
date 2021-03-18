@@ -34,14 +34,17 @@ enum class KmeMessageModule(
     @SerializedName("SlidesPlayer", alternate = ["slidesplayer"])
     SLIDES_PLAYER("SlidesPlayer"),
 
-    @SerializedName("Streaming", alternate = ["streaming"])
-    STREAMING("Streaming"),
+    @SerializedName("streaming", alternate = ["streaming"])
+    STREAMING("streaming"),
 
     @SerializedName("Whiteboard", alternate = ["whiteboard"])
     WHITEBOARD("Whiteboard"),
 
     @SerializedName("Recording", alternate = ["recording"])
     RECORDING("Recording"),
+
+    @SerializedName("quickPoll", alternate = ["quickpoll"])
+    QUICK_POLL("quickPoll"),
 
     @SerializedName("DesktopShare", alternate = ["desktopshare"])
     DESKTOP_SHARE("DesktopShare");

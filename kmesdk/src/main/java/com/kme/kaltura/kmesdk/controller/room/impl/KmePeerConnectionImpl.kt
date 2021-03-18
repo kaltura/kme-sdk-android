@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.view.View
 import androidx.core.app.ActivityCompat
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnection
@@ -27,6 +28,8 @@ internal class KmePeerConnectionImpl(
     private var iceServers: MutableList<PeerConnection.IceServer> = mutableListOf()
     private var listener: IKmePeerConnectionClientEvents? = null
 
+    private var previewRendererView: KmeSurfaceRendererView? = null
+
     private val localVideoSink: KmeVideoSink = KmeVideoSink()
     private var localRendererView: KmeSurfaceRendererView? = null
 
@@ -37,6 +40,10 @@ internal class KmePeerConnectionImpl(
     private var requestedUserIdStream = ""
     private var mediaServerId = 0L
 
+    private var preferredMicEnabled: Boolean = true
+    private var preferredCamEnabled: Boolean = true
+    private var preferredFrontCamera: Boolean = true
+
     // Public PeerConnection API
     /**
      * Setting TURN server for RTC. Build ICE servers collection
@@ -46,28 +53,72 @@ internal class KmePeerConnectionImpl(
     }
 
     /**
+     * Set preferred settings for establish p2p connection
+     */
+    override fun setPreferredSettings(
+        micEnabled: Boolean,
+        camEnabled: Boolean,
+        frontCamEnabled: Boolean
+    ) {
+        this.preferredMicEnabled = micEnabled
+        this.preferredCamEnabled = camEnabled
+        this.preferredFrontCamera = frontCamEnabled
+    }
+
+    /**
      * Setting view for local stream rendering
      */
     override fun setLocalRenderer(localRenderer: KmeSurfaceRendererView) {
+        if (remoteRendererView != null) {
+            throw Exception("Can't set local renderer. Remote one already set")
+        }
         localRendererView = localRenderer
+        isPublisher = true
     }
 
     /**
      * Setting view for remote stream rendering
      */
     override fun setRemoteRenderer(remoteRenderer: KmeSurfaceRendererView) {
+        if (localRendererView != null) {
+            throw Exception("Can't set remote renderer. Local one already set")
+        }
         remoteRendererView = remoteRenderer
+    }
+
+    /**
+     * Creates a local video preview
+     */
+    override fun startPreview(previewRenderer: KmeSurfaceRendererView) {
+        if (localRendererView != null || remoteRendererView != null) {
+            throw Exception("Can't start preview")
+        }
+
+        previewRendererView = previewRenderer
+        peerConnectionClient = KmePeerConnectionImpl()
+        with(previewRenderer) {
+            init(peerConnectionClient?.getRenderContext(), null)
+            setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+            setEnableHardwareScaler(true)
+            setMirror(true)
+        }
+
+        peerConnectionClient?.createPeerConnectionFactory(context, this)
+        peerConnectionClient?.startPreview(
+            context,
+            createCameraCapturer(context),
+            previewRenderer
+        )
     }
 
     /**
      * Creates p2p connection
      */
     override fun createPeerConnection(
-        isPublisher: Boolean,
         requestedUserIdStream: String,
+        useDataChannel: Boolean,
         listener: IKmePeerConnectionClientEvents
     ) {
-        this.isPublisher = isPublisher
         this.requestedUserIdStream = requestedUserIdStream
         this.listener = listener
 
@@ -76,10 +127,11 @@ internal class KmePeerConnectionImpl(
 
         if (isPublisher) {
             localRendererView?.let {
+                it.visibility = View.INVISIBLE
                 it.init(peerConnectionClient?.getRenderContext(), null)
                 it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
                 it.setEnableHardwareScaler(true)
-                it.setMirror(true)
+                it.setMirror(preferredFrontCamera)
                 localVideoSink.setTarget(it)
             }
 
@@ -101,12 +153,14 @@ internal class KmePeerConnectionImpl(
         }
 
         peerConnectionClient?.createPeerConnectionFactory(context, this)
+        peerConnectionClient?.setPreferredSettings(preferredMicEnabled, preferredCamEnabled)
         peerConnectionClient?.createPeerConnection(
             context,
             localVideoSink,
             remoteVideoSink,
             videoCapturer,
             isPublisher,
+            useDataChannel,
             iceServers
         )
     }
@@ -139,7 +193,7 @@ internal class KmePeerConnectionImpl(
      * Toggle camera
      */
     override fun enableCamera(isEnable: Boolean) {
-        if (isPublisher && ActivityCompat.checkSelfPermission(
+        if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED
@@ -152,7 +206,7 @@ internal class KmePeerConnectionImpl(
      * Toggle audio
      */
     override fun enableAudio(isEnable: Boolean) {
-        if (isPublisher && ActivityCompat.checkSelfPermission(
+        if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.RECORD_AUDIO
             ) == PackageManager.PERMISSION_GRANTED
@@ -165,11 +219,15 @@ internal class KmePeerConnectionImpl(
      * Switch between existing cameras
      */
     override fun switchCamera() {
-        if (isPublisher && ActivityCompat.checkSelfPermission(
+        if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED
         ) {
+            previewRendererView?.let {
+                preferredFrontCamera = !preferredFrontCamera
+                it.setMirror(preferredFrontCamera)
+            }
             peerConnectionClient?.switchCamera()
         }
     }
@@ -198,6 +256,7 @@ internal class KmePeerConnectionImpl(
      * Callback fired once peerConnection instance created
      */
     override fun onPeerConnectionCreated() {
+        if (isPublisher) localRendererView?.visibility = View.VISIBLE
         listener?.onPeerConnectionCreated(requestedUserIdStream)
     }
 
@@ -246,8 +305,8 @@ internal class KmePeerConnectionImpl(
     /**
      * Callback fired to indicate current talking user
      */
-    override fun onUserSpeaking(isSpeaking: Boolean) {
-        listener?.onUserSpeaking(requestedUserIdStream, isSpeaking)
+    override fun onUserSpeaking(amplitude: Int) {
+        listener?.onUserSpeaking(requestedUserIdStream, amplitude)
     }
 
     /**
@@ -287,7 +346,9 @@ internal class KmePeerConnectionImpl(
         val deviceNames = enumerator.deviceNames
 
         for (deviceName in deviceNames) {
-            if (enumerator.isFrontFacing(deviceName)) {
+            if ((previewRendererView != null || preferredFrontCamera)
+                && enumerator.isFrontFacing(deviceName)
+            ) {
                 // Creating front facing camera capturer
                 val videoCapturer: VideoCapturer? = enumerator.createCapturer(deviceName, null)
                 if (videoCapturer != null) {

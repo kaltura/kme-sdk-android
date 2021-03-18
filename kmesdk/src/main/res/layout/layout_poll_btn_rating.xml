@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:ignore="UselessParent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivIcon"
+            android:layout_width="match_parent"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:layout_height="match_parent"
+            tools:src="@drawable/ic_poll_star" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvRating"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="2" />
+
+    </FrameLayout>
+
+</FrameLayout>

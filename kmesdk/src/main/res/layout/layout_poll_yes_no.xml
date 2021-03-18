@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|center"
+    android:background="@drawable/bg_quick_poll">
+
+    <include
+        android:id="@+id/btnYes"
+        layout="@layout/layout_poll_btn"
+        android:layout_width="@dimen/quick_poll_active_btn_size"
+        android:layout_height="@dimen/quick_poll_active_btn_size"
+        app:layout_constraintBottom_toTopOf="@id/tvAnonymousPoll"
+        app:layout_constraintEnd_toStartOf="@id/btnNo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
+        android:id="@+id/btnNo"
+        layout="@layout/layout_poll_btn"
+        android:layout_width="@dimen/quick_poll_active_btn_size"
+        android:layout_height="@dimen/quick_poll_active_btn_size"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toBottomOf="@id/btnYes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnYes"
+        app:layout_constraintTop_toTopOf="@id/btnYes" />
+
+    <include
+        android:id="@+id/tvAnonymousPoll"
+        layout="@layout/layout_poll_anonymous"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/timeoutProgress"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnYes" />
+
+    <include
+        android:id="@+id/timeoutProgress"
+        layout="@layout/layout_poll_timeout_progress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvAnonymousPoll" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

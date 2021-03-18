@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:padding="2dp">
+
+    <com.kme.kaltura.kmesdk.content.playkit.KmeMediaView
+        android:id="@+id/mediaView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_rounded_rect"
+        android:backgroundTint="@color/grayScale7" />
+
+    <com.kme.kaltura.kmesdk.content.playkit.controls.VideoControlsView
+        android:id="@+id/controlsView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

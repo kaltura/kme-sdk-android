@@ -70,6 +70,10 @@
     <string name="room_tools_action_stop_recording">Stop Recording</string>
     <string name="room_tools_action_breakout">Breakout</string>
 
+    <!--Preview-->
+    <string name="room_preview_title">Set your Cam &amp; Mic</string>
+    <string name="room_preview_accept">Go</string>
+
     <!--Recording-->
     <string name="recording_initializing_dialog_title">Initializing recording</string>
     <string name="recording_initializing_dialog_message">Recording will start momentarily</string>
@@ -92,7 +96,7 @@
     <string name="recording_stop_dialog_message">Do you want to stop recording?</string>
     <string name="recording_stop_dialog_action_positive">Stop recording</string>
     <string name="recording_stop_dialog_action_negative">Cancel</string>
-    <string name="recording_timer_pattern">%02d:%02d:%02d</string>
+    <string name="recording_timer_pattern" formatted="false">%02d:%02d:%02d</string>
 
     <!--Participants-->
     <string name="enable_mic">Enable micro</string>
@@ -140,9 +144,10 @@
 
     <!--General-->
     <string name="error_active_content">Failed to load content data</string>
+    <string name="error_cant_load_media">Failed to load media data</string>
     <string name="error">Error</string>
     <string name="search">Search</string>
 
-    <string name="media_time_format">%s/%s</string>
+    <string name="media_time_format" formatted="false">%s/%s</string>
 
 </resources>

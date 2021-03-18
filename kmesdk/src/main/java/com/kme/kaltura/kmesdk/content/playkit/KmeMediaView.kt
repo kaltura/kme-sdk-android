@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import com.kaltura.playkit.*
 import com.kaltura.playkit.player.PKHttpClientManager
 import com.kaltura.tvplayer.KalturaPlayer
+import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
@@ -28,6 +29,8 @@ class KmeMediaView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr),
     KmeKoinComponent, IKmeMediaPlaybackListener {
+
+    var kalturaErrorListener: OnLoadKalturaErrorListener? = null
 
     private val defaultPlayerEventHandler: KmeDefaultPlayerEventHandler by inject()
 
@@ -66,13 +69,7 @@ class KmeMediaView @JvmOverloads constructor(
             setupDefaultPlayerEventHandler()
         }
 
-        val contentUrl: String? =
-            if (config.contentType == KmeContentType.YOUTUBE)
-                config.metadata.fileId
-            else
-                config.metadata.src
-
-        contentUrl?.let { setMedia(it) }
+        setupMedia()
     }
 
     private fun setupDefaultPlayerEventHandler() {
@@ -82,17 +79,6 @@ class KmeMediaView @JvmOverloads constructor(
         }
         defaultPlayerEventHandler.syncPlayerStateLiveData.observeForever(syncPlayerStateObserver)
         defaultPlayerEventHandler.subscribe()
-    }
-
-    /**
-     * Setting media file url
-     */
-    override fun setMedia(url: String) {
-        check(::config.isInitialized) {
-            "${javaClass.simpleName} is not initialized."
-        }
-        canPlay = false
-        setupMedia(url)
     }
 
     private fun setupYoutubePlayer() {
@@ -112,25 +98,39 @@ class KmeMediaView @JvmOverloads constructor(
     private fun setupKalturaPlayer() {
         PKHttpClientManager.setHttpProvider(HTTP_PROVIDER_ID)
 
-        val playerInitOptions = PlayerInitOptions()
-        playerInitOptions.autoplay = config.autoPlay
-        playerInitOptions.useTextureView = true
+        val playerInitOptions = if (config.partnerId == 0)
+            PlayerInitOptions()
+        else
+            PlayerInitOptions(config.partnerId)
 
-        playerInitOptions.contentRequestAdapter = object : PKRequestParams.Adapter {
-            override fun adapt(requestParams: PKRequestParams): PKRequestParams {
-                requestParams.headers["Cookie"] = config.cookie
-                return requestParams
-            }
+        playerInitOptions.apply {
+            autoplay = config.autoPlay
+            useTextureView = true
+            contentRequestAdapter = object : PKRequestParams.Adapter {
+                override fun adapt(requestParams: PKRequestParams): PKRequestParams {
+                    requestParams.headers["Cookie"] = config.cookie
+                    return requestParams
+                }
 
-            override fun updateParams(player: Player?) {
-            }
+                override fun updateParams(player: Player?) {
+                }
 
-            override fun getApplicationName(): String {
-                return context.getString(R.string.app_name)
+                override fun getApplicationName(): String {
+                    return context.getString(R.string.app_name)
+                }
             }
         }
 
-        kalturaPlayer = KalturaPlayer.createBasicPlayer(context, playerInitOptions)
+        kalturaPlayer = if (config.contentType == KmeContentType.KALTURA) {
+            KalturaPlayer.initializeOVP(
+                context,
+                config.partnerId,
+                KalturaPlayer.DEFAULT_OVP_SERVER_URL
+            )
+            KalturaPlayer.createOVPPlayer(context, playerInitOptions)
+        } else {
+            KalturaPlayer.createBasicPlayer(context, playerInitOptions)
+        }
     }
 
     private fun setupKalturaPlayerView() {
@@ -138,16 +138,19 @@ class KmeMediaView @JvmOverloads constructor(
         addView(kalturaPlayer?.playerView)
     }
 
-    private fun setupMedia(url: String) {
+    private fun setupMedia() {
+        canPlay = false
+
         if (isYoutube()) {
-            subscribeToYoutubeEvents(url)
+            subscribeToYoutubeEvents()
         } else {
-            val media = createMediaEntry(url)
-            kalturaPlayer?.setMedia(media)
+            loadKalturaMedia()
         }
     }
 
-    private fun subscribeToYoutubeEvents(url: String) {
+    private fun subscribeToYoutubeEvents() {
+        val url = config.metadata.fileId ?: return
+
         youtubePlayerListener = object : AbstractYouTubePlayerListener() {
             override fun onReady(youTubePlayer: YouTubePlayer) {
                 super.onReady(youTubePlayer)
@@ -183,21 +186,45 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
-    private fun createMediaEntry(url: String): PKMediaEntry {
-        return PKMediaEntry().apply {
-            id = ENTRY_ID
-            mediaType = PKMediaEntry.MediaEntryType.Vod
-            sources = createMediaSources(url)
+    private fun loadKalturaMedia() {
+        val entryId = config.metadata.entryId
+        if (entryId.isNullOrEmpty()) {
+            kalturaPlayer?.setMedia(createMediaEntry())
+        } else {
+            val ovpMediaOptions = buildOvpMediaOptions()
+            kalturaPlayer?.loadMedia(ovpMediaOptions) { entry, loadError ->
+                if (loadError != null) {
+                    kalturaErrorListener?.onLoadKalturaMediaError(loadError)
+                }
+            }
         }
     }
 
-    private fun createMediaSources(url: String): List<PKMediaSource> {
+    private fun createMediaEntry(): PKMediaEntry {
+        return PKMediaEntry().apply {
+            this.id = config.metadata.entryId ?: ENTRY_ID
+            this.mediaType = PKMediaEntry.MediaEntryType.Vod
+            this.sources = createMediaSources()
+        }
+    }
+
+    private fun createMediaSources(): List<PKMediaSource>? {
+        val url = config.metadata.src ?: return null
+
         val mediaSource = PKMediaSource().apply {
             id = MEDIA_SOURCE_ID
             this.url = url
             mediaFormat = PKMediaFormat.valueOfUrl(url)
         }
         return listOf(mediaSource)
+    }
+
+    private fun buildOvpMediaOptions(): OVPMediaOptions {
+        val ovpMediaOptions = OVPMediaOptions()
+        ovpMediaOptions.entryId = config.metadata.entryId
+        ovpMediaOptions.ks = config.metadata.ks
+
+        return ovpMediaOptions
     }
 
     private fun syncPlayerState() {
@@ -384,6 +411,7 @@ class KmeMediaView @JvmOverloads constructor(
         val metadata: KmeActiveContentModuleMessage.ActiveContentPayload.Metadata,
         val cookie: String,
     ) {
+        var partnerId: Int = 0
         var autoPlay: Boolean = true
         var useDefaultHandler = true
     }

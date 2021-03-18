@@ -17,6 +17,11 @@ interface IKmeWhiteboardListener {
     fun init(whiteboardConfig: KmeWhiteboardView.Config?)
 
     /**
+     * Enable / disable all drawings
+     */
+    fun enableAnnotations(enable: Boolean)
+
+    /**
      * Sets the list of drawings.
      *
      * @param drawings The list of drawings.

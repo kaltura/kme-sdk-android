@@ -34,6 +34,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     private val roomController: IKmeRoomController by inject()
     private val userController: IKmeUserController by inject()
 
+    private var preview: IKmePeerConnection? = null
     private var publisher: IKmePeerConnection? = null
     private var peerConnections: MutableMap<String, IKmePeerConnection> = mutableMapOf()
     private var payloads: MutableList<SdpOfferToViewerPayload> = mutableListOf()
@@ -41,6 +42,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     private val publisherId: Long by lazy {
         userController.getCurrentUserInfo()?.getUserId() ?: 0
     }
+    private val useWsEvents: Boolean by lazy {
+        roomController.roomSettings?.featureFlags?.nr2DataChannelViaRs ?: true
+    }
+    private var bringToFrontPrev = 0
 
     private var roomId: Long = 0
     private var companyId: Long = 0
@@ -75,9 +80,27 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
             KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER,
             KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
             KmeMessageEvent.USER_DISCONNECTED,
-            KmeMessageEvent.USER_MEDIA_STATE_CHANGED
+            KmeMessageEvent.USER_MEDIA_STATE_CHANGED,
+            KmeMessageEvent.USER_SPEAKING
         )
         isInitialized = true
+    }
+
+    /**
+     * Creates a video preview
+     */
+    override fun startPreview(previewRenderer: KmeSurfaceRendererView) {
+        if (preview == null) {
+            preview = get()
+            preview?.startPreview(previewRenderer)
+        }
+    }
+
+    /**
+     * Stops a video preview
+     */
+    override fun stopPreview() {
+        preview = null
     }
 
     /**
@@ -85,7 +108,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      */
     override fun addPublisher(
         requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView
+        renderer: KmeSurfaceRendererView,
+        micEnabled: Boolean,
+        camEnabled: Boolean,
+        frontCamEnabled: Boolean
     ) {
         checkData()
 
@@ -94,14 +120,17 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 buildMediaInitMessage(
                     roomId,
                     companyId,
-                    publisherId
+                    publisherId,
+                    if (micEnabled) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE,
+                    if (camEnabled) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE
                 )
             )
 
             publisher = get()
             publisher?.setTurnServer(turnUrl, turnUser, turnCred)
             publisher?.setLocalRenderer(renderer)
-            publisher?.createPeerConnection(true, requestedUserIdStream, this)
+            publisher?.setPreferredSettings(micEnabled, camEnabled, frontCamEnabled)
+            publisher?.createPeerConnection(requestedUserIdStream, !useWsEvents, this)
             peerConnections[requestedUserIdStream] = publisher!!
         }
     }
@@ -127,7 +156,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         val viewer: IKmePeerConnection by inject()
         viewer.setTurnServer(turnUrl, turnUser, turnCred)
         viewer.setRemoteRenderer(renderer)
-        viewer.createPeerConnection(false, requestedUserIdStream, this)
+        viewer.createPeerConnection(requestedUserIdStream, !useWsEvents, this)
         peerConnections[requestedUserIdStream] = viewer
     }
 
@@ -141,9 +170,12 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      *
      */
     override fun enableCamera(isEnable: Boolean) {
-        if (blockMediaStateEvents) return
-        sendChangeMediaStateMessage(isEnable, KmeMediaStateType.WEBCAM)
-        publisher?.enableCamera(isEnable)
+        publisher?.let {
+            if (blockMediaStateEvents) return
+            sendChangeMediaStateMessage(isEnable, KmeMediaStateType.WEBCAM)
+            it.enableCamera(isEnable)
+        }
+        preview?.enableCamera(isEnable)
     }
 
     /**
@@ -159,6 +191,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      * Switch between publisher's existing cameras
      */
     override fun switchCamera() {
+        preview?.switchCamera()
         publisher?.switchCamera()
     }
 
@@ -174,6 +207,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         peerConnections[requestedUserIdStream]?.disconnectPeerConnection()
         peerConnections.remove(requestedUserIdStream)
         if (publisherId.toString() == requestedUserIdStream) {
+            preview = null
             publisher = null
         }
         listener.onPeerConnectionRemoved(requestedUserIdStream)
@@ -185,7 +219,13 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     override fun disconnectAll() {
         peerConnections.forEach { (_, connection) -> connection.disconnectPeerConnection() }
         peerConnections.clear()
+        payloads.forEach { payload ->
+            payload.requestedUserIdStream?.let {
+                listener.onPeerConnectionRemoved(it)
+            }
+        }
         payloads.clear()
+        preview = null
         publisher = null
     }
 
@@ -237,8 +277,17 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                     val msg: KmeStreamingModuleMessage<UserDisconnectedPayload>? = message.toType()
                     msg?.payload?.userId?.toString()?.let { disconnect(it) }
                 }
+                KmeMessageEvent.USER_SPEAKING -> {
+                    val msg: KmeStreamingModuleMessage<UserSpeakingPayload>? = message.toType()
+                    val userId = msg?.payload?.userId
+                    val volumeData = msg?.payload?.volumeData?.split(",")
+                    if (userId != null && volumeData != null) {
+                        listener.onUserSpeaking(userId.toString(), volumeData[0].toInt() == 1)
+                    }
+                }
                 KmeMessageEvent.USER_MEDIA_STATE_CHANGED -> {
-                    val msg: KmeParticipantsModuleMessage<UserMediaStateChangedPayload>? = message.toType()
+                    val msg: KmeParticipantsModuleMessage<UserMediaStateChangedPayload>? =
+                        message.toType()
                     msg?.payload?.userId?.let {
                         if (it == publisherId) {
                             blockMediaStateEvents = false
@@ -323,8 +372,24 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         webSocketModule.send(msg)
     }
 
-    override fun onUserSpeaking(requestedUserIdStream: String, isSpeaking: Boolean) {
-        listener.onUserSpeaking(requestedUserIdStream, isSpeaking)
+    override fun onUserSpeaking(requestedUserIdStream: String, amplitude: Int) {
+        val bringToFront = if (amplitude < VALUE_TO_DETECT) 0 else 1
+        val volumeData = "$bringToFront,$amplitude"
+
+        if (bringToFront == bringToFrontPrev) return
+        bringToFrontPrev = bringToFront
+
+        if (publisherId.toString() == requestedUserIdStream) {
+            webSocketModule.send(
+                buildUserSpeakingMessage(
+                    roomId,
+                    companyId,
+                    publisherId,
+                    volumeData
+                )
+            )
+        }
+        listener.onUserSpeaking(requestedUserIdStream, bringToFront == 1)
     }
 
     override fun onIceDisconnected() {
@@ -341,6 +406,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
     override fun onPeerConnectionError(requestedUserIdStream: String, description: String) {
         listener.onPeerConnectionError(requestedUserIdStream, description)
+    }
+
+    companion object {
+        private const val VALUE_TO_DETECT = 150
     }
 
 }

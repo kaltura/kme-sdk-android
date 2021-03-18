@@ -21,7 +21,6 @@ import org.koin.core.inject
  */
 class KmeUserControllerImpl : KmeController(), IKmeUserController {
 
-    private val signInApiService: KmeSignInApiService by inject()
     private val userApiService: KmeUserApiService by inject()
     private val kmePreferences: IKmePreferences by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)

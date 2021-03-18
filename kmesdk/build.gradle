@@ -14,7 +14,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 4
-        versionName "1.0.7"
+        versionName "1.0.8"
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -42,6 +42,10 @@ android {
     dokka {
         outputFormat = 'javadoc'
         outputDirectory = "../docs"
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 }
 
@@ -73,4 +77,5 @@ dependencies {
 
     api 'com.github.bumptech.glide:glide:4.11.0'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
+
 }

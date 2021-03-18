@@ -26,8 +26,6 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
     private val roomController: IKmeRoomController by inject()
     private val webSocketModule: IKmeWebSocketModule by inject()
 
-    private var roomId: Long = 0
-    private var companyId: Long = 0
     private lateinit var renderer: KmeSurfaceRendererView
     private lateinit var callback: KmeDesktopShareEvents
 
@@ -35,13 +33,9 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
      * Start listen desktop share events
      */
     override fun startListenDesktopShare(
-        roomId: Long,
-        companyId: Long,
         renderer: KmeSurfaceRendererView,
         callback: KmeDesktopShareEvents
     ) {
-        this.roomId = roomId
-        this.companyId = companyId
         this.renderer = renderer
         this.callback = callback
 
@@ -52,7 +46,7 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
             KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
             KmeMessageEvent.DESKTOP_SHARE_QUALITY_UPDATED
         )
-        webSocketModule.send(buildDesktopShareInitOnRoomInitMessage(roomId, companyId))
+        webSocketModule.send(buildDesktopShareInitOnRoomInitMessage())
     }
 
     /**

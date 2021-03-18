@@ -3,9 +3,11 @@ package com.kme.kaltura.kmesdk.di
 import com.google.gson.GsonBuilder
 import com.kme.kaltura.kmesdk.BuildConfig
 import com.kme.kaltura.kmesdk.R
-import com.kme.kaltura.kmesdk.rest.*
+import com.kme.kaltura.kmesdk.rest.KmeCookieJar
 import com.kme.kaltura.kmesdk.rest.KmeTokenInterceptor
+import com.kme.kaltura.kmesdk.rest.adapter.*
 import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
+import com.kme.kaltura.kmesdk.rest.response.room.KmeIntegrations
 import com.kme.kaltura.kmesdk.rest.service.*
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import okhttp3.OkHttpClient
@@ -30,6 +32,7 @@ val restModule = module {
             .registerTypeAdapter(Boolean::class.javaPrimitiveType, KmeStringToBooleanTypeAdapter())
             .registerTypeAdapter(KmeResponseData::class.javaObjectType, KmeResponseDataTypeAdapter())
             .registerTypeAdapter(KmeWhiteboardPath::class.java, KmeWhiteboardPathTypeAdapter())
+            .registerTypeAdapter(KmeIntegrations::class.java, KmeIntegrationsAdapter())
             .create()
     }
     single {
@@ -69,11 +72,13 @@ val restModule = module {
     ) {
         Retrofit.Builder()
             .baseUrl("https://${androidContext().getString(R.string.api_url)}/backend/")
-            .client(OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .build())
+            .client(
+                OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build()
+            )
             .build()
     }
 

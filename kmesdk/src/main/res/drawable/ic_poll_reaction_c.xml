@@ -1,0 +1,35 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+  <path
+      android:pathData="M20,0c11.046,0 20,8.954 20,20s-8.954,20 -20,20S0,31.046 0,20 8.954,0 20,0"
+      android:fillColor="#006EFA"
+      android:fillType="evenOdd"/>
+  <path
+      android:pathData="M20,0c11.046,0 20,8.954 20,20s-8.954,20 -20,20S0,31.046 0,20 8.954,0 20,0"
+      android:fillColor="#006EFA"
+      android:fillType="evenOdd"/>
+  <path
+      android:pathData="M20,0c11.046,0 20,8.954 20,20s-8.954,20 -20,20S0,31.046 0,20 8.954,0 20,0"
+      android:fillAlpha="0.6"
+      android:fillType="evenOdd">
+    <aapt:attr name="android:fillColor">
+      <gradient 
+          android:startY="17.2436"
+          android:startX="20"
+          android:endY="39.8508"
+          android:endX="20"
+          android:type="linear">
+        <item android:offset="0" android:color="#FF67AAFF"/>
+        <item android:offset="1" android:color="#FF006EFA"/>
+      </gradient>
+    </aapt:attr>
+  </path>
+  <path
+      android:pathData="M21.4,28.914c2.457,0 4.467,-0.914 6.029,-2.743L25.2,23.543c-0.457,0.495 -0.986,0.91 -1.586,1.243 -0.6,0.333 -1.28,0.5 -2.043,0.5 -1.371,0 -2.466,-0.529 -3.285,-1.586 -0.82,-1.057 -1.229,-2.548 -1.229,-4.471 0,-0.934 0.12,-1.772 0.357,-2.515 0.238,-0.743 0.562,-1.371 0.972,-1.885 0.41,-0.515 0.895,-0.91 1.457,-1.186 0.562,-0.276 1.157,-0.414 1.786,-0.414 0.666,0 1.261,0.138 1.785,0.414 0.524,0.276 1.024,0.633 1.5,1.071l2.229,-2.685c-0.629,-0.648 -1.42,-1.215 -2.372,-1.7 -0.952,-0.486 -2.028,-0.729 -3.228,-0.729 -1.181,0 -2.305,0.219 -3.372,0.657 -1.066,0.438 -2,1.076 -2.8,1.914 -0.8,0.839 -1.438,1.862 -1.914,3.072s-0.714,2.586 -0.714,4.128c0,1.562 0.228,2.939 0.686,4.129 0.457,1.19 1.08,2.186 1.871,2.986 0.79,0.8 1.71,1.404 2.757,1.814 1.048,0.41 2.162,0.614 3.343,0.614z"
+      android:fillColor="#FFF"
+      android:fillType="nonZero"/>
+</vector>

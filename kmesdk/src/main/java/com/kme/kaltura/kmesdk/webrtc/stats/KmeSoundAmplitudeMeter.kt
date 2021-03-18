@@ -1,8 +1,7 @@
 package com.kme.kaltura.kmesdk.webrtc.stats
 
-import android.os.Handler
-import android.os.Looper
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl
+import kotlinx.coroutines.*
 import org.webrtc.PeerConnection
 
 /**
@@ -13,22 +12,26 @@ class KmeSoundAmplitudeMeter(
     private var soundAmplitudeListener: KmeSoundAmplitudeListener?
 ) {
 
-    private var meterHandler = Handler(Looper.getMainLooper())
-    private val soundMeasureRunnable = Runnable { measureAmplitude() }
+    private val measureScope = CoroutineScope(Dispatchers.IO)
 
     /**
      * Start listen for measuring
      */
     fun startMeasure() {
-        meterHandler.post(soundMeasureRunnable)
+        measureScope.launch {
+            while (true) {
+                measureAmplitude()
+                delay(SOUND_METER_DELAY)
+            }
+        }
     }
 
     /**
      * Stop listen for measuring
      */
     fun stopMeasure() {
-        meterHandler.removeCallbacks(soundMeasureRunnable)
-        soundAmplitudeListener?.onAmplitudeMeasured(false, 0.0)
+        measureScope.cancel()
+        soundAmplitudeListener?.onAmplitudeMeasured(0)
     }
 
     /**
@@ -44,24 +47,20 @@ class KmeSoundAmplitudeMeter(
                 ) {
                     val value = statObject.value.members.getValue(STATISTICS_AUDIO_LEVEL_KEY)
                     val amplitude = "%.3f".format(value).replace(",", ".").toDouble()
-                    val bringToFront = amplitude > SOUND_METER_VALUE_TO_DETECT
-                    soundAmplitudeListener?.onAmplitudeMeasured(bringToFront, amplitude)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        soundAmplitudeListener?.onAmplitudeMeasured((amplitude * 1000).toInt())
+                    }
                     return@getStats
                 }
             }
         }
-        meterHandler.postDelayed(soundMeasureRunnable, SOUND_METER_DELAY)
     }
 
     companion object {
-
-        private const val SOUND_METER_DELAY: Long = 500
-        private const val SOUND_METER_VALUE_TO_DETECT: Double = 0.01
-
+        private const val SOUND_METER_DELAY: Long = 250
         private const val STATISTICS_MEDIA_SOURCE_KEY = "media-source"
         private const val STATISTICS_TRACK_ID_KEY = "trackIdentifier"
         private const val STATISTICS_AUDIO_LEVEL_KEY = "audioLevel"
-
     }
 
 }

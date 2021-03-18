@@ -7,7 +7,6 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.AttributeSet
-import android.util.Log
 import android.util.Size
 import android.view.View
 import androidx.core.graphics.toRect
@@ -34,16 +33,16 @@ class KmeWhiteboardView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr), IKmeWhiteboardListener {
 
-    private val TAG = javaClass.simpleName
-
     var changeListener: IKmeWhiteboardChangeListener? = null
 
     private val paint: Paint = Paint()
-    private var backgroundPaint: Paint? = null
     private val canvasPaint: Paint = Paint(Paint.DITHER_FLAG)
+    private var backgroundPaint: Paint? = null
 
     private var drawCanvas: Canvas? = null
+    private var backgroundCanvas: Canvas? = null
     private var canvasBitmap: Bitmap? = null
+    private var backgroundBitmap: Bitmap? = null
     private val laserBitmap by lazy { context.getBitmap(R.drawable.ic_cursor) }
 
     private val imageBounds: RectF = RectF()
@@ -54,11 +53,14 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private var measureJob: Job? = null
 
     private val eraseXfermode by lazy { PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
+    private val backgroundXfermode by lazy { PorterDuffXfermode(PorterDuff.Mode.OVERLAY) }
 
     private val drawingDoneSignal = Mutex()
 
     private var imageWidth: Float = 0f
     private var imageHeight: Float = 0f
+
+    private var isAnnotationEnabled = true
 
     private var pathsMap: SortedMap<WhiteboardPayload.Drawing, Any?> =
         Collections.synchronizedSortedMap(
@@ -85,7 +87,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     init {
         setLayerType(LAYER_TYPE_SOFTWARE, null)
         paint.apply {
-            strokeWidth = ptToDp(6f, context)
+            strokeWidth = 6f
             style = Paint.Style.STROKE
             isAntiAlias = true
             isDither = true
@@ -108,10 +110,19 @@ class KmeWhiteboardView @JvmOverloads constructor(
         }
     }
 
+    override fun enableAnnotations(enable: Boolean) {
+        isAnnotationEnabled = enable
+        if (!isAnnotationEnabled) {
+            removeDrawings()
+        }
+    }
+
     /**
      * Sets the list of drawings.
      */
     override fun setDrawings(drawings: List<WhiteboardPayload.Drawing>) {
+        if (!isAnnotationEnabled) return
+
         this.drawings.clear()
         this.drawings.addAll(drawings)
         invalidatePaths()
@@ -121,6 +132,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
      * Adds the drawing.
      */
     override fun addDrawing(drawing: WhiteboardPayload.Drawing) {
+        if (!isAnnotationEnabled) return
+
         val index =
             this.drawings.indexOfFirst { savedDrawing -> savedDrawing.layer == drawing.layer }
         if (index >= 0) {
@@ -207,8 +220,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
             imageHeight = computeLength(imageBounds.top, imageBounds.bottom)
 
             canvasBitmap = Bitmap.createBitmap(
-                imageWidth.toInt(),
-                imageHeight.toInt(),
+                imageBounds.width().toInt(),
+                imageBounds.height().toInt(),
                 Bitmap.Config.ARGB_8888
             ).also {
                 drawCanvas = Canvas(it)
@@ -218,17 +231,12 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     private fun invalidateBackground() {
         val backgroundType = config?.backgroundType
-
-        Log.e(TAG, "invalidateBackground: $backgroundType")
-
         val bitmap = when (backgroundType) {
             DOTS -> context.getBitmap(R.drawable.ic_dot, null, 10f)
             AXIS -> context.getBitmap(R.drawable.bg_axis, imageBounds.toRect())
-            GRID -> null
+            GRID -> context.getBitmap(R.drawable.ic_grid)
             LARGE_GRID -> context.getBitmap(R.drawable.ic_large_grid)
-            BLANK -> null
             else -> null
-
         }
 
         backgroundPaint = if (bitmap != null && backgroundType != null) {
@@ -236,6 +244,18 @@ class KmeWhiteboardView @JvmOverloads constructor(
         } else {
             null
         }
+
+        backgroundPaint?.let {
+            backgroundBitmap = Bitmap.createBitmap(
+                width,
+                height,
+                Bitmap.Config.ARGB_8888
+            ).also { backgroundBitmap ->
+                backgroundCanvas = Canvas(backgroundBitmap)
+                backgroundCanvas?.drawRect(imageBounds, it)
+            }
+        }
+
     }
 
     private fun createBackgroundPaint(
@@ -265,7 +285,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 measureRectanglePath(drawing)
             }
             drawing.isText() -> {
-                WhiteboardTextPath("", Path(), 0f, 0f)
+                measureText(drawing)
             }
             drawing.isLaser() -> {
                 measureLaser(drawing)
@@ -375,6 +395,108 @@ class KmeWhiteboardView @JvmOverloads constructor(
             )
 
             return WhiteboardImagePath(it, transformationMatrix)
+        }
+
+        return null
+    }
+
+    /**
+     * Creates [WhiteboardImagePath] instance and apply transformation matrix for this one.
+     *
+     * @return WhiteboardImagePath The image container contains the text bitmap with
+     * transformation matrix that will be applied before rendering this bitmap.
+     */
+    private fun measureText(drawing: WhiteboardPayload.Drawing?): WhiteboardImagePath? {
+        val textDrawing = drawing?.path?.childrenPath
+        val parentMatrixArray = drawing?.path?.matrix ?: defaultMatrixArray
+        val childrenMatrixArray = textDrawing?.matrix ?: defaultMatrixArray
+
+        invalidatePaint(drawing.getDrawingPath())
+        if (textDrawing != null && !textDrawing.content.isNullOrEmpty()) {
+            val bounds = Rect()
+            paint.getTextBounds(textDrawing.content, 0, textDrawing.content.length, bounds)
+
+            val childAffineMatrix = floatArrayOf(
+                childrenMatrixArray[0],
+                childrenMatrixArray[1],
+                childrenMatrixArray[2],
+                childrenMatrixArray[3],
+                childrenMatrixArray[4].toX(),
+                childrenMatrixArray[5].toY()
+            )
+
+            val parentAffineMatrix = floatArrayOf(
+                parentMatrixArray[0],
+                parentMatrixArray[1],
+                parentMatrixArray[2],
+                parentMatrixArray[3],
+                parentMatrixArray[4].toX() + imageBounds.left,
+                parentMatrixArray[5].toY() + imageBounds.top
+            )
+
+            val childMatrix = Matrix()
+            val parentMatrix = Matrix()
+
+            val scaleX = sqrt(parentAffineMatrix[0].pow(2) + parentAffineMatrix[1].pow(2))
+            val width = if (textDrawing.rectangle?.size == 4) {
+                textDrawing.rectangle[2].toX() * scaleX
+            } else {
+                0f
+            }
+
+            val textPaint = TextPaint(paint)
+
+            val staticLayout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                StaticLayout.Builder.obtain(
+                    textDrawing.content,
+                    0,
+                    textDrawing.content.length,
+                    textPaint,
+                    width.toInt()
+                ).apply {
+                    setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                    setIncludePad(false)
+                    setLineSpacing(0.0f, 0.9f)
+                }.build()
+            } else {
+                StaticLayout(
+                    textDrawing.content,
+                    textPaint,
+                    width.toInt(),
+                    Layout.Alignment.ALIGN_NORMAL,
+                    0.9f,
+                    0.0f,
+                    false
+                )
+            }
+
+            childMatrix.setValues(
+                floatArrayOf(
+                    childAffineMatrix[0], childAffineMatrix[2], childAffineMatrix[4],
+                    childAffineMatrix[1], childAffineMatrix[3], childAffineMatrix[5],
+                    0f, 0f, 1f
+                )
+            )
+
+            parentMatrix.setValues(
+                floatArrayOf(
+                    parentAffineMatrix[0], parentAffineMatrix[2], parentAffineMatrix[4],
+                    parentAffineMatrix[1], parentAffineMatrix[3], parentAffineMatrix[5],
+                    0f, 0f, 1f
+                )
+            )
+
+            childMatrix.postConcat(parentMatrix)
+
+            val bitmap = Bitmap.createBitmap(
+                staticLayout.width,
+                staticLayout.height,
+                Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            staticLayout.draw(canvas)
+
+            return WhiteboardImagePath(bitmap, childMatrix)
         }
 
         return null
@@ -598,7 +720,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private fun invalidatePaint(path: KmeWhiteboardPath?) {
         path?.let {
             paint.color = it.getPaintColor()
-            paint.strokeWidth = ptToDp(it.strokeWidth.toFloat(), context)
+            paint.strokeWidth = it.strokeWidth.toFloat()
             paint.strokeCap = path.strokeCap.getPaintCap()
             paint.alpha = path.opacity.getPaintAlpha()
             paint.style = path.getPaintStyle()
@@ -636,10 +758,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 canvas?.drawBitmap(it, 0f, 0f, canvasPaint)
             }
 
-            backgroundPaint?.let {
-                canvas?.drawRect(imageBounds, it)
-            }
-
             synchronized(pathsMap) {
                 val iterator = Collections.synchronizedSortedMap(pathsMap).iterator()
                 while (iterator.hasNext()) {
@@ -649,15 +767,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
                     pathItem.value?.let {
                         when (it) {
-                            is Path -> {
-                                canvas?.drawPath(it, paint)
-                            }
-                            is WhiteboardImagePath -> {
-                                canvas?.drawBitmap(it.bitmap, it.matrix, null)
-                            }
-                            is WhiteboardTextPath -> {
-                                canvas?.drawTextPath(drawing)
-                            }
+                            is Path -> canvas?.drawPath(it, paint)
+                            is WhiteboardImagePath -> canvas?.drawBitmap(it.bitmap, it.matrix, null)
                             else -> {
                             }
                         }
@@ -666,149 +777,15 @@ class KmeWhiteboardView @JvmOverloads constructor(
             }
         }
 
+        backgroundBitmap?.let {
+            canvasPaint.xfermode = backgroundXfermode
+            canvas?.drawBitmap(it, 0f, 0f, canvasPaint)
+        }
+
         if (drawingDoneSignal.isLocked) {
             drawingDoneSignal.unlock()
         }
         changeListener?.onChanged()
-    }
-
-    private fun Canvas.drawTextPath(drawing: WhiteboardPayload.Drawing?) {
-        val textDrawing = drawing?.path?.childrenPath
-        val parentMatrix = drawing?.path?.matrix ?: defaultMatrixArray
-        val childrenMatrix = textDrawing?.matrix ?: defaultMatrixArray
-        if (textDrawing != null && !textDrawing.content.isNullOrEmpty()) {
-            val bounds = Rect()
-            paint.getTextBounds(textDrawing.content, 0, textDrawing.content.length, bounds)
-
-            val affineMatrix1 = floatArrayOf(
-                childrenMatrix[0],
-                childrenMatrix[1],
-                childrenMatrix[2],
-                childrenMatrix[3],
-                childrenMatrix[4].toX(),
-                childrenMatrix[5].toY()
-            )
-
-            val affineMatrix = floatArrayOf(
-                parentMatrix[0],
-                parentMatrix[1],
-                parentMatrix[2],
-                parentMatrix[3],
-                parentMatrix[4].toX() + imageBounds.left,
-                parentMatrix[5].toY() + imageBounds.top
-            )
-
-            val transformationMatrix = Matrix()
-            val transformationMatrix1 = Matrix()
-
-            val rotation = (180 / PI * atan2(affineMatrix[1], affineMatrix[0])).toFloat()
-            val denominator = affineMatrix[0].pow(2) + affineMatrix[1].pow(2)
-            val scaleX = sqrt(denominator)
-            val scaleY =
-                (affineMatrix[0] * affineMatrix[3] - affineMatrix[2] * affineMatrix[1]) / scaleX
-            val skewX = atan(
-                (affineMatrix[0] * affineMatrix[2] + affineMatrix[1] * affineMatrix[3]) / sqrt(
-                    affineMatrix[0].pow(2) + affineMatrix[1].pow(2)
-                )
-            )
-            val skewY = 0f
-            val rectangle = textDrawing.rectangle ?: floatArrayOf(0f, 0f, 0f, 0f)
-
-
-            val width = if (textDrawing.rectangle?.size == 4) {
-                textDrawing.rectangle[2].toX()
-            } else {
-                0f
-            }
-
-            val height = if (textDrawing.rectangle?.size == 4) {
-                textDrawing.rectangle[3].toY()
-            } else {
-                0f
-            }
-
-            val rect = RectF(
-                affineMatrix[4] + imageBounds.left,
-                affineMatrix[5] + imageBounds.top,
-                (affineMatrix[4] + imageBounds.left + width * scaleX),
-                (affineMatrix[5] + imageBounds.top + height * scaleY)
-            )
-
-            val pivotX = drawing.path?.pivot?.get(0) ?: 0f
-            val pivotY = drawing.path?.pivot?.get(1) ?: 0f
-
-            val textPaint = TextPaint(paint)
-
-            val staticLayout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                StaticLayout.Builder.obtain(
-                    textDrawing.content,
-                    0,
-                    textDrawing.content.length,
-                    textPaint,
-                    (width * scaleX).toInt()
-                ).apply {
-                    setAlignment(Layout.Alignment.ALIGN_NORMAL)
-                    setIncludePad(false)
-                    setLineSpacing(0.0f, 0.9f)
-                }.build()
-            } else {
-                StaticLayout(
-                    textDrawing.content,
-                    textPaint,
-                    (width * scaleX).toInt(),
-                    Layout.Alignment.ALIGN_NORMAL,
-                    0.9f,
-                    0.0f,
-                    false
-                )
-            }
-
-            transformationMatrix.setValues(
-                floatArrayOf(
-                    1f, 0f, affineMatrix1[4],
-                    0f, 1f, affineMatrix1[5],
-                    0f, 0f, 1f
-                )
-            )
-
-            transformationMatrix1.setValues(
-                floatArrayOf(
-                    scaleX, skewX, affineMatrix[4],
-                    skewY, scaleY, affineMatrix[5],
-                    0f, 0f, 1f
-                )
-            )
-
-            transformationMatrix.postConcat(transformationMatrix1)
-
-            val bitmap = Bitmap.createBitmap(
-                staticLayout.width,
-                staticLayout.height,
-                Bitmap.Config.ARGB_8888
-            )
-            val canvas = Canvas(bitmap)
-            staticLayout.draw(canvas)
-
-            transformationMatrix.postRotate(
-                rotation
-            )
-//
-//            transformationMatrix.postScale(scaleX, scaleY)
-//            transformationMatrix.postSkew(skewX, skewY)
-//
-//            val tx = parentMatrix[4].toX() * affineMatrix[0] + parentMatrix[5].toY() * affineMatrix[2]
-//            val ty = parentMatrix[5].toY() * affineMatrix[1] + parentMatrix[5].toY() * affineMatrix[3]
-//
-//            transformationMatrix.postTranslate(
-//                     tx  + imageBounds.left,
-//                     ty  + imageBounds.top,
-//            )
-
-//            Log.e(TAG, "drawTextPath: $tx - $ty" )
-
-
-            drawBitmap(bitmap, transformationMatrix, null)
-        }
     }
 
     private fun computeLength(p1: Float, p2: Float) = sqrt((p2 - p1).pow(2))

@@ -22,18 +22,15 @@ import com.kme.kaltura.kmeapplication.R
 import com.kme.kaltura.kmeapplication.data.MappedConversation
 import com.kme.kaltura.kmeapplication.util.extensions.*
 import com.kme.kaltura.kmeapplication.view.IBottomSheetCallback
+import com.kme.kaltura.kmeapplication.view.dialog.ConnectionPreviewDialog
+import com.kme.kaltura.kmeapplication.view.dialog.ConnectionPreviewDialog.PreviewListener
 import com.kme.kaltura.kmeapplication.view.fragment.*
-import com.kme.kaltura.kmeapplication.view.fragment.content.DesktopShareFragment
-import com.kme.kaltura.kmeapplication.view.fragment.content.MediaContentFragment
-import com.kme.kaltura.kmeapplication.view.fragment.content.SlidesContentFragment
 import com.kme.kaltura.kmeapplication.viewmodel.*
-import com.kme.kaltura.kmeapplication.viewmodel.content.ActiveContentViewModel
-import com.kme.kaltura.kmeapplication.viewmodel.content.DesktopShareViewModel
-import com.kme.kaltura.kmeapplication.viewmodel.content.WhiteboardContentViewModel
+import com.kme.kaltura.kmesdk.content.KmeContentView
+import com.kme.kaltura.kmesdk.content.poll.KmeQuickPollView
 import com.kme.kaltura.kmesdk.rest.response.room.KmeBaseRoom
 import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeRoomNote
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason
-import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
@@ -49,7 +46,7 @@ import kotlinx.android.synthetic.main.layout_room_main_tabs.*
 import kotlinx.android.synthetic.main.toolbar_room.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class RoomActivity : KmeActivity() {
+class RoomActivity : KmeActivity(), PreviewListener {
 
     private val viewModel: RoomViewModel by viewModel()
     private val recordingViewModel: RoomRecordingViewModel by viewModel()
@@ -57,12 +54,9 @@ class RoomActivity : KmeActivity() {
     private val chatViewModel: ChatViewModel by viewModel()
     private val notesViewModel: RoomNoteViewModel by viewModel()
     private val roomInfoViewModel: RoomInfoViewModel by viewModel()
-    private val activeContentViewModel: ActiveContentViewModel by viewModel()
-    private val whiteboardLiveData: WhiteboardContentViewModel by viewModel()
     private val roomSettingsViewModel: RoomSettingsViewModel by viewModel()
     private val conversationsViewModel: ConversationsViewModel by viewModel()
     private val peerConnectionViewModel: PeerConnectionViewModel by viewModel()
-    private val desktopShareViewModel: DesktopShareViewModel by viewModel()
 
     private val roomAlias: String by lazy { intent?.getStringExtra(ROOM_ALIAS_EXTRA).toNonNull() }
 
@@ -70,7 +64,9 @@ class RoomActivity : KmeActivity() {
 
     private var companyId: Long? = null
     private var roomId: Long? = null
+    private var previewSettingsSet = false
 
+    private var previewDialog: ConnectionPreviewDialog? = null
     private var alertDialog: AlertDialog? = null
     private var currentBottomSheetFragment: Fragment? = null
     private var contentFragment: Fragment? = null
@@ -97,7 +93,6 @@ class RoomActivity : KmeActivity() {
         roomId = intent?.extras?.get(ROOM_ID_EXTRA) as Long?
 
         viewModel.isLoadingLiveData.observe(this, isLoadingObserver)
-        viewModel.webRTCServerLiveData.observe(this, webRTCServerObserver)
 
         viewModel.isConnectedLiveData.observe(this, isConnectedObserver)
         viewModel.roomStateLoadedLiveData.observe(this, roomStateLoadedObserver)
@@ -112,23 +107,20 @@ class RoomActivity : KmeActivity() {
             this,
             roomParticipantLimitReachedObserver
         )
-        viewModel.roomInfoErrorLiveData.observe(this, roomInfoErrorObserver)
+        viewModel.errorLiveData.observe(this, roomErrorObserver)
         viewModel.closeConnectionLiveData.observe(this, closeConnectionObserver)
         viewModel.youModeratorLiveData.observe(this, youModeratorObserver)
         viewModel.handRaisedLiveData.observe(this, raiseHandObserver)
-
-        activeContentViewModel.setActiveContentLiveData.observe(this, setActiveContentObserver)
+        viewModel.sharedContentLiveData.observe(this, sharedContentObserver)
 
         peerConnectionViewModel.publisherAddedLiveData.observe(this, publisherAddedObserver)
         peerConnectionViewModel.userSpeakingLiveData.observe(this, currentlySpeakingObserver)
         peerConnectionViewModel.speakerEnabledLiveData.observe(this, speakerObserver)
         peerConnectionViewModel.micEnabledLiveData.observe(this, micObserver)
-        peerConnectionViewModel.cameraEnabledLiveData.observe(this, cameraObserver)
+        peerConnectionViewModel.camEnabledLiveData.observe(this, cameraObserver)
         peerConnectionViewModel.liveEnabledLiveData.observe(this, liveObserver)
 
         chatViewModel.subscribe()
-        activeContentViewModel.subscribe()
-        whiteboardLiveData.subscribe()
 
         ifNonNull(companyId, roomId) { companyId, roomId ->
             viewModel.connect(companyId, roomId, roomAlias)
@@ -141,7 +133,7 @@ class RoomActivity : KmeActivity() {
         roomInfoViewModel.fetchRoomInfo(roomAlias)
         roomInfoViewModel.isLoadingLiveData.observe(this, isLoadingObserver)
         roomInfoViewModel.roomInfoLiveData.observe(this, roomInfoObserver)
-        roomInfoViewModel.roomInfoErrorLiveData.observe(this, roomInfoErrorObserver)
+        roomInfoViewModel.roomInfoErrorLiveData.observe(this, roomErrorObserver)
     }
 
     private fun setupRoomSettingsViewModel() {
@@ -201,6 +193,7 @@ class RoomActivity : KmeActivity() {
     private fun setupUI() {
         setupToolbar()
         setupBottomSheet()
+        setupQuickPollView()
         setupBackStackChanged()
 
         renderersFragment = RoomRenderersFragment.newInstance()
@@ -221,7 +214,8 @@ class RoomActivity : KmeActivity() {
     private fun setupBottomControls() {
         btnMenu.setOnClickListener {
             it.popup(R.menu.menu_room_tools, false).apply {
-                menu.findItem(R.id.action_recording).isVisible = recordingViewModel.isRecordingEnabled()
+                menu.findItem(R.id.action_recording).isVisible =
+                    recordingViewModel.isRecordingEnabled()
                 setOnMenuItemClickListener { menuItem ->
                     when (menuItem?.itemId) {
                         R.id.action_youtube -> {
@@ -253,22 +247,18 @@ class RoomActivity : KmeActivity() {
         }
 
         btnToggleMicro.setOnClickListener {
-            peerConnectionViewModel.toggleMic()
+            if (previewSettingsSet) {
+                peerConnectionViewModel.toggleMic()
+            } else {
+                showPreviewSettings()
+            }
         }
 
         btnToggleCamera.setOnClickListener {
-            if (hasPermissions(PERMISSIONS)) {
-                if (peerConnectionViewModel.isPublishing()) {
-                    peerConnectionViewModel.toggleCamera()
-                } else {
-                    peerConnectionViewModel.startPublish()
-                }
+            if (previewSettingsSet) {
+                peerConnectionViewModel.toggleCamera()
             } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    PERMISSIONS,
-                    CODE_PERMISSION_ALL
-                )
+                showPreviewSettings()
             }
         }
     }
@@ -392,6 +382,10 @@ class RoomActivity : KmeActivity() {
         }
     }
 
+    private fun setupQuickPollView() {
+        quickPollView.init(KmeQuickPollView.Config())
+    }
+
     private fun showConversationFragment() {
         if (currentBottomSheetFragment !is ConversationsFragment) {
             ifNonNull(companyId, roomId) { companyId, roomId ->
@@ -467,20 +461,6 @@ class RoomActivity : KmeActivity() {
         }
     }
 
-    private val webRTCServerObserver = Observer<Nothing> {
-        setupRoomSettingsViewModel()
-        setupParticipantsViewModel()
-        setupRecordingViewModel()
-
-        ifNonNull(companyId, roomId) { companyId, roomId ->
-            peerConnectionViewModel.setRoomData(companyId, roomId)
-            participantsViewModel.setRoomData(companyId, roomId)
-            notesViewModel.setRoomData(companyId, roomId)
-            desktopShareViewModel.setRoomData(companyId, roomId)
-            recordingViewModel.setRoomData(companyId, roomId)
-        }
-    }
-
     private val roomStateLoadedObserver = Observer<RoomStatePayload> {
         setupConversationsViewModel()
         setupNotesViewModel()
@@ -490,9 +470,21 @@ class RoomActivity : KmeActivity() {
         // Set participants first
         participantsViewModel.setRoomState(it)
         peerConnectionViewModel.setRoomState(it)
+
+        showPreviewSettings()
     }
 
     private val isConnectedObserver = Observer<Boolean> {
+        setupRoomSettingsViewModel()
+        setupParticipantsViewModel()
+        setupRecordingViewModel()
+
+        ifNonNull(companyId, roomId) { companyId, roomId ->
+            peerConnectionViewModel.setRoomData(companyId, roomId)
+            participantsViewModel.setRoomData(companyId, roomId)
+            notesViewModel.setRoomData(companyId, roomId)
+            recordingViewModel.setRoomData(companyId, roomId)
+        }
     }
 
     private val allUnreadMessageCounterObserver = Observer<Int> {
@@ -583,12 +575,13 @@ class RoomActivity : KmeActivity() {
             }
         }
 
-    private val roomInfoErrorObserver = Observer<String?> {
+    private val roomErrorObserver = Observer<String?> {
         Snackbar.make(root, it ?: getString(R.string.error), Snackbar.LENGTH_SHORT).show()
     }
 
     private val closeConnectionObserver =
         Observer<KmeRoomInitModuleMessage<CloseWebSocketPayload>?> { message ->
+            previewDialog?.dismiss()
             alertDialog.hideIfExist()
             alertDialog = when (message?.payload?.reason) {
                 KmeMessageReason.DUPLICATED_TAB -> {
@@ -630,54 +623,6 @@ class RoomActivity : KmeActivity() {
             alertDialog?.show()
         }
 
-    private val setActiveContentObserver = Observer<SetActiveContentPayload> {
-        val contentType = it.contentType
-        if (contentType != null) {
-            when (contentType) {
-                VIDEO, AUDIO, YOUTUBE -> {
-                    if (contentFragment !is MediaContentFragment) {
-                        contentFragment = MediaContentFragment.newInstance()
-                        showContentFragment()
-                    }
-                }
-                IMAGE, SLIDES, WHITEBOARD -> {
-                    if (contentFragment !is SlidesContentFragment) {
-                        contentFragment = SlidesContentFragment.newInstance()
-                        showContentFragment()
-                    }
-                }
-                DESKTOP_SHARE -> {
-                    if (contentFragment !is DesktopShareFragment) {
-                        contentFragment = DesktopShareFragment.newInstance()
-                        showContentFragment()
-                    }
-                }
-                else -> {
-                    hideContentFragment()
-                }
-            }
-        } else {
-            hideContentFragment()
-        }
-    }
-
-    private fun showContentFragment() {
-        contentFragment?.let {
-            contentFrame.visible()
-            replaceFragment(it, contentFrame.id)
-        } ?: run {
-            contentFrame.gone()
-        }
-    }
-
-    private fun hideContentFragment() {
-        contentFragment?.let { fragment ->
-            removeFragment(fragment)
-        }
-        contentFragment = null
-        contentFrame.gone()
-    }
-
     private val publisherAddedObserver = Observer<Boolean> {
         btnToggleCamera.isEnabled = it
     }
@@ -704,6 +649,32 @@ class RoomActivity : KmeActivity() {
 
     private val raiseHandObserver = Observer<Boolean> {
         btnRaiseHand.isSelected = it
+    }
+
+    private val sharedContentObserver = Observer<KmeContentView> {
+        it?.let {
+            contentFragment = it
+            showContentFragment()
+        } ?: run {
+            hideContentFragment()
+        }
+    }
+
+    private fun showContentFragment() {
+        contentFragment?.let {
+            contentFrame.visible()
+            replaceFragment(it, contentFrame.id)
+        } ?: run {
+            contentFrame.gone()
+        }
+    }
+
+    private fun hideContentFragment() {
+        contentFragment?.let { fragment ->
+            removeFragment(fragment)
+        }
+        contentFragment = null
+        contentFrame.gone()
     }
 
     private val speakerObserver = Observer<Boolean> {
@@ -817,7 +788,7 @@ class RoomActivity : KmeActivity() {
         alertDialog = alert(
             R.string.recording_initializing_dialog_title,
             R.string.recording_initializing_dialog_message,
-        ){
+        ) {
             positiveButton(R.string.recording_initializing_action_positive)
         }
         alertDialog?.show()
@@ -883,6 +854,29 @@ class RoomActivity : KmeActivity() {
         alertDialog = null
     }
 
+    private fun showPreviewSettings() {
+        if (hasPermissions(PERMISSIONS)) {
+            previewDialog = ConnectionPreviewDialog.newInstance()
+            previewDialog?.setListener(this)
+            previewDialog?.show(supportFragmentManager, ConnectionPreviewDialog.TAG)
+        } else {
+            ActivityCompat.requestPermissions(this, PERMISSIONS, CODE_PERMISSION_ALL)
+        }
+    }
+
+    override fun onPreviewSettingsAccepted(
+        micEnabled: Boolean,
+        camEnabled: Boolean,
+        frontCamEnabled: Boolean
+    ) {
+        previewSettingsSet = true
+        peerConnectionViewModel.startPublish(
+            micEnabled,
+            camEnabled,
+            frontCamEnabled
+        )
+    }
+
     private fun hasPermissions(permissions: Array<String>): Boolean = permissions.all {
         ActivityCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
     }
@@ -894,7 +888,15 @@ class RoomActivity : KmeActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == CODE_PERMISSION_ALL) {
-            peerConnectionViewModel.startPublish()
+            for (result in grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    return
+                }
+            }
+
+            previewDialog = ConnectionPreviewDialog.newInstance()
+            previewDialog?.setListener(this)
+            previewDialog?.show(supportFragmentManager, ConnectionPreviewDialog.TAG)
         }
     }
 

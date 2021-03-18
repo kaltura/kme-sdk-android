@@ -9,8 +9,6 @@ import android.os.IBinder
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
-import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
@@ -22,6 +20,8 @@ import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.RoomStatePayload
+import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,6 +35,7 @@ class KmeRoomControllerImpl(
 ) : KmeController(), IKmeRoomController {
 
     private val roomApiService: KmeRoomApiService by inject()
+
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
     private val settingsModule: IKmeSettingsModule by inject()
@@ -47,10 +48,14 @@ class KmeRoomControllerImpl(
     override val recordingModule: IKmeRecordingModule by inject()
     override val desktopShareModule: IKmeDesktopShareModule by inject()
     override val audioModule: IKmeAudioModule by inject()
+    override val contentModule: IKmeContentModule by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     override var roomSettings: KmeWebRTCServer? = null
+        private set
+
+    override var roomMetadata: KmeRoomMetaData? = null
         private set
 
     private var roomService: KmeRoomService? = null
@@ -68,7 +73,8 @@ class KmeRoomControllerImpl(
      */
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            val binder: KmeRoomService.RoomServiceBinder = service as KmeRoomService.RoomServiceBinder
+            val binder: KmeRoomService.RoomServiceBinder =
+                service as KmeRoomService.RoomServiceBinder
             roomService = binder.service
             roomService?.connect(url, companyId, roomId, isReconnect, token, listener)
         }
@@ -79,40 +85,64 @@ class KmeRoomControllerImpl(
     }
 
     /**
-     * Getting data for p2p connection
+     * Connect to the room via web socket. Update actual user information first.
      */
-    override fun getWebRTCLiveServer(
+    override fun connect(
+        roomId: Long,
         roomAlias: String,
-        success: (response: KmeGetWebRTCServerResponse) -> Unit,
-        error: (exception: KmeApiException) -> Unit
+        companyId: Long,
+        isReconnect: Boolean,
+        listener: IKmeWSConnectionListener,
+    ) {
+        userController.getUserInformation(
+            roomAlias,
+            success = {
+                fetchWebRTCLiveServer(
+                    roomId,
+                    roomAlias,
+                    companyId,
+                    isReconnect,
+                    listener
+                )
+            }, error = {
+                listener.onFailure(Throwable(it))
+                error(it)
+            }
+        )
+    }
+
+    private fun fetchWebRTCLiveServer(
+        roomId: Long,
+        roomAlias: String,
+        companyId: Long,
+        isReconnect: Boolean,
+        listener: IKmeWSConnectionListener
     ) {
         uiScope.launch {
             safeApiCall(
                 { roomApiService.getWebRTCLiveServer(roomAlias) },
                 success = {
                     roomSettings = it.data
-                    success(it)
+
+                    val wssUrl = it.data?.wssUrl
+                    val token = it.data?.token
+                    if (wssUrl != null && token != null) {
+                        startService(wssUrl, companyId, roomId, isReconnect, token, listener)
+                    }
                 },
                 error = {
                     roomSettings = null
-                    error(it)
+                    listener.onFailure(Throwable(it))
                 }
             )
         }
     }
 
     /**
-     * Establish socket connection
+     * Subscribes to the shared content in the room
      */
-    override fun connect(
-        url: String,
-        companyId: Long,
-        roomId: Long,
-        isReconnect: Boolean,
-        token: String,
-        listener: IKmeWSConnectionListener
-    ) {
-        startService(url, companyId, roomId, isReconnect, token, listener)
+    override fun subscribeForContent(listener: IKmeContentModule.KmeContentListener) {
+        contentModule.subscribe(listener)
     }
 
     /**
@@ -136,9 +166,8 @@ class KmeRoomControllerImpl(
 
         this.listener = object : IKmeWSConnectionListener {
             override fun onOpen() {
-
                 messageManager.listen(
-                    currentParticipantHandler,
+                    roomStateHandler,
                     KmeMessageEvent.ROOM_STATE
                 )
 
@@ -179,24 +208,35 @@ class KmeRoomControllerImpl(
     /**
      * Handle room state to store actual user data
      */
-    private val currentParticipantHandler = object : IKmeMessageListener {
+    private val roomStateHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             if (KmeMessageEvent.ROOM_STATE == message.name) {
-                val stateMessage: KmeRoomInitModuleMessage<KmeRoomInitModuleMessage.RoomStatePayload>? =
-                    message.toType()
-                val participantsList =
-                    stateMessage?.payload?.participants?.values?.toMutableList()
+                val msg: KmeRoomInitModuleMessage<RoomStatePayload>? = message.toType()
 
+                roomMetadata = msg?.payload?.metaData
+
+                val participantsList = msg?.payload?.participants?.values?.toMutableList()
                 val currentUserId = userController.getCurrentUserInfo()?.getUserId()
-
                 val currentParticipant =
                     participantsList?.find { kmeParticipant -> kmeParticipant.userId == currentUserId }
-
                 currentParticipant?.userPermissions = roomSettings?.roomInfo?.settingsV2
 
                 userController.updateParticipant(currentParticipant)
             }
         }
+    }
+
+    /**
+     * Establish socket connection
+     */
+    override fun connect(
+        url: String,
+        companyId: Long,
+        roomId: Long,
+        isReconnect: Boolean,
+        token: String,
+        listener: IKmeWSConnectionListener
+    ) { /*Nothing to do*/
     }
 
     /**

@@ -1,12 +1,37 @@
 package com.kme.kaltura.kmesdk.webrtc.peerconnection
 
 import android.content.Context
+import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import org.webrtc.*
 
 /**
  * An interface for actions under WebRTC peer connection object
  */
 interface IKmePeerConnection {
+
+    /**
+     * Creates a local video preview
+     *
+     * @param context application context
+     * @param videoCapturer video capturer
+     * @param previewRenderer preview renderer
+     */
+    fun startPreview(
+        context: Context,
+        videoCapturer: VideoCapturer?,
+        previewRenderer: KmeSurfaceRendererView
+    )
+
+    /**
+     * Set preferred settings for establish p2p connection
+     *
+     * @param preferredMicEnabled flag for enable/disable micro
+     * @param preferredCamEnabled flag for enable/disable camera
+     */
+    fun setPreferredSettings(
+        preferredMicEnabled: Boolean,
+        preferredCamEnabled: Boolean
+    )
 
     /**
      * Creates peer connection factory
@@ -27,6 +52,7 @@ interface IKmePeerConnection {
      * @param remoteVideoSink remote video sink
      * @param videoCapturer video capturer
      * @param isPublisher indicates type of connection
+     * @param useDataChannel indicates if data channel is used for speaking indication
      * @param iceServers collection of ice servers
      */
     fun createPeerConnection(
@@ -35,6 +61,7 @@ interface IKmePeerConnection {
         remoteVideoSink: VideoSink,
         videoCapturer: VideoCapturer?,
         isPublisher: Boolean,
+        useDataChannel: Boolean,
         iceServers: MutableList<PeerConnection.IceServer>
     )
 
