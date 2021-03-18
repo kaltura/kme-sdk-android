@@ -7,7 +7,6 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.AttributeSet
-import android.util.Log
 import android.util.Size
 import android.view.View
 import androidx.core.graphics.toRect
@@ -41,7 +40,9 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private var backgroundPaint: Paint? = null
 
     private var drawCanvas: Canvas? = null
+    private var backgroundCanvas: Canvas? = null
     private var canvasBitmap: Bitmap? = null
+    private var backgroundBitmap: Bitmap? = null
     private val laserBitmap by lazy { context.getBitmap(R.drawable.ic_cursor) }
 
     private val imageBounds: RectF = RectF()
@@ -52,6 +53,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private var measureJob: Job? = null
 
     private val eraseXfermode by lazy { PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
+    private val backgroundXfermode by lazy { PorterDuffXfermode(PorterDuff.Mode.OVERLAY) }
 
     private val drawingDoneSignal = Mutex()
 
@@ -85,7 +87,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     init {
         setLayerType(LAYER_TYPE_SOFTWARE, null)
         paint.apply {
-            strokeWidth = ptToDp(6f, context)
+            strokeWidth = 6f
             style = Paint.Style.STROKE
             isAntiAlias = true
             isDither = true
@@ -218,8 +220,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
             imageHeight = computeLength(imageBounds.top, imageBounds.bottom)
 
             canvasBitmap = Bitmap.createBitmap(
-                imageWidth.toInt(),
-                imageHeight.toInt(),
+                imageBounds.width().toInt(),
+                imageBounds.height().toInt(),
                 Bitmap.Config.ARGB_8888
             ).also {
                 drawCanvas = Canvas(it)
@@ -242,6 +244,18 @@ class KmeWhiteboardView @JvmOverloads constructor(
         } else {
             null
         }
+
+        backgroundPaint?.let {
+            backgroundBitmap = Bitmap.createBitmap(
+                width,
+                height,
+                Bitmap.Config.ARGB_8888
+            ).also { backgroundBitmap ->
+                backgroundCanvas = Canvas(backgroundBitmap)
+                backgroundCanvas?.drawRect(imageBounds, it)
+            }
+        }
+
     }
 
     private fun createBackgroundPaint(
@@ -706,7 +720,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private fun invalidatePaint(path: KmeWhiteboardPath?) {
         path?.let {
             paint.color = it.getPaintColor()
-            paint.strokeWidth = ptToDp(it.strokeWidth.toFloat(), context)
+            paint.strokeWidth = it.strokeWidth.toFloat()
             paint.strokeCap = path.strokeCap.getPaintCap()
             paint.alpha = path.opacity.getPaintAlpha()
             paint.style = path.getPaintStyle()
@@ -744,10 +758,6 @@ class KmeWhiteboardView @JvmOverloads constructor(
                 canvas?.drawBitmap(it, 0f, 0f, canvasPaint)
             }
 
-            backgroundPaint?.let {
-                canvas?.drawRect(imageBounds, it)
-            }
-
             synchronized(pathsMap) {
                 val iterator = Collections.synchronizedSortedMap(pathsMap).iterator()
                 while (iterator.hasNext()) {
@@ -765,6 +775,11 @@ class KmeWhiteboardView @JvmOverloads constructor(
                     }
                 }
             }
+        }
+
+        backgroundBitmap?.let {
+            canvasPaint.xfermode = backgroundXfermode
+            canvas?.drawBitmap(it, 0f, 0f, canvasPaint)
         }
 
         if (drawingDoneSignal.isLocked) {
