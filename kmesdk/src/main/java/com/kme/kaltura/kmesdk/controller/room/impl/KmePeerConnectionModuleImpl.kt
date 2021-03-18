@@ -219,6 +219,11 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     override fun disconnectAll() {
         peerConnections.forEach { (_, connection) -> connection.disconnectPeerConnection() }
         peerConnections.clear()
+        payloads.forEach { payload ->
+            payload.requestedUserIdStream?.let {
+                listener.onPeerConnectionRemoved(it)
+            }
+        }
         payloads.clear()
         preview = null
         publisher = null
