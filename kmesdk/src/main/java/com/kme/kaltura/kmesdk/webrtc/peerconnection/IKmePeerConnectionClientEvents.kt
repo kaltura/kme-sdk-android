@@ -50,7 +50,7 @@ interface IKmePeerConnectionClientEvents {
     /**
      * Callback fired once peer connection is closed.
      */
-    fun onPeerConnectionClosed()
+    fun onPeerConnectionClosed(requestedUserIdStream: String)
 
     /**
      * Callback fired once peer connection statistics is ready.
