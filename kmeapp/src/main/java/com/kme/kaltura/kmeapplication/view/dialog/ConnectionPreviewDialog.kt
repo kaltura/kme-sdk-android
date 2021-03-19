@@ -54,10 +54,10 @@ class ConnectionPreviewDialog : DialogFragment() {
 
             btnToggleMicro.setOnClickListener {
                 it.isSelected = !it.isSelected
+                if (it.isSelected) startMeasure() else stopMeasure()
             }
             btnToggleCamera.setOnClickListener {
                 it.isSelected = !it.isSelected
-                if (it.isSelected) startMeasure() else stopMeasure()
                 peerConnectionViewModel.enablePreview(it.isSelected)
             }
             btnSwitchCamera.setOnClickListener {
@@ -98,12 +98,12 @@ class ConnectionPreviewDialog : DialogFragment() {
 
     private fun stopMeasure() {
         amplitudeMeter?.stop()
-        measureScope.cancel()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         stopMeasure()
+        measureScope.cancel()
         peerConnectionViewModel.stopPreview()
     }
 
