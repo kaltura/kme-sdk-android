@@ -12,12 +12,13 @@ class KmeSoundAmplitudeMeter(
     private var soundAmplitudeListener: KmeSoundAmplitudeListener?
 ) {
 
-    private val measureScope = CoroutineScope(Dispatchers.IO)
+    private var measureScope = CoroutineScope(Dispatchers.IO)
 
     /**
      * Start listen for measuring
      */
     fun startMeasure() {
+        measureScope = CoroutineScope(Dispatchers.IO)
         measureScope.launch {
             while (true) {
                 measureAmplitude()
