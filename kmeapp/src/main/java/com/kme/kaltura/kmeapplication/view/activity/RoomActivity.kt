@@ -582,6 +582,7 @@ class RoomActivity : KmeActivity(), PreviewListener {
     private val closeConnectionObserver =
         Observer<KmeRoomInitModuleMessage<CloseWebSocketPayload>?> { message ->
             previewDialog?.dismiss()
+            closePreviewSettings()
             alertDialog.hideIfExist()
             alertDialog = when (message?.payload?.reason) {
                 KmeMessageReason.DUPLICATED_TAB -> {
@@ -852,6 +853,7 @@ class RoomActivity : KmeActivity(), PreviewListener {
         super.onDestroy()
         alertDialog.hideIfExist()
         alertDialog = null
+        closePreviewSettings()
     }
 
     private fun showPreviewSettings() {
@@ -862,6 +864,11 @@ class RoomActivity : KmeActivity(), PreviewListener {
         } else {
             ActivityCompat.requestPermissions(this, PERMISSIONS, CODE_PERMISSION_ALL)
         }
+    }
+
+    private fun closePreviewSettings() {
+        previewDialog?.dismiss()
+        previewDialog = null
     }
 
     override fun onPreviewSettingsAccepted(

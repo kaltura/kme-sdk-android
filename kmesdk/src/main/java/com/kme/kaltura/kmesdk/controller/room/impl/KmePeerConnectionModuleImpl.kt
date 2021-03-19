@@ -100,6 +100,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      * Stops a video preview
      */
     override fun stopPreview() {
+        preview?.disconnectPeerConnection()
         preview = null
     }
 
@@ -131,7 +132,6 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
             publisher?.setLocalRenderer(renderer)
             publisher?.setPreferredSettings(micEnabled, camEnabled, frontCamEnabled)
             publisher?.createPeerConnection(requestedUserIdStream, !useWsEvents, this)
-            peerConnections[requestedUserIdStream] = publisher!!
         }
     }
 
@@ -199,18 +199,20 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      * Disconnect publisher/viewer connection by id
      */
     override fun disconnect(requestedUserIdStream: String) {
-        payloads.find {
-            it.requestedUserIdStream == requestedUserIdStream
-        }?.let {
-            payloads.remove(it)
-        }
-        peerConnections[requestedUserIdStream]?.disconnectPeerConnection()
-        peerConnections.remove(requestedUserIdStream)
         if (publisherId.toString() == requestedUserIdStream) {
+            preview?.disconnectPeerConnection()
             preview = null
+            publisher?.disconnectPeerConnection()
             publisher = null
+        } else {
+            payloads.find {
+                it.requestedUserIdStream == requestedUserIdStream
+            }?.let {
+                payloads.remove(it)
+            }
+            peerConnections[requestedUserIdStream]?.disconnectPeerConnection()
+            peerConnections.remove(requestedUserIdStream)
         }
-        listener.onPeerConnectionRemoved(requestedUserIdStream)
     }
 
     /**
@@ -219,13 +221,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     override fun disconnectAll() {
         peerConnections.forEach { (_, connection) -> connection.disconnectPeerConnection() }
         peerConnections.clear()
-        payloads.forEach { payload ->
-            payload.requestedUserIdStream?.let {
-                listener.onPeerConnectionRemoved(it)
-            }
-        }
         payloads.clear()
+        preview?.disconnectPeerConnection()
         preview = null
+        publisher?.disconnectPeerConnection()
         publisher = null
     }
 
@@ -396,8 +395,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
     }
 
-    override fun onPeerConnectionClosed() {
-
+    override fun onPeerConnectionClosed(requestedUserIdStream: String) {
+        listener.onPeerConnectionRemoved(requestedUserIdStream)
     }
 
     override fun onPeerConnectionStatsReady(reports: String) {
