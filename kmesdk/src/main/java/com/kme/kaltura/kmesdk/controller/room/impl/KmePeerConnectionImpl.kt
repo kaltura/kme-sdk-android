@@ -239,10 +239,11 @@ internal class KmePeerConnectionImpl(
         localVideoSink.setTarget(null)
         remoteVideoSink.setTarget(null)
 
-        if (isPublisher) {
-            localRendererView?.release()
-            localRendererView = null
-        }
+        previewRendererView?.release()
+        previewRendererView = null
+
+        localRendererView?.release()
+        localRendererView = null
 
         remoteRendererView?.release()
         remoteRendererView = null
@@ -321,7 +322,7 @@ internal class KmePeerConnectionImpl(
      * Callback fired once peer connection is closed
      */
     override fun onPeerConnectionClosed() {
-        listener?.onPeerConnectionClosed()
+        listener?.onPeerConnectionClosed(requestedUserIdStream)
     }
 
     /**

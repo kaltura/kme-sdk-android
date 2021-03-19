@@ -76,8 +76,6 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
             if (videoCapturer != null) {
                 it.addTrack(createLocalVideoTrack(context, videoCapturer), listOf("ARDAMS"))
             }
-            soundAmplitudeMeter = KmeSoundAmplitudeMeter(it, this)
-            soundAmplitudeMeter?.startMeasure()
         }
     }
 
@@ -419,13 +417,15 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
      * Closes actual connection
      */
     override fun close() {
+        if (isPublisher) {
+            soundAmplitudeMeter?.stopMeasure()
+            soundAmplitudeMeter = null
+        }
+
         volumeDataChannel?.unregisterObserver()
         volumeDataChannel?.close()
         volumeDataChannel?.dispose()
         volumeDataChannel = null
-
-        peerConnection?.dispose()
-        peerConnection = null
 
         localAudioSource?.dispose()
         localAudioSource = null
@@ -445,14 +445,12 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         surfaceTextureHelper?.dispose()
         surfaceTextureHelper = null
 
-        // avoid to dispose factory multiple times
-        if (isPublisher) {
-            factory?.dispose()
-            factory = null
+        peerConnection?.close()
+        peerConnection?.dispose()
+        peerConnection = null
 
-            soundAmplitudeMeter?.stopMeasure()
-            soundAmplitudeMeter = null
-        }
+        factory?.dispose()
+        factory = null
 
         events?.onPeerConnectionClosed()
         PeerConnectionFactory.stopInternalTracingCapture()
