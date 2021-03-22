@@ -11,6 +11,9 @@ import com.kme.kaltura.kmesdk.gone
 import com.kme.kaltura.kmesdk.visible
 import org.koin.android.ext.android.inject
 
+/**
+ * Implementation for desktop shared content
+ */
 class KmeDesktopShareFragment : KmeContentView() {
 
     private val viewModel: KmeDesktopShareViewModel by inject()
@@ -49,11 +52,15 @@ class KmeDesktopShareFragment : KmeContentView() {
             viewLifecycleOwner,
             desktopShareActiveObserver
         )
+        viewModel.startViewLiveData.observe(
+            viewLifecycleOwner,
+            startViewObserver
+        )
         viewModel.desktopShareHDQualityLiveData.observe(
             viewLifecycleOwner,
             desktopShareHDQualityObserver
         )
-        viewModel.listenDesktopShare(binding.desktopShareRenderer)
+        viewModel.listenDesktopShare()
     }
 
     private val desktopShareActiveObserver = Observer<Boolean> { isActive ->
@@ -64,8 +71,17 @@ class KmeDesktopShareFragment : KmeContentView() {
         }
     }
 
+    private val startViewObserver = Observer<String> { id ->
+        viewModel.startView(id, binding.desktopShareRenderer)
+    }
+
     private val desktopShareHDQualityObserver = Observer<Boolean> { isHD ->
 
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.stopView()
     }
 
     companion object {

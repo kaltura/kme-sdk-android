@@ -62,22 +62,13 @@ class PeerConnectionViewModel(
         this.companyId = companyId
         this.roomId = roomId
 
-        val turnUrl = kmeSdk.roomController.roomSettings?.turnUrl
-        val turnUser = kmeSdk.roomController.roomSettings?.turnUsername
-        val turnCred = kmeSdk.roomController.roomSettings?.turnCredential
-
-        if (turnUrl != null && turnUser != null && turnCred != null) {
-            kmeSdk.roomController.audioModule.start()
-            kmeSdk.roomController.peerConnectionModule.initialize(
-                roomId,
-                companyId,
-                turnUrl,
-                turnUser,
-                turnCred,
-                this
-            )
-            subscribeForEvents()
-        }
+        kmeSdk.roomController.audioModule.start()
+        kmeSdk.roomController.peerConnectionModule.initialize(
+            roomId,
+            companyId,
+            this
+        )
+        subscribeForEvents()
     }
 
     fun setRoomState(payload: RoomStatePayload?) {

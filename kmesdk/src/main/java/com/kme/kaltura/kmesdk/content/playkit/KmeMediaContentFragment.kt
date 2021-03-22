@@ -17,6 +17,9 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.Se
 import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
 
+/**
+ * Implementation for media files shared content
+ */
 class KmeMediaContentFragment : KmeContentView() {
 
     private val mediaContentViewModel: KmeMediaContentViewModel by inject()
