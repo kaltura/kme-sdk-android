@@ -273,7 +273,11 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     override fun setAudioEnabled(enable: Boolean) {
         preferredMicEnabled = enable
-        if (enable) soundAmplitudeMeter?.startMeasure() else soundAmplitudeMeter?.stopMeasure()
+        if (enable) {
+            soundAmplitudeMeter?.startMeasure()
+        } else {
+            soundAmplitudeMeter?.stopMeasure()
+        }
         localAudioTrack?.setEnabled(enable)
     }
 
@@ -498,7 +502,9 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         override fun onIceConnectionChange(newState: IceConnectionState) {
             when (newState) {
                 IceConnectionState.CONNECTED -> {
-                    if (isPublisher && preferredMicEnabled) soundAmplitudeMeter?.startMeasure()
+                    if (isPublisher && preferredMicEnabled) {
+                        soundAmplitudeMeter?.startMeasure()
+                    }
                     events?.onIceConnected()
                 }
                 IceConnectionState.COMPLETED -> {
