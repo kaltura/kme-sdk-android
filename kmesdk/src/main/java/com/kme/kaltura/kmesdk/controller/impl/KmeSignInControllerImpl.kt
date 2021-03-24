@@ -7,10 +7,7 @@ import com.kme.kaltura.kmesdk.encryptWith
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeGuestLoginResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeLogoutResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeRegisterResponse
+import com.kme.kaltura.kmesdk.rest.response.signin.*
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService
 import kotlinx.coroutines.CoroutineScope
@@ -81,6 +78,24 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
                     error
                 )
             }
+        }
+    }
+
+    /**
+     * Reset password for existed user
+     */
+    override fun resetPassword(
+        email: String,
+        captchaToken: String,
+        success: (response: KmeResetPasswordResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        uiScope.launch {
+            safeApiCall(
+                { signInApiService.resetPassword(email, captchaToken) },
+                success,
+                error
+            )
         }
     }
 

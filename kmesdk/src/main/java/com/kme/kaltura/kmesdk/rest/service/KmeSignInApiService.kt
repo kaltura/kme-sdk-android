@@ -1,9 +1,6 @@
 package com.kme.kaltura.kmesdk.rest.service
 
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeGuestLoginResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeLogoutResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeRegisterResponse
+import com.kme.kaltura.kmesdk.rest.response.signin.*
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
@@ -46,6 +43,20 @@ interface KmeSignInApiService {
         @Field("LoginForm[email]") email: String,
         @Field("LoginForm[password]") password: String
     ): KmeLoginResponse
+
+    /**
+     * Reset password for existed user
+     *
+     * @param email email of a user
+     * @param captchaToken
+     * @return [KmeResetPasswordResponse] object in success case
+     */
+    @FormUrlEncoded
+    @POST("signin/requestPasswordReset")
+    suspend fun resetPassword(
+        @Field("PasswordResetRequestForm[email]") email: String,
+        @Field("PasswordResetRequestForm[captchaToken]") captchaToken: String = ""
+    ): KmeResetPasswordResponse
 
     /**
      * Login user by input data and allow to connect to the room
