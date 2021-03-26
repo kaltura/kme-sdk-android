@@ -55,7 +55,7 @@ interface KmeSignInApiService {
     @POST("signin/requestPasswordReset")
     suspend fun resetPassword(
         @Field("PasswordResetRequestForm[email]") email: String,
-        @Field("PasswordResetRequestForm[captchaToken]") captchaToken: String = ""
+        @Field("PasswordResetRequestForm[captchaToken]") captchaToken: String
     ): KmeResetPasswordResponse
 
     /**

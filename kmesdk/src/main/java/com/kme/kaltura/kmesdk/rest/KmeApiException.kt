@@ -7,19 +7,20 @@ import com.kme.kaltura.kmesdk.rest.response.KmeResponse
  */
 sealed class KmeApiException(
     override val message: String?,
-    cause: Throwable? = null,
+    var code: Int = 0,
+    cause: Throwable? = null
 ) : Exception(message, cause) {
 
     class NetworkException(
         message: String? = null,
         cause: Throwable? = null,
-    ) : KmeApiException(message, cause)
+    ) : KmeApiException(message, 0, cause)
 
     open class HttpException(
         message: String? = null,
         val errorCode: Int,
         cause: Throwable? = null,
-    ) : KmeApiException(message, cause) {
+    ) : KmeApiException(message, errorCode, cause) {
 
         class ClientException(
             message: String? = null,
@@ -36,16 +37,20 @@ sealed class KmeApiException(
 
     class InternalApiException(
         errorResponse: KmeResponse
-    ) : KmeApiException(errorResponse.data?.message, null)
+    ) : KmeApiException(
+        errorResponse.data?.message,
+        errorResponse.data?.code ?: 0,
+        null
+    )
 
     class ParseJsonException(
         message: String? = null,
         cause: Throwable? = null,
-    ) : KmeApiException(message, cause)
+    ) : KmeApiException(message, 0, cause)
 
     class SomethingBadHappenedException(
         message: String? = null,
         cause: Throwable? = null,
-    ) : KmeApiException(message, cause)
+    ) : KmeApiException(message, 0, cause)
 
 }

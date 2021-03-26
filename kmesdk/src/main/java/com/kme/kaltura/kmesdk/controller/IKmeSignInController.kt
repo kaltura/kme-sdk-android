@@ -48,13 +48,11 @@ interface IKmeSignInController {
      * Reset password for existed user
      *
      * @param email email of a user
-     * @param captchaToken
      * @param success function to handle success result. Contains [KmeResetPasswordResponse] object
      * @param error function to handle error result. Contains [KmeApiException] object
      */
     fun resetPassword(
         email: String,
-        captchaToken: String = "",
         success: (response: KmeResetPasswordResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )
