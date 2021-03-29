@@ -19,6 +19,7 @@ import com.kme.kaltura.kmesdk.databinding.LayoutPollBtnRatingBinding
 import com.kme.kaltura.kmesdk.databinding.LayoutPollResultsBinding
 import com.kme.kaltura.kmesdk.getBitmapFromView
 import com.kme.kaltura.kmesdk.util.TopCurvedEdgeTreatment
+import com.kme.kaltura.kmesdk.util.widget.KmeProgressBar
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType.*
@@ -139,10 +140,10 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
         }
     }
 
-    private fun getProgressView(index: Int?): KmeQuickPollProgressBar? {
+    private fun getProgressView(index: Int?): KmeProgressBar? {
         if (index == null) return null
         val view = binding?.progressContainer?.getChildAt(index)
-        return if (view is KmeQuickPollProgressBar)
+        return if (view is KmeProgressBar)
             return view
         else
             null
@@ -217,8 +218,8 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
     private fun generateProgressView(
         iconBitmap: Bitmap?,
         answersCount: Int
-    ): KmeQuickPollProgressBar {
-        return KmeQuickPollProgressBar(context, null, R.style.QuickPollProgressBar_Default).apply {
+    ): KmeProgressBar {
+        return KmeProgressBar(context, null, R.style.QuickPollProgressBar_Default).apply {
             iconBitmap?.let {
                 setIcon(it)
             }
