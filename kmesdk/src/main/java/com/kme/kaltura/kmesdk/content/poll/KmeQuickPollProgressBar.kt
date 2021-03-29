@@ -7,7 +7,6 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.dpToPx
 import com.kme.kaltura.kmesdk.getBitmap
@@ -35,6 +34,7 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
         private set
 
     private var icon = R.drawable.ic_poll_star
+    private var initProgress = 0
 
     var prefix = ""
         private set
@@ -52,19 +52,16 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
     private var currentDrawText: String = ""
 
     private var reachedBarPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private var textPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private var textPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+    }
 
     private val reachedRectF = RectF(0f, 0f, 0f, 0f)
     private val iconBounds = Rect(0, 0, dpToPx(30f, context).toInt(), dpToPx(30f, context).toInt())
 
     private var offset = 0f
 
-    private val progressAnimator by lazy {
-        ValueAnimator.ofInt(0, 100).apply {
-            duration = 1000L
-            interpolator = AccelerateDecelerateInterpolator()
-        }
-    }
+    private var progressAnimator = ValueAnimator.ofInt(0, 100)
 
     private var animationProgress = 100
 
@@ -112,6 +109,13 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
     }
 
     private fun startProgressAnimation() {
+        val fromValue = if (initProgress > 0) {
+            currentProgress / initProgress.toFloat() * 100
+        } else {
+            0
+        }.toInt()
+
+        progressAnimator = ValueAnimator.ofInt(fromValue, 100)
         progressAnimator.addUpdateListener {
             animationProgress = it.animatedValue as Int
             invalidate()
@@ -164,6 +168,7 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
     }
 
     private fun measureProgressRect() {
+        this.currentProgress = initProgress
         currentDrawText = String.format("%d", currentProgress * 100 / maxProgress)
         currentDrawText = prefix + currentDrawText + suffix
         drawTextWidth = textPaint.measureText(currentDrawText)
@@ -238,7 +243,7 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
 
     fun applyProgress(progress: Int, animate: Boolean = false) {
         if (progress in 0..maxProgress) {
-            this.currentProgress = progress
+            this.initProgress = progress
             if (animate) {
                 startProgressAnimation()
             } else {

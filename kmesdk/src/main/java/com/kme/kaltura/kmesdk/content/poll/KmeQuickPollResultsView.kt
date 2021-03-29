@@ -29,6 +29,9 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
 
     var closeListener: OnCloseResultsListener? = null
 
+    private var currentPollPayload: QuickPollStartedPayload? = null
+    private var answers = mutableListOf<QuickPollPayload.Answer>()
+
     private var binding: LayoutPollResultsBinding? = null
 
     private val layoutInflater by lazy { LayoutInflater.from(context) }
@@ -72,40 +75,88 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
 
     override fun init(
         currentPollPayload: QuickPollStartedPayload,
-        endPollPayload: QuickPollEndedPayload
+        endPollPayload: QuickPollEndedPayload?
     ) {
+        this.currentPollPayload = currentPollPayload
         binding?.tvAnonymousPoll?.visibility = if (currentPollPayload.isAnonymous == true)
             VISIBLE
         else
             GONE
 
-        if (currentPollPayload.type == RATING) {
-            val userCount = currentPollPayload.userCount ?: 0
-            val resultsCount = endPollPayload.answers?.size ?: 0
-            val resultsPercentCount = (resultsCount.toFloat() / userCount.toFloat() * 100).toInt()
-            val averageResult = "%.2f".format(endPollPayload.answers?.getAverageRating())
-
-            binding?.groupAverageResult?.visibility = VISIBLE
-            binding?.tvAverageResultNumber?.text = averageResult
-            binding?.tvResultsCount?.text = resultsCount.toString()
-            binding?.tvResults?.text = String.format(
-                resources.getString(R.string.quick_poll_average_result),
-                userCount,
-                resultsPercentCount
-            )
-        } else {
-            binding?.groupAverageResult?.visibility = GONE
-        }
-
-        setupProgressViews(currentPollPayload, endPollPayload)
+        applyAnswers(endPollPayload?.answers)
     }
 
-    private fun setupProgressViews(
-        currentPollPayload: QuickPollStartedPayload,
-        endPollPayload: QuickPollEndedPayload
+    private fun updateRatingViewInfo(
+        averageResult: Float,
+        userCount: Int,
+        resultsCount: Int
     ) {
-        val pollType = currentPollPayload.type ?: return
-        val answersCount = endPollPayload.answers?.size ?: 0
+        val resultsPercentCount = (resultsCount.toFloat() / userCount.toFloat() * 100).toInt()
+
+        binding?.groupAverageResult?.visibility = VISIBLE
+        binding?.tvAverageResultNumber?.text = "%.2f".format(averageResult)
+        binding?.tvResultsCount?.text = resultsCount.toString()
+        binding?.tvResults?.text = String.format(
+            resources.getString(R.string.quick_poll_average_result),
+            userCount,
+            resultsPercentCount
+        )
+    }
+
+    override fun applyAnswer(answer: QuickPollPayload.Answer) {
+        val progressViewsCount = binding?.progressContainer?.childCount ?: 0
+        if (progressViewsCount == 0) {
+            applyAnswers(arrayListOf(answer))
+        } else {
+            answers.add(answer)
+            for (index in 0..progressViewsCount) {
+                val progressView = getProgressView(index)
+                progressView?.let {
+                    val answersTypeCount =
+                        answers.filter { answered -> answered.answer == index }.size
+                    val progress =
+                        (answersTypeCount.toFloat() / answers.size.toFloat() * 100).toInt()
+
+                    progressView.setPrefix(
+                        String.format(
+                            resources.getString(R.string.quick_poll_answers_count_prefix),
+                            answersTypeCount
+                        )
+                    )
+                    progressView.applyProgress(progress, true)
+                }
+            }
+
+            if (currentPollPayload?.type == RATING) {
+                updateRatingViewInfo(
+                    this.answers.getAverageRating(),
+                    currentPollPayload?.userCount ?: 0,
+                    this.answers.size
+                )
+            } else {
+                binding?.groupAverageResult?.visibility = GONE
+            }
+        }
+    }
+
+    private fun getProgressView(index: Int?): KmeQuickPollProgressBar? {
+        if (index == null) return null
+        val view = binding?.progressContainer?.getChildAt(index)
+        return if (view is KmeQuickPollProgressBar)
+            return view
+        else
+            null
+    }
+
+    override fun applyAnswers(answers: List<QuickPollPayload.Answer>?) {
+        this.answers.clear()
+
+        if (answers != null) {
+            this.answers.addAll(answers)
+        }
+
+        val pollType = currentPollPayload?.type ?: return
+        val answersCount = this.answers.size
 
         val viewsCount = when (pollType) {
             YES_NO -> 2
@@ -114,17 +165,29 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
             MULTIPLE_CHOICE -> 4
         }
 
-        for (i in 0 until viewsCount) {
+        binding?.progressContainer?.removeAllViews()
+
+        for (index in 0 until viewsCount) {
             val answersTypeCount =
-                endPollPayload.answers?.filter { answer -> answer.answer == i }?.size ?: 0
+                this.answers.filter { answer -> answer.answer == index }.size
             val progress = (answersTypeCount.toFloat() / answersCount.toFloat() * 100).toInt()
-            val bitmap = generateIconBitmap(pollType, i)
+            val bitmap = generateIconBitmap(pollType, index)
             val progressView = generateProgressView(bitmap, answersTypeCount)
             progressView.setPadding(0, progressViewPadding, 0, progressViewPadding)
 
             binding?.progressContainer?.addView(progressView)
 
             progressView.applyProgress(progress, true)
+        }
+
+        if (currentPollPayload?.type == RATING) {
+            updateRatingViewInfo(
+                this.answers.getAverageRating(),
+                currentPollPayload?.userCount ?: 0,
+                this.answers.size
+            )
+        } else {
+            binding?.groupAverageResult?.visibility = GONE
         }
     }
 
