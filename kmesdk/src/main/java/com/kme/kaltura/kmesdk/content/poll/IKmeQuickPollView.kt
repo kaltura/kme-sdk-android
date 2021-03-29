@@ -12,6 +12,14 @@ interface IKmeQuickPollView {
 
     fun endPoll(payload: KmeQuickPollModuleMessage.QuickPollEndedPayload)
 
-    fun showResults(payload: KmeQuickPollModuleMessage.QuickPollEndedPayload)
+    fun showResultsView(
+        payload: KmeQuickPollModuleMessage.QuickPollEndedPayload? = null,
+        answer: KmeQuickPollModuleMessage.QuickPollPayload.Answer? = null,
+        answers: List<KmeQuickPollModuleMessage.QuickPollPayload.Answer>? = null,
+    )
+
+    fun applyResults(answers: List<KmeQuickPollModuleMessage.QuickPollPayload.Answer>?)
+
+    fun applyResult(answer: KmeQuickPollModuleMessage.QuickPollPayload.Answer)
 
 }

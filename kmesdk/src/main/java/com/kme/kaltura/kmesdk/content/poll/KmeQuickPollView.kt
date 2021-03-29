@@ -7,18 +7,24 @@ import androidx.core.content.ContextCompat
 import androidx.viewbinding.ViewBinding
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollTypeView
+import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.util.messages.buildSendQuickPollAnswerMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollAudienceType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
+import kotlinx.coroutines.*
 import org.koin.core.inject
+import java.util.*
 
 class KmeQuickPollView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr),
     KmeKoinComponent, IKmeQuickPollView,
     KmeQuickPollTypeView.OnAnswerListener, KmeQuickPollResultsView.OnCloseResultsListener {
+
+    private val RESULTS_HIDE_TIMEOUT = 20_000L
 
     var state: State = State.GONE
         private set
@@ -27,10 +33,15 @@ class KmeQuickPollView @JvmOverloads constructor(
 
     private val defaultEventHandler: KmeDefaultPollEventHandler by inject()
     private val roomController: IKmeRoomController by inject()
+    private val userController: IKmeUserController by inject()
+
+    private var hideResultsViewJob: Job? = null
 
     private var pollView: KmeQuickPollTypeView<out ViewBinding>? = null
     private var pollResultsView: KmeQuickPollResultsView? = null
     private var currentPollPayload: QuickPollStartedPayload? = null
+
+    private val uiScope = CoroutineScope(Dispatchers.Main)
 
     init {
         visibility = GONE
@@ -48,6 +59,9 @@ class KmeQuickPollView @JvmOverloads constructor(
     private fun setupDefaultEventHandler() {
         defaultEventHandler.pollStartedLiveData.observeForever { it?.let { startPoll(it) } }
         defaultEventHandler.pollEndedLiveData.observeForever { it?.let { endPoll(it) } }
+        defaultEventHandler.userAnsweredPollLiveData.observeForever {
+            it?.let { onUserAnsweredPoll(it) }
+        }
         defaultEventHandler.subscribe()
     }
 
@@ -66,22 +80,31 @@ class KmeQuickPollView @JvmOverloads constructor(
     }
 
     override fun startPoll(payload: QuickPollStartedPayload) {
+        hideResultsViewJob?.cancel()
+
         visibility = VISIBLE
-        state = State.WAITING_FOR_ANSWER_VIEW
         removeAllViews()
-
         currentPollPayload = payload
-        pollView = KmeQuickPollTypeView.getView(context, payload.type)?.apply {
-            isAnonymousPoll = payload.isAnonymous == true
-            listener = this@KmeQuickPollView
-        }
 
-        pollView?.let { addView(it) }
+        val isModerator = userController.isModerator()
+        if (payload.targetAudience == KmeQuickPollAudienceType.NON_MODERATORS && isModerator) {
+            state = State.MODERATOR_RESULT_VIEW
+            showResultsView()
+        } else {
+            state = State.WAITING_FOR_ANSWER_VIEW
+            pollView = KmeQuickPollTypeView.getView(context, payload.type)?.apply {
+                isAnonymousPoll = payload.isAnonymous == true
+                listener = this@KmeQuickPollView
+            }
+
+            pollView?.let { addView(it) }
+        }
     }
 
     override fun endPoll(payload: QuickPollEndedPayload) {
         if (payload.shouldPresent == true) {
-            showResults(payload)
+            state = State.RESULT_VIEW
+            showResultsView(payload)
         } else {
             visibility = GONE
             state = State.GONE
@@ -91,20 +114,66 @@ class KmeQuickPollView @JvmOverloads constructor(
         }
     }
 
-    override fun onAnswered(type: KmeQuickPollType, answer: Int) {
+    private fun onUserAnsweredPoll(payload: QuickPollUserAnsweredPayload) {
+        applyResult(
+            QuickPollPayload.Answer(
+                payload.answer,
+                payload.pollId,
+                payload.userId
+            )
+        )
+    }
+
+    override fun applyResult(answer: QuickPollPayload.Answer) {
+        pollResultsView?.apply {
+            applyAnswer(answer)
+        } ?: run {
+            showResultsView(null, answer)
+        }
+    }
+
+    override fun applyResults(answers: List<QuickPollPayload.Answer>?) {
+        pollResultsView?.apply {
+            applyAnswers(answers)
+        } ?: run {
+            showResultsView(null, null, answers)
+        }
+    }
+
+    override fun onAnswered(
+        type: KmeQuickPollType,
+        answer: Int
+    ) {
         sendAnswer(QuickPollPayload.Answer(answer, currentPollPayload?.pollId))
     }
 
-    override fun showResults(payload: QuickPollEndedPayload) {
+    override fun showResultsView(
+        payload: QuickPollEndedPayload?,
+        answer: QuickPollPayload.Answer?,
+        answers: List<QuickPollPayload.Answer>?
+    ) {
         removeAllViews()
         currentPollPayload?.let {
             visibility = VISIBLE
-            state = State.RESULT_VIEW
             pollView = null
             pollResultsView = KmeQuickPollResultsView(context).also { resultsView ->
                 resultsView.closeListener = this
                 resultsView.init(it, payload)
                 addView(resultsView)
+
+                if (answer != null) {
+                    resultsView.post { resultsView.applyAnswer(answer) }
+                } else if (answers != null) {
+                    resultsView.post { resultsView.applyAnswers(answers) }
+                }
+
+                if (state == State.RESULT_VIEW) {
+                    hideResultsViewJob?.cancel()
+                    hideResultsViewJob = uiScope.launch {
+                        delay(RESULTS_HIDE_TIMEOUT)
+                        onCloseResultsView()
+                    }
+                }
             }
         }
     }
@@ -114,17 +183,25 @@ class KmeQuickPollView @JvmOverloads constructor(
         state = State.GONE
         visibility = GONE
         pollResultsView = null
+        hideResultsViewJob?.cancel()
+        hideResultsViewJob = null
     }
 
     override fun onDetachedFromWindow() {
         removeAllViews()
         visibility = GONE
+
         if (config.useDefaultHandler) {
             defaultEventHandler.release()
         }
+
         currentPollPayload = null
         pollView = null
         pollResultsView = null
+
+        hideResultsViewJob?.cancel()
+        hideResultsViewJob = null
+
         super.onDetachedFromWindow()
     }
 

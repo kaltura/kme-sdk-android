@@ -6,7 +6,15 @@ interface IKmeQuickPollResultsView {
 
     fun init(
         currentPollPayload: KmeQuickPollModuleMessage.QuickPollStartedPayload,
-        endPollPayload: KmeQuickPollModuleMessage.QuickPollEndedPayload
+        endPollPayload: KmeQuickPollModuleMessage.QuickPollEndedPayload?
+    )
+
+    fun applyAnswer(
+        answer: KmeQuickPollModuleMessage.QuickPollPayload.Answer
+    )
+
+    fun applyAnswers(
+        answers: List<KmeQuickPollModuleMessage.QuickPollPayload.Answer>?
     )
 
 }
