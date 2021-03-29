@@ -45,6 +45,19 @@ interface IKmeSignInController {
     )
 
     /**
+     * Login user by token
+     *
+     * @param token token of a user
+     * @param success function to handle success result.
+     * @param error function to handle error result.
+     */
+    fun login(
+        token: String,
+        success: () -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
+    /**
      * Reset password for existed user
      *
      * @param email email of a user

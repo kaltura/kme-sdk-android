@@ -11,6 +11,7 @@ import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.signin.*
 import com.kme.kaltura.kmesdk.rest.safeApiCall
+import com.kme.kaltura.kmesdk.rest.response.signin.*
 import com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -81,6 +82,27 @@ class KmeSignInControllerImpl(
                     },
                     error
                 )
+            }
+        }
+    }
+
+    /**
+     * Login user by token
+     */
+    override fun login(
+        token: String,
+        success: () -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        removeCookies {
+            if (token.isNotEmpty()) {
+                prefs.putString(KmePrefsKeys.ACCESS_TOKEN, token)
+                success()
+            } else {
+                error(KmeApiException.SomethingBadHappenedException(
+                    "Invalid token",
+                    null
+                ))
             }
         }
     }
