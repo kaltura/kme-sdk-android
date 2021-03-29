@@ -85,6 +85,27 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
     }
 
     /**
+     * Login user by token
+     */
+    override fun login(
+        token: String,
+        success: () -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        removeCookies {
+            if (token.isNotEmpty()) {
+                prefs.putString(KmePrefsKeys.ACCESS_TOKEN, token)
+                success()
+            } else {
+                error(KmeApiException.SomethingBadHappenedException(
+                    "Invalid token",
+                    null
+                ))
+            }
+        }
+    }
+
+    /**
      * Login user by input data and allow to connect to the room
      */
     override fun guest(
