@@ -58,8 +58,10 @@ class KmeDesktopShareFragment : KmeContentView() {
 
     private val desktopShareActiveObserver = Observer<Boolean> { isActive ->
         if (isActive) {
+            binding.shareNotStartedContainer.gone()
             binding.desktopShareRenderer.visible()
         } else {
+            binding.shareNotStartedContainer.visible()
             binding.desktopShareRenderer.gone()
         }
     }

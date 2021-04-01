@@ -129,7 +129,7 @@ internal class KmePeerConnectionImpl(
             localRendererView?.let {
                 it.visibility = View.INVISIBLE
                 it.init(peerConnectionClient?.getRenderContext(), null)
-                it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+                it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
                 it.setEnableHardwareScaler(true)
                 it.setMirror(preferredFrontCamera)
                 localVideoSink.setTarget(it)
@@ -145,7 +145,7 @@ internal class KmePeerConnectionImpl(
         } else {
             remoteRendererView?.let {
                 it.init(peerConnectionClient?.getRenderContext(), null)
-                it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+                it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
                 it.setEnableHardwareScaler(true)
                 it.setMirror(false)
                 remoteVideoSink.setTarget(it)
