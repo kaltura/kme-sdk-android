@@ -10,4 +10,6 @@
     <dimen name="quick_poll_results_btn_value_text_size">14sp</dimen>
     <dimen name="quick_poll_btn_size">40dp</dimen>
     <dimen name="quick_poll_active_btn_size">48dp</dimen>
+    <dimen name="default_margin_small">4dp</dimen>
+    <dimen name="default_margin_medium">8dp</dimen>
 </resources>
