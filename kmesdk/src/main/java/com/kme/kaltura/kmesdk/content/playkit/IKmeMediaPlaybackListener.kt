@@ -47,7 +47,14 @@ interface IKmeMediaPlaybackListener {
     fun seekTo(seekTo: Long)
 
     /**
-     * Check is playback of media file is ended
+     * Check if playback of media file is playing
+     *
+     * @return 'true' if playback is playing
+     */
+    fun isPlaying() : Boolean
+
+    /**
+     * Check if playback of media file is ended
      *
      * @return 'true' if playback is ended
      */

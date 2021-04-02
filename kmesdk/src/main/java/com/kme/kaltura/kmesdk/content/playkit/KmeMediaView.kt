@@ -150,7 +150,7 @@ class KmeMediaView @JvmOverloads constructor(
 
     private fun subscribeToYoutubeEvents() {
         val url = config.metadata.fileId ?: return
-
+        var isFirstSync = true
         youtubePlayerListener = object : AbstractYouTubePlayerListener() {
             override fun onReady(youTubePlayer: YouTubePlayer) {
                 super.onReady(youTubePlayer)
@@ -160,7 +160,8 @@ class KmeMediaView @JvmOverloads constructor(
                     youtubePlayer?.addListener(it)
                 }
 
-                youtubePlayer?.cueVideo(url, 0f)
+                isFirstSync = true
+                youtubePlayer?.cueVideo(url, syncPlayerPosition)
             }
 
             override fun onStateChange(
@@ -168,6 +169,13 @@ class KmeMediaView @JvmOverloads constructor(
                 state: PlayerConstants.PlayerState
             ) {
                 super.onStateChange(youTubePlayer, state)
+                //If the Youtube player is paused when the function is called, it will remain paused.
+                //If the function is called from another state (playing, video cued, etc.), the player will play the video.
+                if (state == PlayerConstants.PlayerState.PLAYING && isFirstSync) {
+                    isFirstSync = false
+                    syncPlayerState()
+                }
+
                 state.asKalturaEvent()?.let {
                     messageBus?.post(it)
                 }
@@ -189,6 +197,7 @@ class KmeMediaView @JvmOverloads constructor(
     private fun loadKalturaMedia() {
         val entryId = config.metadata.entryId
         if (entryId.isNullOrEmpty()) {
+            kalturaPlayer?.startPosition = syncPlayerPosition.toDouble()
             kalturaPlayer?.setMedia(createMediaEntry())
         } else {
             val ovpMediaOptions = buildOvpMediaOptions()
@@ -223,29 +232,32 @@ class KmeMediaView @JvmOverloads constructor(
         val ovpMediaOptions = OVPMediaOptions()
         ovpMediaOptions.entryId = config.metadata.entryId
         ovpMediaOptions.ks = config.metadata.ks
+        ovpMediaOptions.startPosition = syncPlayerPosition.toDouble()
 
         return ovpMediaOptions
     }
 
     private fun syncPlayerState() {
         if (canPlay) {
-            seekTo(syncPlayerPosition.toLong())
             syncPlayerState?.let {
                 handlePlayerState(it)
             }
+
+            seekTo(syncPlayerPosition.toLong())
         }
     }
 
     private fun handlePlayerState(state: KmePlayerState) {
         when (state) {
-            KmePlayerState.PLAY -> {
+            KmePlayerState.PLAY, KmePlayerState.PLAYING -> {
                 if (isEnded()) {
                     replay()
                 } else {
                     play()
                 }
             }
-            KmePlayerState.PAUSE -> {
+            KmePlayerState.PAUSE, KmePlayerState.STOP,
+            KmePlayerState.PAUSED, KmePlayerState.ENDED -> {
                 pause()
             }
         }
@@ -316,6 +328,14 @@ class KmeMediaView @JvmOverloads constructor(
             messageBus?.post(PlayerEvent.Seeking(seekToMillis))
         } else {
             kalturaPlayer?.seekTo(seekToMillis)
+        }
+    }
+
+    override fun isPlaying(): Boolean {
+        return if (isYoutube()) {
+            youtubeTracker?.state == PlayerConstants.PlayerState.PLAYING
+        } else {
+            kalturaPlayer?.isPlaying ?: false
         }
     }
 
@@ -404,6 +424,19 @@ class KmeMediaView @JvmOverloads constructor(
         youtubePlayerView = null
         youtubePlayer = null
         messageBus = null
+    }
+
+    override fun onDetachedFromWindow() {
+        canPlay = false
+        if (config.useDefaultHandler) {
+            val savedState = if (isPlaying()) {
+                KmePlayerState.PLAYING
+            } else {
+                KmePlayerState.PAUSED
+            }
+            defaultPlayerEventHandler.saveState(Pair(savedState, currentPosition.toFloat()))
+        }
+        super.onDetachedFromWindow()
     }
 
     class Config(
