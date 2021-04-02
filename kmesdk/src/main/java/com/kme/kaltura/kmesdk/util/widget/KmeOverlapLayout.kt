@@ -203,9 +203,7 @@ class KmeOverlapLayout @JvmOverloads constructor(
 
         private val gestureDetector = GestureDetector(context, this)
 
-
-        fun handleTouchEvents(event: MotionEvent?): Boolean =
-            gestureDetector.onTouchEvent(event)
+        fun handleTouchEvents(event: MotionEvent?): Boolean = gestureDetector.onTouchEvent(event)
 
         override fun onLongPress(event: MotionEvent?) {
             super.onLongPress(event)

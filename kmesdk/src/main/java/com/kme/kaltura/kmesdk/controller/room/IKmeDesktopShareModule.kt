@@ -36,6 +36,11 @@ interface IKmeDesktopShareModule {
         fun onDesktopShareActive(isActive: Boolean)
 
         /**
+         * Fired once administrator started to publish
+         */
+        fun onDesktopShareAvailable()
+
+        /**
          * Triggered by administrator
          *
          * @param isHd indicates that quality of video was changed
