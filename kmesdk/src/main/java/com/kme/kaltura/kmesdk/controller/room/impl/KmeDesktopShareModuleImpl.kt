@@ -73,10 +73,7 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
                     }
 
                     if (isActive == true && onRoomInit == true) {
-                        roomController.peerConnectionModule.addViewer(
-                            "${msg.payload?.userId}_desk",
-                            renderer
-                        )
+                        startViewStream("${msg.payload?.userId}_desk")
                     }
                 }
                 KmeMessageEvent.USER_STARTED_TO_PUBLISH -> {
@@ -84,7 +81,7 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
                     msg?.payload?.userId?.let {
                         if (it.toLongOrNull() == null) {
                             roomController.peerConnectionModule.disconnect(it)
-                            roomController.peerConnectionModule.addViewer(it, renderer)
+                            startViewStream(it)
                         }
                     }
                 }
@@ -99,6 +96,11 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
                 }
             }
         }
+    }
+
+    private fun startViewStream(requestedUserIdStream: String) {
+        roomController.peerConnectionModule.addViewer(requestedUserIdStream, renderer)
+        callback.onDesktopShareAvailable()
     }
 
 }

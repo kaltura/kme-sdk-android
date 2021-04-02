@@ -49,6 +49,10 @@ class KmeDesktopShareFragment : KmeContentView() {
             viewLifecycleOwner,
             desktopShareActiveObserver
         )
+        viewModel.isDesktopShareAvailableLiveData.observe(
+            viewLifecycleOwner,
+            desktopShareAvailableObserver
+        )
         viewModel.desktopShareHDQualityLiveData.observe(
             viewLifecycleOwner,
             desktopShareHDQualityObserver
@@ -58,10 +62,15 @@ class KmeDesktopShareFragment : KmeContentView() {
 
     private val desktopShareActiveObserver = Observer<Boolean> { isActive ->
         if (isActive) {
-            binding.desktopShareRenderer.visible()
+            binding.textGroup.gone()
         } else {
+            binding.textGroup.visible()
             binding.desktopShareRenderer.gone()
         }
+    }
+
+    private val desktopShareAvailableObserver = Observer<Nothing> {
+        binding.desktopShareRenderer.visible()
     }
 
     private val desktopShareHDQualityObserver = Observer<Boolean> { isHD ->
