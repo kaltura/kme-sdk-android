@@ -18,6 +18,7 @@ val roomModules = module {
     single<IKmeNoteModule> { KmeNoteModuleImpl(androidContext()) }
     single<IKmeRecordingModule> { KmeRecordingModuleImpl() }
     single<IKmeSettingsModule> { KmeSettingsModuleImpl() }
+    single<IKmeDesktopShareModule> { KmeDesktopShareModuleImpl() }
     single<IKmeAudioModule> { KmeAudioModuleImpl() }
     single<IKmeContentModule> { KmeContentModuleImpl() }
 
