@@ -21,6 +21,9 @@ import com.kme.kaltura.kmesdk.databinding.LayoutPollReactionsBinding
 import com.kme.kaltura.kmesdk.databinding.LayoutPollYesNoBinding
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
 
+/**
+ * An abstract class for different QuickPoll view types.
+ */
 abstract class KmeQuickPollTypeView<B : ViewBinding> @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
@@ -165,11 +168,30 @@ abstract class KmeQuickPollTypeView<B : ViewBinding> @JvmOverloads constructor(
         binding = null
     }
 
+    /**
+     * A callback that notifies when the user made click on the answer button.
+     */
     interface OnAnswerListener {
+        /**
+         * Notification that the user has selected a final answer.
+         *
+         * @param type the final answer type. Described in [KmeQuickPollType]
+         * @param answer the final answer selected.
+         */
         fun onAnswered(type: KmeQuickPollType, answer: Int)
     }
 
     companion object {
+
+        /**
+         * Utils function for creating a new instance QuickPoll view types.
+         *
+         * @param context context object needed to inflate views.
+         * @param type [KmeQuickPollType] available QuickPoll types.
+         *
+         * @return [KmeQuickPollTypeView] a new instance QuickPoll view types.
+         * Returns null if [KmeQuickPollType] is not supported.
+         */
         fun getView(
             context: Context,
             type: KmeQuickPollType?

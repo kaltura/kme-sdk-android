@@ -28,6 +28,7 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
 
     private lateinit var renderer: KmeSurfaceRendererView
     private lateinit var callback: KmeDesktopShareEvents
+    private var requestedUserIdStream: String? = null
 
     /**
      * Start listen desktop share events
@@ -54,6 +55,10 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
      */
     override fun stopListenDesktopShare() {
         roomController.removeListener(desktopShareHandler)
+        requestedUserIdStream?.let {
+            requestedUserIdStream = null
+            roomController.peerConnectionModule.disconnect(it)
+        }
     }
 
     /**
@@ -99,6 +104,7 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
     }
 
     private fun startViewStream(requestedUserIdStream: String) {
+        this.requestedUserIdStream = requestedUserIdStream
         roomController.peerConnectionModule.addViewer(requestedUserIdStream, renderer)
         callback.onDesktopShareAvailable()
     }

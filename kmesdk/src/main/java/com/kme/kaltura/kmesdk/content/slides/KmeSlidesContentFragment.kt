@@ -17,6 +17,9 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
 import org.koin.core.inject
 
+/**
+ * Implementation for whiteboard and slides shared content
+ */
 class KmeSlidesContentFragment : KmeContentView() {
 
     private val slidesContentViewModel: KmeSlidesContentViewModel by inject()

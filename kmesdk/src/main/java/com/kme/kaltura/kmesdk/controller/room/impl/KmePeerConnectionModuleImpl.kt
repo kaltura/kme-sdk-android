@@ -62,28 +62,31 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     override fun initialize(
         roomId: Long,
         companyId: Long,
-        turnUrl: String,
-        turnUser: String,
-        turnCred: String,
         listener: IKmePeerConnectionModule.KmePeerConnectionEvents
     ) {
         this.roomId = roomId
         this.companyId = companyId
 
-        this.turnUrl = turnUrl
-        this.turnUser = turnUser
-        this.turnCred = turnCred
+        val turnUrl = roomController.roomSettings?.turnUrl
+        val turnUser = roomController.roomSettings?.turnUsername
+        val turnCred = roomController.roomSettings?.turnCredential
 
-        this.listener = listener
-        roomController.listen(
-            peerConnectionModuleHandler,
-            KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER,
-            KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
-            KmeMessageEvent.USER_DISCONNECTED,
-            KmeMessageEvent.USER_MEDIA_STATE_CHANGED,
-            KmeMessageEvent.USER_SPEAKING
-        )
-        isInitialized = true
+        if (turnUrl != null && turnUser != null && turnCred != null) {
+            this.turnUrl = turnUrl
+            this.turnUser = turnUser
+            this.turnCred = turnCred
+
+            this.listener = listener
+            roomController.listen(
+                peerConnectionModuleHandler,
+                KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER,
+                KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
+                KmeMessageEvent.USER_DISCONNECTED,
+                KmeMessageEvent.USER_MEDIA_STATE_CHANGED,
+                KmeMessageEvent.USER_SPEAKING
+            )
+            isInitialized = true
+        }
     }
 
     /**
