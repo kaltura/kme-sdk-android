@@ -20,10 +20,13 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.Starte
 class KmeDesktopShareViewModel(
     private val roomController: IKmeRoomController,
     private val webSocketModule: IKmeWebSocketModule
-) : ViewModel() {
+) : ViewModel(), IKmeDesktopShareModule.KmeDesktopShareEvents {
 
     private val isDesktopShareActive = MutableLiveData<Boolean>()
     val isDesktopShareActiveLiveData get() = isDesktopShareActive as LiveData<Boolean>
+
+    private val isDesktopShareAvailable = MutableLiveData<Nothing>()
+    val isDesktopShareAvailableLiveData get() = isDesktopShareAvailable as LiveData<Nothing>
 
     private val startView = MutableLiveData<String>()
     val startViewLiveData get() = startView as LiveData<String>
@@ -33,58 +36,20 @@ class KmeDesktopShareViewModel(
 
     private var streamerId: String? = null
 
-    fun listenDesktopShare() {
-        roomController.listen(
-            desktopShareHandler,
-            KmeMessageEvent.DESKTOP_SHARE_STATE_UPDATED,
-            KmeMessageEvent.USER_STARTED_TO_PUBLISH,
-            KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
-            KmeMessageEvent.DESKTOP_SHARE_QUALITY_UPDATED
-        )
-        webSocketModule.send(buildDesktopShareInitOnRoomInitMessage())
+    fun listenDesktopShare(renderer: KmeSurfaceRendererView) {
+        roomController.desktopShareModule.startListenDesktopShare(renderer, this)
     }
 
-    private val desktopShareHandler = object : IKmeMessageListener {
-        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-            when (message.name) {
-                KmeMessageEvent.DESKTOP_SHARE_STATE_UPDATED -> {
-                    val msg: KmeDesktopShareModuleMessage<DesktopShareStateUpdatedPayload>? =
-                        message.toType()
+    override fun onDesktopShareActive(isActive: Boolean) {
+        isDesktopShareActive.value = isActive
+    }
 
-                    val isActive = msg?.payload?.isActive ?: false
-                    val onRoomInit = msg?.payload?.onRoomInit ?: false
+    override fun onDesktopShareAvailable() {
+        isDesktopShareAvailable.value = null
+    }
 
-                    isDesktopShareActive.value = isActive
-
-                    if (!isActive) {
-                        roomController.peerConnectionModule.disconnect(
-                            "${msg?.payload?.userId}_desk")
-                    } else if (onRoomInit) {
-                        startView.value = "${msg?.payload?.userId}_desk"
-                    }
-                }
-                KmeMessageEvent.USER_STARTED_TO_PUBLISH -> {
-                    val msg: KmeStreamingModuleMessage<StartedPublishPayload>? = message.toType()
-
-                    msg?.payload?.userId?.let {
-                        if (it.toLongOrNull() == null) {
-                            roomController.peerConnectionModule.disconnect(it)
-                            startView.value = it
-                        }
-                    }
-                }
-                KmeMessageEvent.DESKTOP_SHARE_QUALITY_UPDATED -> {
-                    val msg: KmeDesktopShareModuleMessage<DesktopShareQualityUpdatedPayload>? =
-                        message.toType()
-
-                    msg?.payload?.isHD?.let {
-                        desktopShareHDQuality.value = it
-                    }
-                }
-                else -> {
-                }
-            }
-        }
+    override fun onDesktopShareQualityChanged(isHd: Boolean) {
+        desktopShareHDQuality.value = isHd
     }
 
     fun startView(
@@ -106,6 +71,7 @@ class KmeDesktopShareViewModel(
     override fun onCleared() {
         super.onCleared()
         stopView()
+        roomController.desktopShareModule.stopListenDesktopShare()
     }
 
 }

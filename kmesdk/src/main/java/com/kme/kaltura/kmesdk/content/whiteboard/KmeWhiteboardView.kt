@@ -117,6 +117,11 @@ class KmeWhiteboardView @JvmOverloads constructor(
         }
     }
 
+    override fun onImageBoundsChanged(imageBounds: RectF) {
+        this.imageBounds.set(imageBounds)
+        invalidatePaths()
+    }
+
     /**
      * Sets the list of drawings.
      */

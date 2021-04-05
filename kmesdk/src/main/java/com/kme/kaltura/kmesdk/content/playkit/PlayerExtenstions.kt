@@ -18,10 +18,10 @@ fun KalturaPlayer.isEnded(): Boolean {
  */
 fun PlayerConstants.PlayerState.asKalturaEvent(): PlayerEvent? {
     return when (this) {
-        UNKNOWN, UNSTARTED, BUFFERING -> null
         VIDEO_CUED -> PlayerEvent.Generic(PlayerEvent.Type.CAN_PLAY)
         ENDED -> PlayerEvent.Generic(PlayerEvent.Type.ENDED)
         PLAYING -> PlayerEvent.Generic(PlayerEvent.Type.PLAYING)
         PAUSED -> PlayerEvent.Generic(PlayerEvent.Type.PAUSE)
+        else -> null
     }
 }

@@ -72,6 +72,10 @@ class KmeDefaultPlayerEventHandler(
         }
     }
 
+    fun saveState(state: Pair<KmePlayerState?, Float>) {
+        syncPlayerState.value = state
+    }
+
     fun release() {
         roomController.remove(playerStateHandler)
     }

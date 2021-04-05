@@ -3,9 +3,11 @@ package com.kme.kaltura.kmesdk
 import android.content.Context
 import android.graphics.*
 import android.util.DisplayMetrics
+import android.view.Display
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.annotation.DrawableRes
@@ -88,6 +90,13 @@ fun dpToPx(dp: Float, context: Context): Float {
 fun spToPx(sp: Float, context: Context): Float {
     val scale: Float = context.resources.displayMetrics.scaledDensity
     return sp * scale
+}
+
+fun Context.getDisplayMetrics() : DisplayMetrics {
+    val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    val metrics = DisplayMetrics()
+    windowManager.defaultDisplay.getMetrics(metrics)
+    return metrics
 }
 
 /**
