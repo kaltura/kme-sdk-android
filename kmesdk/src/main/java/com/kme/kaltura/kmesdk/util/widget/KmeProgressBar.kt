@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.content.poll
+package com.kme.kaltura.kmesdk.util.widget
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -12,8 +12,7 @@ import com.kme.kaltura.kmesdk.dpToPx
 import com.kme.kaltura.kmesdk.getBitmap
 import com.kme.kaltura.kmesdk.spToPx
 
-
-class KmeQuickPollProgressBar @JvmOverloads constructor(
+class KmeProgressBar @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
@@ -220,27 +219,58 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
         canvas.drawText(currentDrawText, drawTextStart, drawTextEnd, textPaint)
     }
 
+    /**
+     * Set the paint's text size. This value must be > 0
+     *
+     * @param textSize set the paint's text size in pixel units.
+     */
     fun setProgressTextSize(textSize: Float) {
         this.textSize = textSize
         textPaint.textSize = this.textSize
     }
 
+    /**
+     * Set the text color.
+     *
+     * @param textColor The new color (including alpha) to set in the paint.
+     */
     fun setProgressTextColor(textColor: Int) {
         this.textColor = textColor
         textPaint.color = this.textColor
     }
 
+    /**
+     * Set the progress bar color.
+     *
+     * @param progressColor The new color (including alpha) to set in the paint.
+     */
     fun setReachedBarColor(progressColor: Int) {
         this.reachedBarColor = progressColor
         reachedBarPaint.color = reachedBarColor
     }
 
+    /**
+     * Set the upper range of the progress bar.
+     *
+     * @param maxProgress the upper range of this progress bar
+     */
     fun setMax(maxProgress: Int) {
         if (maxProgress > 0) {
             this.maxProgress = maxProgress
         }
     }
 
+    /**
+     * Sets the current progress to the specified value. Does not do anything
+     * if the progress is not in range 0..maxProgress.
+     *
+     * This method will immediately update the visual position of the progress
+     * indicator. To animate the visual position to the target value, use [animate].
+     *
+     * @param progress the new progress, between 0 and [maxProgress]
+     * @param animate true to animate between the current and target
+     *                values or false to not animate
+     */
     fun applyProgress(progress: Int, animate: Boolean = false) {
         if (progress in 0..maxProgress) {
             this.initProgress = progress
@@ -252,10 +282,20 @@ class KmeQuickPollProgressBar @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Set the left icon bitmap.
+     *
+     * @param iconBitmap set the left icon.
+     */
     fun setIcon(iconBitmap: Bitmap) {
         this.iconBitmap = iconBitmap
     }
 
+    /**
+     * Set the prefix text to the progress bar view.
+     *
+     * @param prefix set the prefix text.
+     */
     fun setPrefix(prefix: String) {
         this.prefix = prefix
     }

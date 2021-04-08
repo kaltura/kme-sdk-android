@@ -36,6 +36,10 @@ class KmeDesktopShareViewModel(
         desktopShareHDQuality.value = isHd
     }
 
+    fun stopView() {
+        roomController.desktopShareModule.stopListenDesktopShare()
+    }
+
     override fun onCleared() {
         super.onCleared()
         roomController.desktopShareModule.stopListenDesktopShare()

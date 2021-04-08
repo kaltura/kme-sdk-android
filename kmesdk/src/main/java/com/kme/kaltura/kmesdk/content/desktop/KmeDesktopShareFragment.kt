@@ -11,6 +11,9 @@ import com.kme.kaltura.kmesdk.gone
 import com.kme.kaltura.kmesdk.visible
 import org.koin.android.ext.android.inject
 
+/**
+ * Implementation for desktop shared content
+ */
 class KmeDesktopShareFragment : KmeContentView() {
 
     private val viewModel: KmeDesktopShareViewModel by inject()
@@ -69,6 +72,11 @@ class KmeDesktopShareFragment : KmeContentView() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.stopView()
     }
 
     companion object {

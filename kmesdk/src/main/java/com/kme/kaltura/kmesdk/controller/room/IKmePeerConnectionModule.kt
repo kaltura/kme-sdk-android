@@ -13,17 +13,11 @@ interface IKmePeerConnectionModule: IKmePeerConnectionClientEvents {
      *
      * @param roomId id of a room
      * @param companyId id of a company
-     * @param turnUrl url of a TURN server
-     * @param turnUser username for TURN server
-     * @param turnCred password for TURN server
      * @param listener callback with [KmePeerConnectionEvents] for indicating main events
      */
     fun initialize(
         roomId: Long,
         companyId: Long,
-        turnUrl: String,
-        turnUser: String,
-        turnCred: String,
         listener: KmePeerConnectionEvents
     )
 
