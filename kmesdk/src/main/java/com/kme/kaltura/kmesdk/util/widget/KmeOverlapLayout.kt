@@ -74,15 +74,10 @@ class KmeOverlapLayout @JvmOverloads constructor(
                 measureDelta(event)
             }
             MotionEvent.ACTION_MOVE -> {
-                if (isMovingMode) {
-                    when (state) {
-                        State.RESIZING -> {
-                            performResizing(event)
-                        }
-                        State.DRAGGING -> {
-                            performDragging(event)
-                        }
-                    }
+                if (isMovingMode && state == State.DRAGGING) {
+                    performDragging(event)
+                } else if (state == State.RESIZING) {
+                    performResizing(event)
                 }
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
@@ -164,7 +159,7 @@ class KmeOverlapLayout @JvmOverloads constructor(
         }
     }
 
-    fun getContentFrameId() : Int {
+    fun getContentFrameId(): Int {
         return binding.contentLayout.id
     }
 

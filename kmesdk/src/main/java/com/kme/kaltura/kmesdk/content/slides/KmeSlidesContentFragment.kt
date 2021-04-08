@@ -11,6 +11,7 @@ import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.content.KmeContentView
 import com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardContentViewModel
 import com.kme.kaltura.kmesdk.databinding.FragmentSlidesContentBinding
+import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
@@ -33,8 +34,7 @@ class KmeSlidesContentFragment : KmeContentView() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentSlidesContentBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,14 +43,10 @@ class KmeSlidesContentFragment : KmeContentView() {
         content?.let {
             setContentPayload(it)
         } ?: run {
-            Snackbar.make(binding.root, R.string.error_active_content, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(binding.root, R.string.error_active_content, Snackbar.LENGTH_SHORT)
+                .show()
         }
         setupViewModel()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     private fun setupViewModel() {
@@ -113,6 +109,9 @@ class KmeSlidesContentFragment : KmeContentView() {
                 showPreview = slidesContentViewModel.userType() != KmeUserType.GUEST
             }
             binding.slidesView.init(config)
+            if (whiteboardViewModel.savedDrawingsList.isNotEmpty()) {
+                binding.slidesView.setDrawings(whiteboardViewModel.savedDrawingsList)
+            }
         }
     }
 
@@ -132,36 +131,60 @@ class KmeSlidesContentFragment : KmeContentView() {
         }
     }
 
-    private val whiteboardPageDataObserver = Observer<List<WhiteboardPayload.Drawing>> {
-        binding.slidesView.setDrawings(it)
+    private val whiteboardPageDataObserver =
+        Observer<ConsumableValue<List<WhiteboardPayload.Drawing>>> { consumableValue ->
+            consumableValue.consume {
+                binding.slidesView.setDrawings(it)
+            }
+        }
+
+    private val whiteboardPageClearedObserver =
+        Observer<ConsumableValue<Nothing?>> { consumableValue ->
+            consumableValue.consume {
+                binding.slidesView.removeDrawings()
+            }
+        }
+
+    private val receiveDrawingObserver =
+        Observer<ConsumableValue<WhiteboardPayload.Drawing>> { consumableValue ->
+            consumableValue.consume {
+                binding.slidesView.addDrawing(it)
+            }
+        }
+
+    private val receivedLaserPositionObserver =
+        Observer<ConsumableValue<PointF>> { consumableValue ->
+            consumableValue.consume {
+                binding.slidesView.updateLaserPosition(it)
+            }
+        }
+
+    private val hideLaserObserver = Observer<ConsumableValue<Nothing?>> { consumableValue ->
+        consumableValue.consume {
+            binding.slidesView.hideLaser()
+        }
     }
 
-    private val whiteboardPageClearedObserver = Observer<Nothing> {
-        binding.slidesView.removeDrawings()
+    private val deleteDrawingObserver = Observer<ConsumableValue<String>> { consumableValue ->
+        consumableValue.consume {
+            binding.slidesView.removeDrawing(it)
+        }
     }
 
-    private val receiveDrawingObserver = Observer<WhiteboardPayload.Drawing> {
-        binding.slidesView.addDrawing(it)
-    }
-
-    private val receivedLaserPositionObserver = Observer<PointF> {
-        binding.slidesView.updateLaserPosition(it)
-    }
-
-    private val hideLaserObserver = Observer<Nothing> {
-        binding.slidesView.hideLaser()
-    }
-
-    private val deleteDrawingObserver = Observer<String> {
-        binding.slidesView.removeDrawing(it)
-    }
-
-    private val backgroundTypeChangedObserver = Observer<KmeWhiteboardBackgroundType> {
-        binding.slidesView.updateBackground(it)
-    }
+    private val backgroundTypeChangedObserver =
+        Observer<ConsumableValue<KmeWhiteboardBackgroundType?>> { consumableValue ->
+            consumableValue.consume {
+                binding.slidesView.updateBackground(it)
+            }
+        }
 
     private val setActivePageObserver = Observer<String> {
         binding.slidesView.setActivePage(it)
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {
