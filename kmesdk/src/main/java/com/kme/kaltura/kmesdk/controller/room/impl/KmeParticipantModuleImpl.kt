@@ -6,6 +6,7 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.util.messages.buildAllHandsDownMessage
 import com.kme.kaltura.kmesdk.util.messages.buildChangeMediaStateMessage
 import com.kme.kaltura.kmesdk.util.messages.buildRaiseHandMessage
+import com.kme.kaltura.kmesdk.util.messages.buildRemoveParticipantMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 import org.koin.core.inject
@@ -62,6 +63,22 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                 userId,
                 mediaStateType,
                 stateValue
+            )
+        )
+    }
+
+    override fun remove(
+        roomId: Long,
+        companyId: Long,
+        userId: Long,
+        targetId: Long
+    ) {
+        webSocketModule.send(
+            buildRemoveParticipantMessage(
+                roomId,
+                companyId,
+                userId,
+                targetId
             )
         )
     }

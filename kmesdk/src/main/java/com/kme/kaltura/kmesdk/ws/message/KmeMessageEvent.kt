@@ -85,6 +85,12 @@ enum class KmeMessageEvent(
     @SerializedName("makeAllUsersHandPut", alternate = ["makeallusershandput"])
     MAKE_ALL_USERS_HAND_PUT("makeAllUsersHandPut"),
 
+    @SerializedName("removeUser", alternate = ["removeuser"])
+    REMOVE_USER("removeUser"),
+
+    @SerializedName("userRemoved", alternate = ["userremoved"])
+    USER_REMOVED("userRemoved"),
+
     /*
     * Streaming
     * */
