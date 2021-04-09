@@ -28,7 +28,6 @@ class SoundAmplitudeMeter(
         mRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
         mRecorder?.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
         mRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-        mRecorder?.setOutputFile("/dev/null")
         mRecorder?.setOutputFile("$dir/$TMP_FILE_NAME")
         mRecorder?.prepare()
         mRecorder?.start()

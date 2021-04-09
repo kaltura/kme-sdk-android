@@ -250,6 +250,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
             null
         }
 
+        backgroundBitmap = null
         backgroundPaint?.let {
             backgroundBitmap = Bitmap.createBitmap(
                 width,

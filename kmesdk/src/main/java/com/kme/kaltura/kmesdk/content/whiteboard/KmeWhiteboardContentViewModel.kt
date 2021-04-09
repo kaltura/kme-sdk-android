@@ -6,40 +6,46 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.toType
+import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
+import okhttp3.internal.toImmutableList
 
 class KmeWhiteboardContentViewModel(
     private val roomController: IKmeRoomController
 ) : ViewModel() {
 
-    private val whiteboardPageData = MutableLiveData<List<WhiteboardPayload.Drawing>>()
-    val whiteboardPageLiveData get() = whiteboardPageData as LiveData<List<WhiteboardPayload.Drawing>>
-
-    private val whiteboardCleared = MutableLiveData<Nothing>()
-    val whiteboardClearedLiveData get() = whiteboardCleared as LiveData<Nothing>
-
-    private val backgroundChanged = MutableLiveData<KmeWhiteboardBackgroundType>()
-    val backgroundChangedLiveData get() = backgroundChanged as LiveData<KmeWhiteboardBackgroundType>
-
-    private val receiveDrawing = MutableLiveData<WhiteboardPayload.Drawing>()
-    val receiveDrawingLiveData get() = receiveDrawing as LiveData<WhiteboardPayload.Drawing>
-
-    private val receiveLaserPosition = MutableLiveData<PointF>()
-    val receiveLaserPositionLiveData get() = receiveLaserPosition as LiveData<PointF>
-
-    private val hideLaser = MutableLiveData<Nothing>()
-    val hideLaserLiveData get() = hideLaser as LiveData<Nothing>
-
-    private val deleteDrawing = MutableLiveData<String>()
-    val deleteDrawingLiveData get() = deleteDrawing as LiveData<String>
-
     private val setActivePage = MutableLiveData<String>()
     val setActivePageLiveData get() = setActivePage as LiveData<String>
+
+    private val whiteboardPageData =
+        MutableLiveData<ConsumableValue<List<WhiteboardPayload.Drawing>>>()
+    val whiteboardPageLiveData get() = whiteboardPageData as LiveData<ConsumableValue<List<WhiteboardPayload.Drawing>>>
+
+    private val whiteboardCleared = MutableLiveData<ConsumableValue<Nothing?>>()
+    val whiteboardClearedLiveData get() = whiteboardCleared as LiveData<ConsumableValue<Nothing?>>
+
+    private val backgroundChanged = MutableLiveData<ConsumableValue<KmeWhiteboardBackgroundType?>>()
+    val backgroundChangedLiveData get() = backgroundChanged as LiveData<ConsumableValue<KmeWhiteboardBackgroundType?>>
+
+    private val receiveDrawing = MutableLiveData<ConsumableValue<WhiteboardPayload.Drawing>>()
+    val receiveDrawingLiveData get() = receiveDrawing as LiveData<ConsumableValue<WhiteboardPayload.Drawing>>
+
+    private val receiveLaserPosition = MutableLiveData<ConsumableValue<PointF>>()
+    val receiveLaserPositionLiveData get() = receiveLaserPosition as LiveData<ConsumableValue<PointF>>
+
+    private val hideLaser = MutableLiveData<ConsumableValue<Nothing?>>()
+    val hideLaserLiveData get() = hideLaser as LiveData<ConsumableValue<Nothing?>>
+
+    private val deleteDrawing = MutableLiveData<ConsumableValue<String>>()
+    val deleteDrawingLiveData get() = deleteDrawing as LiveData<ConsumableValue<String>>
+
+    private val savedDrawings: MutableList<WhiteboardPayload.Drawing> = mutableListOf()
+    val savedDrawingsList get() = savedDrawings.toImmutableList()
 
     var boardId: String? = null
         private set
@@ -77,7 +83,9 @@ class KmeWhiteboardContentViewModel(
                     pageId = contentMessage?.payload?.pageId
 
                     contentMessage?.payload?.drawings?.let {
-                        whiteboardPageData.postValue(it)
+                        whiteboardPageData.postValue(ConsumableValue(it))
+                        savedDrawings.clear()
+                        savedDrawings.addAll(it)
                     }
                 }
                 KmeMessageEvent.RECEIVE_LASER_POSITION -> {
@@ -86,18 +94,19 @@ class KmeWhiteboardContentViewModel(
 
                     contentMessage?.payload?.let {
                         laserPosition.set(it.laserX, it.laserY)
-                        receiveLaserPosition.postValue(laserPosition)
+                        receiveLaserPosition.postValue(ConsumableValue(laserPosition))
                     }
                 }
                 KmeMessageEvent.LASER_DEACTIVATED -> {
-                    hideLaser.postValue(null)
+                    hideLaser.postValue(ConsumableValue(null))
                 }
                 KmeMessageEvent.RECEIVE_DRAWING, KmeMessageEvent.RECEIVE_TRANSFORMATION -> {
                     val contentMessage: KmeWhiteboardModuleMessage<ReceiveDrawingPayload>? =
                         message.toType()
 
                     contentMessage?.payload?.drawing?.let {
-                        receiveDrawing.postValue(it)
+                        receiveDrawing.postValue(ConsumableValue(it))
+                        savedDrawings.add(it)
                     }
                 }
                 KmeMessageEvent.DELETE_DRAWING -> {
@@ -105,7 +114,8 @@ class KmeWhiteboardContentViewModel(
                         message.toType()
 
                     contentMessage?.payload?.layer?.let {
-                        deleteDrawing.postValue(it)
+                        deleteDrawing.postValue(ConsumableValue(it))
+                        savedDrawings.removeAll { drawing -> drawing.layer == it }
                     }
                 }
                 KmeMessageEvent.WHITEBOARD_PAGE_CLEARED -> {
@@ -114,7 +124,8 @@ class KmeWhiteboardContentViewModel(
 
                     contentMessage?.payload?.let {
                         if (boardId == it.boardId && pageId == it.pageId) {
-                            whiteboardCleared.postValue(null)
+                            whiteboardCleared.postValue(ConsumableValue(null))
+                            savedDrawings.clear()
                         }
                     }
                 }
@@ -124,7 +135,8 @@ class KmeWhiteboardContentViewModel(
 
                     contentMessage?.payload?.let {
                         if (boardId == it.boardId) {
-                            whiteboardCleared.postValue(null)
+                            whiteboardCleared.postValue(ConsumableValue(null))
+                            savedDrawings.clear()
                         }
                     }
                 }
@@ -134,7 +146,7 @@ class KmeWhiteboardContentViewModel(
 
                     contentMessage?.payload?.let {
                         if (pageId == it.pageId) {
-                            backgroundChanged.postValue(it.backgroundType)
+                            backgroundChanged.postValue(ConsumableValue(it.backgroundType))
                         }
                     }
                 }

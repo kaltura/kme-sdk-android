@@ -27,24 +27,13 @@ class KmeDesktopShareFragment : KmeContentView() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentDesktopShareContentBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupUI()
         setupViewModel()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    private fun setupUI() {
-        binding.desktopShareRenderer.setZOrderMediaOverlay(true)
     }
 
     private fun setupViewModel() {
@@ -78,6 +67,11 @@ class KmeDesktopShareFragment : KmeContentView() {
 
     private val desktopShareHDQualityObserver = Observer<Boolean> { isHD ->
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onDestroy() {
