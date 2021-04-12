@@ -20,6 +20,16 @@ class KmeStreamingModuleMessage<T : KmeStreamingModuleMessage.StreamingPayload> 
         @SerializedName("managingRoomServerId") val managingRoomServerId: Long
     ) : StreamingPayload()
 
+    data class StartScreenSharePayload(
+        @SerializedName("room_id") val roomId: Long? = null,
+        @SerializedName("user_id") val userId: Long? = null,
+        @SerializedName("company_id") val companyId: Long? = null,
+        @SerializedName("sdpOffer") val sdpOffer: SDP? = null,
+        @SerializedName("streamType") val streamType: String? = null,
+        @SerializedName("is_desktop") val isDesktop: Boolean? = null,
+        @SerializedName("withDataChannel") val withDataChannel: Boolean? = null
+    ) : StreamingPayload()
+
     data class StartViewingPayload(
         @SerializedName("room_id") val sdpOffer: Long? = null,
         @SerializedName("user_id") val userId: Long? = null,
@@ -63,7 +73,8 @@ class KmeStreamingModuleMessage<T : KmeStreamingModuleMessage.StreamingPayload> 
         @SerializedName("company_id") var companyId: Long? = null,
         @SerializedName("mediaServerId") var mediaServerId: Long? = null,
         @SerializedName("plugin") var plugin: String? = null,
-        @SerializedName("streamType") var streamType: String? = null
+        @SerializedName("streamType") var streamType: String? = null,
+        @SerializedName("is_desktop") val isDesktop: Boolean? = null
     ) : StreamingPayload()
 
     data class IceGatheringViewingDonePayload(
