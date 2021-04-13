@@ -12,7 +12,7 @@ import java.util.*
  */
 internal class KmeMessageManager {
 
-    private val listeners: MutableMap<KmeMessageEvent?, MutableSet<IKmeMessageListener>?> =
+    private val listeners: MutableMap<KmeMessageEvent?, MutableList<IKmeMessageListener>?> =
         Collections.synchronizedMap(mutableMapOf())
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
@@ -46,7 +46,7 @@ internal class KmeMessageManager {
      * @param listener listener to be added
      */
     fun addListener(listener: IKmeMessageListener) {
-        addToMap(null, listener, listeners)
+        addToMap(null, listener)
     }
 
     /**
@@ -56,7 +56,7 @@ internal class KmeMessageManager {
      * @param listener listener to be added
      */
     fun addListener(event: KmeMessageEvent, listener: IKmeMessageListener) {
-        addToMap(event, listener, listeners)
+        addToMap(event, listener)
     }
 
     /**
@@ -106,7 +106,7 @@ internal class KmeMessageManager {
      */
     fun remove(listener: IKmeMessageListener, vararg eventTypes: KmeMessageEvent) {
         for (eventType in eventTypes) {
-            val listenerSet: MutableSet<IKmeMessageListener>? = listeners[eventType]
+            val listenerSet: MutableList<IKmeMessageListener>? = listeners[eventType]
             listenerSet?.remove(listener)
         }
     }
@@ -116,19 +116,17 @@ internal class KmeMessageManager {
      *
      * @param key event name
      * @param listener listener to be added
-     * @param map internal collection of listeners
      */
     private fun addToMap(
         key: KmeMessageEvent?,
-        listener: IKmeMessageListener,
-        map: MutableMap<KmeMessageEvent?, MutableSet<IKmeMessageListener>?>
+        listener: IKmeMessageListener
     ) {
-        var listenerSet: MutableSet<IKmeMessageListener>?
-        listenerSet = map[key]
+        var listenerSet: List<IKmeMessageListener>?
+        listenerSet = listeners[key]
         if (listenerSet == null) {
-            listenerSet = HashSet<IKmeMessageListener>()
+            listenerSet = mutableListOf()
             listenerSet.add(listener)
-            map[key] = listenerSet
+            listeners[key] = listenerSet
         } else {
             listenerSet.add(listener)
         }
