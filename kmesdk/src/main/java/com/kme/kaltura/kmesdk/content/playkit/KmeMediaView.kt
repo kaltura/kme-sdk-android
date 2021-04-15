@@ -77,6 +77,13 @@ class KmeMediaView @JvmOverloads constructor(
             canPlay = true
             syncPlayerState()
         }
+
+        defaultPlayerEventHandler.setState(
+            Pair(
+                config.metadata.playState,
+                currentPosition.toFloat()
+            )
+        )
         defaultPlayerEventHandler.syncPlayerStateLiveData.observeForever(syncPlayerStateObserver)
         defaultPlayerEventHandler.subscribe()
     }
@@ -424,19 +431,6 @@ class KmeMediaView @JvmOverloads constructor(
         youtubePlayerView = null
         youtubePlayer = null
         messageBus = null
-    }
-
-    override fun onDetachedFromWindow() {
-        canPlay = false
-        if (config.useDefaultHandler) {
-            val savedState = if (isPlaying()) {
-                KmePlayerState.PLAYING
-            } else {
-                KmePlayerState.PAUSED
-            }
-            defaultPlayerEventHandler.saveState(Pair(savedState, currentPosition.toFloat()))
-        }
-        super.onDetachedFromWindow()
     }
 
     class Config(

@@ -72,8 +72,12 @@ class KmeDefaultPlayerEventHandler(
         }
     }
 
-    fun saveState(state: Pair<KmePlayerState?, Float>) {
-        syncPlayerState.value = state
+    fun setState(state: Pair<KmePlayerState?, Float>) {
+        syncPlayerState.value =
+            Pair(
+                if (state.first == null) KmePlayerState.STOP else state.first,
+                state.second
+            )
     }
 
     fun release() {
