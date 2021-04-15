@@ -346,7 +346,13 @@ enum class KmeMessageEvent(
     DESKTOP_SHARE_STATE_UPDATED("desktopShareStateUpdated"),
 
     @SerializedName("desktopShareQualityUpdated", alternate = ["desktopsharequalityupdated"])
-    DESKTOP_SHARE_QUALITY_UPDATED("desktopShareQualityUpdated");
+    DESKTOP_SHARE_QUALITY_UPDATED("desktopShareQualityUpdated"),
+
+    @SerializedName("updateDesktopShareState", alternate = ["updatedesktopsharestate"])
+    UPDATE_DESKTOP_SHARE_STATE("updateDesktopShareState"),
+
+    @SerializedName("stopDesktopShare", alternate = ["stopdesktopshare"])
+    STOP_DESKTOP_SHARE("stopDesktopShare");
 
     @SuppressLint("DefaultLocale")
     override fun toString(): String {

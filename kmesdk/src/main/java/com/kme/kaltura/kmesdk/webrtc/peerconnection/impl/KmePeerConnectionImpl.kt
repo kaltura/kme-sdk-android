@@ -33,6 +33,7 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
     private var soundAmplitudeMeter: KmeSoundAmplitudeMeter? = null
     private var iceServers: MutableList<IceServer> = mutableListOf()
     private var isPublisher = false
+    private var isScreenShare = false
     private var useDataChannel = false
     private var events: IKmePeerConnectionEvents? = null
 
@@ -147,15 +148,13 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         this.useDataChannel = useDataChannel
         this.iceServers = iceServers
 
-        createMediaConstraints()
         createPeerConnection(context)
     }
 
     /**
      * Audio and SDP constraints
      */
-    private fun createMediaConstraints() {
-        audioConstraints = MediaConstraints()
+    private fun addMediaConstraints() {
         audioConstraints?.mandatory?.add(
             MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "true")
         )
@@ -172,7 +171,6 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
             MediaConstraints.KeyValuePair(AUDIO_LEVEL_CONTROL_CONSTRAINT, "true")
         )
 
-        sdpMediaConstraints = MediaConstraints()
         sdpMediaConstraints?.mandatory?.add(
             MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true")
         )
@@ -207,20 +205,26 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
                 )
             }
 
-            it.addTrack(createLocalAudioTrack(), mediaStreamLabels)
+            audioConstraints = MediaConstraints()
+            sdpMediaConstraints = MediaConstraints()
+
+            if (!isScreenShare) {
+                addMediaConstraints()
+                it.addTrack(createLocalAudioTrack(), mediaStreamLabels)
+
+                if (isPublisher) {
+                    val volumeInit = DataChannel.Init()
+                    volumeInit.ordered = false
+                    volumeInit.maxRetransmits = 0
+                    if (useDataChannel) {
+                        volumeDataChannel = it.createDataChannel("volumeDataChannel", volumeInit)
+                    }
+
+                    soundAmplitudeMeter = KmeSoundAmplitudeMeter(it, this)
+                }
+            }
 
             if (videoCapturer != null) findVideoSender()
-
-            if (isPublisher) {
-                val volumeInit = DataChannel.Init()
-                volumeInit.ordered = false
-                volumeInit.maxRetransmits = 0
-                if (useDataChannel) {
-                    volumeDataChannel = it.createDataChannel("volumeDataChannel", volumeInit)
-                }
-
-                soundAmplitudeMeter = KmeSoundAmplitudeMeter(it, this)
-            }
 
             events?.onPeerConnectionCreated()
         }
@@ -243,8 +247,21 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         capturer?.let {
             surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", getRenderContext())
             localVideoSource = factory?.createVideoSource(it.isScreencast)
+            isScreenShare = it.isScreencast
             it.initialize(surfaceTextureHelper, context, localVideoSource?.capturerObserver)
-            it.startCapture(VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS)
+            if (isScreenShare) {
+                it.startCapture(
+                    SCREEN_SHARE_VIDEO_WIDTH,
+                    SCREEN_SHARE_VIDEO_HEIGHT,
+                    SCREEN_SHARE_VIDEO_FPS
+                )
+            } else {
+                it.startCapture(
+                    VIDEO_WIDTH,
+                    VIDEO_HEIGHT,
+                    VIDEO_FPS
+                )
+            }
         }
 
         localVideoTrack = factory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)
@@ -609,7 +626,7 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         override fun onCreateSuccess(origSdp: SessionDescription) {}
 
         override fun onSetSuccess() {
-            if (!isPublisher) {
+            if (!isPublisher && !isScreenShare) {
                 peerConnection?.createAnswer(localSdpObserver, sdpMediaConstraints)
             }
         }
@@ -646,9 +663,12 @@ class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
         private const val AUDIO_NOISE_SUPPRESSION_CONSTRAINT = "googNoiseSuppression"
         private const val AUDIO_LEVEL_CONTROL_CONSTRAINT = "levelControl"
         private const val DTLS_SRTP_KEY_AGREEMENT_CONSTRAINT = "DtlsSrtpKeyAgreement"
-        private const val VIDEO_WIDTH = 720 /*1280*/
-        private const val VIDEO_HEIGHT = 480 /*720*/
+        private const val VIDEO_WIDTH = 720
+        private const val VIDEO_HEIGHT = 480
+        private const val SCREEN_SHARE_VIDEO_WIDTH = 1280
+        private const val SCREEN_SHARE_VIDEO_HEIGHT = 720
         private const val VIDEO_FPS = 30
+        private const val SCREEN_SHARE_VIDEO_FPS = 60
         private const val BPS_IN_KBPS = 1000
     }
 

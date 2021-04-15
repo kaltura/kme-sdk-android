@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.controller.room
 
+import android.content.Intent
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
@@ -64,6 +65,19 @@ internal interface IKmePeerConnection {
     fun createPeerConnection(
         requestedUserIdStream: String,
         useDataChannel: Boolean,
+        listener: IKmePeerConnectionClientEvents
+    )
+
+    /**
+     * Starts screen share publishing
+     *
+     * @param requestedUserIdStream id of a stream
+     * @param screenCaptureIntent media projection intent
+     * @param listener listener for p2p events
+     */
+    fun startScreenShare(
+        requestedUserIdStream: String,
+        screenCaptureIntent: Intent,
         listener: IKmePeerConnectionClientEvents
     )
 

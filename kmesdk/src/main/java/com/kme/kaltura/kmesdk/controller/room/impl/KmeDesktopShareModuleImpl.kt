@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
+import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeDesktopShareModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeDesktopShareModule.KmeDesktopShareEvents
@@ -23,8 +24,13 @@ import org.koin.core.inject
  */
 class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
 
+    private val userController: IKmeUserController by inject()
     private val roomController: IKmeRoomController by inject()
     private val webSocketModule: IKmeWebSocketModule by inject()
+
+    private val publisherId: String by lazy {
+        userController.getCurrentUserInfo()?.getUserId().toString()
+    }
 
     private lateinit var renderer: KmeSurfaceRendererView
     private lateinit var callback: KmeDesktopShareEvents
@@ -104,6 +110,10 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
     }
 
     private fun startViewStream(requestedUserIdStream: String) {
+        if (requestedUserIdStream.contains(publisherId)) {
+            // TODO: see own shared screen in other way!!!
+            return
+        }
         this.requestedUserIdStream = requestedUserIdStream
         roomController.peerConnectionModule.addViewer(requestedUserIdStream, renderer)
         callback.onDesktopShareAvailable()
