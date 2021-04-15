@@ -1,17 +1,17 @@
 package com.kme.kaltura.kmesdk.controller.impl
 
+import android.content.Context
 import android.webkit.CookieManager
+import com.google.android.gms.safetynet.SafetyNet
 import com.kme.kaltura.kmesdk.controller.IKmeSignInController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.encryptWith
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeGuestLoginResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeLogoutResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeRegisterResponse
+import com.kme.kaltura.kmesdk.rest.response.signin.*
 import com.kme.kaltura.kmesdk.rest.safeApiCall
+import com.kme.kaltura.kmesdk.rest.response.signin.*
 import com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +21,9 @@ import org.koin.core.inject
 /**
  * An implementation for signIn/signUp
  */
-class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
+class KmeSignInControllerImpl(
+    private val context: Context
+) : KmeController(), IKmeSignInController {
 
     private val signInApiService: KmeSignInApiService by inject()
     private val userController: IKmeUserController by inject()
@@ -106,6 +108,40 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
     }
 
     /**
+     * Reset password for existed user
+     */
+    override fun resetPassword(
+        email: String,
+        success: (response: KmeResetPasswordResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        removeCookies {
+            resetPassword(email, "", success, error)
+        }
+    }
+
+    private fun resetPassword(
+        email: String,
+        captchaToken: String,
+        success: (response: KmeResetPasswordResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        uiScope.launch {
+            safeApiCall(
+                { signInApiService.resetPassword(email, captchaToken) },
+                success,
+                { exception ->
+                    handleResetPasswordError(exception, success = { token ->
+                        resetPassword(email, token, success, error)
+                    }, error = { e ->
+                        error(e)
+                    })
+                }
+            )
+        }
+    }
+
+    /**
      * Login user by input data and allow to connect to the room
      */
     override fun guest(
@@ -147,6 +183,43 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
         }
     }
 
+    private fun handleResetPasswordError(
+        exception: KmeApiException,
+        success: (token: String) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        if (exception.code == 506) {
+            askForCaptcha(success = { token ->
+                success(token)
+            }, error = { e->
+                error(e)
+            })
+        } else {
+            error(exception)
+        }
+    }
+
+    private fun askForCaptcha(
+        success: (token: String) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        SafetyNet.getClient(context)
+            .verifyWithRecaptcha(CAPTCHA_PUBLIC_SITE_KEY)
+            .addOnCompleteListener { response ->
+                if (response.isSuccessful) {
+                    val token = response.result?.tokenResult
+                    if (token?.isNotEmpty() == true) {
+                        success(token)
+                    }
+                } else {
+                    error(KmeApiException.SomethingBadHappenedException(
+                        response.exception?.message,
+                        response.exception?.cause
+                    ))
+                }
+            }
+    }
+
     private fun removeCookies(callback: () -> Unit) {
         val cookieManager = CookieManager.getInstance()
         if (cookieManager.hasCookies()) {
@@ -159,7 +232,8 @@ class KmeSignInControllerImpl : KmeController(), IKmeSignInController {
     }
 
     companion object {
-        const val PASS_ENCRYPT_KEY = "8kjbca328hbvcm,z,123A"
+        private const val PASS_ENCRYPT_KEY = "8kjbca328hbvcm,z,123A"
+        private const val CAPTCHA_PUBLIC_SITE_KEY = "6Lf8O44aAAAAAFo6UuGYsmmdqm7oCDXSwp1SLD5G"
     }
 
 }

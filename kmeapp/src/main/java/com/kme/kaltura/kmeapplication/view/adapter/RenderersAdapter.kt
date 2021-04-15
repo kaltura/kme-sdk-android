@@ -184,6 +184,7 @@ class RenderersAdapter(
                     rendererContainer.addView(it)
                 }
 
+                updateBackground(participant)
                 updateAudioState(participant)
                 updateVideoState(participant)
                 updateHandRaiseState(participant)
