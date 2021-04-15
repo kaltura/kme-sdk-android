@@ -107,3 +107,18 @@ internal fun buildAllHandsDownMessage(
         payload = AllUsersHandPutPayload(roomId, companyId)
     }
 }
+
+internal fun buildRemoveParticipantMessage(
+    roomId: Long,
+    userId: Long,
+    companyId: Long,
+    targetId: Long
+): KmeParticipantsModuleMessage<RemoveParticipantPayload> {
+    return KmeParticipantsModuleMessage<RemoveParticipantPayload>().apply {
+        constraint = listOf(KmeConstraint.INCLUDE_SELF)
+        module = KmeMessageModule.ROOM_PARTICIPANTS
+        name = KmeMessageEvent.REMOVE_USER
+        type = KmeMessageEventType.VOID
+        payload = RemoveParticipantPayload(userId, roomId, companyId, targetId)
+    }
+}
