@@ -12,15 +12,18 @@ class KmeSoundAmplitudeMeter(
     private var soundAmplitudeListener: KmeSoundAmplitudeListener?
 ) {
 
-    private var measureScope = CoroutineScope(Dispatchers.IO)
+    private var measureJob: Job? = null
 
     /**
      * Start listen for measuring
      */
     fun startMeasure() {
-        measureScope = CoroutineScope(Dispatchers.IO)
-        measureScope.launch {
-            while (true) {
+        measureJob?.isActive?.let {
+            return
+        }
+
+        measureJob = CoroutineScope(Dispatchers.IO).launch {
+            while (isActive) {
                 measureAmplitude()
                 delay(SOUND_METER_DELAY)
             }
@@ -31,7 +34,12 @@ class KmeSoundAmplitudeMeter(
      * Stop listen for measuring
      */
     fun stopMeasure() {
-        measureScope.cancel()
+        measureJob?.let {
+            if (it.isActive) {
+                measureJob?.cancel()
+                measureJob = null
+            }
+        }
         soundAmplitudeListener?.onAmplitudeMeasured(0)
     }
 

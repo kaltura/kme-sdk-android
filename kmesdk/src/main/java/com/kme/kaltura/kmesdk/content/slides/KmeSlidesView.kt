@@ -145,10 +145,8 @@ class KmeSlidesView @JvmOverloads constructor(
             ivSlide.viewTreeObserver.addOnPreDrawListener(object :
                 ViewTreeObserver.OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
-                    val drawable = ivSlide.drawable
-                    if (drawable != null) {
-                        val imageBounds = RectF()
-                        ivSlide.imageMatrix.mapRect(imageBounds, RectF(drawable.bounds))
+                    val imageBounds = getSlideDrawableBounds()
+                    if (imageBounds != null) {
                         originalImageSize?.let { imageSize ->
                             val whiteboardConfig =
                                 KmeWhiteboardView.Config(imageSize, imageBounds).apply {
@@ -169,6 +167,37 @@ class KmeSlidesView @JvmOverloads constructor(
                 }
             })
         }
+
+        setupWhiteboardSizeChangeListener()
+    }
+
+    private fun setupWhiteboardSizeChangeListener() {
+        with(binding) {
+            whiteboardContainer.addOnLayoutChangeListener { v, _, _, _, _, oldLeft, oldTop, oldRight, oldBottom ->
+                val oldWidth: Int = oldRight - oldLeft
+                val oldHeight: Int = oldBottom - oldTop
+
+                if (v.width != oldWidth || v.height != oldHeight) {
+                    val imageBounds = getSlideDrawableBounds()
+                    if (imageBounds != null) {
+                        onImageBoundsChanged(imageBounds)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getSlideDrawableBounds(): RectF? {
+        with(binding) {
+            val drawable = ivSlide.drawable
+            if (drawable != null) {
+                val imageBounds = RectF()
+                ivSlide.imageMatrix.mapRect(imageBounds, RectF(drawable.bounds))
+                return imageBounds
+            }
+        }
+
+        return null
     }
 
     private fun setupSlidesPreview() {
@@ -273,6 +302,10 @@ class KmeSlidesView @JvmOverloads constructor(
     override fun init(whiteboardConfig: KmeWhiteboardView.Config?) {
         binding.whiteboardLayout.init(whiteboardConfig)
         enableAnnotations(config.isAnnotationsEnabled)
+    }
+
+    override fun onImageBoundsChanged(imageBounds: RectF) {
+        binding.whiteboardLayout.onImageBoundsChanged(imageBounds)
     }
 
     /**

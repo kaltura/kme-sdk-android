@@ -23,6 +23,10 @@ class KmeDefaultPollEventHandler(
     val pollEndedLiveData
         get() = pollEnded as LiveData<QuickPollEndedPayload>
 
+    private val userAnsweredPoll = MutableLiveData<QuickPollUserAnsweredPayload>()
+    val userAnsweredPollLiveData
+        get() = userAnsweredPoll as LiveData<QuickPollUserAnsweredPayload>
+
     fun subscribe() {
         roomController.listen(
             quickPollHandler,
@@ -54,6 +58,10 @@ class KmeDefaultPollEventHandler(
                 KmeMessageEvent.QUICK_POLL_STATE -> {
                 }
                 KmeMessageEvent.QUICK_POLL_USER_ANSWERED -> {
+                    val msg: KmeQuickPollModuleMessage<QuickPollUserAnsweredPayload>? = message.toType()
+                    msg?.payload?.let {
+                        userAnsweredPoll.postValue(it)
+                    }
                 }
             }
         }

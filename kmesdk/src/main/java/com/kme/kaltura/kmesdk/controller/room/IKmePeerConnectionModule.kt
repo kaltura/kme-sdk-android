@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.controller.room
 
+import android.content.Intent
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 
@@ -13,17 +14,11 @@ interface IKmePeerConnectionModule: IKmePeerConnectionClientEvents {
      *
      * @param roomId id of a room
      * @param companyId id of a company
-     * @param turnUrl url of a TURN server
-     * @param turnUser username for TURN server
-     * @param turnCred password for TURN server
      * @param listener callback with [KmePeerConnectionEvents] for indicating main events
      */
     fun initialize(
         roomId: Long,
         companyId: Long,
-        turnUrl: String,
-        turnUser: String,
-        turnCred: String,
         listener: KmePeerConnectionEvents
     )
 
@@ -68,6 +63,26 @@ interface IKmePeerConnectionModule: IKmePeerConnectionClientEvents {
      * @return [Boolean] value that indicates publishing state
      */
     fun isPublishing(): Boolean
+
+    /**
+     * Starts screen share publishing
+     *
+     * @param screenCaptureIntent media projection intent
+     */
+    fun startScreenShare(screenCaptureIntent: Intent)
+
+    /**
+     * Stops screen share publishing
+     *
+     */
+    fun stopScreenShare()
+
+    /**
+     * Getting screen share publishing state
+     *
+     * @return [Boolean] value that indicates publishing state
+     */
+    fun isScreenShared(): Boolean
 
     /**
      * Toggle publisher's camera

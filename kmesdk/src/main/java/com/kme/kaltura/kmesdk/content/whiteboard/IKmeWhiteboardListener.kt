@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.content.whiteboard
 
 import android.graphics.PointF
+import android.graphics.RectF
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
 
@@ -15,6 +16,13 @@ interface IKmeWhiteboardListener {
      * @param whiteboardConfig The metadata for whiteboard.
      */
     fun init(whiteboardConfig: KmeWhiteboardView.Config?)
+
+    /**
+     * Notification that size of the whiteboard container has been changed.
+     *
+     * @param imageBounds [RectF] bounds with the new sizes.
+     */
+    fun onImageBoundsChanged(imageBounds: RectF)
 
     /**
      * Enable / disable all drawings

@@ -3,7 +3,9 @@ package com.kme.kaltura.kmesdk.controller.room.impl
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.projection.MediaProjection
 import android.view.View
 import androidx.core.app.ActivityCompat
 import com.google.gson.Gson
@@ -129,7 +131,7 @@ internal class KmePeerConnectionImpl(
             localRendererView?.let {
                 it.visibility = View.INVISIBLE
                 it.init(peerConnectionClient?.getRenderContext(), null)
-                it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+                it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
                 it.setEnableHardwareScaler(true)
                 it.setMirror(preferredFrontCamera)
                 localVideoSink.setTarget(it)
@@ -145,7 +147,7 @@ internal class KmePeerConnectionImpl(
         } else {
             remoteRendererView?.let {
                 it.init(peerConnectionClient?.getRenderContext(), null)
-                it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+                it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
                 it.setEnableHardwareScaler(true)
                 it.setMirror(false)
                 remoteVideoSink.setTarget(it)
@@ -163,6 +165,29 @@ internal class KmePeerConnectionImpl(
             useDataChannel,
             iceServers
         )
+    }
+
+    override fun startScreenShare(
+        requestedUserIdStream: String,
+        screenCaptureIntent: Intent,
+        listener: IKmePeerConnectionClientEvents
+    ) {
+        this.requestedUserIdStream = requestedUserIdStream
+        this.listener = listener
+
+        isPublisher = true
+
+        peerConnectionClient = KmePeerConnectionImpl()
+        peerConnectionClient?.createPeerConnectionFactory(context, this)
+        peerConnectionClient?.createPeerConnection(
+                context,
+                localVideoSink,
+                remoteVideoSink,
+                createScreenCapturer(screenCaptureIntent),
+                isPublisher,
+                false,
+                iceServers
+            )
     }
 
     /**
@@ -369,6 +394,17 @@ internal class KmePeerConnectionImpl(
             }
         }
         return null
+    }
+
+    /**
+     * Check existed cameras and create video capturer if can
+     */
+    private fun createScreenCapturer(screenCaptureIntent: Intent): VideoCapturer {
+        return ScreenCapturerAndroid(screenCaptureIntent, object : MediaProjection.Callback() {
+            override fun onStop() {
+                disconnectPeerConnection()
+            }
+        })
     }
 
     /**

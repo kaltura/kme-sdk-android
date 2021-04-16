@@ -13,7 +13,7 @@ allprojects {
 Step 2. Add the dependency
 ```gradle
 dependencies {
-	       implementation 'com.github.kaltura:kme-sdk-android:1.0.3'
+	       implementation 'com.github.kaltura:kme-sdk-android:1.0.11'
 }
 ```
 ### Initialization
@@ -22,57 +22,74 @@ For SDK initialization the application should get an instance of main SDK class
  val kmeSDK = KME.getInstance()
 ```
 
+The app should make sure that internet connection is available before calling:
+```
+ kmeSDK.initSDK(
+     applicationContext,
+     success = {
+         // Now the app can use controllers from the SDK
+     },
+     error = {
+         // Handle error
+     }
+ )
+```
+
 ### For each kind of interaction with KME SDK has a specific controllers
 * Sign In - [`KmeSignInController`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/controller/IKmeSignInController.html)
 * User - [`KmeUserController`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/controller/IKmeUserController.html)
 * Room - [`KmeRoomController`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/controller/room/IKmeRoomController.html)
 
-### Sign In
+# Sign In
 ```
- kmeSDK.signInController.login(email, password, success = {
-     val accessToken = it.data?.accessToken
- }, error = {
-     val errorMessage = it.message
- })
+ kmeSDK.signInController.login(
+    email,
+    password,
+    success = {
+        isLoading.value = false
+        loginResponse.value = it.data
+    },
+    error = {
+        isLoading.value = false
+        loginError.value = it.message
+    }
+ )
 ```
 
-### Get user information
+# Get user information
 ```
- kmeSDK.userController.getUserInformation(success = {
-     val userCompanies = it.data?.userCompanies?.companies ?: emptyList()
- }, error = {
-     val errorMessage = it.message
- })
+ kmeSDK.userController.getUserInformation(
+     success = {
+         val userCompanies = it.data?.userCompanies?.companies ?: emptyList()
+     },
+     error = {
+         val errorMessage = it.message
+     }
+ )
 ```
 
 ### Get rooms
 ```
- kmeSDK.roomController.getRooms(companyId, 0, 20, success = {
-     val rooms = it.data?.rooms ?: emptyList()
- }, error = {
-     val errorMessage = it.message
- })
+ kmeSDK.roomController.getRooms(
+     companyId,
+     0,
+     20,
+     success = {
+        val rooms = it.data?.rooms ?: emptyList()
+     },
+     error = {
+        val errorMessage = it.message
+     }
+ )
 ```
 
 # Room
-To get an information for connection to the room the application side should ask for WebRTC server info first.
 
-### Fetch WebRTC server information
+### Connect to the room
+The application can connect to the room using WS by calling `KmeRoomController.connect()` API
 ```
- kmeSDK.roomController.getWebRTCLiveServer(roomAlias, success = {
-     it.data?.let { connectToRoom(it) }
- }, error = {
-     val errorMessage = it.message
- })
-```
-
-### Connect to the room using WS
-Based on information from WebRTC server the application can connect to the room using WS by calling `KmeRoomController.connect()` API
-```
- private fun connectToRoom(webRTCServer: KmeWebRTCServer, companyId: Long, roomId: Long) {
-     val wssUrl = webRTCServer.wssUrl
-     val token = webRTCServer.token
-     kmeSDK.roomController.connect(wssUrl, companyId, roomId, isReconnect = true, token, object : IKmeWSConnectionListener {
+ private fun connectToRoom(roomId: Long, roomAlias: String, companyId: Long) {
+     kmeSDK.roomController.connect(roomId, roomAlias, companyId, isReconnect = true, object : IKmeWSConnectionListener {
          override fun onOpen() {
              // Handle socket opened
          }
@@ -133,15 +150,9 @@ Basically all messages from the server are coming as json string. KME SDK provid
 All available events and objects to parse supported by KME SDK are described in the `KmeMessageEvent` and separates by sections:
  * Room initialization, Banners - [`KmeRoomInitModuleMessage`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/ws/message/module/KmeRoomInitModuleMessage.html)
  * Participants - [`KmeParticipantsModuleMessage`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/ws/message/module/KmeParticipantsModuleMessage.html)
- * Streaming - [`KmeStreamingModuleMessage`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/ws/message/module/KmeStreamingModuleMessage.html)
  * Chat - [`KmeChatModuleMessage`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/ws/message/module/KmeChatModuleMessage.html)
  * Notes - [`KmeRoomNotesMessage`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/ws/message/module/KmeRoomNotesMessage.html)
  * Settings - [`KmeRoomSettingsModuleMessage`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/ws/message/module/KmeRoomSettingsModuleMessage.html)
- * Active Content - [`KmeActiveContentModuleMessage`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/ws/message/module/KmeActiveContentModuleMessage.html)
-   * Slides - [`KmeSlidesPlayerModuleMessage`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/ws/message/module/KmeSlidesPlayerModuleMessage.html)
-   * Video - [`KmeVideoModuleMessage`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/ws/message/module/KmeVideoModuleMessage.html)
-   * Desktop sharing - [`KmeDesktopShareModuleMessage`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/ws/message/module/KmeDesktopShareModuleMessage.html)
-   * White board - [``](https://kaltura.github.io/kme-sdk-android/)
  * Recording - [`KmeRoomRecordingMessage`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/ws/message/module/KmeRoomRecordingMessage.html)
 
 ### Room modules
@@ -152,17 +163,12 @@ All actions inside the room are described by set of room modules from [`KmeRoomC
  * [`KmeChatModule`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/controller/room/IKmeChatModule.html)
  * [`KmeNoteModule`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/controller/room/IKmeNoteModule.html)
  * [`KmeRecordingModule`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/controller/room/IKmeRecordingModule.html)
- * [`KmeDesktopShareModule`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/controller/room/IKmeDesktopShareModule.html)
  * [`KmeAudioModule`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/controller/room/IKmeAudioModule.html)
 
 ### Publishing own video stream
  To start publish/view video stream the application need to initialize [`KmePeerConnectionModule`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/controller/room/IKmePeerConnectionModule.html) first:
 ```
- kmeSDK.roomController.peerConnectionModule.initialize(
-     roomId, companyId,
-     turnUrl, turnUser, turnCred,
-     peerConnectionEventsHandler
- )
+ kmeSdk.roomController.peerConnectionModule.initialize(roomId, companyId, this)
  
  kmeSDK.roomController.peerConnectionModule.addPublisher(userId, rendererView)
 ```
@@ -174,34 +180,20 @@ All actions inside the room are described by set of room modules from [`KmeRoomC
 ```
 
 ### Active content
- Content showed by administrator in the room handles by [`KmeActiveContentModuleMessage`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/ws/message/module/KmeActiveContentModuleMessage.html) message
+ The application can listen room active content changes by calling `KmeRoomController.subscribeForContent()` API
 ```
- kmeSdk.roomController.listen(
-        activeContentHandler,
-        KmeMessageEvent.INIT_ACTIVE_CONTENT,
-        KmeMessageEvent.SET_ACTIVE_CONTENT
- )
-
- private val activeContentHandler = object : IKmeMessageListener {
-     override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-         when (message.name) {
-             KmeMessageEvent.INIT_ACTIVE_CONTENT,
-             KmeMessageEvent.SET_ACTIVE_CONTENT -> {
-                 val contentMessage: KmeActiveContentModuleMessage<SetActiveContentPayload>? = message.toType()
-                 when (contentMessage.contentType) {
-                      VIDEO, AUDIO, YOUTUBE -> {
-                          // Add equivalent UI. Subscribe for video state messages
-                      }
-                      IMAGE, SLIDES -> {
-                          // Add equivalent UI. Subscribe for slides messages
-                      }
-                      DESKTOP_SHARE -> {
-                          // Add equivalent UI. Subscribe for desktop share peerconnection messages
-                      }
-                 }
-             }
-         }
+ kmeSdk.roomController.subscribeForContent(object : IKmeContentModule.KmeContentListener {
+     override fun onContentAvailable(view: KmeContentView) {
+         // Content available
      }
- }
+
+     override fun onContentNotAvailable() {
+         // Content no longer available
+     }
+ })
 ```
- 
+ [`KmeContentView`](https://kaltura.github.io/kme-sdk-android/com/kme/kaltura/kmesdk/content/room/KmeContentView.html) is a view for representing shared content. Supported types of content:
+ * Whiteboard
+ * Slides
+ * Media content
+ * Desktop share

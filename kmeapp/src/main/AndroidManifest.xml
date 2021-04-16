@@ -58,7 +58,6 @@
 
         <activity
             android:name=".view.activity.RoomActivity"
-            android:screenOrientation="portrait"
             android:keepScreenOn="true"
             android:theme="@style/NoActionBar"
             android:windowSoftInputMode="adjustResize" />

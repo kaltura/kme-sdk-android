@@ -11,6 +11,9 @@ import com.kme.kaltura.kmesdk.gone
 import com.kme.kaltura.kmesdk.visible
 import org.koin.android.ext.android.inject
 
+/**
+ * Implementation for desktop shared content
+ */
 class KmeDesktopShareFragment : KmeContentView() {
 
     private val viewModel: KmeDesktopShareViewModel by inject()
@@ -24,30 +27,23 @@ class KmeDesktopShareFragment : KmeContentView() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentDesktopShareContentBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupUI()
         setupViewModel()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    private fun setupUI() {
-        binding.desktopShareRenderer.setZOrderMediaOverlay(true)
     }
 
     private fun setupViewModel() {
         viewModel.isDesktopShareActiveLiveData.observe(
             viewLifecycleOwner,
             desktopShareActiveObserver
+        )
+        viewModel.isDesktopShareAvailableLiveData.observe(
+            viewLifecycleOwner,
+            desktopShareAvailableObserver
         )
         viewModel.desktopShareHDQualityLiveData.observe(
             viewLifecycleOwner,
@@ -58,14 +54,29 @@ class KmeDesktopShareFragment : KmeContentView() {
 
     private val desktopShareActiveObserver = Observer<Boolean> { isActive ->
         if (isActive) {
-            binding.desktopShareRenderer.visible()
+            binding.textGroup.gone()
         } else {
+            binding.textGroup.visible()
             binding.desktopShareRenderer.gone()
         }
     }
 
+    private val desktopShareAvailableObserver = Observer<Nothing> {
+        binding.desktopShareRenderer.visible()
+    }
+
     private val desktopShareHDQualityObserver = Observer<Boolean> { isHD ->
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.stopView()
     }
 
     companion object {

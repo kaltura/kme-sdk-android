@@ -14,6 +14,9 @@ class KmeDesktopShareViewModel(
     private val isDesktopShareActive = MutableLiveData<Boolean>()
     val isDesktopShareActiveLiveData get() = isDesktopShareActive as LiveData<Boolean>
 
+    private val isDesktopShareAvailable = MutableLiveData<Nothing>()
+    val isDesktopShareAvailableLiveData get() = isDesktopShareAvailable as LiveData<Nothing>
+
     private val desktopShareHDQuality = MutableLiveData<Boolean>()
     val desktopShareHDQualityLiveData get() = desktopShareHDQuality as LiveData<Boolean>
 
@@ -25,8 +28,16 @@ class KmeDesktopShareViewModel(
         isDesktopShareActive.value = isActive
     }
 
+    override fun onDesktopShareAvailable() {
+        isDesktopShareAvailable.value = null
+    }
+
     override fun onDesktopShareQualityChanged(isHd: Boolean) {
         desktopShareHDQuality.value = isHd
+    }
+
+    fun stopView() {
+        roomController.desktopShareModule.stopListenDesktopShare()
     }
 
     override fun onCleared() {

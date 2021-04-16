@@ -17,6 +17,9 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.Se
 import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
 
+/**
+ * Implementation for media files shared content
+ */
 class KmeMediaContentFragment : KmeContentView() {
 
     private val mediaContentViewModel: KmeMediaContentViewModel by inject()
@@ -30,10 +33,9 @@ class KmeMediaContentFragment : KmeContentView() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMediaContentBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

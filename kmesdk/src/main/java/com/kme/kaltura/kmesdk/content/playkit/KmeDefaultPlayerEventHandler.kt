@@ -72,6 +72,14 @@ class KmeDefaultPlayerEventHandler(
         }
     }
 
+    fun setState(state: Pair<KmePlayerState?, Float>) {
+        syncPlayerState.value =
+            Pair(
+                if (state.first == null) KmePlayerState.STOP else state.first,
+                state.second
+            )
+    }
+
     fun release() {
         roomController.remove(playerStateHandler)
     }

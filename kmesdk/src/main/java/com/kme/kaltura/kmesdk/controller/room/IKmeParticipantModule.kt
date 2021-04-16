@@ -53,4 +53,19 @@ interface IKmeParticipantModule {
         stateValue: KmeMediaDeviceState
     )
 
+    /**
+     * Removes participant from the room
+     *
+     * @param roomId id of a room
+     * @param companyId id of a company
+     * @param userId id of moderator
+     * @param targetId id of a target participant
+     */
+    fun remove(
+        roomId: Long,
+        companyId: Long,
+        userId: Long,
+        targetId: Long
+    )
+
 }

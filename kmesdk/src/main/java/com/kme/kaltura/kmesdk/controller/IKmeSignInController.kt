@@ -1,10 +1,7 @@
 package com.kme.kaltura.kmesdk.controller
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeGuestLoginResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeLoginResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeLogoutResponse
-import com.kme.kaltura.kmesdk.rest.response.signin.KmeRegisterResponse
+import com.kme.kaltura.kmesdk.rest.response.signin.*
 
 /**
  * An interface for signIn/signUp
@@ -44,6 +41,32 @@ interface IKmeSignInController {
         email: String,
         password: String,
         success: (response: KmeLoginResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
+    /**
+     * Login user by token
+     *
+     * @param token token of a user
+     * @param success function to handle success result.
+     * @param error function to handle error result.
+     */
+    fun login(
+        token: String,
+        success: () -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
+    /**
+     * Reset password for existed user
+     *
+     * @param email email of a user
+     * @param success function to handle success result. Contains [KmeResetPasswordResponse] object
+     * @param error function to handle error result. Contains [KmeApiException] object
+     */
+    fun resetPassword(
+        email: String,
+        success: (response: KmeResetPasswordResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )
 

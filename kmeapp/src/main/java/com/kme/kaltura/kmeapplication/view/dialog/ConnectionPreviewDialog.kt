@@ -20,7 +20,7 @@ class ConnectionPreviewDialog : DialogFragment() {
 
     private lateinit var binding: DialogConnectionPreviewBinding
 
-    private val measureScope = CoroutineScope(Dispatchers.IO)
+    private var measureJob: Job? = null
     private var amplitudeMeter: SoundAmplitudeMeter? = null
 
     private var listener: PreviewListener? = null
@@ -77,11 +77,14 @@ class ConnectionPreviewDialog : DialogFragment() {
     }
 
     private fun startMeasure() {
-        measureScope.launch {
-            CoroutineScope(Dispatchers.Main).launch {
-                amplitudeMeter?.start()
-            }
-            while (true) {
+        measureJob?.isActive?.let {
+            return
+        }
+
+        amplitudeMeter?.start()
+
+        measureJob = CoroutineScope(Dispatchers.IO).launch {
+            while (isActive) {
                 CoroutineScope(Dispatchers.Main).launch {
                     amplitudeMeter?.getAmplitude()?.let {
                         val amplitude =
@@ -97,13 +100,18 @@ class ConnectionPreviewDialog : DialogFragment() {
     }
 
     private fun stopMeasure() {
-        amplitudeMeter?.stop()
+        measureJob?.let {
+            if (it.isActive) {
+                measureJob?.cancel()
+                measureJob = null
+                amplitudeMeter?.stop()
+            }
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         stopMeasure()
-        measureScope.cancel()
         peerConnectionViewModel.stopPreview()
     }
 

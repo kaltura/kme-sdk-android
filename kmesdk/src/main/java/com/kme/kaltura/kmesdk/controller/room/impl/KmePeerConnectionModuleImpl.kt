@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
+import android.content.Intent
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnection
@@ -16,6 +17,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.UserMediaStateChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
@@ -36,7 +38,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
     private var preview: IKmePeerConnection? = null
     private var publisher: IKmePeerConnection? = null
-    private var peerConnections: MutableMap<String, IKmePeerConnection> = mutableMapOf()
+    private var screenSharer: IKmePeerConnection? = null
+    private var viewers: MutableMap<String, IKmePeerConnection> = mutableMapOf()
     private var payloads: MutableList<SdpOfferToViewerPayload> = mutableListOf()
 
     private val publisherId: Long by lazy {
@@ -62,28 +65,31 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     override fun initialize(
         roomId: Long,
         companyId: Long,
-        turnUrl: String,
-        turnUser: String,
-        turnCred: String,
         listener: IKmePeerConnectionModule.KmePeerConnectionEvents
     ) {
         this.roomId = roomId
         this.companyId = companyId
 
-        this.turnUrl = turnUrl
-        this.turnUser = turnUser
-        this.turnCred = turnCred
+        val turnUrl = roomController.roomSettings?.turnUrl
+        val turnUser = roomController.roomSettings?.turnUsername
+        val turnCred = roomController.roomSettings?.turnCredential
 
-        this.listener = listener
-        roomController.listen(
-            peerConnectionModuleHandler,
-            KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER,
-            KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
-            KmeMessageEvent.USER_DISCONNECTED,
-            KmeMessageEvent.USER_MEDIA_STATE_CHANGED,
-            KmeMessageEvent.USER_SPEAKING
-        )
-        isInitialized = true
+        if (turnUrl != null && turnUser != null && turnCred != null) {
+            this.turnUrl = turnUrl
+            this.turnUser = turnUser
+            this.turnCred = turnCred
+
+            this.listener = listener
+            roomController.listen(
+                peerConnectionModuleHandler,
+                KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER,
+                KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
+                KmeMessageEvent.USER_DISCONNECTED,
+                KmeMessageEvent.USER_MEDIA_STATE_CHANGED,
+                KmeMessageEvent.USER_SPEAKING
+            )
+            isInitialized = true
+        }
     }
 
     /**
@@ -157,13 +163,63 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         viewer.setTurnServer(turnUrl, turnUser, turnCred)
         viewer.setRemoteRenderer(renderer)
         viewer.createPeerConnection(requestedUserIdStream, !useWsEvents, this)
-        peerConnections[requestedUserIdStream] = viewer
+        viewers[requestedUserIdStream] = viewer
     }
 
     /**
      * Getting publishing state
      */
-    override fun isPublishing(): Boolean = publisher != null
+    override fun isPublishing() = publisher != null
+
+    override fun startScreenShare(screenCaptureIntent: Intent) {
+        if (screenSharer == null) {
+            webSocketModule.send(
+                buildStartDesktopShareMessage(
+                    roomId,
+                    companyId,
+                    publisherId,
+                    KmeContentType.DESKTOP_SHARE
+                )
+            )
+
+            webSocketModule.send(
+                buildUpdateDesktopShareStateMessage(
+                    roomId,
+                    publisherId.toString(),
+                    companyId,
+                    true
+                )
+            )
+
+            screenSharer = get()
+            screenSharer?.setTurnServer(turnUrl, turnUser, turnCred)
+            screenSharer?.startScreenShare(
+                "${publisherId}_desk",
+                screenCaptureIntent,
+                this
+            )
+        }
+    }
+
+    override fun stopScreenShare() {
+        screenSharer?.let {
+            webSocketModule.send(
+                buildUpdateDesktopShareStateMessage(
+                    roomId,
+                    "${publisherId}_desk",
+                    companyId,
+                    false
+                )
+            )
+
+            webSocketModule.send(buildSetConferenceViewMessage(roomId, companyId))
+
+            it.disconnectPeerConnection()
+            screenSharer = null
+        }
+    }
+
+    override fun isScreenShared() = screenSharer != null
 
     /**
      * Toggle publisher's camera
@@ -210,8 +266,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
             }?.let {
                 payloads.remove(it)
             }
-            peerConnections[requestedUserIdStream]?.disconnectPeerConnection()
-            peerConnections.remove(requestedUserIdStream)
+            viewers[requestedUserIdStream]?.disconnectPeerConnection()
+            viewers.remove(requestedUserIdStream)
         }
     }
 
@@ -219,13 +275,16 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      * Disconnect all publisher/viewers connections
      */
     override fun disconnectAll() {
-        peerConnections.forEach { (_, connection) -> connection.disconnectPeerConnection() }
-        peerConnections.clear()
+        viewers.forEach { (_, connection) -> connection.disconnectPeerConnection() }
+        viewers.clear()
         payloads.clear()
+
         preview?.disconnectPeerConnection()
         preview = null
         publisher?.disconnectPeerConnection()
         publisher = null
+        screenSharer?.disconnectPeerConnection()
+        screenSharer = null
     }
 
     private fun sendChangeMediaStateMessage(enabled: Boolean, device: KmeMediaStateType) {
@@ -255,8 +314,20 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER -> {
                     val msg: KmeStreamingModuleMessage<SdpAnswerToPublisherPayload>? =
                         message.toType()
-                    msg?.payload?.mediaServerId?.let { publisher?.setMediaServerId(it) }
-                    msg?.payload?.sdpAnswer?.let { publisher?.setRemoteSdp(KmeSdpType.ANSWER, it) }
+
+                    val userId = msg?.payload?.userId
+                    val mediaServerId = msg?.payload?.mediaServerId
+                    val sdpAnswer = msg?.payload?.sdpAnswer
+
+                    if (mediaServerId != null && sdpAnswer != null) {
+                        if (userId == publisherId.toString()) {
+                            publisher?.setMediaServerId(mediaServerId)
+                            publisher?.setRemoteSdp(KmeSdpType.ANSWER, sdpAnswer)
+                        } else {
+                            screenSharer?.setMediaServerId(mediaServerId)
+                            screenSharer?.setRemoteSdp(KmeSdpType.ANSWER, sdpAnswer)
+                        }
+                    }
                 }
                 KmeMessageEvent.SDP_OFFER_FOR_VIEWER -> {
                     val msg: KmeStreamingModuleMessage<SdpOfferToViewerPayload>? = message.toType()
@@ -267,17 +338,19 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                         val serverId = it.mediaServerId
                         val sdp = it.sdpOffer
                         if (serverId != null && sdp != null) {
-                            peerConnections[id]?.setMediaServerId(serverId)
-                            peerConnections[id]?.setRemoteSdp(KmeSdpType.OFFER, sdp)
+                            viewers[id]?.setMediaServerId(serverId)
+                            viewers[id]?.setRemoteSdp(KmeSdpType.OFFER, sdp)
                         }
                     }
                 }
                 KmeMessageEvent.USER_DISCONNECTED -> {
                     val msg: KmeStreamingModuleMessage<UserDisconnectedPayload>? = message.toType()
+
                     msg?.payload?.userId?.toString()?.let { disconnect(it) }
                 }
                 KmeMessageEvent.USER_SPEAKING -> {
                     val msg: KmeStreamingModuleMessage<UserSpeakingPayload>? = message.toType()
+
                     val userId = msg?.payload?.userId
                     val volumeData = msg?.payload?.volumeData?.split(",")
                     if (userId != null && volumeData != null) {
@@ -287,6 +360,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 KmeMessageEvent.USER_MEDIA_STATE_CHANGED -> {
                     val msg: KmeParticipantsModuleMessage<UserMediaStateChangedPayload>? =
                         message.toType()
+
                     msg?.payload?.userId?.let {
                         if (it == publisherId) {
                             blockMediaStateEvents = false
@@ -300,8 +374,15 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     }
 
     override fun onPeerConnectionCreated(requestedUserIdStream: String) {
-        if (requestedUserIdStream == publisherId.toString()) {
-            publisher?.createOffer()
+        when (requestedUserIdStream) {
+            publisherId.toString() -> {
+                publisher?.createOffer()
+            }
+            "${publisherId}_desk" -> {
+                screenSharer?.createOffer()
+            }
+            else -> {
+            }
         }
     }
 
@@ -312,24 +393,36 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         type: String
     ) {
         val msg: KmeMessage<out KmeMessage.Payload>
-        if (requestedUserIdStream == publisherId.toString()) {
-            msg = buildStartPublishingMessage(
-                roomId,
-                companyId,
-                publisherId,
-                type,
-                sdp
-            )
-        } else {
-            msg = buildAnswerFromViewerMessage(
-                roomId,
-                companyId,
-                publisherId,
-                type,
-                sdp,
-                requestedUserIdStream,
-                mediaServerId
-            )
+        when (requestedUserIdStream) {
+            publisherId.toString() -> {
+                msg = buildStartPublishingMessage(
+                    roomId,
+                    companyId,
+                    publisherId,
+                    type,
+                    sdp
+                )
+            }
+            "${publisherId}_desk" -> {
+                msg = buildStartScreenShareMessage(
+                    roomId,
+                    companyId,
+                    publisherId,
+                    type,
+                    sdp
+                )
+            }
+            else -> {
+                msg = buildAnswerFromViewerMessage(
+                    roomId,
+                    companyId,
+                    publisherId,
+                    type,
+                    sdp,
+                    requestedUserIdStream,
+                    mediaServerId
+                )
+            }
         }
         webSocketModule.send(msg)
     }
@@ -348,25 +441,38 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
     override fun onIceGatheringDone(requestedUserIdStream: String, mediaServerId: Long) {
         val msg: KmeMessage<out KmeMessage.Payload>
-        if (requestedUserIdStream == publisherId.toString()) {
-            listener.onPublisherReady()
+        when (requestedUserIdStream) {
+            publisherId.toString() -> {
+                listener.onPublisherReady()
 
-            msg = buildGatheringPublishDoneMessage(
-                roomId,
-                companyId,
-                publisherId,
-                mediaServerId
-            )
-        } else {
-            listener.onViewerReady(requestedUserIdStream)
+                msg = buildGatheringPublishDoneMessage(
+                    roomId,
+                    companyId,
+                    publisherId,
+                    mediaServerId,
+                    false
+                )
+            }
+            "${publisherId}_desk" -> {
+                msg = buildGatheringPublishDoneMessage(
+                    roomId,
+                    companyId,
+                    publisherId,
+                    mediaServerId,
+                    true
+                )
+            }
+            else -> {
+                listener.onViewerReady(requestedUserIdStream)
 
-            msg = buildGatheringViewDoneMessage(
-                roomId,
-                companyId,
-                publisherId,
-                requestedUserIdStream,
-                mediaServerId
-            )
+                msg = buildGatheringViewDoneMessage(
+                    roomId,
+                    companyId,
+                    publisherId,
+                    requestedUserIdStream,
+                    mediaServerId
+                )
+            }
         }
         webSocketModule.send(msg)
     }

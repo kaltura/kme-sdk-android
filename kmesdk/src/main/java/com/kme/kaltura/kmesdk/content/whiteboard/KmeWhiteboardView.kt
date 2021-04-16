@@ -117,6 +117,11 @@ class KmeWhiteboardView @JvmOverloads constructor(
         }
     }
 
+    override fun onImageBoundsChanged(imageBounds: RectF) {
+        this.imageBounds.set(imageBounds)
+        invalidatePaths()
+    }
+
     /**
      * Sets the list of drawings.
      */
@@ -245,6 +250,7 @@ class KmeWhiteboardView @JvmOverloads constructor(
             null
         }
 
+        backgroundBitmap = null
         backgroundPaint?.let {
             backgroundBitmap = Bitmap.createBitmap(
                 width,
