@@ -7,6 +7,7 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.AttributeSet
+import android.util.Log
 import android.util.Size
 import android.view.View
 import androidx.core.graphics.toRect
@@ -195,6 +196,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
      */
     private fun invalidatePaths() {
         measureBounds()
+
+        Log.e("TAG", "invalidatePaths: ${hashCode()}")
 
         if (imageBounds.isEmpty || imageWidth <= 0 || imageHeight <= 0) return
 

@@ -19,7 +19,7 @@ import com.kme.kaltura.kmesdk.databinding.LayoutPollBtnRatingBinding
 import com.kme.kaltura.kmesdk.databinding.LayoutPollResultsBinding
 import com.kme.kaltura.kmesdk.getBitmapFromView
 import com.kme.kaltura.kmesdk.util.TopCurvedEdgeTreatment
-import com.kme.kaltura.kmesdk.util.widget.KmeProgressBar
+import com.kme.kaltura.kmesdk.ui.widget.KmeProgressBar
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType.*

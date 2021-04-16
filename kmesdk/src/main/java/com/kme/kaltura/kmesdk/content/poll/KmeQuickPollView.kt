@@ -191,7 +191,7 @@ class KmeQuickPollView @JvmOverloads constructor(
         removeAllViews()
         visibility = GONE
 
-        if (config.useDefaultHandler) {
+        if (::config.isInitialized && config.useDefaultHandler) {
             defaultEventHandler.release()
         }
 
