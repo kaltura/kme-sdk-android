@@ -69,7 +69,7 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
             setTint(ContextCompat.getColor(context, R.color.grey1))
         }
 
-        binding?.resultsContainer?.background = materialShapeDrawable
+        binding?.scrollContainer?.background = materialShapeDrawable
         binding?.borders?.background = borderShapeDrawable
         binding?.fabClose?.setOnClickListener { closeListener?.onCloseResultsView() }
     }

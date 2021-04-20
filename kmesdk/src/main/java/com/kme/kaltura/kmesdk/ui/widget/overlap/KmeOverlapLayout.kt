@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.ui.widget.overlap
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Parcelable
@@ -23,6 +24,9 @@ class KmeOverlapLayout @JvmOverloads constructor(
     var listener: OnOverlapListener? = null
     var state: State = State.NONE
         private set
+    private var isLandscape: Boolean = false
+
+    private var isNewConfig: Boolean = false
 
     private var savedLayoutStates: MutableList<KmeOverlapSavedState?>? = null
 
@@ -47,12 +51,14 @@ class KmeOverlapLayout @JvmOverloads constructor(
     var defaultDownScale = 3
 
     init {
+        isLandscape = context.isLandscape()
         initResizableLayout()
         initCloseButton()
         initSwitchContentButton()
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
+        isLandscape = context.isLandscape()
         savedLayoutStates = if (state is Bundle) {
             state.getParcelableArrayList<KmeOverlapSavedState?>(SAVED_STATE_EXTRA)?.toMutableList()
         } else {
@@ -65,8 +71,6 @@ class KmeOverlapLayout @JvmOverloads constructor(
 
     private fun initResizableLayout() {
         val displayMetrics = context.getDisplayMetrics()
-        val isLandscape = context.isLandscape()
-
         minResizeWidth = if (isLandscape) {
             displayMetrics.widthPixels / defaultDownScale
         } else {
@@ -83,8 +87,6 @@ class KmeOverlapLayout @JvmOverloads constructor(
     }
 
     private fun restoreView() {
-        val isLandscape = context.isLandscape()
-
         val savedState = savedLayoutStates?.find { it?.isLandscape == isLandscape }
 
         savedState?.let {
@@ -97,7 +99,7 @@ class KmeOverlapLayout @JvmOverloads constructor(
     }
 
     private fun initCloseButton() {
-        if (context.isLandscape()) {
+        if (isLandscape) {
             binding.ivCloseOverlap.gone()
         } else {
             binding.ivCloseOverlap.setOnClickListener {
@@ -191,9 +193,14 @@ class KmeOverlapLayout @JvmOverloads constructor(
         binding.resizableLayout.layoutParams = layoutParams
     }
 
-    override fun onSaveInstanceState(): Parcelable? {
+    override fun onSaveInstanceState(): Parcelable {
         super.onSaveInstanceState()
-        val isLandscape = context.isLandscape()
+        if (isNewConfig) {
+            isLandscape = !isLandscape
+        }
+
+        isNewConfig = false
+
         return Bundle().apply {
             val state = KmeOverlapSavedState(
                 binding.resizableLayout.x,
@@ -213,6 +220,12 @@ class KmeOverlapLayout @JvmOverloads constructor(
 
             putParcelableArrayList(SAVED_STATE_EXTRA, ArrayList(savedLayoutStates))
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        isLandscape = newConfig?.orientation == Configuration.ORIENTATION_LANDSCAPE
+        isNewConfig = true
     }
 
     private inner class OverlapGestureDetector(context: Context) :

@@ -1,6 +1,8 @@
 package com.kme.kaltura.kmesdk.content.poll
 
 import android.content.Context
+import android.os.Bundle
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
@@ -46,6 +48,15 @@ class KmeQuickPollView @JvmOverloads constructor(
     init {
         visibility = GONE
         setBackgroundColor(ContextCompat.getColor(context, R.color.transparentColor1))
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        if (state is Bundle) {
+            visibility = state.getInt(SAVE_VISIBILITY_KEY)
+            super.onRestoreInstanceState(state.getParcelable(SAVE_SUPER_STATE_KEY))
+        } else {
+            super.onRestoreInstanceState(state)
+        }
     }
 
     override fun init(config: Config) {
@@ -187,6 +198,13 @@ class KmeQuickPollView @JvmOverloads constructor(
         hideResultsViewJob = null
     }
 
+    override fun onSaveInstanceState(): Parcelable {
+        return Bundle().apply {
+            putInt(SAVE_VISIBILITY_KEY, visibility)
+            putParcelable(SAVE_SUPER_STATE_KEY, super.onSaveInstanceState())
+        }
+    }
+
     override fun onDetachedFromWindow() {
         removeAllViews()
         visibility = GONE
@@ -211,6 +229,11 @@ class KmeQuickPollView @JvmOverloads constructor(
 
     class Config {
         var useDefaultHandler = true
+    }
+
+    companion object {
+        private const val SAVE_VISIBILITY_KEY = "SAVE_VISIBILITY_KEY"
+        private const val SAVE_SUPER_STATE_KEY = "SAVE_SUPER_STATE_KEY"
     }
 
 }
