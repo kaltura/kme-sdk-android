@@ -27,6 +27,29 @@ internal fun buildStartPublishingMessage(
     }
 }
 
+internal fun buildStartScreenShareMessage(
+    roomId: Long,
+    companyId: Long,
+    userId: Long,
+    sdpType: String,
+    sdpDescription: String
+): KmeStreamingModuleMessage<StartScreenSharePayload> {
+    return KmeStreamingModuleMessage<StartScreenSharePayload>().apply {
+        module = KmeMessageModule.STREAMING
+        name = KmeMessageEvent.START_PUBLISHING
+        type = KmeMessageEventType.VOID
+        payload = StartScreenSharePayload(
+            roomId,
+            userId,
+            companyId,
+            StreamingPayload.SDP(sdpType, sdpDescription),
+            streamType = "publisher",
+            isDesktop = true,
+            withDataChannel = false
+        )
+    }
+}
+
 internal fun buildAnswerFromViewerMessage(
     roomId: Long,
     companyId: Long,
@@ -77,7 +100,8 @@ internal fun buildGatheringPublishDoneMessage(
     roomId: Long,
     companyId: Long,
     userId: Long,
-    mediaServerId: Long
+    mediaServerId: Long,
+    isDesktop: Boolean
 ): KmeStreamingModuleMessage<IceGatheringPublishDonePayload> {
     return KmeStreamingModuleMessage<IceGatheringPublishDonePayload>().apply {
         module = KmeMessageModule.STREAMING
@@ -89,7 +113,8 @@ internal fun buildGatheringPublishDoneMessage(
             companyId,
             mediaServerId,
             "videoroom",
-            "publisher"
+            "publisher",
+            isDesktop
         )
     }
 }

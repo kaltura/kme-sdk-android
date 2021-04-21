@@ -17,7 +17,7 @@ import org.koin.dsl.module
 val controllersModule = module {
 
     single<IKmeMetadataController> { KmeMetadataControllerImpl() }
-    single<IKmeSignInController> { KmeSignInControllerImpl() }
+    single<IKmeSignInController> { KmeSignInControllerImpl(androidContext()) }
     single<IKmeUserController> { KmeUserControllerImpl() }
     single<IKmeRoomController> { KmeRoomControllerImpl(androidContext()) }
 

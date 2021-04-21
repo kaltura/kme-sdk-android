@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeFileType
+import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
 import kotlinx.android.parcel.Parcelize
 
@@ -28,7 +29,7 @@ class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveCont
             @SerializedName("file_type") val fileType: KmeFileType? = null,
             @SerializedName("slides") val slides: List<Slide>? = null,
             @SerializedName("video_url") val videoUrl: String? = null,
-            @SerializedName("play_state") val playState: String? = null,
+            @SerializedName("play_state") val playState: KmePlayerState? = null,
             @SerializedName("boards") val boards: List<Board>? = null,
             @SerializedName("pages") val pages: List<Page>? = null,
             @SerializedName("board_id") val boardId: String? = null,

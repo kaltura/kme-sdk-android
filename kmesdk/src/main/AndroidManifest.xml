@@ -19,6 +19,7 @@
             android:name=".service.KmeRoomService"
             android:enabled="true"
             android:exported="false"
+            android:foregroundServiceType="mediaProjection"
             android:stopWithTask="true" />
     </application>
 

@@ -21,7 +21,8 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.NotePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomRecordingMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.AnnotationStateChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.SyncPlayerStatePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPayload
@@ -125,6 +126,12 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.MAKE_ALL_USERS_HAND_PUT.toString() -> {
                 text.jsonToObject<KmeParticipantsModuleMessage<AllUsersHandPutPayload>>()
+            }
+            KmeMessageEvent.REMOVE_USER.toString() -> {
+                text.jsonToObject<KmeParticipantsModuleMessage<RemoveParticipantPayload>>()
+            }
+            KmeMessageEvent.USER_REMOVED.toString() -> {
+                text.jsonToObject<KmeParticipantsModuleMessage<ParticipantRemovedPayload>>()
             }
             KmeMessageEvent.SDP_ANSWER_TO_PUBLISHER.toString() -> {
                 text.jsonToObject<KmeStreamingModuleMessage<SdpAnswerToPublisherPayload>>()
