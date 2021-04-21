@@ -150,7 +150,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     ) {
         checkData()
 
-        peerConnections[requestedUserIdStream]?.let {
+        viewers[requestedUserIdStream]?.let {
             disconnect(requestedUserIdStream)
         }
 
