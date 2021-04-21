@@ -85,7 +85,6 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
                     val msg: KmeStreamingModuleMessage<StartedPublishPayload>? = message.toType()
                     msg?.payload?.userId?.let {
                         if (it.toLongOrNull() == null) {
-                            roomController.peerConnectionModule.disconnect(it)
                             startViewStream(it)
                         }
                     }
