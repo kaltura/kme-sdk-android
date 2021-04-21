@@ -14,7 +14,11 @@ class KmeResponseDataTypeAdapter : JsonDeserializer<KmeResponseData?> {
         typeOfT: Type?,
         context: JsonDeserializationContext?
     ): KmeResponseData? {
-        return Gson().fromJson(json?.toString(), KmeResponseData::class.java)
+        return if (json?.isJsonObject == false) {
+            Gson().fromJson(json.asString, KmeResponseData::class.java)
+        } else {
+            Gson().fromJson(json, KmeResponseData::class.java)
+        }
     }
 
 }

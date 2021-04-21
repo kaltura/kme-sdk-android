@@ -33,7 +33,9 @@ class KmeDesktopShareFragment : KmeContentView() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupViewModel()
+        if (savedInstanceState == null) {
+            setupViewModel()
+        }
     }
 
     private fun setupViewModel() {
