@@ -399,6 +399,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         val msg: KmeMessage<out KmeMessage.Payload>
         when (requestedUserIdStream) {
             publisherId.toString() -> {
+                listener.onPublisherReady()
+
                 msg = buildStartPublishingMessage(
                     roomId,
                     companyId,
@@ -447,8 +449,6 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         val msg: KmeMessage<out KmeMessage.Payload>
         when (requestedUserIdStream) {
             publisherId.toString() -> {
-                listener.onPublisherReady()
-
                 msg = buildGatheringPublishDoneMessage(
                     roomId,
                     companyId,
