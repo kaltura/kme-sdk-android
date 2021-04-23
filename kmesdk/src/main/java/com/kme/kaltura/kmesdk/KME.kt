@@ -9,13 +9,17 @@ import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.KmeKoinContext
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
+import com.kme.kaltura.kmesdk.rest.DynamicRetrofit
 import com.kme.kaltura.kmesdk.rest.KmeApiException
+import com.kme.kaltura.kmesdk.util.ServerConfiguration
 import org.koin.core.inject
 
 /**
  * Main class for KME SDK.
  */
 class KME : KmeKoinComponent {
+
+    val dynamicRetrofit: DynamicRetrofit by inject()
 
     val signInController: IKmeSignInController by inject()
     val userController: IKmeUserController by inject()
@@ -81,4 +85,9 @@ class KME : KmeKoinComponent {
      */
     fun getCookies() = prefs.getString(KmePrefsKeys.COOKIE)
 
+    fun changeServerConfiguration(configuration: ServerConfiguration) {
+        dynamicRetrofit.setServerConfiguration(configuration)
+    }
+
+    fun getServerConfiguration() = dynamicRetrofit.getServerConfiguration()
 }
