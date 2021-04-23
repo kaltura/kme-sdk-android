@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.util.widget
+package com.kme.kaltura.kmesdk.ui.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -11,7 +11,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.databinding.LayoutPollBtnRatingBinding
 import com.kme.kaltura.kmesdk.getBitmapFromView

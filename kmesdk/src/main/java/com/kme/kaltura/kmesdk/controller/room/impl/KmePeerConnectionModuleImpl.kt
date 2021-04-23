@@ -150,6 +150,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     ) {
         checkData()
 
+        viewers[requestedUserIdStream]?.let {
+            disconnect(requestedUserIdStream)
+        }
+
         webSocketModule.send(
             buildStartViewingMessage(
                 roomId,

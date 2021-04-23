@@ -19,7 +19,7 @@ import com.kme.kaltura.kmesdk.databinding.LayoutPollBtnRatingBinding
 import com.kme.kaltura.kmesdk.databinding.LayoutPollResultsBinding
 import com.kme.kaltura.kmesdk.getBitmapFromView
 import com.kme.kaltura.kmesdk.util.TopCurvedEdgeTreatment
-import com.kme.kaltura.kmesdk.util.widget.KmeProgressBar
+import com.kme.kaltura.kmesdk.ui.widget.KmeProgressBar
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType.*
@@ -69,7 +69,7 @@ class KmeQuickPollResultsView @JvmOverloads constructor(
             setTint(ContextCompat.getColor(context, R.color.grey1))
         }
 
-        binding?.resultsContainer?.background = materialShapeDrawable
+        binding?.scrollContainer?.background = materialShapeDrawable
         binding?.borders?.background = borderShapeDrawable
         binding?.fabClose?.setOnClickListener { closeListener?.onCloseResultsView() }
     }
