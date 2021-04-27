@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.controller.impl
 
 import com.kme.kaltura.kmesdk.controller.IKmeMetadataController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
+import com.kme.kaltura.kmesdk.removeCookies
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.metadata.GetTranslationsResponse
 import com.kme.kaltura.kmesdk.rest.response.metadata.KmeMetadata
@@ -35,15 +36,17 @@ class KmeMetadataControllerImpl : KmeKoinComponent, IKmeMetadataController {
         success: () -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
-        uiScope.launch {
-            safeApiCall(
-                { metadataApiService.getMetadata() },
-                {
-                    metadata = it.data
-                    success()
-                },
-                error
-            )
+        removeCookies {
+            uiScope.launch {
+                safeApiCall(
+                    { metadataApiService.getMetadata() },
+                    {
+                        metadata = it.data
+                        success()
+                    },
+                    error
+                )
+            }
         }
     }
 

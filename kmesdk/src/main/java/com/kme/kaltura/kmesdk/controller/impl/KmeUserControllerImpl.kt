@@ -7,7 +7,6 @@ import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.user.KmeGetUserInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.user.KmeUserInfoData
 import com.kme.kaltura.kmesdk.rest.safeApiCall
-import com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService
 import com.kme.kaltura.kmesdk.rest.service.KmeUserApiService
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole

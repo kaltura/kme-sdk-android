@@ -1,17 +1,16 @@
 package com.kme.kaltura.kmesdk.controller.impl
 
 import android.content.Context
-import android.webkit.CookieManager
 import com.google.android.gms.safetynet.SafetyNet
 import com.kme.kaltura.kmesdk.controller.IKmeSignInController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.encryptWith
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
+import com.kme.kaltura.kmesdk.removeCookies
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.signin.*
 import com.kme.kaltura.kmesdk.rest.safeApiCall
-import com.kme.kaltura.kmesdk.rest.response.signin.*
 import com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -218,17 +217,6 @@ class KmeSignInControllerImpl(
                     ))
                 }
             }
-    }
-
-    private fun removeCookies(callback: () -> Unit) {
-        val cookieManager = CookieManager.getInstance()
-        if (cookieManager.hasCookies()) {
-            cookieManager.removeAllCookies {
-                callback()
-            }
-        } else {
-            callback()
-        }
     }
 
     companion object {
