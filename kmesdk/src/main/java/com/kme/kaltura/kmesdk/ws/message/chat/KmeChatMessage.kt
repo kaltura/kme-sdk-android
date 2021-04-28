@@ -12,7 +12,7 @@ data class KmeChatMessage(
     @SerializedName("conversation_id") val conversationId: String? = null,
     @SerializedName("message") var message: String? = null,
     @SerializedName("message_metadata") val metadata: String? = null,
-    @SerializedName("timestamp") val timestamp: Long? = null,
+    @SerializedName("timestamp") var timestamp: Long? = null,
     @SerializedName("user") var user: KmeUserInfoData? = null,
     @SerializedName("reply_all") var replyAll: Boolean? = null,
     var parsedMetadata: Metadata? = null
