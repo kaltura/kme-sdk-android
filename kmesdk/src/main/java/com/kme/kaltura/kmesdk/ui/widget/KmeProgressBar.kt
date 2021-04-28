@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.util.widget
+package com.kme.kaltura.kmesdk.ui.widget
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter

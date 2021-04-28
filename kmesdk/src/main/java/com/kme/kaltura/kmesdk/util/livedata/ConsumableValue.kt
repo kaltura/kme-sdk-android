@@ -11,7 +11,4 @@ class ConsumableValue<T>(private val data: T) {
         }
     }
 
-    fun reset() {
-        consumed = false
-    }
 }

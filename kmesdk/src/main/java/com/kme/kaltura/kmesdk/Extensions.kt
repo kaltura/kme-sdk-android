@@ -1,9 +1,12 @@
 package com.kme.kaltura.kmesdk
 
 import android.content.Context
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.Size
+import android.webkit.CookieManager
 import android.webkit.URLUtil
 import android.widget.ImageView
 import com.bumptech.glide.Glide
@@ -14,6 +17,16 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 
+internal fun removeCookies(callback: () -> Unit) {
+    val cookieManager = CookieManager.getInstance()
+    if (cookieManager.hasCookies()) {
+        cookieManager.removeAllCookies {
+            callback()
+        }
+    } else {
+        callback()
+    }
+}
 
 fun String.encryptWith(key: String): String {
     val s = IntArray(256)
@@ -55,9 +68,9 @@ inline fun <reified T> KmeMessage<*>.toType(): T? =
             null
 
 internal fun Context?.getBitmap(
-        imageUrl: String?,
-        cookie: String?,
-        fileUrl: String?
+    imageUrl: String?,
+    cookie: String?,
+    fileUrl: String?
 ): Bitmap? {
     if (this == null || imageUrl.isNullOrEmpty()) return null
     return Glide.with(this)
@@ -67,15 +80,18 @@ internal fun Context?.getBitmap(
 }
 
 internal fun ImageView?.glide(
-        drawable: Int,
-        onSizeReady: ((Size) -> Unit)? = null
+    drawable: Int,
+    onSizeReady: ((Size) -> Unit)? = null
 ) {
     if (this == null) return
     Glide.with(this)
             .load(drawable)
             .skipMemoryCache(true)
             .into(object : CustomTarget<Drawable>() {
-                override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                override fun onResourceReady(
+                    resource: Drawable,
+                    transition: Transition<in Drawable>?
+                ) {
                     this@glide.setImageDrawable(resource)
                     onSizeReady?.invoke(Size(resource.intrinsicWidth, resource.intrinsicHeight))
                 }
@@ -86,10 +102,10 @@ internal fun ImageView?.glide(
 }
 
 internal fun ImageView?.glide(
-        imageUrl: String?,
-        cookie: String?,
-        fileUrl: String?,
-        func: (RequestBuilder<Drawable>.() -> RequestBuilder<Drawable>)? = null,
+    imageUrl: String?,
+    cookie: String?,
+    fileUrl: String?,
+    func: (RequestBuilder<Drawable>.() -> RequestBuilder<Drawable>)? = null,
 ) {
     if (this == null) return
     Glide.with(this)
@@ -101,11 +117,11 @@ internal fun ImageView?.glide(
 }
 
 internal fun ImageView?.glide(
-        imageUrl: String?,
-        cookie: String?,
-        fileUrl: String?,
-        func: (RequestBuilder<Drawable>.() -> RequestBuilder<Drawable>)? = null,
-        onSizeReady: ((Size) -> Unit)? = null
+    imageUrl: String?,
+    cookie: String?,
+    fileUrl: String?,
+    func: (RequestBuilder<Drawable>.() -> RequestBuilder<Drawable>)? = null,
+    onSizeReady: ((Size) -> Unit)? = null
 ) {
     if (this == null) return
     Glide.with(this)
@@ -116,7 +132,10 @@ internal fun ImageView?.glide(
                 func?.let { it() }
             }
             .into(object : CustomTarget<Drawable>() {
-                override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                override fun onResourceReady(
+                    resource: Drawable,
+                    transition: Transition<in Drawable>?
+                ) {
                     this@glide.setImageDrawable(resource)
                     onSizeReady?.invoke(Size(resource.intrinsicWidth, resource.intrinsicHeight))
                 }
@@ -139,10 +158,19 @@ internal fun generateGlideUrl(url: String?, cookie: String?, fileUrl: String?): 
         }
 
         GlideUrl(
-                filesUrl,
-                LazyHeaders.Builder()
-                        .addHeader("Cookie", cookie ?: "")
-                        .build()
+            filesUrl,
+            LazyHeaders.Builder()
+                .addHeader("Cookie", cookie ?: "")
+                .build()
         )
     }
+}
+
+fun Context.isLandscape(): Boolean {
+    return resources.isLandscape()
+}
+
+fun Resources.isLandscape(): Boolean {
+    val orientation = configuration.orientation
+    return orientation == Configuration.ORIENTATION_LANDSCAPE
 }

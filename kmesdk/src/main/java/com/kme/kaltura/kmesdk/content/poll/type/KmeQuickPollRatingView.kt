@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.databinding.LayoutPollBtnRatingBinding
 import com.kme.kaltura.kmesdk.databinding.LayoutPollRatingBinding
-import com.kme.kaltura.kmesdk.util.widget.KmeRatingBar
+import com.kme.kaltura.kmesdk.ui.widget.KmeRatingBar
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
 
 @SuppressLint("ClickableViewAccessibility")

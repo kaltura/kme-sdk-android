@@ -9,7 +9,6 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
-import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
 
 class KmeDefaultPollEventHandler(
     private val roomController: IKmeRoomController
@@ -44,6 +43,7 @@ class KmeDefaultPollEventHandler(
                 KmeMessageEvent.QUICK_POLL_STARTED -> {
                     val msg: KmeQuickPollModuleMessage<QuickPollStartedPayload>? = message.toType()
                     msg?.payload?.let {
+                        pollEnded.postValue(null)
                         pollStarted.postValue(it)
                     }
                 }
@@ -58,7 +58,8 @@ class KmeDefaultPollEventHandler(
                 KmeMessageEvent.QUICK_POLL_STATE -> {
                 }
                 KmeMessageEvent.QUICK_POLL_USER_ANSWERED -> {
-                    val msg: KmeQuickPollModuleMessage<QuickPollUserAnsweredPayload>? = message.toType()
+                    val msg: KmeQuickPollModuleMessage<QuickPollUserAnsweredPayload>? =
+                        message.toType()
                     msg?.payload?.let {
                         userAnsweredPoll.postValue(it)
                     }
@@ -69,8 +70,6 @@ class KmeDefaultPollEventHandler(
 
     fun release() {
         roomController.remove(quickPollHandler)
-        pollStarted.value = null
-        pollEnded.value = null
     }
 
 }

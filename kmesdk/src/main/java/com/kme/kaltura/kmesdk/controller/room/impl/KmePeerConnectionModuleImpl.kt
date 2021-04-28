@@ -26,6 +26,7 @@ import org.koin.core.inject
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
+import kotlin.properties.Delegates
 
 /**
  * An implementation for wrap actions with [IKmePeerConnection]
@@ -42,12 +43,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     private var viewers: MutableMap<String, IKmePeerConnection> = mutableMapOf()
     private var payloads: MutableList<SdpOfferToViewerPayload> = mutableListOf()
 
-    private val publisherId: Long by lazy {
-        userController.getCurrentUserInfo()?.getUserId() ?: 0
-    }
-    private val useWsEvents: Boolean by lazy {
-        roomController.roomSettings?.featureFlags?.nr2DataChannelViaRs ?: true
-    }
+    private var publisherId by Delegates.notNull<Long>()
+    private var useWsEvents by Delegates.notNull<Boolean>()
     private var bringToFrontPrev = 0
 
     private var roomId: Long = 0
@@ -69,6 +66,9 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     ) {
         this.roomId = roomId
         this.companyId = companyId
+
+        publisherId = userController.getCurrentUserInfo()?.getUserId() ?: 0
+        useWsEvents = roomController.roomSettings?.featureFlags?.nr2DataChannelViaRs ?: true
 
         val turnUrl = roomController.roomSettings?.turnUrl
         val turnUser = roomController.roomSettings?.turnUsername
@@ -149,6 +149,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         renderer: KmeSurfaceRendererView
     ) {
         checkData()
+
+        viewers[requestedUserIdStream]?.let {
+            disconnect(requestedUserIdStream)
+        }
 
         webSocketModule.send(
             buildStartViewingMessage(
@@ -395,6 +399,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         val msg: KmeMessage<out KmeMessage.Payload>
         when (requestedUserIdStream) {
             publisherId.toString() -> {
+                listener.onPublisherReady()
+
                 msg = buildStartPublishingMessage(
                     roomId,
                     companyId,
@@ -443,8 +449,6 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         val msg: KmeMessage<out KmeMessage.Payload>
         when (requestedUserIdStream) {
             publisherId.toString() -> {
-                listener.onPublisherReady()
-
                 msg = buildGatheringPublishDoneMessage(
                     roomId,
                     companyId,

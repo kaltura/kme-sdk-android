@@ -3,12 +3,12 @@ package com.kme.kaltura.kmesdk.di
 import com.google.gson.GsonBuilder
 import com.kme.kaltura.kmesdk.BuildConfig
 import com.kme.kaltura.kmesdk.R
+import com.kme.kaltura.kmesdk.rest.KmeChangeableBaseUrlInterceptor
 import com.kme.kaltura.kmesdk.rest.KmeCookieJar
 import com.kme.kaltura.kmesdk.rest.KmeTokenInterceptor
 import com.kme.kaltura.kmesdk.rest.adapter.*
 import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 import com.kme.kaltura.kmesdk.rest.response.room.KmeIntegrations
-import com.kme.kaltura.kmesdk.rest.service.*
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -30,28 +30,47 @@ val restModule = module {
             .registerTypeAdapter(Boolean::class.javaPrimitiveType, KmeIntToBooleanTypeAdapter())
             .registerTypeAdapter(Boolean::class.javaObjectType, KmeStringToBooleanTypeAdapter())
             .registerTypeAdapter(Boolean::class.javaPrimitiveType, KmeStringToBooleanTypeAdapter())
-            .registerTypeAdapter(KmeResponseData::class.javaObjectType, KmeResponseDataTypeAdapter())
+            .registerTypeAdapter(
+                KmeResponseData::class.javaObjectType,
+                KmeResponseDataTypeAdapter()
+            )
             .registerTypeAdapter(KmeWhiteboardPath::class.java, KmeWhiteboardPathTypeAdapter())
             .registerTypeAdapter(KmeIntegrations::class.java, KmeIntegrationsAdapter())
             .create()
     }
+
     single {
         KmeTokenInterceptor(get())
     }
+
+    single {
+        KmeChangeableBaseUrlInterceptor(androidContext())
+    }
+
     single {
         HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG)
                 HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
         }
     }
+
     single {
         OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .cookieJar(get<KmeCookieJar>())
+            .addInterceptor(get<KmeChangeableBaseUrlInterceptor>())
             .addInterceptor(get<KmeTokenInterceptor>())
             .addInterceptor(get<HttpLoggingInterceptor>())
+            .build()
+    }
+
+    single(named("Downloader")) {
+        OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
             .build()
     }
 
@@ -60,8 +79,13 @@ val restModule = module {
     }
 
     single {
+        val baseUrl = if (BuildConfig.DEBUG) {
+            "https://${androidContext().getString(R.string.staging_api_url)}/backend/"
+        } else {
+            "https://${androidContext().getString(R.string.production_api_url)}/backend/"
+        }
         Retrofit.Builder()
-            .baseUrl("https://${androidContext().getString(R.string.api_url)}/backend/")
+            .baseUrl(baseUrl)
             .client(get())
             .addConverterFactory(GsonConverterFactory.create(get()))
             .build()
@@ -70,25 +94,15 @@ val restModule = module {
     single(
         named("Downloader")
     ) {
+        val baseUrl = if (BuildConfig.DEBUG) {
+            "https://${androidContext().getString(R.string.staging_api_url)}/backend/"
+        } else {
+            "https://${androidContext().getString(R.string.production_api_url)}/backend/"
+        }
         Retrofit.Builder()
-            .baseUrl("https://${androidContext().getString(R.string.api_url)}/backend/")
-            .client(
-                OkHttpClient.Builder()
-                    .connectTimeout(30, TimeUnit.SECONDS)
-                    .readTimeout(30, TimeUnit.SECONDS)
-                    .writeTimeout(30, TimeUnit.SECONDS)
-                    .build()
-            )
+            .baseUrl(baseUrl)
+            .client(get(named("Downloader")))
             .build()
     }
 
-    single { get<Retrofit>().create(KmeSignInApiService::class.java) }
-    single { get<Retrofit>().create(KmeUserApiService::class.java) }
-    single { get<Retrofit>().create(KmeRoomApiService::class.java) }
-    single { get<Retrofit>().create(KmeRoomNotesApiService::class.java) }
-    single { get<Retrofit>().create(KmeRoomRecordingApiService::class.java) }
-    single { get<Retrofit>().create(KmeChatApiService::class.java) }
-    single { get<Retrofit>().create(KmeMetadataApiService::class.java) }
-
-    single { get<Retrofit>(named("Downloader")).create(KmeFileLoaderApiService::class.java) }
 }
