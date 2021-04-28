@@ -6,6 +6,7 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.Size
+import android.webkit.CookieManager
 import android.webkit.URLUtil
 import android.widget.ImageView
 import com.bumptech.glide.Glide
@@ -16,6 +17,16 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 
+internal fun removeCookies(callback: () -> Unit) {
+    val cookieManager = CookieManager.getInstance()
+    if (cookieManager.hasCookies()) {
+        cookieManager.removeAllCookies {
+            callback()
+        }
+    } else {
+        callback()
+    }
+}
 
 fun String.encryptWith(key: String): String {
     val s = IntArray(256)

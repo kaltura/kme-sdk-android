@@ -17,6 +17,7 @@ object KmeKoinContext {
         koinApplication {
             androidContext(context)
             modules(restModule)
+            modules(apiServicesModule)
             modules(controllersModule)
             modules(roomModules)
             modules(contentShareViewModels)

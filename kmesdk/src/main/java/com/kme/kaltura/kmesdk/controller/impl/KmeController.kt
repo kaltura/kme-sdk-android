@@ -8,6 +8,8 @@ import com.kme.kaltura.kmesdk.di.KmeKoinComponent
  */
 abstract class KmeController : KmeKoinComponent {
 
+//    protected val apiScope by lazy { getKoin().getOrCreateScope("apiScope", named("ApiServices")) }
+
     init {
         if (!KME.getInstance().isSDKInitialized) {
             throw Exception("SDK is not initialized!")

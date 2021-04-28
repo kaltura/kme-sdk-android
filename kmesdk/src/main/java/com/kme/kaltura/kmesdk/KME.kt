@@ -9,8 +9,8 @@ import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.KmeKoinContext
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
-import com.kme.kaltura.kmesdk.rest.DynamicRetrofit
 import com.kme.kaltura.kmesdk.rest.KmeApiException
+import com.kme.kaltura.kmesdk.rest.KmeChangeableBaseUrlInterceptor
 import com.kme.kaltura.kmesdk.util.ServerConfiguration
 import org.koin.core.inject
 
@@ -19,12 +19,12 @@ import org.koin.core.inject
  */
 class KME : KmeKoinComponent {
 
-    val dynamicRetrofit: DynamicRetrofit by inject()
-
     val signInController: IKmeSignInController by inject()
+
     val userController: IKmeUserController by inject()
     val roomController: IKmeRoomController by inject()
 
+    private val urlInterceptor: KmeChangeableBaseUrlInterceptor by inject()
     private val prefs: IKmePreferences by inject()
     private val metadataController: IKmeMetadataController by inject()
 
@@ -76,6 +76,34 @@ class KME : KmeKoinComponent {
     }
 
     /**
+     * Initialization function. Reload metadata from the server to use it in future REST API calls.
+     *
+     * @throws IllegalStateException if it is called before [initSDK]
+     * @param success function to handle success initialization event
+     * @param error function to handle error initialization event
+     */
+    fun reloadSDK(
+        success: () -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        if (!isSDKInitialized) {
+            throw IllegalStateException("SDK is not initialized. Try to use initSDK() first.")
+        }
+        isSDKInitialized = false
+        metadataController.fetchMetadata(success = {
+            isSDKInitialized = true
+
+            if (roomController.isConnected()) {
+                roomController.disconnect()
+            }
+
+            success()
+        }, error = {
+            error(it)
+        })
+    }
+
+    /**
      * @return url for accessing files in the room
      */
     fun getFilesUrl() = metadataController.getMetadata()?.filesUrl
@@ -85,9 +113,13 @@ class KME : KmeKoinComponent {
      */
     fun getCookies() = prefs.getString(KmePrefsKeys.COOKIE)
 
-    fun changeServerConfiguration(configuration: ServerConfiguration) {
-        dynamicRetrofit.setServerConfiguration(configuration)
+    fun isSameServerConfiguration(roomUrl: String?): Boolean? {
+        return urlInterceptor.isSameServerConfiguration(roomUrl)
     }
 
-    fun getServerConfiguration() = dynamicRetrofit.getServerConfiguration()
+    fun changeServerConfiguration(configuration: ServerConfiguration) {
+        urlInterceptor.setServerConfiguration(configuration)
+    }
+
+    fun getServerConfiguration() = urlInterceptor.getServerConfiguration()
 }
