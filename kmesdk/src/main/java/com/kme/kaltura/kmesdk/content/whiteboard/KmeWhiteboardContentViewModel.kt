@@ -166,6 +166,8 @@ class KmeWhiteboardContentViewModel(
                     contentMessage?.payload?.let {
                         pageId = it.id
                         setActivePage.postValue(pageId)
+                        savedDrawings.clear()
+                        whiteboardPageData.postValue(ConsumableValue(savedDrawings))
                     }
                 }
                 else -> {
