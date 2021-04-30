@@ -5,6 +5,7 @@ import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 
 data class KmeMetadata(
     @SerializedName("version") val version : String?,
+    @SerializedName("csrf") val csrf : String?,
     @SerializedName("legacy_domain") val legacyDomain : String?,
     @SerializedName("files_url") val filesUrl : String?,
     @SerializedName("st_public") val st_public : String?,

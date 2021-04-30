@@ -2,6 +2,8 @@ package com.kme.kaltura.kmesdk.controller.impl
 
 import com.kme.kaltura.kmesdk.controller.IKmeMetadataController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
+import com.kme.kaltura.kmesdk.prefs.IKmePreferences
+import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.removeCookies
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.metadata.GetTranslationsResponse
@@ -19,7 +21,10 @@ import org.koin.core.inject
 class KmeMetadataControllerImpl : KmeKoinComponent, IKmeMetadataController {
 
     private val metadataApiService: KmeMetadataApiService by inject()
+    private val prefs: IKmePreferences by inject()
+
     private val uiScope = CoroutineScope(Dispatchers.Main)
+
     private var metadata: KmeMetadata? = null
 
     /**
@@ -40,13 +45,36 @@ class KmeMetadataControllerImpl : KmeKoinComponent, IKmeMetadataController {
             uiScope.launch {
                 safeApiCall(
                     { metadataApiService.getMetadata() },
-                    {
-                        metadata = it.data
+                    { response ->
+                        metadata = response.data
+                        response.data?.csrf?.let {
+                            prefs.putString(KmePrefsKeys.CSRF_TOKEN, it)
+                        }
                         success()
                     },
                     error
                 )
             }
+        }
+    }
+
+    /**
+     * Keep user alive. Update Csrf token.
+     */
+    override fun keepAlive(
+        success: (response: String) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        uiScope.launch {
+            safeApiCall(
+                { metadataApiService.keepAlive() },
+                { response ->
+//                    response.data?.csrf?.let {
+//                        prefs.putString(KmePrefsKeys.CSRF_TOKEN, it)
+//                    }
+                },
+                {}
+            )
         }
     }
 

@@ -28,6 +28,17 @@ interface IKmeMetadataController {
     )
 
     /**
+     * Keep user alive. Update Csrf token.
+     *
+     * @param success function to handle success result
+     * @param error function to handle error result. Contains [KmeApiException] object
+     */
+    fun keepAlive(
+        success: (response: String) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
+    /**
      * Getting translations strings for specific language
      *
      * @param lang language for translations

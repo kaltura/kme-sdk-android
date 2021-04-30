@@ -19,6 +19,14 @@ interface KmeMetadataApiService {
     suspend fun getMetadata(): GetMetadataResponse
 
     /**
+     * Keep user alive. Update CSRF token
+     *
+     * @return [GetMetadataResponse] object in success case
+     */
+    @GET("user/keepAlive")
+    suspend fun keepAlive(): String
+
+    /**
      * Getting translations strings for specific language
      *
      * @param lang language for translations
