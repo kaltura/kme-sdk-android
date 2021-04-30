@@ -32,8 +32,12 @@ interface IKmeDesktopShareModule {
          * Triggered by administrator
          *
          * @param isActive indicates is desktop share currently active
+         * @param isYour indicates is sharing provided by current user
          */
-        fun onDesktopShareActive(isActive: Boolean)
+        fun onDesktopShareActive(
+            isActive: Boolean,
+            isYour: Boolean
+        )
 
         /**
          * Fired once administrator started to publish

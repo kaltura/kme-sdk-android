@@ -8,8 +8,10 @@ import com.kme.kaltura.kmesdk.content.slides.KmeSlidesContentViewModel
 import com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardContentViewModel
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
+import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.toType
+import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
@@ -21,11 +23,12 @@ import org.koin.core.inject
 /**
  * An implementation for content sharing
  */
-class KmeContentModuleImpl : KmeController(), IKmeContentModule {
+internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
 
     private val roomController: IKmeRoomController by inject()
     private val slidesContentViewModel: KmeSlidesContentViewModel by inject()
     private val whiteboardViewModel: KmeWhiteboardContentViewModel by inject()
+    private val peerConnectionModule: IKmePeerConnectionModule by inject()
 
     private var contentView: KmeContentView? = null
     private var listener: IKmeContentModule.KmeContentListener? = null
@@ -51,6 +54,25 @@ class KmeContentModuleImpl : KmeController(), IKmeContentModule {
      */
     override fun unsubscribe() {
         roomController.removeListener(activeContentHandler)
+    }
+
+    /**
+     * Asking content view for screen share renderer. Fired once KmeSDK needs view to render own screen
+     */
+    override fun askForScreenShareRenderer(callback: (view: KmeSurfaceRendererView) -> Unit) {
+        if (contentView is KmeDesktopShareFragment) {
+            (contentView as KmeDesktopShareFragment).onGetRenderer(callback)
+        }
+    }
+
+    /**
+     * Setting result of screen projection permission from MediaProjectionManager
+     * Fired once application provides permission result to the KmeSDK
+     */
+    override fun onScreenSharePermission(approved: Boolean) {
+        if (contentView is KmeDesktopShareFragment) {
+            (contentView as KmeDesktopShareFragment).onScreenSharePermission(approved)
+        }
     }
 
     private val activeContentHandler = object : IKmeMessageListener {
@@ -92,6 +114,9 @@ class KmeContentModuleImpl : KmeController(), IKmeContentModule {
                     contentView = KmeDesktopShareFragment.newInstance()
                 }
                 else -> {
+                    if (contentView is KmeDesktopShareFragment) {
+                        peerConnectionModule.stopScreenShare()
+                    }
                     contentView = null
                 }
             }

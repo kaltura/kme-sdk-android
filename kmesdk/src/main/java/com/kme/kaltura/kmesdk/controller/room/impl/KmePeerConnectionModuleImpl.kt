@@ -1,12 +1,10 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
+import android.app.Activity
 import android.content.Intent
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
-import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnection
-import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.controller.room.*
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.*
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
@@ -17,7 +15,6 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.UserMediaStateChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
-import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
@@ -36,6 +33,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     private val webSocketModule: IKmeWebSocketModule by inject()
     private val roomController: IKmeRoomController by inject()
     private val userController: IKmeUserController by inject()
+    private val contentModule: IKmeContentModule by inject()
 
     private var preview: IKmePeerConnection? = null
     private var publisher: IKmePeerConnection? = null
@@ -53,6 +51,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     private lateinit var turnUser: String
     private lateinit var turnCred: String
     private lateinit var listener: IKmePeerConnectionModule.KmePeerConnectionEvents
+    private var screenShareEvents: IKmePeerConnectionModule.KmeScreenShareEvents? = null
+
     private var isInitialized: Boolean = false
     private var blockMediaStateEvents: Boolean = false
 
@@ -90,6 +90,20 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
             )
             isInitialized = true
         }
+    }
+
+    /**
+     * Setting initialization data to the module
+     */
+    override fun initialize(
+        roomId: Long,
+        companyId: Long,
+        listener: IKmePeerConnectionModule.KmePeerConnectionEvents,
+        screenShareEvents: IKmePeerConnectionModule.KmeScreenShareEvents
+    ) {
+        this.screenShareEvents = screenShareEvents
+
+        initialize(roomId, companyId, listener)
     }
 
     /**
@@ -175,28 +189,42 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      */
     override fun isPublishing() = publisher != null
 
-    override fun startScreenShare(screenCaptureIntent: Intent) {
-        if (screenSharer == null) {
-            webSocketModule.send(
-                buildStartDesktopShareMessage(
-                    roomId,
-                    companyId,
-                    publisherId,
-                    KmeContentType.DESKTOP_SHARE
-                )
-            )
+    /**
+     * Asking for screen permission from MediaProjectionManager
+     */
+    override fun askForScreenSharePermission() {
+        screenShareEvents?.onAskForScreenSharePermission()
+    }
 
-            webSocketModule.send(
-                buildUpdateDesktopShareStateMessage(
-                    roomId,
-                    publisherId.toString(),
-                    companyId,
-                    true
-                )
-            )
+    /**
+     * Set status from MediaProjectionManager
+     */
+    override fun setScreenSharePermission(
+        resultCode: Int,
+        screenCaptureIntent: Intent
+    ) {
+        val approved = resultCode == Activity.RESULT_OK
+        contentModule.onScreenSharePermission(approved)
 
+        if (!approved) {
+            return
+        }
+
+        screenSharer?.let { return }
+
+        webSocketModule.send(
+            buildUpdateDesktopShareStateMessage(
+                roomId,
+                publisherId.toString(),
+                companyId,
+                true
+            )
+        )
+
+        contentModule.askForScreenShareRenderer {
             screenSharer = get()
             screenSharer?.setTurnServer(turnUrl, turnUser, turnCred)
+            screenSharer?.setLocalRenderer(it)
             screenSharer?.startScreenShare(
                 "${publisherId}_desk",
                 screenCaptureIntent,
@@ -205,6 +233,9 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         }
     }
 
+    /**
+     * Stops screen share publishing
+     */
     override fun stopScreenShare() {
         screenSharer?.let {
             webSocketModule.send(
@@ -216,14 +247,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 )
             )
 
-            webSocketModule.send(buildSetConferenceViewMessage(roomId, companyId))
-
             it.disconnectPeerConnection()
             screenSharer = null
         }
     }
-
-    override fun isScreenShared() = screenSharer != null
 
     /**
      * Toggle publisher's camera

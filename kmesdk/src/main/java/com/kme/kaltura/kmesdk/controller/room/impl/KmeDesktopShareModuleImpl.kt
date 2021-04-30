@@ -80,11 +80,16 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
                     val onRoomInit = msg?.payload?.onRoomInit
 
                     if (isActive != null) {
-                        callback.onDesktopShareActive(isActive)
+                        val isYour = msg.payload?.userId?.toString().equals(publisherId)
+                        callback.onDesktopShareActive(isActive, isYour)
                     }
 
-                    if (isActive == true && onRoomInit == true) {
-                        startViewStream("${msg.payload?.userId}_desk")
+                    if (isActive == true) {
+                        if (onRoomInit == true) {
+                            startViewStream("${msg.payload?.userId}_desk")
+                        }
+                    } else {
+                        roomController.peerConnectionModule.stopScreenShare()
                     }
                 }
                 KmeMessageEvent.USER_STARTED_TO_PUBLISH -> {
@@ -110,9 +115,9 @@ class KmeDesktopShareModuleImpl : KmeController(), IKmeDesktopShareModule {
 
     private fun startViewStream(requestedUserIdStream: String) {
         if (requestedUserIdStream.contains(publisherId)) {
-            // TODO: see own shared screen in other way!!!
             return
         }
+
         this.requestedUserIdStream = requestedUserIdStream
         roomController.peerConnectionModule.addViewer(requestedUserIdStream, renderer)
         callback.onDesktopShareAvailable()

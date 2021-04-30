@@ -22,7 +22,7 @@ internal fun buildUpdateDesktopShareStateMessage(
     roomId: Long,
     userId: String,
     companyId: Long,
-    isActive: Boolean,
+    isActive: Boolean
 ): KmeDesktopShareModuleMessage<UpdateDesktopShareStatePayload> {
     return KmeDesktopShareModuleMessage<UpdateDesktopShareStatePayload>().apply {
         constraint = listOf(KmeConstraint.INCLUDE_SELF)

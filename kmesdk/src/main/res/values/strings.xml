@@ -8,8 +8,11 @@
     <string name="media_time_format">%s/%s</string>
 
     <!--Share Screen-->
-    <string name="share_screen_wait_title">Please wait</string>
-    <string name="share_screen_wait_message">Moderator didn\'t start screen share</string>
+    <string name="share_screen_viewer_title">Please wait</string>
+    <string name="share_screen_viewer_message">Moderator didn\'t start screen share</string>
+    <string name="share_screen_publisher_title">Click start to share your screen</string>
+    <string name="share_screen_publisher_action_start">Start screen share</string>
+    <string name="share_screen_publisher_action_stop">Stop share</string>
 
     <!--General-->
     <string name="error_active_content">Failed to load content data</string>

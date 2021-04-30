@@ -178,6 +178,15 @@ internal class KmePeerConnectionImpl(
         isPublisher = true
 
         peerConnectionClient = KmePeerConnectionImpl()
+
+        localRendererView?.let {
+            it.visibility = View.INVISIBLE
+            it.init(peerConnectionClient?.getRenderContext(), null)
+            it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+            it.setEnableHardwareScaler(true)
+            localVideoSink.setTarget(it)
+        }
+
         peerConnectionClient?.createPeerConnectionFactory(context, this)
         peerConnectionClient?.createPeerConnection(
                 context,
