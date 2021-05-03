@@ -65,11 +65,10 @@ class RoomRecordingViewModel(
         this.companyId = companyId
         this.roomId = roomId
 
-        // TODO: correct handle of recording license
         kmeSdk.roomController.recordingModule.checkRecordingLicense(
             roomId,
             success = { license = true },
-            error = { license = true }
+            error = { license = false }
         )
     }
 

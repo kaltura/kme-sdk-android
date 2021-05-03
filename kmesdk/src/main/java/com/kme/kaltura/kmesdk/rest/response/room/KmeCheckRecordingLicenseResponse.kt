@@ -5,11 +5,5 @@ import com.kme.kaltura.kmesdk.rest.response.KmeResponse
 import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 
 data class KmeCheckRecordingLicenseResponse(
-    @SerializedName("data") override val data: KmeRecordingLicenseData
+    @SerializedName("data") override val data: KmeResponseData?
 ) : KmeResponse()
-
-// TODO: ask server side send object instead of string
-//{"status":"success","data":""}
-data class KmeRecordingLicenseData(
-    @SerializedName("value") val value: String?
-) : KmeResponseData()
