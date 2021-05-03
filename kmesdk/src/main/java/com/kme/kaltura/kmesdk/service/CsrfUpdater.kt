@@ -14,8 +14,14 @@ class CsrfUpdater(
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             CsrfWorker::class.java.simpleName,
             ExistingPeriodicWorkPolicy.REPLACE,
-            PeriodicWorkRequestBuilder<CsrfWorker>(1, TimeUnit.HOURS).build()
+            PeriodicWorkRequestBuilder<CsrfWorker>(INTERVAL_IN_HOURS, TimeUnit.HOURS)
+                .setInitialDelay(INTERVAL_IN_HOURS, TimeUnit.HOURS)
+                .build()
         )
+    }
+
+    companion object {
+        private const val INTERVAL_IN_HOURS: Long = 1
     }
 }
 

@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.rest.service
 
 import com.kme.kaltura.kmesdk.rest.response.metadata.GetMetadataResponse
 import com.kme.kaltura.kmesdk.rest.response.metadata.GetTranslationsResponse
+import com.kme.kaltura.kmesdk.rest.response.metadata.KeepAliveResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -24,7 +25,7 @@ interface KmeMetadataApiService {
      * @return [GetMetadataResponse] object in success case
      */
     @GET("user/keepAlive")
-    suspend fun keepAlive(): String
+    suspend fun keepAlive(): KeepAliveResponse
 
     /**
      * Getting translations strings for specific language

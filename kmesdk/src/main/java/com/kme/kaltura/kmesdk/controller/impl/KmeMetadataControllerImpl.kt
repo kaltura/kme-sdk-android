@@ -7,6 +7,7 @@ import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.removeCookies
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.metadata.GetTranslationsResponse
+import com.kme.kaltura.kmesdk.rest.response.metadata.KeepAliveResponse
 import com.kme.kaltura.kmesdk.rest.response.metadata.KmeMetadata
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeMetadataApiService
@@ -62,18 +63,14 @@ class KmeMetadataControllerImpl : KmeKoinComponent, IKmeMetadataController {
      * Keep user alive. Update Csrf token.
      */
     override fun keepAlive(
-        success: (response: String) -> Unit,
+        success: (response: KeepAliveResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
         uiScope.launch {
             safeApiCall(
                 { metadataApiService.keepAlive() },
-                { response ->
-//                    response.data?.csrf?.let {
-//                        prefs.putString(KmePrefsKeys.CSRF_TOKEN, it)
-//                    }
-                },
-                {}
+                success,
+                error
             )
         }
     }
