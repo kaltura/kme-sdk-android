@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.controller.impl
 
 import android.content.Context
 import com.google.android.gms.safetynet.SafetyNet
+import com.kme.kaltura.kmesdk.controller.IKmeMetadataController
 import com.kme.kaltura.kmesdk.controller.IKmeSignInController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.encryptWith
@@ -26,6 +27,7 @@ class KmeSignInControllerImpl(
 
     private val signInApiService: KmeSignInApiService by inject()
     private val userController: IKmeUserController by inject()
+    private val metadataController: IKmeMetadataController by inject()
     private val prefs: IKmePreferences by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -74,10 +76,15 @@ class KmeSignInControllerImpl(
                 safeApiCall(
                     { signInApiService.login(email, encryptedPassword) },
                     { response ->
-                        response.data?.accessToken?.let { token ->
-                            prefs.putString(KmePrefsKeys.ACCESS_TOKEN, token)
-                        }
-                        success(response)
+                        metadataController.fetchMetadata(
+                            success = {
+                                response.data?.accessToken?.let { token ->
+                                    prefs.putString(KmePrefsKeys.ACCESS_TOKEN, token)
+                                }
+                                success(response)
+                            },
+                            error = { error(it) }
+                        )
                     },
                     error
                 )
@@ -95,13 +102,20 @@ class KmeSignInControllerImpl(
     ) {
         removeCookies {
             if (token.isNotEmpty()) {
-                prefs.putString(KmePrefsKeys.ACCESS_TOKEN, token)
-                success()
+                metadataController.fetchMetadata(
+                    success = {
+                        prefs.putString(KmePrefsKeys.ACCESS_TOKEN, token)
+                        success()
+                    },
+                    error = { error(it) }
+                )
             } else {
-                error(KmeApiException.SomethingBadHappenedException(
-                    "Invalid token",
-                    null
-                ))
+                error(
+                    KmeApiException.SomethingBadHappenedException(
+                        "Invalid token",
+                        null
+                    )
+                )
             }
         }
     }
@@ -154,7 +168,12 @@ class KmeSignInControllerImpl(
             uiScope.launch {
                 safeApiCall(
                     { signInApiService.guest(name, email, roomAlias, roomAlias) },
-                    success,
+                    { response ->
+                        metadataController.fetchMetadata(
+                            success = { success(response) },
+                            error = { error(it) }
+                        )
+                    },
                     error
                 )
             }
@@ -190,7 +209,7 @@ class KmeSignInControllerImpl(
         if (exception.code == 506) {
             askForCaptcha(success = { token ->
                 success(token)
-            }, error = { e->
+            }, error = { e ->
                 error(e)
             })
         } else {
@@ -211,10 +230,12 @@ class KmeSignInControllerImpl(
                         success(token)
                     }
                 } else {
-                    error(KmeApiException.SomethingBadHappenedException(
-                        response.exception?.message,
-                        response.exception?.cause
-                    ))
+                    error(
+                        KmeApiException.SomethingBadHappenedException(
+                            response.exception?.message,
+                            response.exception?.cause
+                        )
+                    )
                 }
             }
     }

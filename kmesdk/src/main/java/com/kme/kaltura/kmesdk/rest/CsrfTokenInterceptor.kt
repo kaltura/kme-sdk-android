@@ -16,6 +16,10 @@ internal class CsrfTokenInterceptor(
      */
     override fun intercept(chain: Interceptor.Chain): Response {
         val csrf = kmePreferences.getString(KmePrefsKeys.CSRF_TOKEN) ?: ""
+        if (csrf.isEmpty()) {
+            return chain.proceed(chain.request())
+        }
+
         val request = chain.request().newBuilder()
                 .addHeader("x-csrf-token", csrf)
                 .build()
