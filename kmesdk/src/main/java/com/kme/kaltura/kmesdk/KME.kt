@@ -29,7 +29,7 @@ class KME : KmeKoinComponent {
     private val urlInterceptor: KmeChangeableBaseUrlInterceptor by inject()
     private val prefs: IKmePreferences by inject()
     private val metadataController: IKmeMetadataController by inject()
-    KMEMA-325
+
     var isSDKInitialized = false
         private set
 
