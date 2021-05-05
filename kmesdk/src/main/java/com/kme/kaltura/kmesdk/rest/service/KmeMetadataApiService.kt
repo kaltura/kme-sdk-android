@@ -38,4 +38,10 @@ interface KmeMetadataApiService {
         @Query("lang") lang: String
     ): GetTranslationsResponse
 
+    /**
+     * Getting debug information about session
+     */
+    @GET("site/sesInfo")
+    suspend fun sessionInfo(): String
+
 }

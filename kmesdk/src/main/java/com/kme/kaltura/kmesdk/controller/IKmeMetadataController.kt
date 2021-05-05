@@ -52,4 +52,12 @@ interface IKmeMetadataController {
         error: (exception: KmeApiException) -> Unit
     )
 
+    /**
+     * Getting debug information about session
+     */
+    fun sessionInfo(
+        success: (response: String) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
 }
