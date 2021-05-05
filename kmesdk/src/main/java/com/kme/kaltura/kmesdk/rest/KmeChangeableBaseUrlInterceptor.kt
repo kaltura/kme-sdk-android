@@ -27,7 +27,7 @@ class KmeChangeableBaseUrlInterceptor(
        baseUrl = if (BuildConfig.DEBUG) {
             String.format(apiUrlPattern, stagingHost)
         } else {
-            String.format(apiUrlPattern, stagingHost)
+            String.format(apiUrlPattern, productionHost)
         }
 
         this.httpUrl = baseUrl.toHttpUrlOrNull()
