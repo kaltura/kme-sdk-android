@@ -59,7 +59,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
     ) {
         uiScope.launch {
             safeApiCall(
-                { roomApiService.getRoomInfo(alias, checkPermission, withFiles) },
+                { roomApiService.getRoomInfo(alias, withFiles, checkPermission) },
                 success,
                 error
             )

@@ -11,6 +11,7 @@ import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.KmeChangeableBaseUrlInterceptor
+import com.kme.kaltura.kmesdk.service.CsrfUpdater
 import com.kme.kaltura.kmesdk.util.ServerConfiguration
 import org.koin.core.inject
 
@@ -20,6 +21,7 @@ import org.koin.core.inject
 class KME : KmeKoinComponent {
 
     val signInController: IKmeSignInController by inject()
+    val csrfUpdater: CsrfUpdater by inject()
 
     val userController: IKmeUserController by inject()
     val roomController: IKmeRoomController by inject()
@@ -69,6 +71,7 @@ class KME : KmeKoinComponent {
                 roomController.disconnect()
             }
 
+            csrfUpdater.start()
             success()
         }, error = {
             error(it)
@@ -97,6 +100,7 @@ class KME : KmeKoinComponent {
                 roomController.disconnect()
             }
 
+            csrfUpdater.start()
             success()
         }, error = {
             error(it)
