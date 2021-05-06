@@ -1,9 +1,9 @@
-package com.kme.kaltura.kmesdk.rest.response.room
+package com.kme.kaltura.kmesdk.rest.response.metadata
 
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.rest.response.KmeResponse
 import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 
-data class KmeCheckRecordingLicenseResponse(
+class KeepAliveResponse(
     @SerializedName("data") override val data: KmeResponseData?
 ) : KmeResponse()

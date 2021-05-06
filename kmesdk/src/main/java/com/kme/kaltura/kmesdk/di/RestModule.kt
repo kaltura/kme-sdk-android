@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk.di
 import com.google.gson.GsonBuilder
 import com.kme.kaltura.kmesdk.BuildConfig
 import com.kme.kaltura.kmesdk.R
+import com.kme.kaltura.kmesdk.rest.CsrfTokenInterceptor
 import com.kme.kaltura.kmesdk.rest.KmeChangeableBaseUrlInterceptor
 import com.kme.kaltura.kmesdk.rest.KmeCookieJar
 import com.kme.kaltura.kmesdk.rest.KmeTokenInterceptor
@@ -44,6 +45,10 @@ val restModule = module {
     }
 
     single {
+        CsrfTokenInterceptor(get())
+    }
+
+    single {
         KmeChangeableBaseUrlInterceptor(androidContext())
     }
 
@@ -62,6 +67,7 @@ val restModule = module {
             .cookieJar(get<KmeCookieJar>())
             .addInterceptor(get<KmeChangeableBaseUrlInterceptor>())
             .addInterceptor(get<KmeTokenInterceptor>())
+            .addInterceptor(get<CsrfTokenInterceptor>())
             .addInterceptor(get<HttpLoggingInterceptor>())
             .build()
     }

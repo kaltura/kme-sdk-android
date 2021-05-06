@@ -14,6 +14,7 @@ import com.kme.kaltura.kmesdk.databinding.FragmentSlidesContentBinding
 import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
 import org.koin.core.inject
@@ -107,7 +108,11 @@ class KmeSlidesContentFragment : KmeContentView() {
                 slidesContentViewModel.getCookie(),
                 slidesContentViewModel.getFilesUrl()
             ).apply {
-                isAnnotationsEnabled = slidesContentViewModel.isAnnotationsEnabled()
+                isAnnotationsEnabled = if (payload.contentType != KmeContentType.WHITEBOARD) {
+                    slidesContentViewModel.isAnnotationsEnabled()
+                } else {
+                    true
+                }
                 currentSlide = payload.metadata.currentSlide ?: 0
                 showPreview = slidesContentViewModel.userType() != KmeUserType.GUEST
             }
