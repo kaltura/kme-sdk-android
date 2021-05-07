@@ -7,6 +7,7 @@ import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.*
+import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnection
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
@@ -190,6 +191,23 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     override fun isPublishing() = publisher != null
 
     /**
+     * Replace renderer for publisher connection
+     */
+    override fun changePublisherRenderer(renderer: KmeSurfaceRendererView) {
+        publisher?.changeLocalRenderer(renderer)
+    }
+
+    /**
+     * Replace renderer for viewer connection
+     */
+    override fun changeViewerRenderer(
+        requestedUserIdStream: String,
+        renderer: KmeSurfaceRendererView
+    ) {
+        viewers[requestedUserIdStream]?.changeRemoteRenderer(renderer)
+    }
+
+    /**
      * Asking for screen permission from MediaProjectionManager
      */
     override fun askForScreenSharePermission() {
@@ -231,6 +249,13 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 this
             )
         }
+    }
+
+    /**
+     * Replace renderer for screen share connection
+     */
+    override fun changeScreenShareRenderer(renderer: KmeSurfaceRendererView) {
+        screenSharer?.changeLocalRenderer(renderer)
     }
 
     /**

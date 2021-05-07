@@ -80,6 +80,19 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
     fun isPublishing(): Boolean
 
     /**
+     * Replace renderer for publisher connection
+     */
+    fun changePublisherRenderer(renderer: KmeSurfaceRendererView)
+
+    /**
+     * Replace renderer for viewer connection
+     */
+    fun changeViewerRenderer(
+        requestedUserIdStream: String,
+        renderer: KmeSurfaceRendererView
+    )
+
+    /**
      * Asking for screen permission from MediaProjectionManager
      */
     fun askForScreenSharePermission()
@@ -94,6 +107,11 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
         resultCode: Int,
         screenCaptureIntent: Intent
     )
+
+    /**
+     * Replace renderer for screen share connection
+     */
+    fun changeScreenShareRenderer(renderer: KmeSurfaceRendererView)
 
     /**
      * Stops screen share publishing

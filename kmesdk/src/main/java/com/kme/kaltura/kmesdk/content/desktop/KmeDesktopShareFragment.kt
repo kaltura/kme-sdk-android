@@ -77,7 +77,18 @@ internal class KmeDesktopShareFragment : KmeContentView() {
             viewLifecycleOwner,
             desktopShareHDQualityObserver
         )
-        viewModel.listenDesktopShare(binding.desktopShareRenderer)
+        viewModel.listenDesktopShare()
+
+        val isActive = viewModel.isDesktopShareActiveLiveData.value?.first ?: false
+        val isYour = viewModel.isDesktopShareActiveLiveData.value?.second ?: false
+        if (isActive) {
+            if (isYour) {
+                viewModel.changeScreenShareRenderer(binding.desktopShareRenderer)
+            } else {
+                // TODO: not disconnect connection on view reload
+//                viewModel.changeViewerRenderer(binding.desktopShareRenderer)
+            }
+        }
 
         settingsModule.moderatorStateLiveData.observe(
             viewLifecycleOwner,
@@ -141,6 +152,7 @@ internal class KmeDesktopShareFragment : KmeContentView() {
 
     private val desktopShareAvailableObserver = Observer<Nothing> {
         binding.desktopShareRenderer.visible()
+        viewModel.startView(binding.desktopShareRenderer)
     }
 
     private val desktopShareHDQualityObserver = Observer<Boolean> { isHD ->
