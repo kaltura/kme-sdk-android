@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk.controller.room
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 
@@ -84,6 +85,13 @@ interface IKmeRoomModule {
         value: KmePermissionValue
     )
 
+    /**
+     * Change current room content view
+     *
+     * @param view content type to set
+     */
+    fun setActiveContent(view: KmeContentType)
+    
     /**
      * Ends active room session
      *

@@ -15,7 +15,7 @@ data class KmeUserCompany(
     @SerializedName("is_paying_company") val isPayingCompany: Boolean?,
     @SerializedName("recording_reminder_ind") val recordingReminder: Int?,
     @SerializedName("max_rooms") val maxRooms: Int?,
-    @SerializedName("role") val role: KmeUserRole? = null,
+    @SerializedName("role") var role: KmeUserRole? = null,
     @SerializedName("playlist_room_id") val playlistRoomId: String?,
     @SerializedName("quizzes_room_id") val quizzesRoomId: String?,
     @SerializedName("branding") val branding: Branding?,

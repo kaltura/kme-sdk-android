@@ -6,40 +6,78 @@
     android:background="@drawable/bg_corners">
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvTitle"
+        android:id="@+id/publisherTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:text="@string/share_screen_wait_title"
+        android:text="@string/share_screen_publisher_title"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@id/startShare"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/startShare"
+        style="@style/AppTheme.ButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/share_screen_publisher_action_start"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/publisherTitle" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/publisherGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="publisherTitle,startShare" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/viewerTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="@string/share_screen_viewer_title"
         android:textAllCaps="true"
         android:textColor="@color/white"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@id/tvMessage"
+        app:layout_constraintBottom_toTopOf="@id/viewerMessage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvMessage"
+        android:id="@+id/viewerMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/share_screen_wait_message"
+        android:gravity="center"
+        android:text="@string/share_screen_viewer_message"
         android:textColor="@color/white"
         android:textSize="18sp"
-        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+        app:layout_constraintTop_toBottomOf="@id/viewerTitle" />
 
     <androidx.constraintlayout.widget.Group
-        android:id="@+id/textGroup"
+        android:id="@+id/viewerGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="tvTitle,tvMessage" />
+        android:visibility="gone"
+        app:constraint_referenced_ids="viewerTitle,viewerMessage" />
 
     <com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
         android:id="@+id/desktopShareRenderer"
@@ -50,5 +88,32 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/closeView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="20dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="5dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_desktop_share_close" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/stopShare"
+        style="@style/AppTheme.ButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/share_screen_publisher_action_stop"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/closeView"
+        app:layout_constraintEnd_toStartOf="@+id/closeView"
+        app:layout_constraintTop_toTopOf="@+id/closeView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

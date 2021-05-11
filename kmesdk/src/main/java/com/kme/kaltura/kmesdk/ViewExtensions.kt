@@ -3,7 +3,6 @@ package com.kme.kaltura.kmesdk
 import android.content.Context
 import android.graphics.*
 import android.util.DisplayMetrics
-import android.view.Display
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewGroup
@@ -16,6 +15,9 @@ import androidx.core.view.forEach
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath.Cap.*
 
+fun View?.setVisibility(isVisible: Boolean) {
+    if (isVisible) visible() else gone()
+}
 
 fun View?.visible() {
     if (this == null) return

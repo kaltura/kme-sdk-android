@@ -17,6 +17,9 @@ android {
 
     buildTypes {
         release {
+            resValue "string", "staging_api_url", 'stagingsmart.newrow.com'
+            resValue "string", "production_api_url", 'smart.newrow.com'
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             android.applicationVariants.all { variant ->
@@ -26,6 +29,9 @@ android {
             }
         }
         debug {
+            resValue "string", "staging_api_url", 'stagingsmart.newrow.com'
+            resValue "string", "production_api_url", 'smart.newrow.com'
+
             versionNameSuffix "-debug"
             debuggable true
         }

@@ -1,83 +1,101 @@
 package com.kme.kaltura.kmesdk.webrtc.peerconnection
 
-import android.content.Context
+import android.content.Intent
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
-import org.webrtc.*
+import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
 
 /**
- * An interface for actions under WebRTC peer connection object
+ * An interface for actions related to p2p connection
  */
-interface IKmePeerConnection {
+internal interface IKmePeerConnection {
 
     /**
-     * Creates a local video preview
+     * Setting TURN server for RTC
      *
-     * @param context application context
-     * @param videoCapturer video capturer
-     * @param previewRenderer preview renderer
+     * @param turnUrl url of a TURN server
+     * @param turnUser username for TURN server
+     * @param turnCred password for TURN server
      */
-    fun startPreview(
-        context: Context,
-        videoCapturer: VideoCapturer?,
-        previewRenderer: KmeSurfaceRendererView
+    fun setTurnServer(
+        turnUrl: String,
+        turnUser: String,
+        turnCred: String
     )
 
     /**
      * Set preferred settings for establish p2p connection
      *
-     * @param preferredMicEnabled flag for enable/disable micro
-     * @param preferredCamEnabled flag for enable/disable camera
+     * @param micEnabled flag for enable/disable micro
+     * @param camEnabled flag for enable/disable camera
+     * @param frontCamEnabled flag for enable/disable front camera
      */
     fun setPreferredSettings(
-        preferredMicEnabled: Boolean,
-        preferredCamEnabled: Boolean
+        micEnabled: Boolean,
+        camEnabled: Boolean,
+        frontCamEnabled: Boolean
     )
 
     /**
-     * Creates peer connection factory
+     * Setting view for local stream rendering
      *
-     * @param context application context
-     * @param events listener for events from [IKmePeerConnectionEvents]
+     * @param localRenderer view to render on
      */
-    fun createPeerConnectionFactory(
-        context: Context,
-        events: IKmePeerConnectionEvents
-    )
+    fun setLocalRenderer(localRenderer: KmeSurfaceRendererView)
 
     /**
-     * Creates peer connection
+     * Setting view for remote stream rendering
      *
-     * @param context application context
-     * @param localVideoSink local video sink
-     * @param remoteVideoSink remote video sink
-     * @param videoCapturer video capturer
-     * @param isPublisher indicates type of connection
+     * @param remoteRenderer view to render on
+     */
+    fun setRemoteRenderer(remoteRenderer: KmeSurfaceRendererView)
+
+    /**
+     * Creates a local video preview
+     */
+    fun startPreview(previewRenderer: KmeSurfaceRendererView)
+
+    /**
+     * Creates p2p connection
+     *
+     * @param requestedUserIdStream id of a stream
      * @param useDataChannel indicates if data channel is used for speaking indication
-     * @param iceServers collection of ice servers
+     * @param listener listener for p2p events
      */
     fun createPeerConnection(
-        context: Context,
-        localVideoSink: VideoSink,
-        remoteVideoSink: VideoSink,
-        videoCapturer: VideoCapturer?,
-        isPublisher: Boolean,
+        requestedUserIdStream: String,
         useDataChannel: Boolean,
-        iceServers: MutableList<PeerConnection.IceServer>
+        listener: IKmePeerConnectionClientEvents
     )
 
     /**
-     * Toggle audio
-     *
-     * @param enable flag to enable/disable audio
+     * Replace renderer for publisher connection
      */
-    fun setAudioEnabled(enable: Boolean)
+    fun changeLocalRenderer(renderer: KmeSurfaceRendererView)
 
     /**
-     * Toggle video
-     *
-     * @param enable flag to enable/disable video
+     * Replace renderer for viewer connection
      */
-    fun setVideoEnabled(enable: Boolean)
+    fun changeRemoteRenderer(renderer: KmeSurfaceRendererView)
+
+    /**
+     * Starts screen share publishing
+     *
+     * @param requestedUserIdStream id of a stream
+     * @param screenCaptureIntent media projection intent
+     * @param listener listener for p2p events
+     */
+    fun startScreenShare(
+        requestedUserIdStream: String,
+        screenCaptureIntent: Intent,
+        listener: IKmePeerConnectionClientEvents
+    )
+
+    /**
+     * Setting media server id for data relay
+     *
+     * @param mediaServerId id of a server
+     */
+    fun setMediaServerId(mediaServerId: Long)
 
     /**
      * Creates an offers
@@ -85,40 +103,26 @@ interface IKmePeerConnection {
     fun createOffer()
 
     /**
-     * Creates an answer
-     */
-    fun createAnswer()
-
-    /**
      * Setting remote SDP
      *
-     * @param sdp [SessionDescription] object describes session description
+     * @param type type of SDP
+     * @param sdp string representation of SDP
      */
-    fun setRemoteDescription(sdp: SessionDescription)
+    fun setRemoteSdp(type: KmeSdpType, sdp: String)
 
     /**
-     * Handle adding ICE candidates
+     * Toggle camera
      *
-     * @param candidate ICE candidate to add
+     * @param isEnable flag to enable/disable camera
      */
-    fun addRemoteIceCandidate(candidate: IceCandidate?)
+    fun enableCamera(isEnable: Boolean)
 
     /**
-     * Handle remove remote ICE candidates
+     * Toggle audio
      *
-     * @param candidates ICE candidates to remove
+     * @param isEnable flag to enable/disable audio
      */
-    fun removeRemoteIceCandidates(candidates: Array<IceCandidate>)
-
-    /**
-     * Disable outgoing video stream
-     */
-    fun stopVideoSource()
-
-    /**
-     * Enable outgoing video stream
-     */
-    fun startVideoSource()
+    fun enableAudio(isEnable: Boolean)
 
     /**
      * Switch between existing cameras
@@ -126,15 +130,8 @@ interface IKmePeerConnection {
     fun switchCamera()
 
     /**
-     * Closes actual connection
+     * Closes actual p2p connection
      */
-    fun close()
-
-    /**
-     * Getting rendering context for WebRTC
-     *
-     * @return rendering context
-     */
-    fun getRenderContext(): EglBase.Context?
+    fun disconnectPeerConnection()
 
 }

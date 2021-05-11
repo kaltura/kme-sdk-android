@@ -7,7 +7,7 @@ import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 /**
  * An interface for wrap actions with [IKmePeerConnection]
  */
-interface IKmePeerConnectionModule: IKmePeerConnectionClientEvents {
+interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
 
     /**
      * Setting initialization data to the module
@@ -20,6 +20,21 @@ interface IKmePeerConnectionModule: IKmePeerConnectionClientEvents {
         roomId: Long,
         companyId: Long,
         listener: KmePeerConnectionEvents
+    )
+
+    /**
+     * Setting initialization data to the module
+     *
+     * @param roomId id of a room
+     * @param companyId id of a company
+     * @param listener callback with [KmePeerConnectionEvents] for indicating main events
+     * @param screenShareEvents callback with [KmeScreenShareEvents] for indicating screen share events
+     */
+    fun initialize(
+        roomId: Long,
+        companyId: Long,
+        listener: KmePeerConnectionEvents,
+        screenShareEvents: KmeScreenShareEvents
     )
 
     /**
@@ -65,24 +80,43 @@ interface IKmePeerConnectionModule: IKmePeerConnectionClientEvents {
     fun isPublishing(): Boolean
 
     /**
-     * Starts screen share publishing
+     * Replace renderer for publisher connection
+     */
+    fun changePublisherRenderer(renderer: KmeSurfaceRendererView)
+
+    /**
+     * Replace renderer for viewer connection
+     */
+    fun changeViewerRenderer(
+        requestedUserIdStream: String,
+        renderer: KmeSurfaceRendererView
+    )
+
+    /**
+     * Asking for screen permission from MediaProjectionManager
+     */
+    fun askForScreenSharePermission()
+
+    /**
+     * Set status from MediaProjectionManager
      *
+     * @param resultCode result code returned by the child activity through its setResult()
      * @param screenCaptureIntent media projection intent
      */
-    fun startScreenShare(screenCaptureIntent: Intent)
+    fun setScreenSharePermission(
+        resultCode: Int,
+        screenCaptureIntent: Intent
+    )
+
+    /**
+     * Replace renderer for screen share connection
+     */
+    fun changeScreenShareRenderer(renderer: KmeSurfaceRendererView)
 
     /**
      * Stops screen share publishing
-     *
      */
     fun stopScreenShare()
-
-    /**
-     * Getting screen share publishing state
-     *
-     * @return [Boolean] value that indicates publishing state
-     */
-    fun isScreenShared(): Boolean
 
     /**
      * Toggle publisher's camera
@@ -154,6 +188,17 @@ interface IKmePeerConnectionModule: IKmePeerConnectionClientEvents {
          * @param description error description
          */
         fun onPeerConnectionError(id: String, description: String)
+    }
+
+    /**
+     * Screen share event
+     */
+    interface KmeScreenShareEvents {
+
+        /**
+         * Callback fired once KmeSDK need for screen permission from MediaProjectionManager
+         */
+        fun onAskForScreenSharePermission()
     }
 
 }

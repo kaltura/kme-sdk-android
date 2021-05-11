@@ -17,7 +17,6 @@ interface IKmeRoomController : IKmeWebSocketModule {
     val chatModule: IKmeChatModule
     val noteModule: IKmeNoteModule
     val recordingModule: IKmeRecordingModule
-    val desktopShareModule: IKmeDesktopShareModule
     val audioModule: IKmeAudioModule
 
     /**
@@ -25,11 +24,20 @@ interface IKmeRoomController : IKmeWebSocketModule {
      */
     val roomSettings: KmeWebRTCServer?
 
-
     /**
      * Getting current room metadata
      */
     val roomMetadata: KmeRoomMetaData?
+
+    /**
+     * Getting actual room id
+     */
+    fun getRoomId(): Long
+
+    /**
+     * Getting actual company id
+     */
+    fun getCompanyId(): Long
 
     /**
      * Connect to the room via web socket. Update actual user information first.
