@@ -506,7 +506,9 @@ open class KmeBasePeerConnectionImpl(
 
                         val volumeData = String(bytes, Charset.forName("UTF-8"))
                             .split(",")
-                        events?.onUserSpeaking(volumeData[1].toInt())
+                        volumeData[1].toIntOrNull()?.let {
+                            events?.onUserSpeaking(it)
+                        }
                     }
                 })
             }
