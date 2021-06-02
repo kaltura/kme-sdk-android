@@ -116,7 +116,6 @@ class KmeRoomControllerImpl(
                 )
             }, error = {
                 listener.onFailure(Throwable(it))
-                error(it)
             }
         )
     }

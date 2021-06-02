@@ -4,7 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
-import com.kme.kaltura.kmesdk.controller.room.*
+import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
+import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
+import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.*
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnection
@@ -148,11 +151,18 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 )
             )
 
+
             publisher = get()
             publisher?.setTurnServer(turnUrl, turnUser, turnCred)
             publisher?.setLocalRenderer(renderer)
             publisher?.setPreferredSettings(micEnabled, camEnabled, frontCamEnabled)
-            publisher?.createPeerConnection(requestedUserIdStream, !useWsEvents, this)
+            publisher?.createPeerConnection(
+                requestedUserIdStream,
+                !useWsEvents,
+                this@KmePeerConnectionModuleImpl
+            )
+        } else {
+            changePublisherRenderer(renderer)
         }
     }
 
@@ -166,7 +176,9 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         checkData()
 
         viewers[requestedUserIdStream]?.let {
-            disconnect(requestedUserIdStream)
+//            disconnect(requestedUserIdStream)
+            changeViewerRenderer(requestedUserIdStream, renderer)
+            return
         }
 
         webSocketModule.send(

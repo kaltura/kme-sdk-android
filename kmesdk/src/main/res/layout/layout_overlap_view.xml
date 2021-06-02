@@ -6,6 +6,8 @@
     <FrameLayout
         android:id="@+id/resizableLayout"
         android:layout_width="wrap_content"
+        android:backgroundTint="@color/grayDarkTransparent"
+        android:background="@drawable/bg_corners"
         android:layout_height="wrap_content">
 
         <FrameLayout
