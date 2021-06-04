@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Size
 import android.webkit.CookieManager
@@ -125,24 +126,39 @@ internal fun ImageView?.glide(
 ) {
     if (this == null) return
     Glide.with(this)
-            .asDrawable()
-            .load(generateGlideUrl(imageUrl, cookie, fileUrl))
-            .skipMemoryCache(true)
-            .apply {
-                func?.let { it() }
+        .asDrawable()
+        .load(generateGlideUrl(imageUrl, cookie, fileUrl))
+        .skipMemoryCache(true)
+        .apply {
+            func?.let { it() }
+        }
+        .into(object : CustomTarget<Drawable>() {
+            override fun onResourceReady(
+                resource: Drawable,
+                transition: Transition<in Drawable>?,
+            ) {
+                val scaledBitmap = (resource as BitmapDrawable).bitmap.resize(1280)
+                this@glide.setImageBitmap(scaledBitmap)
+                onSizeReady?.invoke(Size(resource.intrinsicWidth, resource.intrinsicHeight))
             }
-            .into(object : CustomTarget<Drawable>() {
-                override fun onResourceReady(
-                    resource: Drawable,
-                    transition: Transition<in Drawable>?
-                ) {
-                    this@glide.setImageDrawable(resource)
-                    onSizeReady?.invoke(Size(resource.intrinsicWidth, resource.intrinsicHeight))
-                }
 
-                override fun onLoadCleared(placeholder: Drawable?) {
-                }
-            })
+            override fun onLoadCleared(placeholder: Drawable?) {
+            }
+        })
+}
+
+internal fun Bitmap.resize(maxSize: Int): Bitmap? {
+    var width = width
+    var height = height
+    val bitmapRatio = width.toFloat() / height.toFloat()
+    if (bitmapRatio > 1) {
+        width = maxSize
+        height = (width / bitmapRatio).toInt()
+    } else {
+        height = maxSize
+        width = (height * bitmapRatio).toInt()
+    }
+    return Bitmap.createScaledBitmap(this, width, height, true)
 }
 
 internal fun generateGlideUrl(url: String?, cookie: String?, fileUrl: String?): GlideUrl? {
