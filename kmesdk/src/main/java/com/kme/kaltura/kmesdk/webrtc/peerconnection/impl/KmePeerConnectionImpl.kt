@@ -399,8 +399,9 @@ internal class KmePeerConnectionImpl(
         val deviceNames = enumerator.deviceNames
 
         for (deviceName in deviceNames) {
-            if ((localRendererView != null || preferredFrontCamera)
-                && enumerator.isFrontFacing(deviceName)
+            if (enumerator.isFrontFacing(deviceName) &&
+                localRendererView != null &&
+                preferredFrontCamera
             ) {
                 // Creating front facing camera capturer
                 val videoCapturer: VideoCapturer? = enumerator.createCapturer(deviceName, null)
