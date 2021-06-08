@@ -85,8 +85,7 @@ internal class KmeDesktopShareFragment : KmeContentView() {
             if (isYour) {
                 viewModel.changeScreenShareRenderer(binding.desktopShareRenderer)
             } else {
-                // TODO: not disconnect connection on view reload
-//                viewModel.changeViewerRenderer(binding.desktopShareRenderer)
+                viewModel.changeViewerRenderer(binding.desktopShareRenderer)
             }
         }
 
@@ -183,11 +182,6 @@ internal class KmeDesktopShareFragment : KmeContentView() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.stopView()
     }
 
     companion object {
