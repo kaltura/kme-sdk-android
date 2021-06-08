@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
+import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
@@ -26,8 +27,10 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
     private val roomApiService: KmeRoomApiService by inject()
     private val messageManager: KmeMessageManager by inject()
     private val webSocketModule: IKmeWebSocketModule by inject()
-
+    private val userController: IKmeUserController by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
+
+    private val publisherId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
 
     /**
      * Getting all rooms for specific company
@@ -97,7 +100,13 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
      * Change current room content view
      */
     override fun setActiveContent(view: KmeContentType) {
-        webSocketModule.send(buildSetActiveContentMessage(view))
+        // Server side issue
+        val userId = if (view == KmeContentType.CONFERENCE_VIEW) {
+            null
+        } else {
+            publisherId
+        }
+        webSocketModule.send(buildSetActiveContentMessage(userId, view))
     }
 
     /**

@@ -25,6 +25,7 @@ class KmeDesktopShareModuleMessage<T : KmeDesktopShareModuleMessage.DesktopShare
     ) : DesktopSharePayload()
 
     data class DesktopShareMetadata(
+        @SerializedName("user_id") val userId: Long? = null,
         @SerializedName("isConfViewSet") val isConfViewSet: Boolean? = null
     )
 

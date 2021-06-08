@@ -9,6 +9,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeConstraint
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 
 internal fun buildSetActiveContentMessage(
+    userId: Long?,
     contentType: KmeContentType
 ): KmeDesktopShareModuleMessage<StartDesktopSharePayload> {
     return KmeDesktopShareModuleMessage<StartDesktopSharePayload>().apply {
@@ -18,6 +19,7 @@ internal fun buildSetActiveContentMessage(
         type = KmeMessageEventType.VOID
         payload = StartDesktopSharePayload(
             KmeDesktopShareModuleMessage.DesktopShareMetadata(
+                userId,
                 when (contentType) {
                     KmeContentType.CONFERENCE_VIEW -> true
                     else -> null
@@ -26,4 +28,3 @@ internal fun buildSetActiveContentMessage(
         )
     }
 }
-
