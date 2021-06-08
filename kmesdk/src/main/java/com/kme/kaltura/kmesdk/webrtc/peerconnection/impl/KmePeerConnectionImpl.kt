@@ -188,7 +188,6 @@ internal class KmePeerConnectionImpl(
             it.init(peerConnection?.getRenderContext(), null)
             it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
             it.setEnableHardwareScaler(true)
-            it.setMirror(preferredFrontCamera)
             remoteVideoSink.setTarget(it)
         }
         peerConnection?.changeLocalRenderer(remoteVideoSink)
