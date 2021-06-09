@@ -1,32 +1,92 @@
 package com.kme.kaltura.kmesdk.webrtc.peerconnection
 
-import android.content.Context
-import org.webrtc.EglBase
-import org.webrtc.IceCandidate
+import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
+import org.webrtc.*
 
 /**
  * An interface for actions under WebRTC peer connection object
  */
-// TODO: split by different interfaces
 interface IKmeBasePeerConnection {
 
     /**
-     * Creates peer connection factory
-     *
-     * @param context application context
-     * @param events listener for events from [IKmePeerConnectionEvents]
-     */
-    fun createPeerConnectionFactory(
-        context: Context,
-        events: IKmePeerConnectionEvents
+    * Creates a local video preview
+    *
+    * @param videoCapturer video capturer
+    * @param previewRenderer preview renderer
+    */
+    fun startPreview(
+        videoCapturer: VideoCapturer?,
+        previewRenderer: KmeSurfaceRendererView
     )
 
     /**
-     * Getting rendering context for WebRTC
+     * Set preferred settings for establish p2p connection
      *
-     * @return rendering context
+     * @param preferredMicEnabled flag for enable/disable micro
+     * @param preferredCamEnabled flag for enable/disable camera
      */
-    fun getRenderContext(): EglBase.Context?
+    fun setPreferredSettings(
+        preferredMicEnabled: Boolean,
+        preferredCamEnabled: Boolean
+    )
+
+    /**
+     * Creates peer connection
+     *
+     * @param localVideoSink local video sink
+     * @param remoteVideoSink remote video sink
+     * @param videoCapturer video capturer
+     * @param useDataChannel indicates if data channel is used for speaking indication
+     * @param iceServers collection of ice servers
+     */
+    fun createPeerConnection(
+        localVideoSink: VideoSink,
+        remoteVideoSink: VideoSink,
+        videoCapturer: VideoCapturer?,
+        useDataChannel: Boolean,
+        iceServers: MutableList<PeerConnection.IceServer>
+    )
+
+    /**
+     * Replace renderer for publisher connection
+     */
+    fun changeLocalRenderer(videoSink: VideoSink)
+
+    /**
+     * Replace renderer for viewer connection
+     */
+    fun changeRemoteRenderer(videoSink: VideoSink)
+
+    /**
+     * Toggle audio
+     *
+     * @param enable flag to enable/disable audio
+     */
+    fun setAudioEnabled(enable: Boolean)
+
+    /**
+     * Toggle video
+     *
+     * @param enable flag to enable/disable video
+     */
+    fun setVideoEnabled(enable: Boolean)
+
+    /**
+     * Creates an offers
+     */
+    fun createOffer()
+
+    /**
+     * Creates an answer
+     */
+    fun createAnswer()
+
+    /**
+     * Setting remote SDP
+     *
+     * @param sdp [SessionDescription] object describes session description
+     */
+    fun setRemoteDescription(sdp: SessionDescription)
 
     /**
      * Handle adding ICE candidates
@@ -43,8 +103,30 @@ interface IKmeBasePeerConnection {
     fun removeRemoteIceCandidates(candidates: Array<IceCandidate>)
 
     /**
+     * Disable outgoing video stream
+     */
+    fun stopVideoSource()
+
+    /**
+     * Enable outgoing video stream
+     */
+    fun startVideoSource()
+
+    /**
+     * Switch between existing cameras
+     */
+    fun switchCamera()
+
+    /**
      * Closes actual connection
      */
     fun close()
+
+    /**
+     * Getting rendering context for WebRTC
+     *
+     * @return rendering context
+     */
+    fun getRenderContext(): EglBase.Context?
 
 }

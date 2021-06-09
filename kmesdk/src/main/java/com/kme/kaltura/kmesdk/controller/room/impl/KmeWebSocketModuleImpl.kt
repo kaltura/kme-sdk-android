@@ -17,8 +17,6 @@ import okhttp3.WebSocket
 import org.koin.core.inject
 import org.koin.core.qualifier.named
 
-private const val RECONNECTION_ATTEMPTS = 5
-
 /**
  * An implementation for socket actions
  */
@@ -194,6 +192,10 @@ internal class KmeWebSocketModuleImpl : KmeController(),
                 "&isReconnect=$isReconnect" +
                 "&company_id=$companyId" +
                 "&token=$token"
+    }
+
+    companion object {
+        private const val RECONNECTION_ATTEMPTS = 5
     }
 
 }

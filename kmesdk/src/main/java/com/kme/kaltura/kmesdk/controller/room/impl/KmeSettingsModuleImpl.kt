@@ -1,5 +1,7 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeSettingsModule
@@ -27,6 +29,9 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
 
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
+
+    private val moderatorState = MutableLiveData<Boolean>()
+    override val moderatorStateLiveData get() = moderatorState as LiveData<Boolean>
 
     /**
      * Subscribing for the room events related to change settings
@@ -121,6 +126,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
         val currentParticipant = userController.getCurrentParticipant()
         if (currentParticipant != null && userId == currentParticipant.userId) {
             currentParticipant.isModerator = isModerator
+            moderatorState.value = isModerator
         }
     }
 

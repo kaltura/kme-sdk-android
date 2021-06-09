@@ -49,7 +49,7 @@ val restModule = module {
     }
 
     single {
-        KmeChangeableBaseUrlInterceptor(androidContext())
+        KmeChangeableBaseUrlInterceptor(androidContext(), get())
     }
 
     single {

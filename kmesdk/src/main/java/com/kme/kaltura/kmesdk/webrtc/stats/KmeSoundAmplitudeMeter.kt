@@ -1,6 +1,6 @@
 package com.kme.kaltura.kmesdk.webrtc.stats
 
-import com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmePeerConnectionImpl
+import com.kme.kaltura.kmesdk.webrtc.peerconnection.impl.KmeBasePeerConnectionImpl
 import kotlinx.coroutines.*
 import org.webrtc.PeerConnection
 
@@ -52,7 +52,7 @@ class KmeSoundAmplitudeMeter(
                 if (statObject.value.type == STATISTICS_MEDIA_SOURCE_KEY &&
                     statObject.value.members.containsKey(STATISTICS_TRACK_ID_KEY) &&
                     statObject.value.members.containsKey(STATISTICS_AUDIO_LEVEL_KEY) &&
-                    statObject.value.members.getValue(STATISTICS_TRACK_ID_KEY) == KmePeerConnectionImpl.AUDIO_TRACK_ID
+                    statObject.value.members.getValue(STATISTICS_TRACK_ID_KEY) == KmeBasePeerConnectionImpl.AUDIO_TRACK_ID
                 ) {
                     val value = statObject.value.members.getValue(STATISTICS_AUDIO_LEVEL_KEY)
                     val amplitude = "%.3f".format(value).replace(",", ".").toDouble()

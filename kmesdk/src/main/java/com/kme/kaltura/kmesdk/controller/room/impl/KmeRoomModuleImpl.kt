@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
+import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
@@ -10,6 +11,7 @@ import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.util.messages.*
 import com.kme.kaltura.kmesdk.ws.KmeMessageManager
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 import kotlinx.coroutines.CoroutineScope
@@ -25,8 +27,10 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
     private val roomApiService: KmeRoomApiService by inject()
     private val messageManager: KmeMessageManager by inject()
     private val webSocketModule: IKmeWebSocketModule by inject()
-
+    private val userController: IKmeUserController by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
+
+    private val publisherId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
 
     /**
      * Getting all rooms for specific company
@@ -90,6 +94,19 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         value: KmePermissionValue
     ) {
         webSocketModule.send(buildRoomSettingsChangedMessage(roomId, userId, key, value))
+    }
+
+    /**
+     * Change current room content view
+     */
+    override fun setActiveContent(view: KmeContentType) {
+        // Server side issue
+        val userId = if (view == KmeContentType.CONFERENCE_VIEW) {
+            null
+        } else {
+            publisherId
+        }
+        webSocketModule.send(buildSetActiveContentMessage(userId, view))
     }
 
     /**

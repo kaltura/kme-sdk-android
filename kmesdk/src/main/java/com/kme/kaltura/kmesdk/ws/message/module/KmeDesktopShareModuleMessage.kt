@@ -20,10 +20,8 @@ class KmeDesktopShareModuleMessage<T : KmeDesktopShareModuleMessage.DesktopShare
     ) : DesktopSharePayload()
 
     data class StartDesktopSharePayload(
-        @SerializedName("room_id") val roomId: Long? = null,
-        @SerializedName("company_id") val companyId: Long? = null,
         @SerializedName("metadata") val metadata: DesktopShareMetadata? = null,
-        @SerializedName("content_type") val contentType: KmeContentType? = null,
+        @SerializedName("content_type") val contentType: KmeContentType? = null
     ) : DesktopSharePayload()
 
     data class DesktopShareMetadata(
@@ -35,7 +33,7 @@ class KmeDesktopShareModuleMessage<T : KmeDesktopShareModuleMessage.DesktopShare
         @SerializedName("room_id") val roomId: Long? = null,
         @SerializedName("company_id") val companyId: Long? = null,
         @SerializedName("user_id") val userId: String? = null,
-        @SerializedName("is_active") val isActive: Boolean? = null,
+        @SerializedName("is_active") val isActive: Boolean? = null
     ) : DesktopSharePayload()
 
     data class DesktopShareQualityUpdatedPayload(

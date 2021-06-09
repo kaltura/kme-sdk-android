@@ -47,7 +47,6 @@ class KmeRoomControllerImpl(
     override val chatModule: IKmeChatModule by inject()
     override val noteModule: IKmeNoteModule by inject()
     override val recordingModule: IKmeRecordingModule by inject()
-    override val desktopShareModule: IKmeDesktopShareModule by inject()
     override val audioModule: IKmeAudioModule by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
@@ -84,6 +83,17 @@ class KmeRoomControllerImpl(
         }
     }
 
+    // TODO: avoid passing roomId and companyId to the KME controllers
+    /**
+     * Getting actual room id
+     */
+    override fun getRoomId() = roomId
+
+    /**
+     * Getting actual company id
+     */
+    override fun getCompanyId() = companyId
+
     /**
      * Connect to the room via web socket. Update actual user information first.
      */
@@ -106,7 +116,6 @@ class KmeRoomControllerImpl(
                 )
             }, error = {
                 listener.onFailure(Throwable(it))
-                error(it)
             }
         )
     }

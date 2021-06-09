@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.content.KmeContentView
+import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 
 /**
  * An interface for content sharing
@@ -16,6 +17,17 @@ interface IKmeContentModule {
      * Un-subscribing from the room events related to content sharing
      */
     fun unsubscribe()
+
+    /**
+     * Asking content view for screen share renderer. Fired once KmeSDK needs view to render own screen
+     */
+    fun askForScreenShareRenderer(callback: (view: KmeSurfaceRendererView) -> Unit)
+
+    /**
+     * Setting result of screen projection permission from MediaProjectionManager
+     * Fired once application provides permission result to the KmeSDK
+     */
+    fun onScreenSharePermission(approved: Boolean)
 
     /**
      * Content share listener

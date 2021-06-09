@@ -3,6 +3,8 @@ package com.kme.kaltura.kmesdk.rest
 import android.content.Context
 import com.kme.kaltura.kmesdk.BuildConfig
 import com.kme.kaltura.kmesdk.R
+import com.kme.kaltura.kmesdk.prefs.IKmePreferences
+import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.util.ServerConfiguration
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -11,7 +13,8 @@ import okhttp3.Response
 import java.net.URL
 
 class KmeChangeableBaseUrlInterceptor(
-    context: Context
+    context: Context,
+    private val prefs: IKmePreferences
 ) : Interceptor {
 
     @Volatile
@@ -24,10 +27,15 @@ class KmeChangeableBaseUrlInterceptor(
     private var productionHost = context.getString(R.string.production_api_url)
 
     init {
-       baseUrl = if (BuildConfig.DEBUG) {
-            String.format(apiUrlPattern, stagingHost)
+        val lastUsedUrl = prefs.getString(KmePrefsKeys.BASE_SERVER_URL)
+        baseUrl = if (lastUsedUrl.isNullOrEmpty()) {
+            if (BuildConfig.DEBUG) {
+                String.format(apiUrlPattern, stagingHost)
+            } else {
+                String.format(apiUrlPattern, productionHost)
+            }
         } else {
-            String.format(apiUrlPattern, productionHost)
+            lastUsedUrl
         }
 
         this.httpUrl = baseUrl.toHttpUrlOrNull()
@@ -41,6 +49,7 @@ class KmeChangeableBaseUrlInterceptor(
 
         if (baseUrl != url) {
             baseUrl = url
+            prefs.putString(KmePrefsKeys.BASE_SERVER_URL, baseUrl)
             this.httpUrl = url.toHttpUrlOrNull()
         }
     }

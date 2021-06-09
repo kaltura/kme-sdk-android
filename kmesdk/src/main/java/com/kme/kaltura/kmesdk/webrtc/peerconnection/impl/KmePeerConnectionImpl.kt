@@ -1,675 +1,476 @@
 package com.kme.kaltura.kmesdk.webrtc.peerconnection.impl
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
-import androidx.annotation.RequiresPermission
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.media.projection.MediaProjection
+import android.view.View
+import androidx.core.app.ActivityCompat
+import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnection
+import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
-import com.kme.kaltura.kmesdk.webrtc.stats.KmeSoundAmplitudeListener
-import com.kme.kaltura.kmesdk.webrtc.stats.KmeSoundAmplitudeMeter
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
+import com.kme.kaltura.kmesdk.webrtc.view.KmeVideoSink
+import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
 import org.webrtc.*
-import org.webrtc.PeerConnection.*
-import org.webrtc.audio.JavaAudioDeviceModule.builder
-import org.webrtc.voiceengine.WebRtcAudioManager
-import org.webrtc.voiceengine.WebRtcAudioUtils
-import java.nio.ByteBuffer
-import java.nio.charset.Charset
-import java.util.*
 
 /**
- * An implementation actions under WebRTC peer connection object
+ * An implementation for p2p connection
  */
-class KmePeerConnectionImpl : IKmePeerConnection, KmeSoundAmplitudeListener {
+internal class KmePeerConnectionImpl(
+    private val context: Context,
+    private val gson: Gson
+) : IKmePeerConnection, IKmePeerConnectionEvents {
 
-    private val localSdpObserver: LocalSdpObserver = LocalSdpObserver()
-    private val remoteSdpObserver: RemoteSdpObserver = RemoteSdpObserver()
-    private val pcObserver: PeerConnectionObserver = PeerConnectionObserver()
+    private var peerConnection: KmeBasePeerConnectionImpl? = null
+    private var iceServers: MutableList<PeerConnection.IceServer> = mutableListOf()
+    private var listener: IKmePeerConnectionClientEvents? = null
 
-    private val rootEglBase: EglBase = EglBase.create()
+    private val localVideoSink: KmeVideoSink = KmeVideoSink()
+    private var localRendererView: KmeSurfaceRendererView? = null
 
-    private var factory: PeerConnectionFactory? = null
-    private var peerConnection: PeerConnection? = null
-    private var soundAmplitudeMeter: KmeSoundAmplitudeMeter? = null
-    private var iceServers: MutableList<IceServer> = mutableListOf()
-    private var isPublisher = false
-    private var isScreenShare = false
-    private var useDataChannel = false
-    private var events: IKmePeerConnectionEvents? = null
+    private val remoteVideoSink: KmeVideoSink = KmeVideoSink()
+    private var remoteRendererView: KmeSurfaceRendererView? = null
 
-    private var videoCapturerStopped = false
+    private var requestedUserIdStream = ""
+    private var mediaServerId = 0L
+
     private var preferredMicEnabled: Boolean = true
     private var preferredCamEnabled: Boolean = true
+    private var preferredFrontCamera: Boolean = true
 
-    private var queuedRemoteCandidates: MutableList<IceCandidate>? = null
-    private lateinit var localSdp: SessionDescription
-
-    private var videoCapturer: VideoCapturer? = null
-    private var surfaceTextureHelper: SurfaceTextureHelper? = null
-
-    private var localVideoTrack: VideoTrack? = null
-    private var localAudioTrack: AudioTrack? = null
-    private var localVideoSource: VideoSource? = null
-    private var localAudioSource: AudioSource? = null
-    private var localVideoSender: RtpSender? = null
-    private lateinit var localVideoSink: VideoSink
-
-    private var remoteVideoTrack: VideoTrack? = null
-    private lateinit var remoteVideoSink: VideoSink
-
-    private var audioConstraints: MediaConstraints? = null
-    private var sdpMediaConstraints: MediaConstraints? = null
-    private var volumeDataChannel: DataChannel? = null
-
+    // Public PeerConnection API
     /**
-     * Creates a local video preview
+     * Setting TURN server for RTC. Build ICE servers collection
      */
-    override fun startPreview(
-        context: Context,
-        videoCapturer: VideoCapturer?,
-        previewRenderer: KmeSurfaceRendererView
-    ) {
-        this.videoCapturer = videoCapturer
-        this.localVideoSink = previewRenderer
-
-        peerConnection = factory?.createPeerConnection(RTCConfiguration(listOf()), pcObserver)
-        peerConnection?.let {
-            if (videoCapturer != null) {
-                it.addTrack(createLocalVideoTrack(context, videoCapturer), listOf("ARDAMS"))
-            }
-        }
+    override fun setTurnServer(turnUrl: String, turnUser: String, turnCred: String) {
+        iceServers = buildIceServers(turnUrl, turnUser, turnCred)
     }
 
     /**
      * Set preferred settings for establish p2p connection
      */
     override fun setPreferredSettings(
-        preferredMicEnabled: Boolean,
-        preferredCamEnabled: Boolean
+        micEnabled: Boolean,
+        camEnabled: Boolean,
+        frontCamEnabled: Boolean
     ) {
-        this.preferredMicEnabled = preferredMicEnabled
-        this.preferredCamEnabled = preferredCamEnabled
+        this.preferredMicEnabled = micEnabled
+        this.preferredCamEnabled = camEnabled
+        this.preferredFrontCamera = frontCamEnabled
     }
 
     /**
-     * Creates peer connection factory
+     * Setting view for local stream rendering
      */
-    override fun createPeerConnectionFactory(
-        context: Context,
-        events: IKmePeerConnectionEvents
-    ) {
-        this.events = events
-
-        var fieldTrials = VIDEO_VP8_INTEL_HW_ENCODER_FIELDTRIAL
-        fieldTrials = "$fieldTrials $VIDEO_FRAME_EMIT_FIELDTRIAL"
-
-        PeerConnectionFactory.initialize(
-            PeerConnectionFactory.InitializationOptions.builder(context)
-                .setFieldTrials(fieldTrials)
-                .setEnableInternalTracer(true)
-                .createInitializationOptions()
-        )
-
-        WebRtcAudioManager.setBlacklistDeviceForOpenSLESUsage(true)
-        WebRtcAudioUtils.setWebRtcBasedAcousticEchoCanceler(false)
-        WebRtcAudioUtils.setWebRtcBasedAutomaticGainControl(false)
-        WebRtcAudioUtils.setWebRtcBasedNoiseSuppressor(false)
-
-        val encoderFactory = DefaultVideoEncoderFactory(
-            getRenderContext(),
-            true,
-            false
-        )
-        val decoderFactory = DefaultVideoDecoderFactory(getRenderContext())
-
-        factory = PeerConnectionFactory.builder()
-            .setAudioDeviceModule(builder(context).createAudioDeviceModule())
-            .setVideoEncoderFactory(encoderFactory)
-            .setVideoDecoderFactory(decoderFactory)
-            .createPeerConnectionFactory()
+    override fun setLocalRenderer(localRenderer: KmeSurfaceRendererView) {
+        if (remoteRendererView != null) {
+            throw Exception("Can't set local renderer. Remote one already set")
+        }
+        localRendererView = localRenderer
     }
 
     /**
-     * Creates peer connection
+     * Setting view for remote stream rendering
+     */
+    override fun setRemoteRenderer(remoteRenderer: KmeSurfaceRendererView) {
+        if (localRendererView != null) {
+            throw Exception("Can't set remote renderer. Local one already set")
+        }
+        remoteRendererView = remoteRenderer
+    }
+
+    /**
+     * Creates a local video preview
+     */
+    override fun startPreview(previewRenderer: KmeSurfaceRendererView) {
+        if (localRendererView != null || remoteRendererView != null) {
+            throw Exception("Can't start preview")
+        }
+
+        localRendererView = previewRenderer
+        peerConnection = KmePreviewPeerConnectionImpl(context, this)
+        with(previewRenderer) {
+            init(peerConnection?.getRenderContext(), null)
+            setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+            setEnableHardwareScaler(true)
+            setMirror(true)
+        }
+
+        peerConnection?.startPreview(
+            createCameraCapturer(),
+            previewRenderer
+        )
+    }
+
+    /**
+     * Creates p2p connection
      */
     override fun createPeerConnection(
-        context: Context,
-        localVideoSink: VideoSink,
-        remoteVideoSink: VideoSink,
-        videoCapturer: VideoCapturer?,
-        isPublisher: Boolean,
+        requestedUserIdStream: String,
         useDataChannel: Boolean,
-        iceServers: MutableList<IceServer>
+        listener: IKmePeerConnectionClientEvents
     ) {
-        this.localVideoSink = localVideoSink
-        this.remoteVideoSink = remoteVideoSink
-        this.videoCapturer = videoCapturer
-        this.isPublisher = isPublisher
-        this.useDataChannel = useDataChannel
-        this.iceServers = iceServers
+        this.requestedUserIdStream = requestedUserIdStream
+        this.listener = listener
 
-        createPeerConnection(context)
-    }
+        var videoCapturer: VideoCapturer? = null
 
-    /**
-     * Audio and SDP constraints
-     */
-    private fun addMediaConstraints() {
-        audioConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "true")
-        )
-        audioConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair(AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT, "true")
-        )
-        audioConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "true")
-        )
-        audioConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "true")
-        )
-        audioConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair(AUDIO_LEVEL_CONTROL_CONSTRAINT, "true")
-        )
+        localRendererView?.let {
+            peerConnection = KmePublisherPeerConnectionImpl(context, this)
+            it.visibility = View.INVISIBLE
+            it.init(peerConnection?.getRenderContext(), null)
+            it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+            it.setEnableHardwareScaler(true)
+            it.setMirror(preferredFrontCamera)
+            localVideoSink.setTarget(it)
 
-        sdpMediaConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true")
-        )
-        sdpMediaConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true")
-        )
-    }
-
-    /**
-     * Creates peer connection
-     */
-    private fun createPeerConnection(context: Context) {
-        if (factory == null) {
-            return
-        }
-
-        queuedRemoteCandidates = ArrayList()
-
-        val rtcConfig = RTCConfiguration(iceServers)
-        peerConnection = factory?.createPeerConnection(rtcConfig, pcObserver)
-
-        peerConnection?.let {
-
-            // Set INFO libjingle logging. NOTE: this _must_ happen while |factory| is alive!
-            Logging.enableLogToDebugOutput(Logging.Severity.LS_INFO)
-
-            val mediaStreamLabels = listOf("ARDAMS")
-            if (videoCapturer != null) {
-                it.addTrack(
-                    createLocalVideoTrack(context, videoCapturer),
-                    mediaStreamLabels
-                )
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                videoCapturer = createCameraCapturer()
             }
-
-            audioConstraints = MediaConstraints()
-            sdpMediaConstraints = MediaConstraints()
-
-            if (!isScreenShare) {
-                addMediaConstraints()
-                it.addTrack(createLocalAudioTrack(), mediaStreamLabels)
-
-                if (isPublisher) {
-                    val volumeInit = DataChannel.Init()
-                    volumeInit.ordered = false
-                    volumeInit.maxRetransmits = 0
-                    if (useDataChannel) {
-                        volumeDataChannel = it.createDataChannel("volumeDataChannel", volumeInit)
-                    }
-
-                    soundAmplitudeMeter = KmeSoundAmplitudeMeter(it, this)
-                }
-            }
-
-            if (videoCapturer != null) findVideoSender()
-
-            events?.onPeerConnectionCreated()
-        }
-    }
-
-    /**
-     * Creates local audio track
-     */
-    private fun createLocalAudioTrack(): AudioTrack? {
-        localAudioSource = factory?.createAudioSource(audioConstraints)
-        localAudioTrack = factory?.createAudioTrack(AUDIO_TRACK_ID, localAudioSource)
-        localAudioTrack?.setEnabled(preferredMicEnabled)
-        return localAudioTrack
-    }
-
-    /**
-     * Creates local video track
-     */
-    private fun createLocalVideoTrack(context: Context, capturer: VideoCapturer?): VideoTrack? {
-        capturer?.let {
-            surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", getRenderContext())
-            localVideoSource = factory?.createVideoSource(it.isScreencast)
-            isScreenShare = it.isScreencast
-            it.initialize(surfaceTextureHelper, context, localVideoSource?.capturerObserver)
-            if (isScreenShare) {
-                it.startCapture(
-                    SCREEN_SHARE_VIDEO_WIDTH,
-                    SCREEN_SHARE_VIDEO_HEIGHT,
-                    SCREEN_SHARE_VIDEO_FPS
-                )
-            } else {
-                it.startCapture(
-                    VIDEO_WIDTH,
-                    VIDEO_HEIGHT,
-                    VIDEO_FPS
-                )
-            }
+            peerConnection?.setPreferredSettings(preferredMicEnabled, preferredCamEnabled)
         }
 
-        localVideoTrack = factory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)
-        localVideoTrack?.setEnabled(preferredCamEnabled)
-        localVideoTrack?.addSink(localVideoSink)
-        return localVideoTrack
-    }
-
-    /**
-     * Find local video sender
-     */
-    private fun findVideoSender() {
-        for (sender in peerConnection?.senders!!) {
-            if (sender.track() != null) {
-                val trackType = sender.track()?.kind()
-                if (trackType == VIDEO_TRACK_TYPE) {
-                    localVideoSender = sender
-                }
-            }
+        remoteRendererView?.let {
+            peerConnection = KmeViewerPeerConnectionImpl(context, this)
+            it.init(peerConnection?.getRenderContext(), null)
+            it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+            it.setEnableHardwareScaler(true)
+            it.setMirror(false)
+            remoteVideoSink.setTarget(it)
         }
+
+        peerConnection?.createPeerConnection(
+            localVideoSink,
+            remoteVideoSink,
+            videoCapturer,
+            useDataChannel,
+            iceServers
+        )
     }
 
     /**
-     * Toggle audio
+     * Replace renderer for publisher connection
      */
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    override fun setAudioEnabled(enable: Boolean) {
-        preferredMicEnabled = enable
-        if (enable) {
-            soundAmplitudeMeter?.startMeasure()
-        } else {
-            soundAmplitudeMeter?.stopMeasure()
+    override fun changeLocalRenderer(renderer: KmeSurfaceRendererView) {
+        localVideoSink.setTarget(null)
+        localRendererView?.release()
+        localRendererView = null
+
+        localRendererView = renderer
+        localRendererView?.let {
+            it.init(peerConnection?.getRenderContext(), null)
+            it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+            it.setEnableHardwareScaler(true)
+            it.setMirror(preferredFrontCamera)
+            localVideoSink.setTarget(it)
         }
-        localAudioTrack?.setEnabled(enable)
+        peerConnection?.changeLocalRenderer(localVideoSink)
     }
 
     /**
-     * Toggle video
+     * Replace renderer for viewer connection
      */
-    @RequiresPermission(Manifest.permission.CAMERA)
-    override fun setVideoEnabled(enable: Boolean) {
-        localVideoTrack?.setEnabled(enable)
+    override fun changeRemoteRenderer(renderer: KmeSurfaceRendererView) {
+        remoteVideoSink.setTarget(null)
+        remoteRendererView?.release()
+        remoteRendererView = null
+
+        remoteRendererView = renderer
+        remoteRendererView?.let {
+            it.init(peerConnection?.getRenderContext(), null)
+            it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+            it.setEnableHardwareScaler(true)
+            remoteVideoSink.setTarget(it)
+        }
+        peerConnection?.changeLocalRenderer(remoteVideoSink)
+    }
+
+    override fun startScreenShare(
+        requestedUserIdStream: String,
+        screenCaptureIntent: Intent,
+        listener: IKmePeerConnectionClientEvents
+    ) {
+        this.requestedUserIdStream = requestedUserIdStream
+        this.listener = listener
+
+        peerConnection = KmeScreenSharePeerConnectionImpl(context, this)
+        localRendererView?.let {
+            it.visibility = View.INVISIBLE
+            it.init(peerConnection?.getRenderContext(), null)
+            it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+            it.setEnableHardwareScaler(true)
+            localVideoSink.setTarget(it)
+        }
+
+        peerConnection?.createPeerConnection(
+            localVideoSink,
+            remoteVideoSink,
+            createScreenCapturer(screenCaptureIntent),
+            false,
+            iceServers
+        )
+    }
+
+    /**
+     * Setting media server id for data relay
+     */
+    override fun setMediaServerId(mediaServerId: Long) {
+        this.mediaServerId = mediaServerId
     }
 
     /**
      * Creates an offers
      */
     override fun createOffer() {
-        peerConnection?.createOffer(localSdpObserver, sdpMediaConstraints)
-    }
-
-    /**
-     * Creates an answer
-     */
-    override fun createAnswer() {
-        peerConnection?.createAnswer(localSdpObserver, sdpMediaConstraints)
-    }
-
-    /**
-     * Handle adding ICE candidate
-     */
-    override fun addRemoteIceCandidate(candidate: IceCandidate?) {
-        if (queuedRemoteCandidates != null) {
-            queuedRemoteCandidates?.add(candidate!!)
-        } else {
-            peerConnection?.addIceCandidate(candidate)
-        }
-    }
-
-    /**
-     * Handle remove remote ICE candidates
-     */
-    override fun removeRemoteIceCandidates(candidates: Array<IceCandidate>) {
-        if (peerConnection == null) {
-            return
-        }
-        drainCandidates()
-        peerConnection?.removeIceCandidates(candidates)
+        peerConnection?.createOffer()
     }
 
     /**
      * Setting remote SDP
      */
-    override fun setRemoteDescription(sdp: SessionDescription) {
-        peerConnection?.setRemoteDescription(remoteSdpObserver, sdp)
+    override fun setRemoteSdp(type: KmeSdpType, sdp: String) {
+        val sdpType =
+            if (type == KmeSdpType.ANSWER) SessionDescription.Type.ANSWER
+            else SessionDescription.Type.OFFER
+        peerConnection?.setRemoteDescription(SessionDescription(sdpType, sdp))
     }
 
     /**
-     * Disable outgoing video stream
+     * Toggle camera
      */
-    override fun stopVideoSource() {
-        if (!videoCapturerStopped) {
-            try {
-                videoCapturer?.stopCapture()
-            } catch (e: InterruptedException) {
-
-            }
-            videoCapturerStopped = true
-        }
-    }
-
-    /**
-     * Enable outgoing video stream
-     */
-    override fun startVideoSource() {
-        if (videoCapturerStopped) {
-            videoCapturer?.startCapture(VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS)
-            videoCapturerStopped = false
+    override fun enableCamera(isEnable: Boolean) {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            peerConnection?.setVideoEnabled(isEnable)
         }
     }
 
     /**
-     * Change bitrate parameters of local video
+     * Toggle audio
      */
-    fun setVideoMaxBitrate(maxBitrateKbps: Int?) {
-        if (peerConnection == null || localVideoSender == null) {
-            return
-        }
-        if (localVideoSender == null) {
-            return
-        }
-        val parameters = localVideoSender!!.parameters
-        if (parameters.encodings.size == 0) {
-            return
-        }
-        for (encoding in parameters.encodings) {
-            encoding.maxBitrateBps =
-                if (maxBitrateKbps == null) null else maxBitrateKbps * BPS_IN_KBPS
-        }
-
-        if (!localVideoSender!!.setParameters(parameters)) {
-            //TODO handle parameters are not set
-        }
-    }
-
-    /**
-     * Clear list of ICE candidates
-     */
-    private fun drainCandidates() {
-        if (queuedRemoteCandidates != null) {
-            for (candidate in queuedRemoteCandidates!!) {
-                peerConnection?.addIceCandidate(candidate)
-            }
-            queuedRemoteCandidates = null
+    override fun enableAudio(isEnable: Boolean) {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            peerConnection?.setAudioEnabled(isEnable)
         }
     }
 
     /**
      * Switch between existing cameras
      */
-    @RequiresPermission(Manifest.permission.CAMERA)
     override fun switchCamera() {
-        videoCapturer?.let {
-            if (it is CameraVideoCapturer) {
-                it.switchCamera(null)
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            localRendererView?.let {
+                preferredFrontCamera = !preferredFrontCamera
+                it.setMirror(preferredFrontCamera)
             }
+            peerConnection?.switchCamera()
         }
     }
 
     /**
-     * Change capture parameters of local video
+     * Closes actual p2p connection
      */
-    private fun changeCaptureFormat(
-        width: Int,
-        height: Int,
-        frameRate: Int
-    ) {
-        if (videoCapturer == null) return
+    override fun disconnectPeerConnection() {
+        localVideoSink.setTarget(null)
+        remoteVideoSink.setTarget(null)
 
-        localVideoSource?.adaptOutputFormat(width, height, frameRate)
-    }
+        localRendererView?.release()
+        localRendererView = null
 
-    /**
-     * Closes actual connection
-     */
-    override fun close() {
-        if (isPublisher) {
-            soundAmplitudeMeter?.stopMeasure()
-            soundAmplitudeMeter = null
-        }
-
-        volumeDataChannel?.unregisterObserver()
-        volumeDataChannel?.close()
-        volumeDataChannel?.dispose()
-        volumeDataChannel = null
-
-        localAudioSource?.dispose()
-        localAudioSource = null
-
-        try {
-            videoCapturer?.stopCapture()
-        } catch (e: InterruptedException) {
-            throw RuntimeException(e)
-        }
-        videoCapturerStopped = true
-        videoCapturer?.dispose()
-        videoCapturer = null
-
-        localVideoSource?.dispose()
-        localVideoSource = null
-
-        surfaceTextureHelper?.dispose()
-        surfaceTextureHelper = null
+        remoteRendererView?.release()
+        remoteRendererView = null
 
         peerConnection?.close()
-        peerConnection?.dispose()
         peerConnection = null
+    }
 
-        factory?.dispose()
-        factory = null
-
-        events?.onPeerConnectionClosed()
-        PeerConnectionFactory.stopInternalTracingCapture()
-        PeerConnectionFactory.shutdownInternalTracer()
-        events = null
+    // Callbacks from PeerConnection internal API to the application
+    /**
+     * Callback fired once peerConnection instance created
+     */
+    override fun onPeerConnectionCreated() {
+        localRendererView?.visibility = View.VISIBLE
+        listener?.onPeerConnectionCreated(requestedUserIdStream)
     }
 
     /**
-     * Getting rendering context for WebRTC
+     * Callback fired once local SDP is created and set
      */
-    override fun getRenderContext(): EglBase.Context? {
-        return rootEglBase.eglBaseContext
+    @SuppressLint("DefaultLocale")
+    override fun onLocalDescription(sdp: SessionDescription) {
+        listener?.onLocalDescription(
+            requestedUserIdStream,
+            mediaServerId,
+            sdp.description,
+            sdp.type.name.toLowerCase()
+        )
     }
 
     /**
-     * Fired once sound amplitude measured
+     * Callback fired once local Ice candidate is generated
      */
-    override fun onAmplitudeMeasured(amplitude: Int) {
-        events?.onUserSpeaking(amplitude)
-
-        volumeDataChannel?.let {
-            val data = (if (amplitude > 150) "1" else "0") + ",$amplitude"
-            val buffer: ByteBuffer = ByteBuffer.wrap(data.toByteArray())
-            it.send(DataChannel.Buffer(buffer, false))
-        }
+    override fun onIceCandidate(candidate: IceCandidate) {
+        listener?.onIceCandidate(gson.toJson(candidate))
     }
 
     /**
-     * Peer connection callbacks
+     * Callback fired once local ICE candidates are removed
      */
-    private inner class PeerConnectionObserver : PeerConnection.Observer {
+    override fun onIceCandidatesRemoved(candidates: Array<IceCandidate>) {
+        listener?.onIceCandidatesRemoved(gson.toJson(candidates))
+    }
 
-        override fun onIceCandidate(candidate: IceCandidate) {
-            events?.onIceCandidate(candidate)
-        }
+    /**
+     * Callback fired once connection is established (IceConnectionState is
+     * CONNECTED)
+     */
+    override fun onIceConnected() {
+        listener?.onIceConnected()
+    }
 
-        override fun onIceCandidatesRemoved(candidates: Array<IceCandidate>) {
-            events?.onIceCandidatesRemoved(candidates)
-        }
+    /**
+     * Callback fired once ice gathering is complete (IceGatheringDone is COMPLETE)
+     */
+    override fun onIceGatheringDone() {
+        listener?.onIceGatheringDone(requestedUserIdStream, mediaServerId)
+    }
 
-        override fun onSignalingChange(newState: SignalingState) {
-            val test = ""
-        }
+    /**
+     * Callback fired to indicate current talking user
+     */
+    override fun onUserSpeaking(amplitude: Int) {
+        listener?.onUserSpeaking(requestedUserIdStream, amplitude)
+    }
 
-        override fun onIceConnectionChange(newState: IceConnectionState) {
-            when (newState) {
-                IceConnectionState.CONNECTED -> {
-                    if (isPublisher && preferredMicEnabled) {
-                        soundAmplitudeMeter?.startMeasure()
-                    }
-                    events?.onIceConnected()
-                }
-                IceConnectionState.COMPLETED -> {
-                    events?.onIceGatheringDone()
-                }
-                IceConnectionState.DISCONNECTED -> {
-                    events?.onIceDisconnected()
-                }
-                IceConnectionState.FAILED -> {
-                    events?.onPeerConnectionError("ICE connection failed.")
-                }
-                else -> {
+    /**
+     * Callback fired once connection is closed (IceConnectionState is
+     * DISCONNECTED)
+     */
+    override fun onIceDisconnected() {
+        listener?.onIceDisconnected()
+    }
+
+    /**
+     * Callback fired once peer connection is closed
+     */
+    override fun onPeerConnectionClosed() {
+        listener?.onPeerConnectionClosed(requestedUserIdStream)
+    }
+
+    /**
+     * Callback fired once peer connection statistics is ready
+     */
+    override fun onPeerConnectionStatsReady(reports: Array<StatsReport>) {
+        listener?.onPeerConnectionStatsReady(gson.toJson(reports))
+    }
+
+    /**
+     * Callback fired once peer connection error happened
+     */
+    override fun onPeerConnectionError(description: String) {
+        listener?.onPeerConnectionError(requestedUserIdStream, description)
+    }
+
+    /**
+     * Check existed cameras and create video capturer if can
+     */
+    private fun createCameraCapturer(): VideoCapturer? {
+        val enumerator: CameraEnumerator = Camera2Enumerator(context)
+        val deviceNames = enumerator.deviceNames
+
+        for (deviceName in deviceNames) {
+            if (enumerator.isFrontFacing(deviceName) &&
+                localRendererView != null &&
+                preferredFrontCamera
+            ) {
+                // Creating front facing camera capturer
+                val videoCapturer: VideoCapturer? = enumerator.createCapturer(deviceName, null)
+                if (videoCapturer != null) {
+                    return videoCapturer
                 }
             }
         }
 
-        override fun onIceGatheringChange(newState: IceGatheringState) {
-            val test = ""
-        }
-
-        override fun onIceConnectionReceivingChange(receiving: Boolean) {
-            val test = ""
-        }
-
-        override fun onAddStream(stream: MediaStream) {
-            if (stream.audioTracks.size > 1 || stream.videoTracks.size > 1) {
-                return
-            }
-
-            if (stream.videoTracks.size == 1) {
-                remoteVideoTrack = stream.videoTracks[0]
-                remoteVideoTrack?.setEnabled(true)
-                remoteVideoTrack?.addSink(remoteVideoSink)
+        // Front facing camera not found, try something else
+        for (deviceName in deviceNames) {
+            if (!enumerator.isFrontFacing(deviceName)) {
+                // Creating other camera capturer."
+                val videoCapturer: VideoCapturer? = enumerator.createCapturer(deviceName, null)
+                if (videoCapturer != null) {
+                    return videoCapturer
+                }
             }
         }
-
-        override fun onRemoveStream(stream: MediaStream) {
-            remoteVideoTrack = null
-        }
-
-        /**
-         * Fired once data channel created
-         */
-        override fun onDataChannel(dataChannel: DataChannel) {
-            if (useDataChannel) {
-                volumeDataChannel = dataChannel
-                volumeDataChannel?.registerObserver(object : DataChannel.Observer {
-
-                    override fun onBufferedAmountChange(previousAmount: Long) {}
-
-                    override fun onStateChange() {}
-
-                    override fun onMessage(buffer: DataChannel.Buffer) {
-                        if (buffer.binary) {
-                            return
-                        }
-                        val byteBuffer = buffer.data
-                        val bytes = ByteArray(byteBuffer.capacity())
-                        byteBuffer[bytes]
-
-                        val volumeData = String(bytes, Charset.forName("UTF-8"))
-                            .split(",")
-                        events?.onUserSpeaking(volumeData[1].toInt())
-                    }
-                })
-            }
-        }
-
-        override fun onRenegotiationNeeded() {
-            val test = ""
-        }
-
-        override fun onAddTrack(receiver: RtpReceiver, mediaStreams: Array<MediaStream>) {
-            val test = ""
-        }
+        return null
     }
 
     /**
-     * Local SDP callbacks
+     * Check existed cameras and create video capturer if can
      */
-    private inner class LocalSdpObserver : SdpObserver {
-
-        override fun onCreateSuccess(sdp: SessionDescription) {
-            localSdp = sdp
-            peerConnection?.setLocalDescription(this, sdp)
-        }
-
-        override fun onSetSuccess() {
-            events?.onLocalDescription(localSdp)
-        }
-
-        override fun onCreateFailure(error: String) {}
-
-        override fun onSetFailure(error: String) {}
+    private fun createScreenCapturer(screenCaptureIntent: Intent): VideoCapturer {
+        return ScreenCapturerAndroid(screenCaptureIntent, object : MediaProjection.Callback() {
+            override fun onStop() {
+                disconnectPeerConnection()
+            }
+        })
     }
 
     /**
-     * Remote SDP callbacks
+     * Build collection of ICE servers to use
      */
-    private inner class RemoteSdpObserver : SdpObserver {
+    private fun buildIceServers(
+        turnUrl: String,
+        turnUser: String,
+        turnCred: String
+    ): MutableList<PeerConnection.IceServer> {
+        val iceServers: MutableList<PeerConnection.IceServer> = mutableListOf()
+        val turnsUrl = turnUrl.replace("turn:", "turns:")
 
-        override fun onCreateSuccess(origSdp: SessionDescription) {}
-
-        override fun onSetSuccess() {
-            if (!isPublisher && !isScreenShare) {
-                peerConnection?.createAnswer(localSdpObserver, sdpMediaConstraints)
-            }
-        }
-
-        override fun onCreateFailure(error: String) {}
-
-        override fun onSetFailure(error: String) {}
+        iceServers.add(
+            buildIceServer("$turnUrl:443?transport=udp", turnUser, turnCred)
+        )
+        iceServers.add(
+            buildIceServer("$turnUrl:443?transport=tcp", turnUser, turnCred)
+        )
+        iceServers.add(
+            buildIceServer("$turnsUrl:443?transport=tcp", turnUser, turnCred)
+        )
+        iceServers.add(
+            buildIceServer("$turnUrl:80?transport=udp", turnUser, turnCred)
+        )
+        return iceServers
     }
 
-    companion object {
-        const val AUDIO_TRACK_ID = "ARDAMSa0"
-
-        private const val VIDEO_TRACK_ID = "ARDAMSv0"
-        private const val VIDEO_TRACK_TYPE = "video"
-        private const val VIDEO_CODEC_VP8 = "VP8"
-        private const val VIDEO_CODEC_VP9 = "VP9"
-        private const val VIDEO_CODEC_H264 = "H264"
-        private const val VIDEO_CODEC_H264_BASELINE = "H264 Baseline"
-        private const val VIDEO_CODEC_H264_HIGH = "H264 High"
-        private const val AUDIO_CODEC_OPUS = "opus"
-        private const val AUDIO_CODEC_ISAC = "ISAC"
-        private const val VIDEO_CODEC_PARAM_START_BITRATE = "x-google-start-bitrate"
-        private const val VIDEO_FLEXFEC_FIELDTRIAL =
-            "WebRTC-FlexFEC-03-Advertised/Enabled/WebRTC-FlexFEC-03/Enabled/"
-        private const val VIDEO_VP8_INTEL_HW_ENCODER_FIELDTRIAL = "WebRTC-IntelVP8/Enabled/"
-        private const val VIDEO_H264_HIGH_PROFILE_FIELDTRIAL = "WebRTC-H264HighProfile/Enabled/"
-        private const val DISABLE_WEBRTC_AGC_FIELDTRIAL =
-            "WebRTC-Audio-MinimizeResamplingOnMobile/Enabled/"
-        private const val VIDEO_FRAME_EMIT_FIELDTRIAL: String = "VideoFrameEmit/Enabled/"
-        private const val AUDIO_CODEC_PARAM_BITRATE = "maxaveragebitrate"
-        private const val AUDIO_ECHO_CANCELLATION_CONSTRAINT = "googEchoCancellation"
-        private const val AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT = "googAutoGainControl"
-        private const val AUDIO_HIGH_PASS_FILTER_CONSTRAINT = "googHighpassFilter"
-        private const val AUDIO_NOISE_SUPPRESSION_CONSTRAINT = "googNoiseSuppression"
-        private const val AUDIO_LEVEL_CONTROL_CONSTRAINT = "levelControl"
-        private const val DTLS_SRTP_KEY_AGREEMENT_CONSTRAINT = "DtlsSrtpKeyAgreement"
-        private const val VIDEO_WIDTH = 720
-        private const val VIDEO_HEIGHT = 480
-        private const val SCREEN_SHARE_VIDEO_WIDTH = 1280
-        private const val SCREEN_SHARE_VIDEO_HEIGHT = 720
-        private const val VIDEO_FPS = 30
-        private const val SCREEN_SHARE_VIDEO_FPS = 60
-        private const val BPS_IN_KBPS = 1000
-    }
+    /**
+     * Build ICE server based on input data
+     */
+    private fun buildIceServer(
+        serverUrl: String,
+        serverUser: String,
+        serverCred: String
+    ): PeerConnection.IceServer = PeerConnection.IceServer
+        .builder(serverUrl)
+        .setUsername(serverUser)
+        .setPassword(serverCred)
+        .createIceServer()
 
 }

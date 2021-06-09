@@ -22,4 +22,9 @@
         <item name="leftIcon">@drawable/ic_poll_star</item>
     </style>
 
+    <style name="AppTheme.ButtonStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="backgroundTint">@color/colorAccent</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
 </resources>
