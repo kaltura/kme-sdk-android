@@ -34,7 +34,7 @@ interface IKmeAudioManager {
      *
      * @return set of [KmeAudioDevice]
      */
-    fun getAvailableAudioDevices(): Set<KmeAudioDevice?>
+    fun getAvailableAudioDevices(): List<KmeAudioDevice>
 
     /**
      * Getting last selected audio device

@@ -47,4 +47,8 @@ class KmeViewerPeerConnectionImpl(
         events?.onPeerConnectionCreated()
     }
 
+    override fun setAudioEnabled(enable: Boolean) {
+        remoteAudioTrack?.setEnabled(enable)
+    }
+
 }

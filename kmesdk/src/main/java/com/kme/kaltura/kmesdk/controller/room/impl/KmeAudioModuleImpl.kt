@@ -38,7 +38,7 @@ class KmeAudioModuleImpl : KmeController(), IKmeAudioModule {
     /**
      * Getting set of available audio devices
      */
-    override fun getAvailableAudioDevices(): Set<KmeAudioDevice?> {
+    override fun getAvailableAudioDevices(): List<KmeAudioDevice> {
         return audioManager.getAvailableAudioDevices()
     }
 
