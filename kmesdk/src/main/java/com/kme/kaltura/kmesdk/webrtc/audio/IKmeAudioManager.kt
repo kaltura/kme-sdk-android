@@ -51,6 +51,11 @@ interface IKmeAudioManager {
     fun setListener(listener: AudioManagerListener)
 
     /**
+     * Remove listener for detecting audio route changes
+     */
+    fun removeListener()
+
+    /**
      * Stopping use audio
      */
     fun stop()

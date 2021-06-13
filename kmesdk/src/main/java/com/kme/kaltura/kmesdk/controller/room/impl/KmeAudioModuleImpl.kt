@@ -57,6 +57,13 @@ class KmeAudioModuleImpl : KmeController(), IKmeAudioModule {
     }
 
     /**
+     * Remove listener for detecting audio route changes
+     */
+    override fun removeListener() {
+        audioManager.removeListener()
+    }
+
+    /**
      * Stopping use audio
      */
     override fun stop() {

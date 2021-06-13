@@ -95,7 +95,7 @@ class KmeAudioManagerImpl(
 
         audioManager.abandonAudioFocus(audioFocusChangeListener)
         audioFocusChangeListener = null
-        listener = null
+        removeListener()
     }
 
     /**
@@ -103,6 +103,13 @@ class KmeAudioManagerImpl(
      */
     override fun setListener(listener: AudioManagerListener) {
         this.listener = listener
+    }
+
+    /**
+     * Remove listener for detecting audio route changes
+     */
+    override fun removeListener() {
+        this.listener = null
     }
 
     /**
