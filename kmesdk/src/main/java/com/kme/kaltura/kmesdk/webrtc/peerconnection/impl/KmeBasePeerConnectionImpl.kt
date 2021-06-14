@@ -52,6 +52,7 @@ open class KmeBasePeerConnectionImpl(
     private var localVideoSender: RtpSender? = null
 
     internal var remoteVideoTrack: VideoTrack? = null
+    internal var remoteAudioTrack: AudioTrack? = null
     internal lateinit var remoteVideoSink: VideoSink
     internal lateinit var localVideoSink: VideoSink
 
@@ -246,7 +247,6 @@ open class KmeBasePeerConnectionImpl(
     /**
      * Toggle audio
      */
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     override fun setAudioEnabled(enable: Boolean) {
         throw Exception("Wrong state.")
     }
@@ -254,7 +254,6 @@ open class KmeBasePeerConnectionImpl(
     /**
      * Toggle video
      */
-    @RequiresPermission(Manifest.permission.CAMERA)
     override fun setVideoEnabled(enable: Boolean) {
         throw Exception("Wrong state.")
     }
@@ -473,6 +472,10 @@ open class KmeBasePeerConnectionImpl(
             }
 
             if (stream.videoTracks.size == 1) {
+                remoteAudioTrack = stream.audioTracks[0]
+            }
+
+            if (stream.videoTracks.size == 1) {
                 remoteVideoTrack = stream.videoTracks[0]?.also {
                     it.setEnabled(true)
                     it.addSink(remoteVideoSink)
@@ -482,6 +485,7 @@ open class KmeBasePeerConnectionImpl(
 
         override fun onRemoveStream(stream: MediaStream) {
             remoteVideoTrack = null
+            remoteAudioTrack = null
         }
 
         /**

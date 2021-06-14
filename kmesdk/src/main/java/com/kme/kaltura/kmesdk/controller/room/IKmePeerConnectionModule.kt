@@ -133,6 +133,13 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
     fun enableAudio(isEnable: Boolean)
 
     /**
+     * Toggle all viewer's audio
+     *
+     * @param isEnable flag to enable/disable audio
+     */
+    fun enableViewersAudio(isEnable: Boolean)
+
+    /**
      * Switch between publisher's existing cameras
      */
     fun switchCamera()

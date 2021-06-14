@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.AudioManager.OnAudioFocusChangeListener
 import java.util.*
-import kotlin.collections.HashSet
 
 /**
  * An implementation for handling audio devices in the room
@@ -35,7 +34,7 @@ class KmeAudioManagerImpl(
     private var userSelectedAudioDevice: KmeAudioDevice? = null
 
     private var bluetoothManager: KmeBluetoothManager
-    private var audioDevices: MutableSet<KmeAudioDevice> = HashSet()
+    private var audioDevices: MutableList<KmeAudioDevice> = mutableListOf()
 
     private var wiredHeadsetReceiver: BroadcastReceiver? = null
     private var audioFocusChangeListener: OnAudioFocusChangeListener? = null
@@ -96,7 +95,7 @@ class KmeAudioManagerImpl(
 
         audioManager.abandonAudioFocus(audioFocusChangeListener)
         audioFocusChangeListener = null
-        listener = null
+        removeListener()
     }
 
     /**
@@ -104,6 +103,13 @@ class KmeAudioManagerImpl(
      */
     override fun setListener(listener: AudioManagerListener) {
         this.listener = listener
+    }
+
+    /**
+     * Remove listener for detecting audio route changes
+     */
+    override fun removeListener() {
+        this.listener = null
     }
 
     /**
@@ -138,8 +144,8 @@ class KmeAudioManagerImpl(
     /**
      * Getting set of available audio devices
      */
-    override fun getAvailableAudioDevices(): Set<KmeAudioDevice?> {
-        return Collections.unmodifiableSet(HashSet(audioDevices))
+    override fun getAvailableAudioDevices(): List<KmeAudioDevice> {
+        return Collections.unmodifiableList(audioDevices)
     }
 
     /**
@@ -182,7 +188,7 @@ class KmeAudioManagerImpl(
      * Checks if phone has earpiece
      */
     private fun hasEarpiece(): Boolean {
-        return context.packageManager?.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)!!
+        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)
     }
 
     /**
@@ -203,25 +209,20 @@ class KmeAudioManagerImpl(
             bluetoothManager.updateDevice()
         }
 
-        val newAudioDevices: MutableSet<KmeAudioDevice> = HashSet()
+        val newAudioDevices: MutableList<KmeAudioDevice> = mutableListOf()
         if (bluetoothManager.getState() === KmeBluetoothManager.State.SCO_CONNECTED ||
             bluetoothManager.getState() === KmeBluetoothManager.State.SCO_CONNECTING ||
             bluetoothManager.getState() === KmeBluetoothManager.State.HEADSET_AVAILABLE
         ) {
             newAudioDevices.add(KmeAudioDevice.BLUETOOTH)
-        }
-
-        if (hasWiredHeadset) {
-            newAudioDevices.add(KmeAudioDevice.WIRED_HEADSET)
+        } else {
+            if (hasWiredHeadset) {
+                newAudioDevices.add(KmeAudioDevice.WIRED_HEADSET)
+            } else if (hasEarpiece()) {
+                newAudioDevices.add(KmeAudioDevice.EARPIECE)
+            }
         }
         newAudioDevices.add(KmeAudioDevice.SPEAKER_PHONE)
-        newAudioDevices.add(KmeAudioDevice.EARPIECE)
-//        else {
-//            newAudioDevices.add(KmeAudioDevice.SPEAKER_PHONE)
-//            if (hasEarpiece()) {
-//                newAudioDevices.add(KmeAudioDevice.EARPIECE)
-//            }
-//        }
 
         var audioDeviceSetUpdated = audioDevices != newAudioDevices
 
@@ -232,11 +233,11 @@ class KmeAudioManagerImpl(
             userSelectedAudioDevice = KmeAudioDevice.NONE
         }
 
-        if (hasWiredHeadset && userSelectedAudioDevice == KmeAudioDevice.SPEAKER_PHONE) {
-            userSelectedAudioDevice = KmeAudioDevice.WIRED_HEADSET
-        }
+//        if (hasWiredHeadset && userSelectedAudioDevice == KmeAudioDevice.SPEAKER_PHONE) {
+//            userSelectedAudioDevice = KmeAudioDevice.WIRED_HEADSET
+//        }
         if (!hasWiredHeadset && userSelectedAudioDevice == KmeAudioDevice.WIRED_HEADSET) {
-            userSelectedAudioDevice = KmeAudioDevice.SPEAKER_PHONE
+            userSelectedAudioDevice = KmeAudioDevice.EARPIECE
         }
 
         val needBluetoothAudioStart =
@@ -260,9 +261,10 @@ class KmeAudioManagerImpl(
 
         val newAudioDevice = when {
             bluetoothManager.getState() === KmeBluetoothManager.State.SCO_CONNECTED -> KmeAudioDevice.BLUETOOTH
-            hasWiredHeadset -> KmeAudioDevice.WIRED_HEADSET
+//            hasWiredHeadset -> KmeAudioDevice.WIRED_HEADSET
             userSelectedAudioDevice == KmeAudioDevice.SPEAKER_PHONE -> KmeAudioDevice.SPEAKER_PHONE
             userSelectedAudioDevice == KmeAudioDevice.EARPIECE -> KmeAudioDevice.EARPIECE
+            userSelectedAudioDevice == KmeAudioDevice.WIRED_HEADSET -> KmeAudioDevice.WIRED_HEADSET
             else -> defaultAudioDevice
         }
         if (newAudioDevice != selectedAudioDevice || audioDeviceSetUpdated) {
@@ -282,6 +284,13 @@ class KmeAudioManagerImpl(
             val name = intent.getStringExtra("name")
 
             hasWiredHeadset = state == 1
+
+            userSelectedAudioDevice = if (hasWiredHeadset) {
+                KmeAudioDevice.WIRED_HEADSET
+            } else {
+                KmeAudioDevice.EARPIECE
+            }
+
             updateAudioDeviceState()
         }
     }

@@ -38,7 +38,7 @@ class KmeAudioModuleImpl : KmeController(), IKmeAudioModule {
     /**
      * Getting set of available audio devices
      */
-    override fun getAvailableAudioDevices(): Set<KmeAudioDevice?> {
+    override fun getAvailableAudioDevices(): List<KmeAudioDevice> {
         return audioManager.getAvailableAudioDevices()
     }
 
@@ -54,6 +54,13 @@ class KmeAudioModuleImpl : KmeController(), IKmeAudioModule {
      */
     override fun setListener(listener: AudioManagerListener) {
         audioManager.setListener(listener)
+    }
+
+    /**
+     * Remove listener for detecting audio route changes
+     */
+    override fun removeListener() {
+        audioManager.removeListener()
     }
 
     /**

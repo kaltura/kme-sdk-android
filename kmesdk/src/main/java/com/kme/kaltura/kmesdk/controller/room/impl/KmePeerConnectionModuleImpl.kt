@@ -311,6 +311,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         publisher?.enableAudio(isEnable)
     }
 
+    override fun enableViewersAudio(isEnable: Boolean) {
+        viewers.forEach { (_, connection) -> connection.enableAudio(isEnable) }
+    }
+
     /**
      * Switch between publisher's existing cameras
      */
