@@ -471,7 +471,7 @@ open class KmeBasePeerConnectionImpl(
                 return
             }
 
-            if (stream.videoTracks.size == 1) {
+            if (stream.audioTracks.size == 1) {
                 remoteAudioTrack = stream.audioTracks[0]
             }
 
