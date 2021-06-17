@@ -2,18 +2,22 @@ package com.kme.kaltura.kmesdk.ui.widget.overlap
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Point
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
-import android.view.GestureDetector
-import android.view.LayoutInflater
-import android.view.MotionEvent
+import android.util.Log
+import android.view.*
 import android.widget.FrameLayout
+import androidx.core.view.doOnLayout
 import com.kme.kaltura.kmesdk.databinding.LayoutOverlapViewBinding
 import com.kme.kaltura.kmesdk.getDisplayMetrics
-import com.kme.kaltura.kmesdk.gone
 import com.kme.kaltura.kmesdk.isLandscape
+import kotlin.math.pow
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
+
 
 class KmeOverlapLayout @JvmOverloads constructor(
     context: Context,
@@ -22,8 +26,12 @@ class KmeOverlapLayout @JvmOverloads constructor(
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     var listener: OnOverlapListener? = null
+
+    var defaultDownScale = 3f
+
     var state: State = State.NONE
         private set
+
     private var isLandscape: Boolean = false
 
     private var isNewConfig: Boolean = false
@@ -32,8 +40,14 @@ class KmeOverlapLayout @JvmOverloads constructor(
 
     private val resizableLayoutRect by lazy { Rect() }
 
-    private val resizeButtonRect by lazy { Rect() }
     private val gestureDetector by lazy { OverlapGestureDetector(context) }
+
+    private val displayMetrics by lazy { context.getDisplayMetrics() }
+
+    private val cornerPoint1 by lazy { Point() }
+    private val cornerPoint2 by lazy { Point() }
+    private val cornerPoint3 by lazy { Point() }
+    private val cornerPoint4 by lazy { Point() }
 
     private var binding = LayoutOverlapViewBinding.inflate(
         LayoutInflater.from(context),
@@ -42,19 +56,37 @@ class KmeOverlapLayout @JvmOverloads constructor(
 
     private var isMovingMode = false
 
+    private var scaleFactor = 1f
+    private var maxZoom = 2f
+
     private var deltaX: Float = 0f
     private var deltaY: Float = 0f
 
     private var minResizeWidth: Int = 0
     private var minResizeHeight: Int = 0
 
-    var defaultDownScale = 3
+    private var preWidth: Int = 0
+    private var preHeight: Int = 0
+
+    private var saveX = 0f
+    private var saveY = 0f
+    private var saveWidth = 0
+    private var saveHeight = 0
+
+
+    private val scaleListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
+            scaleFactor *= detector.scaleFactor
+            performResizing()
+            return true
+        }
+    }
+
+    private val scaleDetector = ScaleGestureDetector(context, scaleListener)
 
     init {
         isLandscape = context.isLandscape()
         initResizableLayout()
-        initCloseButton()
-        initSwitchContentButton()
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
@@ -70,20 +102,30 @@ class KmeOverlapLayout @JvmOverloads constructor(
     }
 
     private fun initResizableLayout() {
-        val displayMetrics = context.getDisplayMetrics()
-        minResizeWidth = if (isLandscape) {
-            displayMetrics.widthPixels / defaultDownScale
-        } else {
-            displayMetrics.heightPixels / defaultDownScale
+        binding.resizableLayout.doOnLayout {
+            saveX = it.x
+            saveY = it.y
+            saveWidth = it.width
+            saveHeight = it.height
         }
+
+        val rootWidth = displayMetrics.widthPixels
+        val rootHeight = displayMetrics.heightPixels
+
+        minResizeWidth = if (isLandscape) {
+            rootWidth / defaultDownScale
+        } else {
+            rootHeight / defaultDownScale
+        }.roundToInt()
 
         minResizeHeight = if (isLandscape) {
-            displayMetrics.heightPixels / defaultDownScale
+            rootHeight / defaultDownScale
         } else {
-            displayMetrics.widthPixels / defaultDownScale
-        }
+            rootWidth / defaultDownScale
+        }.roundToInt()
 
-        binding.resizableLayout.layoutParams = LayoutParams(minResizeWidth, minResizeHeight)
+        binding.resizableLayout.layoutParams =
+            LayoutParams(minResizeWidth, minResizeHeight, Gravity.BOTTOM or Gravity.END)
     }
 
     private fun restoreView() {
@@ -91,43 +133,36 @@ class KmeOverlapLayout @JvmOverloads constructor(
 
         savedState?.let {
             if (it.width > 0 || it.height > 0) {
-                binding.resizableLayout.layoutParams = LayoutParams(it.width, it.height)
-                binding.resizableLayout.x = it.posX
-                binding.resizableLayout.y = it.posY
-            }
-        }
-    }
+                saveX = it.posX
+                saveY = it.posY
+                saveWidth = it.width
+                saveHeight = it.height
 
-    private fun initCloseButton() {
-        if (isLandscape) {
-            binding.ivCloseOverlap.gone()
-        } else {
-            binding.ivCloseOverlap.setOnClickListener {
-                listener?.onOverlapClose()
+                binding.resizableLayout.layoutParams = LayoutParams(saveWidth, saveHeight)
+                binding.resizableLayout.x = saveX
+                binding.resizableLayout.y = saveY
             }
-        }
-    }
-
-    private fun initSwitchContentButton() {
-        binding.ivSwitchContent.setOnClickListener {
-            listener?.onSwitchContent()
         }
     }
 
     override fun onInterceptTouchEvent(event: MotionEvent?): Boolean {
+//        scaleDetector.onTouchEvent(event)
         gestureDetector.handleTouchEvents(event)
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
+                preMeasure()
                 measureDelta(event)
             }
             MotionEvent.ACTION_MOVE -> {
                 if (isMovingMode && state == State.DRAGGING) {
                     performDragging(event)
-                } else if (state == State.RESIZING) {
-                    performResizing(event)
                 }
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                if (state == State.DRAGGING) {
+                    postDragging()
+                }
+
                 deltaX = 0f
                 deltaY = 0f
                 isMovingMode = false
@@ -137,14 +172,26 @@ class KmeOverlapLayout @JvmOverloads constructor(
         return super.onInterceptTouchEvent(event)
     }
 
+    private fun preMeasure() {
+        preWidth = binding.resizableLayout.width
+        preHeight = binding.resizableLayout.height
+
+        val left = binding.root.left
+        val top = binding.root.top
+        val right = binding.root.right
+        val bottom = binding.root.bottom
+
+        cornerPoint1.set(left, top)
+        cornerPoint2.set(right, top)
+        cornerPoint3.set(left, bottom)
+        cornerPoint4.set(right, bottom)
+
+    }
+
     private fun measureDelta(event: MotionEvent) {
         binding.resizableLayout.getGlobalVisibleRect(resizableLayoutRect)
-        binding.ivResize.getGlobalVisibleRect(resizeButtonRect)
-        if (resizeButtonRect.contains(event.rawX.toInt(), event.rawY.toInt())) {
-            deltaX = binding.ivResize.x - event.rawX
-            deltaY = binding.ivResize.y - event.rawY
-            state = State.RESIZING
-        } else if (resizableLayoutRect.contains(event.rawX.toInt(), event.rawY.toInt())) {
+
+        if (resizableLayoutRect.contains(event.rawX.toInt(), event.rawY.toInt())) {
             deltaX = binding.resizableLayout.x - event.rawX
             deltaY = binding.resizableLayout.y - event.rawY
             state = State.DRAGGING
@@ -170,27 +217,69 @@ class KmeOverlapLayout @JvmOverloads constructor(
             .start()
     }
 
-    private fun performResizing(event: MotionEvent) {
+    private fun postDragging() {
+        val layout = binding.resizableLayout
+
+        val point = Point(
+            layout.x.toInt() + layout.width / 2,
+            layout.y.toInt() + layout.height / 2
+        )
+
+        val closestPoint = minOf(point, cornerPoint1, cornerPoint2, cornerPoint3, cornerPoint4)
+
+        var toX = closestPoint.x.toFloat()
+        var toY = closestPoint.y.toFloat()
+
+        if (toX >= cornerPoint2.x) {
+            toX -= layout.width
+        }
+
+        if (toY >= cornerPoint3.y) {
+            toY -= layout.height
+        }
+
+        saveX = toX
+        saveY = toY
+
+        binding.resizableLayout.animate()
+            .x(toX)
+            .y(toY)
+            .setDuration(300)
+            .start()
+    }
+
+    private fun performResizing() {
         val layoutParams = binding.resizableLayout.layoutParams
 
-        var newWidth = (event.rawX + deltaX).toInt()
-        var newHeight = (event.rawY + deltaY).toInt()
+        var newWidth = (preWidth * scaleFactor).roundToInt()
+        var newHeight = (preHeight * scaleFactor).roundToInt()
+
+        val maxWidth = binding.root.width
+        val maxHeight = binding.root.height
 
         if (newWidth < minResizeWidth) {
             newWidth = minResizeWidth
+        } else if (newWidth > maxWidth) {
+            newWidth = maxWidth
         }
 
         if (newHeight < minResizeHeight) {
             newHeight = minResizeHeight
+        } else if (newHeight > maxHeight) {
+            newHeight = maxHeight
         }
 
-        if (newWidth !in layoutParams.width..layoutParams.width + THRESHOLD) {
+        if (newWidth !in preWidth..preWidth + THRESHOLD) {
             layoutParams.width = newWidth
         }
-        if (newHeight !in layoutParams.height..layoutParams.height + THRESHOLD) {
+        if (newHeight !in preHeight..preHeight + THRESHOLD) {
             layoutParams.height = newHeight
         }
+
         binding.resizableLayout.layoutParams = layoutParams
+
+        saveWidth = layoutParams.width
+        saveHeight = layoutParams.height
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -203,10 +292,10 @@ class KmeOverlapLayout @JvmOverloads constructor(
 
         return Bundle().apply {
             val state = KmeOverlapSavedState(
-                binding.resizableLayout.x,
-                binding.resizableLayout.y,
-                binding.resizableLayout.width,
-                binding.resizableLayout.height,
+                saveX,
+                saveY,
+                saveWidth,
+                saveHeight,
                 isLandscape
             )
 
@@ -239,19 +328,45 @@ class KmeOverlapLayout @JvmOverloads constructor(
             super.onLongPress(event)
             isMovingMode = true
         }
+
+        override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+            listener?.onSwitchContent()
+            return true
+        }
     }
 
     fun getContentFrameId(): Int {
         return binding.contentLayout.id
     }
 
+    private fun minOf(a: Point, vararg other: Point): Point {
+        var minDistance = Int.MAX_VALUE
+        var closestPoint = a
+
+        other.forEach { point ->
+            val distance = a.distance(point)
+
+            if (distance < minDistance) {
+                minDistance = distance
+                closestPoint = point
+            }
+        }
+
+        return closestPoint
+    }
+
+    private fun Point.distance(point: Point): Int {
+        return sqrt(
+            (point.y - this.y).toFloat().pow(2)
+                    + (point.x - this.x).toFloat().pow(2)
+        ).toInt()
+    }
+
     enum class State {
-        DRAGGING, RESIZING, NONE
+        DRAGGING, NONE
     }
 
     interface OnOverlapListener {
-        fun onOverlapClose()
-
         fun onSwitchContent()
     }
 

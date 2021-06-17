@@ -44,6 +44,8 @@ class KmeSlidesContentFragment : KmeContentView() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.slidesView.setZoomEnabled(!isMediaOverlay)
+
         content?.let {
             setContentPayload(it)
         } ?: run {

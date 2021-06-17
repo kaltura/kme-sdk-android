@@ -30,6 +30,7 @@ class KmeSlidesView @JvmOverloads constructor(
 ) : ConstraintLayout(context, attrs, defStyleAttr), IKmeSlidesListener {
 
     private lateinit var config: Config
+
     private var binding: LayoutSlidesViewBinding =
         LayoutSlidesViewBinding.inflate(LayoutInflater.from(context), this)
 
@@ -49,12 +50,6 @@ class KmeSlidesView @JvmOverloads constructor(
         this.config = config
 
         with(binding) {
-            fabZoomIn.setOnClickListener {
-                zoomLayout.zoomIn()
-            }
-            fabZoomOut.setOnClickListener {
-                zoomLayout.zoomOut()
-            }
 
             whiteboardLayout.changeListener = object : IKmeWhiteboardChangeListener {
                 override fun onChanged() {
@@ -386,6 +381,10 @@ class KmeSlidesView @JvmOverloads constructor(
             return
         }
         binding.rvSlides.visibility = GONE
+    }
+
+    override fun setZoomEnabled(zoomEnabled: Boolean) {
+        binding.zoomLayout.setZoomEnabled(zoomEnabled)
     }
 
     class Config(
