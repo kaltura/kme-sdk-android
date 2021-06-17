@@ -6,51 +6,14 @@
     <FrameLayout
         android:id="@+id/resizableLayout"
         android:layout_width="wrap_content"
-        android:backgroundTint="@color/grayDarkTransparent"
+        android:layout_height="wrap_content"
         android:background="@drawable/bg_corners"
-        android:layout_height="wrap_content">
+        android:backgroundTint="@color/grayDarkTransparent">
 
         <FrameLayout
             android:id="@+id/contentLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|end"
-            android:layout_margin="@dimen/default_margin_small"
-            android:orientation="horizontal">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/ivSwitchContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/default_margin_medium"
-                android:clickable="true"
-                android:focusable="true"
-                android:src="@drawable/ic_layers" />
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/ivCloseOverlap"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:src="@drawable/ic_open_in_new_off" />
-
-        </LinearLayout>
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/ivResize"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingStart="@dimen/default_margin_small"
-            android:paddingTop="@dimen/default_margin_small"
-            android:src="@drawable/ic_resize" />
 
     </FrameLayout>
 

@@ -47,27 +47,4 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_percent="0.25" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabZoomIn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/zoom_in"
-        android:padding="8dp"
-        app:fabSize="mini"
-        app:layout_constraintBottom_toTopOf="@id/fabZoomOut"
-        app:layout_constraintEnd_toStartOf="@id/rvSlides"
-        app:srcCompat="@drawable/ic_plus" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabZoomOut"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:contentDescription="@string/zoom_out"
-        android:padding="8dp"
-        app:fabSize="mini"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/rvSlides"
-        app:srcCompat="@drawable/ic_minus" />
-
 </merge>
