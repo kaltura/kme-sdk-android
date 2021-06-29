@@ -13,7 +13,7 @@ interface AudioManagerListener {
      */
     fun onAudioDeviceChanged(
         selectedAudioDevice: KmeAudioDevice,
-        availableAudioDevices: Set<KmeAudioDevice>
+        availableAudioDevices: List<KmeAudioDevice>
     )
 
 }

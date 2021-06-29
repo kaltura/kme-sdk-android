@@ -59,4 +59,11 @@ interface IKmeSlidesListener : IKmeWhiteboardListener {
      */
     fun setActivePage(activePageId: String?)
 
+    /**
+     * Enable/disable zoom
+     *
+     * @param zoomEnabled true if zoom is enable
+     */
+    fun setZoomEnabled(zoomEnabled: Boolean)
+
 }

@@ -32,7 +32,7 @@ interface IKmeAudioModule {
      *
      * @return set of [KmeAudioDevice]
      */
-    fun getAvailableAudioDevices(): Set<KmeAudioDevice?>
+    fun getAvailableAudioDevices(): List<KmeAudioDevice>
 
     /**
      * Getting last selected audio device
@@ -47,6 +47,11 @@ interface IKmeAudioModule {
      * @param listener
      */
     fun setListener(listener: AudioManagerListener)
+
+    /**
+     * Remove listener for detecting audio route changes
+     */
+    fun removeListener()
 
     /**
      * Stopping use audio
