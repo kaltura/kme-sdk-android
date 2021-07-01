@@ -150,6 +150,9 @@ enum class KmeMessageEvent(
     @SerializedName("deletedMessage", alternate = ["deletedmessage"])
     DELETED_MESSAGE("deletedMessage"),
 
+    @SerializedName("clearedAllMessages", alternate = ["clearedallmessages"])
+    CLEARED_ALL_MESSAGES("clearedAllMessages"),
+
     @SerializedName("createDMConversation", alternate = ["createdmconversation"])
     CREATE_DM_CONVERSATION("createDMConversation"),
 
