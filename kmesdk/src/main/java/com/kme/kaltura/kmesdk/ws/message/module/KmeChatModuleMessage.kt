@@ -87,5 +87,9 @@ class KmeChatModuleMessage<T : KmeChatModuleMessage.ChatPayload> : KmeMessage<T>
         @SerializedName("conversation") val conversation: KmeConversation? = null
     ) : ChatPayload()
 
+    data class ClearedAllMessagesPayload(
+        @SerializedName("conversation_id") val conversationId: String? = null
+    ) : ChatPayload()
+
     open class ChatPayload : Payload()
 }
