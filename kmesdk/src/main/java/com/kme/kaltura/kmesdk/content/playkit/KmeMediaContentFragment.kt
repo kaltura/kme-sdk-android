@@ -146,7 +146,7 @@ class KmeMediaContentFragment : KmeContentView() {
                     partnerId = mediaContentViewModel.getKalturaPartnerId()
                     autoPlay = false
                 }
-
+                binding.mediaView.lifecycleOwner = viewLifecycleOwner
                 binding.mediaView.init(config)
                 subscribePlayerEvents()
             }
