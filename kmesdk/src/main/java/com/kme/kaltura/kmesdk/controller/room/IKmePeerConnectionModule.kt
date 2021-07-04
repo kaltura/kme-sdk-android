@@ -79,19 +79,6 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
      */
     fun isPublishing(): Boolean
 
-//    /**
-//     * Replace renderer for publisher connection
-//     */
-//    fun changePublisherRenderer(renderer: KmeSurfaceRendererView)
-//
-//    /**
-//     * Replace renderer for viewer connection
-//     */
-//    fun changeViewerRenderer(
-//        requestedUserIdStream: String,
-//        renderer: KmeSurfaceRendererView
-//    )
-
     /**
      * Add renderer for publisher connection
      */

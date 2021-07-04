@@ -187,9 +187,6 @@ internal class KmePeerConnectionImpl(
         release()
     }
 
-    // TODO:
-//    change renderer to not release it
-
     override fun startScreenShare(
         requestedUserIdStream: String,
         screenCaptureIntent: Intent,

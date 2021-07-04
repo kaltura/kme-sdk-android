@@ -129,7 +129,7 @@ open class KmeBasePeerConnectionImpl(
         peerConnection = factory?.createPeerConnection(RTCConfiguration(iceServers), pcObserver)
         peerConnection?.let {
             // Set INFO libjingle logging. NOTE: this _must_ happen while |factory| is alive!
-//            Logging.enableLogToDebugOutput(Logging.Severity.LS_INFO)
+            Logging.enableLogToDebugOutput(Logging.Severity.LS_INFO)
 
             if (!isScreenShare) {
                 addMediaConstraints()
