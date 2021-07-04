@@ -58,24 +58,36 @@ internal interface IKmePeerConnection {
      * Creates p2p connection
      *
      * @param requestedUserIdStream id of a stream
+     * @param isPublisher indicates is connection for publishing or viewing
      * @param useDataChannel indicates if data channel is used for speaking indication
      * @param listener listener for p2p events
      */
     fun createPeerConnection(
         requestedUserIdStream: String,
+        isPublisher: Boolean,
         useDataChannel: Boolean,
         listener: IKmePeerConnectionClientEvents
     )
 
     /**
-     * Replace renderer for publisher connection
+     * Add renderer for publisher connection
      */
-    fun changeLocalRenderer(renderer: KmeSurfaceRendererView)
+    fun addLocalRenderer(renderer: KmeSurfaceRendererView): Unit?
 
     /**
-     * Replace renderer for viewer connection
+     * Add renderer for viewer connection
      */
-    fun changeRemoteRenderer(renderer: KmeSurfaceRendererView)
+    fun addRemoteRenderer(renderer: KmeSurfaceRendererView): Unit?
+
+    /**
+     * Remove renderer for publisher connection
+     */
+    fun removeLocalRenderer(renderer: KmeSurfaceRendererView): Unit?
+
+    /**
+     * Remove renderer for viewer connection
+     */
+    fun removeRemoteRenderer(renderer: KmeSurfaceRendererView): Unit?
 
     /**
      * Starts screen share publishing

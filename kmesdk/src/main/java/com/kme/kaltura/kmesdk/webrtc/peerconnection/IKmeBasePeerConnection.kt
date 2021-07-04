@@ -33,29 +33,39 @@ interface IKmeBasePeerConnection {
     /**
      * Creates peer connection
      *
-     * @param localVideoSink local video sink
-     * @param remoteVideoSink remote video sink
+     * @param localRenderer local video renderer
+     * @param remoteRenderer remote video renderer
      * @param videoCapturer video capturer
      * @param useDataChannel indicates if data channel is used for speaking indication
      * @param iceServers collection of ice servers
      */
     fun createPeerConnection(
-        localVideoSink: VideoSink,
-        remoteVideoSink: VideoSink,
+        localRenderer: KmeSurfaceRendererView?,
+        remoteRenderer: KmeSurfaceRendererView?,
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
         iceServers: MutableList<PeerConnection.IceServer>
     )
 
     /**
-     * Replace renderer for publisher connection
+     * Add renderer for publisher connection
      */
-    fun changeLocalRenderer(videoSink: VideoSink)
+    fun addLocalRenderer(renderer: KmeSurfaceRendererView)
 
     /**
-     * Replace renderer for viewer connection
+     * Add renderer for viewer connection
      */
-    fun changeRemoteRenderer(videoSink: VideoSink)
+    fun addRemoteRenderer(renderer: KmeSurfaceRendererView)
+
+    /**
+     * Remove renderer for publisher connection
+     */
+    fun removeLocalRenderer(renderer: KmeSurfaceRendererView)
+
+    /**
+     * Remove renderer for viewer connection
+     */
+    fun removeRemoteRenderer(renderer: KmeSurfaceRendererView)
 
     /**
      * Toggle audio

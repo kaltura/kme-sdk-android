@@ -27,7 +27,7 @@ class KmePreviewPeerConnectionImpl(
         previewRenderer: KmeSurfaceRendererView
     ) {
         this.videoCapturer = videoCapturer
-        this.localVideoSink = previewRenderer
+        this.localRenderer = previewRenderer
 
         peerConnection =
             factory?.createPeerConnection(PeerConnection.RTCConfiguration(listOf()), pcObserver)

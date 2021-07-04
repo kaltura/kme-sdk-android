@@ -41,7 +41,7 @@ open class KmeBasePeerConnectionImpl(
     internal var preferredMicEnabled = true
     internal var preferredCamEnabled = true
 
-    internal val rootEglBase: EglBase = EglBase.create()
+    internal var rootEglBase: EglBase? = EglBase.create()
     internal var videoCapturer: VideoCapturer? = null
     internal var surfaceTextureHelper: SurfaceTextureHelper? = null
 
@@ -53,8 +53,8 @@ open class KmeBasePeerConnectionImpl(
 
     internal var remoteVideoTrack: VideoTrack? = null
     internal var remoteAudioTrack: AudioTrack? = null
-    internal lateinit var remoteVideoSink: VideoSink
-    internal lateinit var localVideoSink: VideoSink
+    internal var remoteRenderer: KmeSurfaceRendererView? = null
+    internal var localRenderer: KmeSurfaceRendererView? = null
 
     internal var audioConstraints = MediaConstraints()
     internal var sdpMediaConstraints = MediaConstraints()
@@ -114,14 +114,14 @@ open class KmeBasePeerConnectionImpl(
      * Creates peer connection
      */
     override fun createPeerConnection(
-        localVideoSink: VideoSink,
-        remoteVideoSink: VideoSink,
+        localRenderer: KmeSurfaceRendererView?,
+        remoteRenderer: KmeSurfaceRendererView?,
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
         iceServers: MutableList<IceServer>
     ) {
-        this.localVideoSink = localVideoSink
-        this.remoteVideoSink = remoteVideoSink
+        this.localRenderer = localRenderer
+        this.remoteRenderer = remoteRenderer
         this.videoCapturer = videoCapturer
         this.useDataChannel = useDataChannel
         this.iceServers = iceServers
@@ -129,7 +129,7 @@ open class KmeBasePeerConnectionImpl(
         peerConnection = factory?.createPeerConnection(RTCConfiguration(iceServers), pcObserver)
         peerConnection?.let {
             // Set INFO libjingle logging. NOTE: this _must_ happen while |factory| is alive!
-            Logging.enableLogToDebugOutput(Logging.Severity.LS_INFO)
+//            Logging.enableLogToDebugOutput(Logging.Severity.LS_INFO)
 
             if (!isScreenShare) {
                 addMediaConstraints()
@@ -138,22 +138,20 @@ open class KmeBasePeerConnectionImpl(
         }
     }
 
-    /**
-     * Replace renderer for publisher connection
-     */
-    override fun changeLocalRenderer(videoSink: VideoSink) {
-        localVideoTrack?.removeSink(localVideoSink)
-        localVideoTrack?.addSink(videoSink)
-        localVideoSink = videoSink
+    override fun addLocalRenderer(renderer: KmeSurfaceRendererView) {
+        throw Exception("Wrong state.")
     }
 
-    /**
-     * Replace renderer for viewer connection
-     */
-    override fun changeRemoteRenderer(videoSink: VideoSink) {
-        remoteVideoTrack?.removeSink(remoteVideoSink)
-        remoteVideoTrack?.addSink(videoSink)
-        remoteVideoSink = videoSink
+    override fun addRemoteRenderer(renderer: KmeSurfaceRendererView) {
+        throw Exception("Wrong state.")
+    }
+
+    override fun removeLocalRenderer(renderer: KmeSurfaceRendererView) {
+        throw Exception("Wrong state.")
+    }
+
+    override fun removeRemoteRenderer(renderer: KmeSurfaceRendererView) {
+        throw Exception("Wrong state.")
     }
 
     /**
@@ -220,9 +218,11 @@ open class KmeBasePeerConnectionImpl(
             }
         }
 
-        localVideoTrack = factory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)?.also {
-            it.setEnabled(preferredCamEnabled)
-            it.addSink(localVideoSink)
+        localVideoTrack = factory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)?.apply {
+            setEnabled(preferredCamEnabled)
+            localRenderer?.let {
+                addSink(it)
+            }
         }
         return localVideoTrack
     }
@@ -403,6 +403,13 @@ open class KmeBasePeerConnectionImpl(
         peerConnection?.dispose()
         peerConnection = null
 
+        rootEglBase?.apply {
+            releaseSurface()
+            detachCurrent()
+            release()
+        }
+        rootEglBase = null
+
         factory?.dispose()
         factory = null
 
@@ -416,7 +423,7 @@ open class KmeBasePeerConnectionImpl(
      * Getting rendering context for WebRTC
      */
     final override fun getRenderContext(): EglBase.Context? {
-        return rootEglBase.eglBaseContext
+        return rootEglBase?.eglBaseContext
     }
 
     /**
@@ -476,9 +483,11 @@ open class KmeBasePeerConnectionImpl(
             }
 
             if (stream.videoTracks.size == 1) {
-                remoteVideoTrack = stream.videoTracks[0]?.also {
-                    it.setEnabled(true)
-                    it.addSink(remoteVideoSink)
+                remoteVideoTrack = stream.videoTracks[0]?.apply {
+                    setEnabled(true)
+                    remoteRenderer?.let {
+                        addSink(it)
+                    }
                 }
             }
         }

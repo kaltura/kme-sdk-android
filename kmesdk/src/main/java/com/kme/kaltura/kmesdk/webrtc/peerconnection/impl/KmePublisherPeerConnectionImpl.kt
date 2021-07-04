@@ -6,7 +6,11 @@ import androidx.annotation.RequiresPermission
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
 import com.kme.kaltura.kmesdk.webrtc.stats.KmeSoundAmplitudeListener
 import com.kme.kaltura.kmesdk.webrtc.stats.KmeSoundAmplitudeMeter
-import org.webrtc.*
+import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
+import org.webrtc.CameraVideoCapturer
+import org.webrtc.DataChannel
+import org.webrtc.PeerConnection
+import org.webrtc.VideoCapturer
 import java.nio.ByteBuffer
 
 /**
@@ -31,15 +35,15 @@ class KmePublisherPeerConnectionImpl(
     }
 
     override fun createPeerConnection(
-        localVideoSink: VideoSink,
-        remoteVideoSink: VideoSink,
+        localRenderer: KmeSurfaceRendererView?,
+        remoteRenderer: KmeSurfaceRendererView?,
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
         iceServers: MutableList<PeerConnection.IceServer>
     ) {
         super.createPeerConnection(
-            localVideoSink,
-            remoteVideoSink,
+            localRenderer,
+            remoteRenderer,
             videoCapturer,
             useDataChannel,
             iceServers
@@ -62,6 +66,14 @@ class KmePublisherPeerConnectionImpl(
         }
 
         events?.onPeerConnectionCreated()
+    }
+
+    override fun addLocalRenderer(renderer: KmeSurfaceRendererView) {
+        localVideoTrack?.addSink(renderer)
+    }
+
+    override fun removeLocalRenderer(renderer: KmeSurfaceRendererView) {
+        localVideoTrack?.removeSink(renderer)
     }
 
     /**

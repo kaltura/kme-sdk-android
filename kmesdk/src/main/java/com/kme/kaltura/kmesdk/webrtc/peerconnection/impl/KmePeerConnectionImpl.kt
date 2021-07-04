@@ -13,7 +13,6 @@ import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnection
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
-import com.kme.kaltura.kmesdk.webrtc.view.KmeVideoSink
 import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
 import org.webrtc.*
 
@@ -22,17 +21,14 @@ import org.webrtc.*
  */
 internal class KmePeerConnectionImpl(
     private val context: Context,
-    private val gson: Gson
+    private val gson: Gson,
 ) : IKmePeerConnection, IKmePeerConnectionEvents {
 
     private var peerConnection: KmeBasePeerConnectionImpl? = null
     private var iceServers: MutableList<PeerConnection.IceServer> = mutableListOf()
     private var listener: IKmePeerConnectionClientEvents? = null
 
-    private val localVideoSink: KmeVideoSink = KmeVideoSink()
     private var localRendererView: KmeSurfaceRendererView? = null
-
-    private val remoteVideoSink: KmeVideoSink = KmeVideoSink()
     private var remoteRendererView: KmeSurfaceRendererView? = null
 
     private var requestedUserIdStream = ""
@@ -56,7 +52,7 @@ internal class KmePeerConnectionImpl(
     override fun setPreferredSettings(
         micEnabled: Boolean,
         camEnabled: Boolean,
-        frontCamEnabled: Boolean
+        frontCamEnabled: Boolean,
     ) {
         this.preferredMicEnabled = micEnabled
         this.preferredCamEnabled = camEnabled
@@ -111,22 +107,25 @@ internal class KmePeerConnectionImpl(
      */
     override fun createPeerConnection(
         requestedUserIdStream: String,
+        isPublisher: Boolean,
         useDataChannel: Boolean,
-        listener: IKmePeerConnectionClientEvents
+        listener: IKmePeerConnectionClientEvents,
     ) {
         this.requestedUserIdStream = requestedUserIdStream
         this.listener = listener
 
         var videoCapturer: VideoCapturer? = null
 
-        localRendererView?.let {
+        if (isPublisher) {
             peerConnection = KmePublisherPeerConnectionImpl(context, this)
-            it.visibility = View.INVISIBLE
-            it.init(peerConnection?.getRenderContext(), null)
-            it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-            it.setEnableHardwareScaler(true)
-            it.setMirror(preferredFrontCamera)
-            localVideoSink.setTarget(it)
+
+            localRendererView?.let {
+                it.visibility = View.INVISIBLE
+                it.init(peerConnection?.getRenderContext(), null)
+                it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+                it.setEnableHardwareScaler(true)
+                it.setMirror(preferredFrontCamera)
+            }
 
             if (ActivityCompat.checkSelfPermission(
                     context,
@@ -135,84 +134,82 @@ internal class KmePeerConnectionImpl(
             ) {
                 videoCapturer = createCameraCapturer()
             }
-            peerConnection?.setPreferredSettings(preferredMicEnabled, preferredCamEnabled)
-        }
 
-        remoteRendererView?.let {
+            peerConnection?.setPreferredSettings(preferredMicEnabled, preferredCamEnabled)
+        } else {
             peerConnection = KmeViewerPeerConnectionImpl(context, this)
-            it.init(peerConnection?.getRenderContext(), null)
-            it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-            it.setEnableHardwareScaler(true)
-            it.setMirror(false)
-            remoteVideoSink.setTarget(it)
+
+            remoteRendererView?.let {
+                it.init(peerConnection?.getRenderContext(), null)
+                it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+                it.setEnableHardwareScaler(true)
+                it.setMirror(false)
+            }
         }
 
         peerConnection?.createPeerConnection(
-            localVideoSink,
-            remoteVideoSink,
+            localRendererView,
+            remoteRendererView,
             videoCapturer,
             useDataChannel,
             iceServers
         )
     }
 
-    /**
-     * Replace renderer for publisher connection
-     */
-    override fun changeLocalRenderer(renderer: KmeSurfaceRendererView) {
-        localVideoSink.setTarget(null)
-        localRendererView?.release()
-        localRendererView = null
-
-        localRendererView = renderer
-        localRendererView?.let {
-            it.init(peerConnection?.getRenderContext(), null)
-            it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-            it.setEnableHardwareScaler(true)
-            it.setMirror(preferredFrontCamera)
-            localVideoSink.setTarget(it)
+    override fun addLocalRenderer(renderer: KmeSurfaceRendererView) = with(renderer) {
+        peerConnection?.let {
+            localRendererView = this
+            init(it.getRenderContext(), null)
+            setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+            setEnableHardwareScaler(true)
+            setMirror(preferredFrontCamera)
+            it.addLocalRenderer(this)
         }
-        peerConnection?.changeLocalRenderer(localVideoSink)
     }
 
-    /**
-     * Replace renderer for viewer connection
-     */
-    override fun changeRemoteRenderer(renderer: KmeSurfaceRendererView) {
-        remoteVideoSink.setTarget(null)
-        remoteRendererView?.release()
-        remoteRendererView = null
-
-        remoteRendererView = renderer
-        remoteRendererView?.let {
-            it.init(peerConnection?.getRenderContext(), null)
-            it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-            it.setEnableHardwareScaler(true)
-            remoteVideoSink.setTarget(it)
+    override fun addRemoteRenderer(renderer: KmeSurfaceRendererView) = with(renderer) {
+        peerConnection?.let {
+            remoteRendererView = this
+            init(it.getRenderContext(), null)
+            setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+            setEnableHardwareScaler(true)
+            it.addRemoteRenderer(this)
         }
-        peerConnection?.changeLocalRenderer(remoteVideoSink)
     }
+
+    override fun removeLocalRenderer(renderer: KmeSurfaceRendererView) = with(renderer) {
+        peerConnection?.removeLocalRenderer(this)
+        release()
+    }
+
+    override fun removeRemoteRenderer(renderer: KmeSurfaceRendererView) = with(renderer) {
+        peerConnection?.removeRemoteRenderer(this)
+        release()
+    }
+
+    // TODO:
+//    change renderer to not release it
 
     override fun startScreenShare(
         requestedUserIdStream: String,
         screenCaptureIntent: Intent,
-        listener: IKmePeerConnectionClientEvents
+        listener: IKmePeerConnectionClientEvents,
     ) {
         this.requestedUserIdStream = requestedUserIdStream
         this.listener = listener
 
         peerConnection = KmeScreenSharePeerConnectionImpl(context, this)
+
         localRendererView?.let {
             it.visibility = View.INVISIBLE
             it.init(peerConnection?.getRenderContext(), null)
             it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
             it.setEnableHardwareScaler(true)
-            localVideoSink.setTarget(it)
         }
 
         peerConnection?.createPeerConnection(
-            localVideoSink,
-            remoteVideoSink,
+            localRendererView,
+            null,
             createScreenCapturer(screenCaptureIntent),
             false,
             iceServers
@@ -290,9 +287,6 @@ internal class KmePeerConnectionImpl(
      * Closes actual p2p connection
      */
     override fun disconnectPeerConnection() {
-        localVideoSink.setTarget(null)
-        remoteVideoSink.setTarget(null)
-
         localRendererView?.release()
         localRendererView = null
 
@@ -440,7 +434,7 @@ internal class KmePeerConnectionImpl(
     private fun buildIceServers(
         turnUrl: String,
         turnUser: String,
-        turnCred: String
+        turnCred: String,
     ): MutableList<PeerConnection.IceServer> {
         val iceServers: MutableList<PeerConnection.IceServer> = mutableListOf()
         val turnsUrl = turnUrl.replace("turn:", "turns:")
@@ -466,7 +460,7 @@ internal class KmePeerConnectionImpl(
     private fun buildIceServer(
         serverUrl: String,
         serverUser: String,
-        serverCred: String
+        serverCred: String,
     ): PeerConnection.IceServer = PeerConnection.IceServer
         .builder(serverUrl)
         .setUsername(serverUser)
