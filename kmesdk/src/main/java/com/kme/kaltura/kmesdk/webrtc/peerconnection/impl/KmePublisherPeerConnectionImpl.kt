@@ -35,15 +35,13 @@ class KmePublisherPeerConnectionImpl(
     }
 
     override fun createPeerConnection(
-        localRenderer: KmeSurfaceRendererView?,
-        remoteRenderer: KmeSurfaceRendererView?,
+        rendererView: KmeSurfaceRendererView?,
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
         iceServers: MutableList<PeerConnection.IceServer>
     ) {
         super.createPeerConnection(
-            localRenderer,
-            remoteRenderer,
+            rendererView,
             videoCapturer,
             useDataChannel,
             iceServers
@@ -68,12 +66,12 @@ class KmePublisherPeerConnectionImpl(
         events?.onPeerConnectionCreated()
     }
 
-    override fun addLocalRenderer(renderer: KmeSurfaceRendererView) {
-        localVideoTrack?.addSink(renderer)
+    override fun addRenderer(rendererView: KmeSurfaceRendererView) {
+        localVideoTrack?.addSink(rendererView)
     }
 
-    override fun removeLocalRenderer(renderer: KmeSurfaceRendererView) {
-        localVideoTrack?.removeSink(renderer)
+    override fun removeRenderer(rendererView: KmeSurfaceRendererView) {
+        localVideoTrack?.removeSink(rendererView)
     }
 
     /**

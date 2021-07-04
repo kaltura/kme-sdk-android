@@ -36,18 +36,11 @@ internal interface IKmePeerConnection {
     )
 
     /**
-     * Setting view for local stream rendering
+     * Setting view for stream rendering
      *
-     * @param localRenderer view to render on
+     * @param rendererView view to render on
      */
-    fun setLocalRenderer(localRenderer: KmeSurfaceRendererView)
-
-    /**
-     * Setting view for remote stream rendering
-     *
-     * @param remoteRenderer view to render on
-     */
-    fun setRemoteRenderer(remoteRenderer: KmeSurfaceRendererView)
+    fun setRenderer(rendererView: KmeSurfaceRendererView)
 
     /**
      * Creates a local video preview
@@ -72,22 +65,12 @@ internal interface IKmePeerConnection {
     /**
      * Add renderer for publisher connection
      */
-    fun addLocalRenderer(renderer: KmeSurfaceRendererView): Unit?
-
-    /**
-     * Add renderer for viewer connection
-     */
-    fun addRemoteRenderer(renderer: KmeSurfaceRendererView): Unit?
-
-    /**
-     * Remove renderer for publisher connection
-     */
-    fun removeLocalRenderer(renderer: KmeSurfaceRendererView): Unit?
+    fun addRenderer(renderer: KmeSurfaceRendererView): Unit?
 
     /**
      * Remove renderer for viewer connection
      */
-    fun removeRemoteRenderer(renderer: KmeSurfaceRendererView): Unit?
+    fun removeRenderer(renderer: KmeSurfaceRendererView): Unit?
 
     /**
      * Starts screen share publishing

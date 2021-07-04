@@ -53,8 +53,7 @@ open class KmeBasePeerConnectionImpl(
 
     internal var remoteVideoTrack: VideoTrack? = null
     internal var remoteAudioTrack: AudioTrack? = null
-    internal var remoteRenderer: KmeSurfaceRendererView? = null
-    internal var localRenderer: KmeSurfaceRendererView? = null
+    internal var rendererView: KmeSurfaceRendererView? = null
 
     internal var audioConstraints = MediaConstraints()
     internal var sdpMediaConstraints = MediaConstraints()
@@ -95,7 +94,7 @@ open class KmeBasePeerConnectionImpl(
      */
     override fun startPreview(
         videoCapturer: VideoCapturer?,
-        previewRenderer: KmeSurfaceRendererView
+        rendererView: KmeSurfaceRendererView
     ) {
         throw Exception("Wrong state.")
     }
@@ -114,14 +113,12 @@ open class KmeBasePeerConnectionImpl(
      * Creates peer connection
      */
     override fun createPeerConnection(
-        localRenderer: KmeSurfaceRendererView?,
-        remoteRenderer: KmeSurfaceRendererView?,
+        rendererView: KmeSurfaceRendererView?,
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
         iceServers: MutableList<IceServer>
     ) {
-        this.localRenderer = localRenderer
-        this.remoteRenderer = remoteRenderer
+        this.rendererView = rendererView
         this.videoCapturer = videoCapturer
         this.useDataChannel = useDataChannel
         this.iceServers = iceServers
@@ -138,19 +135,11 @@ open class KmeBasePeerConnectionImpl(
         }
     }
 
-    override fun addLocalRenderer(renderer: KmeSurfaceRendererView) {
+    override fun addRenderer(rendererView: KmeSurfaceRendererView) {
         throw Exception("Wrong state.")
     }
 
-    override fun addRemoteRenderer(renderer: KmeSurfaceRendererView) {
-        throw Exception("Wrong state.")
-    }
-
-    override fun removeLocalRenderer(renderer: KmeSurfaceRendererView) {
-        throw Exception("Wrong state.")
-    }
-
-    override fun removeRemoteRenderer(renderer: KmeSurfaceRendererView) {
+    override fun removeRenderer(rendererView: KmeSurfaceRendererView) {
         throw Exception("Wrong state.")
     }
 
@@ -200,7 +189,7 @@ open class KmeBasePeerConnectionImpl(
         videoCapturer?.let { capturer ->
             surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", getRenderContext())
             localVideoSource = factory?.createVideoSource(capturer.isScreencast)
-            isScreenShare = capturer.isScreencast
+//            isScreenShare = capturer.isScreencast
             capturer.initialize(surfaceTextureHelper, context, localVideoSource?.capturerObserver)
 
             if (isScreenShare) {
@@ -220,7 +209,7 @@ open class KmeBasePeerConnectionImpl(
 
         localVideoTrack = factory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)?.apply {
             setEnabled(preferredCamEnabled)
-            localRenderer?.let {
+            rendererView?.let {
                 addSink(it)
             }
         }
@@ -485,7 +474,7 @@ open class KmeBasePeerConnectionImpl(
             if (stream.videoTracks.size == 1) {
                 remoteVideoTrack = stream.videoTracks[0]?.apply {
                     setEnabled(true)
-                    remoteRenderer?.let {
+                    rendererView?.let {
                         addSink(it)
                     }
                 }

@@ -21,15 +21,13 @@ class KmeViewerPeerConnectionImpl(
     }
 
     override fun createPeerConnection(
-        localRenderer: KmeSurfaceRendererView?,
-        remoteRenderer: KmeSurfaceRendererView?,
+        rendererView: KmeSurfaceRendererView?,
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
         iceServers: MutableList<PeerConnection.IceServer>
     ) {
         super.createPeerConnection(
-            localRenderer,
-            remoteRenderer,
+            rendererView,
             videoCapturer,
             useDataChannel,
             iceServers
@@ -47,12 +45,12 @@ class KmeViewerPeerConnectionImpl(
         events?.onPeerConnectionCreated()
     }
 
-    override fun addRemoteRenderer(renderer: KmeSurfaceRendererView) {
-        remoteVideoTrack?.addSink(renderer)
+    override fun addRenderer(rendererView: KmeSurfaceRendererView) {
+        remoteVideoTrack?.addSink(rendererView)
     }
 
-    override fun removeRemoteRenderer(renderer: KmeSurfaceRendererView) {
-        remoteVideoTrack?.removeSink(renderer)
+    override fun removeRenderer(rendererView: KmeSurfaceRendererView) {
+        remoteVideoTrack?.removeSink(rendererView)
     }
 
     override fun setAudioEnabled(enable: Boolean) {

@@ -159,7 +159,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
             publisher?.apply {
                 setTurnServer(turnUrl, turnUser, turnCred)
                 if (renderer != null) {
-                    setLocalRenderer(renderer)
+                    setRenderer(renderer)
                 }
                 setPreferredSettings(micEnabled, camEnabled, frontCamEnabled)
                 createPeerConnection(
@@ -183,7 +183,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
         viewers[requestedUserIdStream]?.let {
             if (renderer != null) {
-                it.addRemoteRenderer(renderer)
+                it.addRenderer(renderer)
             }
         } ?: run {
             webSocketModule.send(
@@ -199,7 +199,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
             viewer.apply {
                 setTurnServer(turnUrl, turnUser, turnCred)
                 if (renderer != null) {
-                    setRemoteRenderer(renderer)
+                    setRenderer(renderer)
                 }
                 createPeerConnection(
                     requestedUserIdStream,
@@ -219,7 +219,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
     override fun addPublisherRenderer(renderer: KmeSurfaceRendererView) {
         checkData()
-        publisher?.addLocalRenderer(renderer)
+        publisher?.addRenderer(renderer)
     }
 
     override fun addViewerRenderer(
@@ -227,12 +227,12 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         renderer: KmeSurfaceRendererView,
     ) {
         checkData()
-        viewers[requestedUserIdStream]?.addRemoteRenderer(renderer)
+        viewers[requestedUserIdStream]?.addRenderer(renderer)
     }
 
     override fun removePublisherRenderer(renderer: KmeSurfaceRendererView) {
         checkData()
-        publisher?.removeLocalRenderer(renderer)
+        publisher?.removeRenderer(renderer)
     }
 
     override fun removeViewerRenderer(
@@ -240,7 +240,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         renderer: KmeSurfaceRendererView,
     ) {
         checkData()
-        viewers[requestedUserIdStream]?.removeRemoteRenderer(renderer)
+        viewers[requestedUserIdStream]?.removeRenderer(renderer)
     }
 
     /**
@@ -278,7 +278,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         contentModule.askForScreenShareRenderer {
             screenSharer = get()
             screenSharer?.setTurnServer(turnUrl, turnUser, turnCred)
-            screenSharer?.setLocalRenderer(it)
+            screenSharer?.setRenderer(it)
             screenSharer?.startScreenShare(
                 "${publisherId}_desk",
                 screenCaptureIntent,
