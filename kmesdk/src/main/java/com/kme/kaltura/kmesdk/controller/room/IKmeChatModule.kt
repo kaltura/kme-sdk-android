@@ -25,7 +25,7 @@ interface IKmeChatModule {
         roomId: Long,
         companyId: Long,
         conversationId: String,
-        loadType: KmeLoadType = KmeLoadType.PARTIAL_LOAD,
+        loadType: KmeLoadType = KmeLoadType.INITIAL_LOAD,
         fromMessageId: String? = null
     )
 
