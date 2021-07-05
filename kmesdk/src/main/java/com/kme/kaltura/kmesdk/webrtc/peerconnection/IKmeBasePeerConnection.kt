@@ -9,14 +9,14 @@ import org.webrtc.*
 interface IKmeBasePeerConnection {
 
     /**
-    * Creates a local video preview
-    *
-    * @param videoCapturer video capturer
-    * @param previewRenderer preview renderer
-    */
+     * Creates a local video preview
+     *
+     * @param videoCapturer video capturer
+     * @param rendererView preview renderer
+     */
     fun startPreview(
         videoCapturer: VideoCapturer?,
-        previewRenderer: KmeSurfaceRendererView
+        rendererView: KmeSurfaceRendererView
     )
 
     /**
@@ -33,29 +33,27 @@ interface IKmeBasePeerConnection {
     /**
      * Creates peer connection
      *
-     * @param localVideoSink local video sink
-     * @param remoteVideoSink remote video sink
+     * @param rendererView video renderer
      * @param videoCapturer video capturer
      * @param useDataChannel indicates if data channel is used for speaking indication
      * @param iceServers collection of ice servers
      */
     fun createPeerConnection(
-        localVideoSink: VideoSink,
-        remoteVideoSink: VideoSink,
+        rendererView: KmeSurfaceRendererView?,
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
         iceServers: MutableList<PeerConnection.IceServer>
     )
 
     /**
-     * Replace renderer for publisher connection
+     * Add connection renderer
      */
-    fun changeLocalRenderer(videoSink: VideoSink)
+    fun addRenderer(rendererView: KmeSurfaceRendererView)
 
     /**
-     * Replace renderer for viewer connection
+     * Remove connection renderer
      */
-    fun changeRemoteRenderer(videoSink: VideoSink)
+    fun removeRenderer(rendererView: KmeSurfaceRendererView)
 
     /**
      * Toggle audio

@@ -181,6 +181,7 @@ internal class KmeDesktopShareFragment : KmeContentView() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        viewModel.clearRenderer(binding.desktopShareRenderer)
         _binding = null
     }
 

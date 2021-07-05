@@ -55,7 +55,7 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
      */
     fun addPublisher(
         requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView,
+        renderer: KmeSurfaceRendererView?,
         micEnabled: Boolean,
         camEnabled: Boolean,
         frontCamEnabled: Boolean
@@ -69,7 +69,7 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
      */
     fun addViewer(
         requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView
+        renderer: KmeSurfaceRendererView?
     )
 
     /**
@@ -80,14 +80,27 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
     fun isPublishing(): Boolean
 
     /**
-     * Replace renderer for publisher connection
+     * Add renderer for publisher connection
      */
-    fun changePublisherRenderer(renderer: KmeSurfaceRendererView)
+    fun addPublisherRenderer(renderer: KmeSurfaceRendererView)
 
     /**
-     * Replace renderer for viewer connection
+     * Add renderer for viewer connection
      */
-    fun changeViewerRenderer(
+    fun addViewerRenderer(
+        requestedUserIdStream: String,
+        renderer: KmeSurfaceRendererView
+    )
+
+    /**
+     * Remove renderer for publisher connection
+     */
+    fun removePublisherRenderer(renderer: KmeSurfaceRendererView)
+
+    /**
+     * Remove renderer for viewer connection
+     */
+    fun removeViewerRenderer(
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView
     )
@@ -107,11 +120,6 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
         resultCode: Int,
         screenCaptureIntent: Intent
     )
-
-    /**
-     * Replace renderer for screen share connection
-     */
-    fun changeScreenShareRenderer(renderer: KmeSurfaceRendererView)
 
     /**
      * Stops screen share publishing

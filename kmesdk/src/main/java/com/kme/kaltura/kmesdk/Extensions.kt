@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Bitmap
-import android.graphics.Point
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Size
@@ -18,8 +17,6 @@ import com.bumptech.glide.load.model.LazyHeaders
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 internal fun removeCookies(callback: () -> Unit) {
     val cookieManager = CookieManager.getInstance()
@@ -64,6 +61,12 @@ fun String.encryptWith(key: String): String {
 }
 
 fun String?.toNonNull(default: String = "") = this ?: default
+
+inline fun <A, B, R> ifNonNull(a: A?, b: B?, block: (a: A, b: B) -> R): R? {
+    return if (a != null && b != null) {
+        block(a, b)
+    } else null
+}
 
 inline fun <reified T> KmeMessage<*>.toType(): T? =
     if (this is T)
