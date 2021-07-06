@@ -2,10 +2,10 @@ package com.kme.kaltura.kmesdk.webrtc.peerconnection.impl
 
 import android.content.Context
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
+import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import org.webrtc.DataChannel
 import org.webrtc.PeerConnection
 import org.webrtc.VideoCapturer
-import org.webrtc.VideoSink
 
 /**
  * An implementation actions under WebRTC peer connection object
@@ -21,15 +21,13 @@ class KmeViewerPeerConnectionImpl(
     }
 
     override fun createPeerConnection(
-        localVideoSink: VideoSink,
-        remoteVideoSink: VideoSink,
+        rendererView: KmeSurfaceRendererView?,
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
         iceServers: MutableList<PeerConnection.IceServer>
     ) {
         super.createPeerConnection(
-            localVideoSink,
-            remoteVideoSink,
+            rendererView,
             videoCapturer,
             useDataChannel,
             iceServers
@@ -45,6 +43,14 @@ class KmeViewerPeerConnectionImpl(
         }
 
         events?.onPeerConnectionCreated()
+    }
+
+    override fun addRenderer(rendererView: KmeSurfaceRendererView) {
+        remoteVideoTrack?.addSink(rendererView)
+    }
+
+    override fun removeRenderer(rendererView: KmeSurfaceRendererView) {
+        remoteVideoTrack?.removeSink(rendererView)
     }
 
     override fun setAudioEnabled(enable: Boolean) {

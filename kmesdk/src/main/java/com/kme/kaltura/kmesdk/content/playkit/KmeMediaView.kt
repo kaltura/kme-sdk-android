@@ -1,9 +1,11 @@
 package com.kme.kaltura.kmesdk.content.playkit
 
 import android.content.Context
+import android.os.Bundle
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.widget.FrameLayout
-import androidx.lifecycle.Observer
+import androidx.lifecycle.*
 import com.kaltura.playkit.*
 import com.kaltura.playkit.player.PKHttpClientManager
 import com.kaltura.tvplayer.KalturaPlayer
@@ -11,6 +13,7 @@ import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
+import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
@@ -28,8 +31,9 @@ import java.util.concurrent.TimeUnit
 class KmeMediaView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr),
-    KmeKoinComponent, IKmeMediaPlaybackListener {
+    KmeKoinComponent, IKmeMediaPlaybackListener, LifecycleObserver {
 
+    var lifecycleOwner: LifecycleOwner? = null
     var kalturaErrorListener: OnLoadKalturaErrorListener? = null
 
     private val defaultPlayerEventHandler: KmeDefaultPlayerEventHandler by inject()
@@ -43,7 +47,7 @@ class KmeMediaView @JvmOverloads constructor(
     private var youtubeTracker: YouTubePlayerTracker? = null
     private var youtubePlayerListener: AbstractYouTubePlayerListener? = null
 
-    private var syncPlayerState: KmePlayerState? = null
+    private var syncPlayerState: KmePlayerState? = KmePlayerState.PAUSE
     private var syncPlayerPosition: Float = 0f
     private var canPlay: Boolean = false
 
@@ -51,6 +55,8 @@ class KmeMediaView @JvmOverloads constructor(
      * Init media view
      */
     override fun init(config: Config) {
+        lifecycleOwner?.lifecycle?.addObserver(this)
+
         removeAllViews()
 
         this.config = config
@@ -72,18 +78,20 @@ class KmeMediaView @JvmOverloads constructor(
         setupMedia()
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    fun onResume() {
+        if (config.useDefaultHandler) {
+            defaultPlayerEventHandler.setState(Pair(syncPlayerState, syncPlayerPosition))
+        }
+    }
+
     private fun setupDefaultPlayerEventHandler() {
         addListener(this, PlayerEvent.canPlay) {
-            canPlay = true
-            syncPlayerState()
+            if (!canPlay) {
+                canPlay = true
+                syncPlayerState()
+            }
         }
-
-        defaultPlayerEventHandler.setState(
-            Pair(
-                config.metadata.playState,
-                currentPosition.toFloat()
-            )
-        )
         defaultPlayerEventHandler.syncPlayerStateLiveData.observeForever(syncPlayerStateObserver)
         defaultPlayerEventHandler.subscribe()
     }
@@ -296,7 +304,9 @@ class KmeMediaView @JvmOverloads constructor(
             youtubePlayer?.play()
             messageBus?.post(PlayerEvent.Generic(PlayerEvent.Type.PLAY))
         } else {
-            kalturaPlayer?.play()
+            if (kalturaPlayer?.isPlaying == false) {
+                kalturaPlayer?.play()
+            }
         }
     }
 
@@ -329,6 +339,7 @@ class KmeMediaView @JvmOverloads constructor(
      * Seek to position
      */
     override fun seekTo(seekTo: Long) {
+        syncPlayerPosition = seekTo.toFloat()
         val seekToMillis = TimeUnit.SECONDS.toMillis(seekTo)
         if (isYoutube()) {
             youtubePlayer?.seekTo(seekTo.toFloat())
@@ -357,10 +368,12 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
-    private val syncPlayerStateObserver = Observer<Pair<KmePlayerState?, Float>> {
-        syncPlayerState = it.first
-        syncPlayerPosition = it.second
-        syncPlayerState()
+    private val syncPlayerStateObserver = Observer<ConsumableValue<Pair<KmePlayerState?, Float>>> {
+        it.consume { state ->
+            syncPlayerState = state.first
+            syncPlayerPosition = state.second
+            syncPlayerState()
+        }
     }
 
     /**
@@ -409,6 +422,7 @@ class KmeMediaView @JvmOverloads constructor(
         releaseYoutubePlayer()
         removeListeners(this)
         if (config.useDefaultHandler) {
+            defaultPlayerEventHandler.syncPlayerStateLiveData.removeObserver(syncPlayerStateObserver)
             defaultPlayerEventHandler.release()
         }
     }
@@ -433,6 +447,31 @@ class KmeMediaView @JvmOverloads constructor(
         messageBus = null
     }
 
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        if (state is Bundle) {
+            syncPlayerState =
+                if (state.getBoolean(SAVE_STATE)) KmePlayerState.PLAYING else KmePlayerState.PAUSE
+            syncPlayerPosition = state.getFloat(SAVE_POSITION)
+
+            if (config.useDefaultHandler) {
+                defaultPlayerEventHandler.setState(Pair(syncPlayerState, syncPlayerPosition))
+            }
+
+            super.onRestoreInstanceState(state.getParcelable(SAVE_SUPER_STATE_KEY))
+        } else {
+            super.onRestoreInstanceState(state)
+        }
+    }
+
+    override fun onSaveInstanceState(): Parcelable {
+        syncPlayerPosition = if (currentPosition == 0L) syncPlayerPosition else currentPosition.toFloat()
+        return Bundle().apply {
+            putBoolean(SAVE_STATE, (syncPlayerState == KmePlayerState.PLAYING || syncPlayerState == KmePlayerState.PLAY))
+            putFloat(SAVE_POSITION, syncPlayerPosition)
+            putParcelable(SAVE_SUPER_STATE_KEY, super.onSaveInstanceState())
+        }
+    }
+
     class Config(
         val contentType: KmeContentType,
         val metadata: KmeActiveContentModuleMessage.ActiveContentPayload.Metadata,
@@ -447,6 +486,9 @@ class KmeMediaView @JvmOverloads constructor(
         const val HTTP_PROVIDER_ID = "okhttp"
         const val ENTRY_ID = "shared_media_content_id"
         const val MEDIA_SOURCE_ID = "shared_media_source_id"
+        const val SAVE_STATE = "SAVE_STATE"
+        const val SAVE_POSITION = "SAVE_POSITION"
+        const val SAVE_SUPER_STATE_KEY = "SAVE_SUPER_STATE_KEY"
     }
 
 }

@@ -21,5 +21,9 @@ data class KmeRoomNote(
     @SerializedName("room_id") val roomId: String? = null,
     @SerializedName("status") val status: String? = null,
     @SerializedName("user_created") val userCreated: String? = null,
-    @SerializedName("user_type") val userType: String? = null
+    @SerializedName("user_type") val userType: String? = null,
+
+//    Local
+    var isBroadcast: Boolean = false
+
 ) : Parcelable
