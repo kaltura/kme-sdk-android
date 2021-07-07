@@ -26,8 +26,8 @@ abstract class BaseControlsView : FrameLayout, CoroutineScope {
         defStyleAttr
     ) {
         setupAutoHideControls()
-        setOnClickListener {
-            if (isControlsVisible()) {
+        this.setOnClickListener {
+            if (isClickable && isControlsVisible()) {
                 setControlsVisibility(false)
             } else {
                 setControlsVisibility(true)
