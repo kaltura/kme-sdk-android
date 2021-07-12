@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.controller.room.impl
 
 import com.kme.kaltura.kmesdk.content.KmeContentView
 import com.kme.kaltura.kmesdk.content.desktop.KmeDesktopShareFragment
+import com.kme.kaltura.kmesdk.content.desktop.KmeDesktopShareViewModel
 import com.kme.kaltura.kmesdk.content.playkit.KmeMediaContentFragment
 import com.kme.kaltura.kmesdk.content.slides.KmeSlidesContentFragment
 import com.kme.kaltura.kmesdk.content.slides.KmeSlidesContentViewModel
@@ -28,6 +29,7 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
     private val roomController: IKmeRoomController by inject()
     private val slidesContentViewModel: KmeSlidesContentViewModel by inject()
     private val whiteboardViewModel: KmeWhiteboardContentViewModel by inject()
+    private val desktopShareViewModel: KmeDesktopShareViewModel by inject()
     private val peerConnectionModule: IKmePeerConnectionModule by inject()
 
     private var contentView: KmeContentView? = null
@@ -111,6 +113,7 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
                     }
                 }
                 DESKTOP_SHARE -> {
+                    desktopShareViewModel.subscribe()
                     contentView = KmeDesktopShareFragment.newInstance()
                 }
                 else -> {
