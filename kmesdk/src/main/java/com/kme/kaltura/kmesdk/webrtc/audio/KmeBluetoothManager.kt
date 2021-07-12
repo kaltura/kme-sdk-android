@@ -42,7 +42,6 @@ class KmeBluetoothManager(
     init {
         bluetoothState = State.UNINITIALIZED
         bluetoothServiceListener = BluetoothServiceListener()
-        bluetoothHeadsetReceiver = BluetoothHeadsetBroadcastReceiver()
     }
 
     fun getState(): State? {
@@ -77,6 +76,8 @@ class KmeBluetoothManager(
             return
         }
 
+        bluetoothHeadsetReceiver = BluetoothHeadsetBroadcastReceiver()
+
         val bluetoothHeadsetFilter = IntentFilter()
         bluetoothHeadsetFilter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)
         bluetoothHeadsetFilter.addAction(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED)
@@ -89,7 +90,9 @@ class KmeBluetoothManager(
      * Stop listen for bluetooth devices
      */
     fun stop() {
-        unregisterReceiver(bluetoothHeadsetReceiver)
+        if (bluetoothHeadsetReceiver != null) {
+            unregisterReceiver(bluetoothHeadsetReceiver)
+        }
 
         if (bluetoothAdapter != null) {
             stopScoAudio()
