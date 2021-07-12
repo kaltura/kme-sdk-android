@@ -51,7 +51,7 @@ internal class KmeDesktopShareFragment : KmeContentView() {
 
         stopShare.setOnClickListener {
             viewModel.stopScreenShare()
-            publisherGroup.visible()
+//            publisherGroup.visible()
             stopShare.gone()
         }
 
@@ -113,11 +113,11 @@ internal class KmeDesktopShareFragment : KmeContentView() {
         isActive: Boolean = false,
         isYour: Boolean = false
     ) {
-        if (isAdmin) {
-            showPublisherUI(isActive, isYour)
-        } else {
+//        if (isAdmin) {
+//            showPublisherUI(isActive, isYour)
+//        } else {
             showViewerUI(isActive)
-        }
+//        }
     }
 
     private fun showPublisherUI(
@@ -126,11 +126,11 @@ internal class KmeDesktopShareFragment : KmeContentView() {
     ) = with(binding) {
         if (isActive) {
             viewerGroup.gone()
-            publisherGroup.gone()
+//            publisherGroup.gone()
             desktopShareRenderer.visible()
             stopShare.setVisibility(isYour)
         } else {
-            publisherGroup.visible()
+//            publisherGroup.visible()
             viewerGroup.gone()
             stopShare.gone()
             desktopShareRenderer.gone()
@@ -144,7 +144,7 @@ internal class KmeDesktopShareFragment : KmeContentView() {
             desktopShareRenderer.visible()
         } else {
             viewerGroup.visible()
-            publisherGroup.gone()
+//            publisherGroup.gone()
             desktopShareRenderer.gone()
         }
         closeView.gone()
@@ -179,7 +179,7 @@ internal class KmeDesktopShareFragment : KmeContentView() {
     fun onScreenSharePermission(approved: Boolean) = with(binding) {
         stopShare.setVisibility(approved)
         desktopShareRenderer.setVisibility(approved)
-        publisherGroup.gone()
+//        publisherGroup.gone()
     }
 
     override fun onDestroyView() {
