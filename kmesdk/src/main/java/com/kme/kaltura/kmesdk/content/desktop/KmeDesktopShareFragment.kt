@@ -78,7 +78,6 @@ internal class KmeDesktopShareFragment : KmeContentView() {
             viewLifecycleOwner,
             desktopShareHDQualityObserver
         )
-        viewModel.listenDesktopShare()
 
         val isActive = viewModel.isDesktopShareActiveLiveData.value?.first ?: false
         val isYour = viewModel.isDesktopShareActiveLiveData.value?.second ?: false

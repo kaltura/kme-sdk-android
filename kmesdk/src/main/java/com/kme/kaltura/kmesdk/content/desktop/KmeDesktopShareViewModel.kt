@@ -44,13 +44,12 @@ internal class KmeDesktopShareViewModel(
     init {
         isAdmin.value = userController.isModerator()
                 || userController.isAdminFor(roomController.getCompanyId())
-        webSocketModule.send(buildDesktopShareInitOnRoomInitMessage())
     }
 
     /**
      * Start listen desktop share events
      */
-    fun listenDesktopShare() {
+    fun subscribe() {
         roomController.listen(
             desktopShareHandler,
             KmeMessageEvent.DESKTOP_SHARE_STATE_UPDATED,
@@ -58,6 +57,7 @@ internal class KmeDesktopShareViewModel(
             KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
             KmeMessageEvent.DESKTOP_SHARE_QUALITY_UPDATED
         )
+        webSocketModule.send(buildDesktopShareInitOnRoomInitMessage())
     }
 
     /**
