@@ -51,6 +51,7 @@ class KmeMediaContentFragment : KmeContentView() {
         with(binding) {
             controlsView.setProgressBarVisibility(true)
             controlsView.setControlsVisibility(false)
+            controlsView.isClickable = false
             controlsView.setControlsMode(mediaContentViewModel.enabledControls())
             controlsView.controlsEventListener = object : BaseControlsView.OnControlsEventListener {
                 override fun onEvent(event: PlayerControlsEvent) {
@@ -90,7 +91,8 @@ class KmeMediaContentFragment : KmeContentView() {
             }
             mediaView.addListener(this, PlayerEvent.canPlay) {
                 controlsView.setProgressBarVisibility(false)
-                controlsView.setControlsVisibility(true)
+                //TODO uncomment for moderators
+//                controlsView.setControlsVisibility(true)
             }
             mediaView.addListener(this, PlayerEvent.error) {
                 controlsView.setProgressBarVisibility(false)

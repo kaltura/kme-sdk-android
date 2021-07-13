@@ -5,6 +5,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
@@ -26,7 +27,7 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
 
     override fun onCreate() {
         super.onCreate()
-        val notification: Notification = createRoomNotification(this)
+        val notification: Notification = createRoomNotification(context = this, title = getString(R.string.app_name), content = getString(R.string.notification_room_join_message))
         startForeground(ROOM_NOTIFICATION_ID, notification)
     }
 

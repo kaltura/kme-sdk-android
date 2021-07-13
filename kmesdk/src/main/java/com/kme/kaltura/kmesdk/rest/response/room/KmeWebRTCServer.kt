@@ -11,7 +11,7 @@ data class KmeWebRTCServer(
     @SerializedName("ICE_SERVER_GROUP") val iceServerGroup: Int?,
     @SerializedName("TURN_USERNAME") val turnUsername: String?,
     @SerializedName("TURN_CREDENTIAL") val turnCredential: String?,
-    @SerializedName("room_info") val roomInfo: KmeRoom?,
+    @SerializedName("room_info") var roomInfo: KmeRoom?,
     @SerializedName("firebase_token") val firebaseToken: String?,
     @SerializedName("callstats") val callStats: CallStats?,
     @SerializedName("feature_flags") val featureFlags: FeatureFlags?,

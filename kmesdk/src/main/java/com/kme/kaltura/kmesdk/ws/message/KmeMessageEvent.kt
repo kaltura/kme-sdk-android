@@ -73,6 +73,9 @@ enum class KmeMessageEvent(
     @SerializedName("userMediaStateChanged", alternate = ["usermediastatechanged"])
     USER_MEDIA_STATE_CHANGED("userMediaStateChanged"),
 
+    @SerializedName("participantMuted", alternate = ["participantmuted"])
+    PARTICIPANT_MUTED("participantMuted"),
+
     @SerializedName("changeUserFocusEvent", alternate = ["changeuserfocusevent"])
     CHANGE_USER_FOCUS_EVENT("changeUserFocusEvent"),
 
