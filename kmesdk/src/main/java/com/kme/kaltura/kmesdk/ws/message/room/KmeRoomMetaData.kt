@@ -1,10 +1,10 @@
 package com.kme.kaltura.kmesdk.ws.message.room
 
 import com.google.gson.annotations.SerializedName
-import com.kme.kaltura.kmesdk.ws.message.type.KmeClassMode
+import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 
 data class KmeRoomMetaData(
-    @SerializedName("class_mode") val classMode: KmeClassMode? = null,
+    @SerializedName("class_mode") val classMode: KmePermissionValue? = null,
     @SerializedName("room_password") val roomPassword: String? = null,
     @SerializedName("room_id") val roomId: Long? = null,
     @SerializedName("company_id") val companyId: Long? = null,

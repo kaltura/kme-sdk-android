@@ -23,6 +23,12 @@ enum class KmePermissionValue(value: String) {
     OFF("off"),
 
     @SerializedName("ONLY_MODERATORS")
-    ONLY_MODERATORS("ONLY_MODERATORS")
+    ONLY_MODERATORS("ONLY_MODERATORS"),
+
+    @SerializedName("virtual_class")
+    VIRTUAL_CLASS("virtual_class"),
+
+    @SerializedName("webinar")
+    WEBINAR("webinar")
 
 }

@@ -59,7 +59,7 @@ data class KmeGeneral(
     val showKalturaMedia: String? = null,
 
     @SerializedName("class_mode")
-    val classMode: String? = null,
+    var classMode: KmePermissionValue? = null,
 
     @SerializedName("mute_all_mics")
     val muteAllMics: KmePermissionValue? = null,
