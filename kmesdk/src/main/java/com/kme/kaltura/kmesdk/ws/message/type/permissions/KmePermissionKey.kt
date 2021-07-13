@@ -16,6 +16,9 @@ enum class KmePermissionKey(value: String) {
     @SerializedName("public_chat")
     PUBLIC_CHAT("public_chat"),
 
+    @SerializedName("class_mode")
+    CLASS_MODE("class_mode"),
+
     @SerializedName("browser_focus_participant_list")
     BROWSER_FOCUS_PARTICIPANT_LIST("browser_focus_participant_list"),
 

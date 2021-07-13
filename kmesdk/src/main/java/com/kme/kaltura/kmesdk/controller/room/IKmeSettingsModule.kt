@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 interface IKmeSettingsModule {
 
     val moderatorStateLiveData: LiveData<Boolean>
+    val settingsChangedLiveData: LiveData<Boolean>
 
     /**
      * Subscribing for the room events related to change settings
