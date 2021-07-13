@@ -27,4 +27,8 @@
     <string name="quick_poll_average_vote">Average vote</string>
     <string name="quick_poll_answers_count_prefix">%d&#160;/&#160;</string>
     <string name="quick_poll_average_result" formatted="false">&#160;/ %d Answered. %d%%</string>
+
+    <!--notification-->
+    <string name="notification_room_join_message">You are currently in the room</string>
+
 </resources>
