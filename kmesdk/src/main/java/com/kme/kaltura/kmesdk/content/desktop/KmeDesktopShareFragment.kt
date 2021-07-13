@@ -10,6 +10,7 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeSettingsModule
 import com.kme.kaltura.kmesdk.databinding.FragmentDesktopShareContentBinding
 import com.kme.kaltura.kmesdk.gone
 import com.kme.kaltura.kmesdk.setVisibility
+import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.visible
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import org.koin.android.ext.android.inject
@@ -29,7 +30,7 @@ internal class KmeDesktopShareFragment : KmeContentView() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentDesktopShareContentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -50,7 +51,7 @@ internal class KmeDesktopShareFragment : KmeContentView() {
 
         stopShare.setOnClickListener {
             viewModel.stopScreenShare()
-            publisherGroup.visible()
+//            publisherGroup.visible()
             stopShare.gone()
         }
 
@@ -112,11 +113,11 @@ internal class KmeDesktopShareFragment : KmeContentView() {
         isActive: Boolean = false,
         isYour: Boolean = false
     ) {
-        if (isAdmin) {
-            showPublisherUI(isActive, isYour)
-        } else {
+//        if (isAdmin) {
+//            showPublisherUI(isActive, isYour)
+//        } else {
             showViewerUI(isActive)
-        }
+//        }
     }
 
     private fun showPublisherUI(
@@ -125,11 +126,11 @@ internal class KmeDesktopShareFragment : KmeContentView() {
     ) = with(binding) {
         if (isActive) {
             viewerGroup.gone()
-            publisherGroup.gone()
+//            publisherGroup.gone()
             desktopShareRenderer.visible()
             stopShare.setVisibility(isYour)
         } else {
-            publisherGroup.visible()
+//            publisherGroup.visible()
             viewerGroup.gone()
             stopShare.gone()
             desktopShareRenderer.gone()
@@ -143,15 +144,17 @@ internal class KmeDesktopShareFragment : KmeContentView() {
             desktopShareRenderer.visible()
         } else {
             viewerGroup.visible()
-            publisherGroup.gone()
+//            publisherGroup.gone()
             desktopShareRenderer.gone()
         }
         closeView.gone()
     }
 
-    private val desktopShareAvailableObserver = Observer<Nothing> {
-        binding.desktopShareRenderer.visible()
-        viewModel.startView(binding.desktopShareRenderer)
+    private val desktopShareAvailableObserver = Observer<ConsumableValue<Boolean>> {
+        it.consume {
+            binding.desktopShareRenderer.visible()
+            viewModel.startView(binding.desktopShareRenderer)
+        }
     }
 
     private val desktopShareHDQualityObserver = Observer<Boolean> { isHD ->
@@ -176,7 +179,7 @@ internal class KmeDesktopShareFragment : KmeContentView() {
     fun onScreenSharePermission(approved: Boolean) = with(binding) {
         stopShare.setVisibility(approved)
         desktopShareRenderer.setVisibility(approved)
-        publisherGroup.gone()
+//        publisherGroup.gone()
     }
 
     override fun onDestroyView() {

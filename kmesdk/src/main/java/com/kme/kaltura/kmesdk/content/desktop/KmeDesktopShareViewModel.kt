@@ -7,6 +7,7 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.toType
+import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -28,8 +29,8 @@ internal class KmeDesktopShareViewModel(
     private val isDesktopShareActive = MutableLiveData<Pair<Boolean, Boolean>>()
     val isDesktopShareActiveLiveData get() = isDesktopShareActive as LiveData<Pair<Boolean, Boolean>>
 
-    private val isDesktopShareAvailable = MutableLiveData<Nothing>()
-    val isDesktopShareAvailableLiveData get() = isDesktopShareAvailable as LiveData<Nothing>
+    private val isDesktopShareAvailable = MutableLiveData<ConsumableValue<Boolean>>()
+    val isDesktopShareAvailableLiveData get() = isDesktopShareAvailable as LiveData<ConsumableValue<Boolean>>
 
     private val desktopShareHDQuality = MutableLiveData<Boolean>()
     val desktopShareHDQualityLiveData get() = desktopShareHDQuality as LiveData<Boolean>
@@ -40,13 +41,16 @@ internal class KmeDesktopShareViewModel(
 
     private var requestedUserIdStream: String? = null
 
+    init {
+        isAdmin.value = userController.isModerator()
+                || userController.isAdminFor(roomController.getCompanyId())
+        webSocketModule.send(buildDesktopShareInitOnRoomInitMessage())
+    }
+
     /**
      * Start listen desktop share events
      */
     fun listenDesktopShare() {
-        isAdmin.value = userController.isModerator()
-                || userController.isAdminFor(roomController.getCompanyId())
-
         roomController.listen(
             desktopShareHandler,
             KmeMessageEvent.DESKTOP_SHARE_STATE_UPDATED,
@@ -54,7 +58,6 @@ internal class KmeDesktopShareViewModel(
             KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
             KmeMessageEvent.DESKTOP_SHARE_QUALITY_UPDATED
         )
-        webSocketModule.send(buildDesktopShareInitOnRoomInitMessage())
     }
 
     /**
@@ -111,7 +114,7 @@ internal class KmeDesktopShareViewModel(
             return
         }
         this.requestedUserIdStream = requestedUserIdStream
-        isDesktopShareAvailable.value = null
+        isDesktopShareAvailable.value = ConsumableValue(true)
     }
 
     fun startView(renderer: KmeSurfaceRendererView) {
