@@ -7,10 +7,11 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import androidx.core.view.doOnLayout
+import androidx.core.view.marginBottom
+import androidx.core.view.marginRight
 import com.kme.kaltura.kmesdk.databinding.LayoutOverlapViewBinding
 import com.kme.kaltura.kmesdk.getDisplayMetrics
 import com.kme.kaltura.kmesdk.isLandscape
@@ -23,14 +24,27 @@ class KmeOverlapLayout @JvmOverloads constructor(
     context: Context,
     val attrs: AttributeSet? = null,
     val defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr) {
+) : FrameLayout(context, attrs, defStyleAttr), IFloatingContainer {
 
     var listener: OnOverlapListener? = null
 
-    var defaultDownScale = 3f
+    var layoutRatio = (1280 / 720f)
 
     var state: State = State.NONE
         private set
+
+    var verticalOffset = 0
+        set(value) {
+            field = value
+            preMeasure()
+            postDragging()
+        }
+    var horizontalOffset = 0
+        set(value) {
+            field = value
+            preMeasure()
+            postDragging()
+        }
 
     private var isLandscape: Boolean = false
 
@@ -107,22 +121,21 @@ class KmeOverlapLayout @JvmOverloads constructor(
             saveY = it.y
             saveWidth = it.width
             saveHeight = it.height
+
+            preMeasure()
+            postDragging()
         }
 
         val rootWidth = displayMetrics.widthPixels
         val rootHeight = displayMetrics.heightPixels
 
         minResizeWidth = if (isLandscape) {
-            rootWidth / defaultDownScale
+            rootHeight / 2f
         } else {
-            rootHeight / defaultDownScale
+            rootWidth / 2f
         }.roundToInt()
 
-        minResizeHeight = if (isLandscape) {
-            rootHeight / defaultDownScale
-        } else {
-            rootWidth / defaultDownScale
-        }.roundToInt()
+        minResizeHeight = (minResizeWidth / layoutRatio).toInt()
 
         binding.resizableLayout.layoutParams =
             LayoutParams(minResizeWidth, minResizeHeight, Gravity.BOTTOM or Gravity.END)
@@ -176,16 +189,17 @@ class KmeOverlapLayout @JvmOverloads constructor(
         preWidth = binding.resizableLayout.width
         preHeight = binding.resizableLayout.height
 
-        val left = binding.root.left
-        val top = binding.root.top
-        val right = binding.root.right
-        val bottom = binding.root.bottom
+        val left = binding.root.paddingLeft + horizontalOffset
+        val top = binding.root.paddingTop + verticalOffset
+        val right =
+            binding.root.right - binding.root.paddingRight - binding.root.marginRight - horizontalOffset
+        val bottom =
+            binding.root.bottom - binding.root.paddingBottom - binding.root.marginBottom - verticalOffset
 
         cornerPoint1.set(left, top)
         cornerPoint2.set(right, top)
         cornerPoint3.set(left, bottom)
         cornerPoint4.set(right, bottom)
-
     }
 
     private fun measureDelta(event: MotionEvent) {
@@ -280,6 +294,22 @@ class KmeOverlapLayout @JvmOverloads constructor(
 
         saveWidth = layoutParams.width
         saveHeight = layoutParams.height
+    }
+
+    override fun onFloatingRectChanged(rect: Rect) {
+//        with(binding.root) {
+//            if (left != rect.left || top != rect.top || right != rect.right || bottom != rect.bottom) {
+//                apply {
+//                    left = rect.left
+//                    top = rect.top
+//                    right = rect.right
+//                    bottom = rect.bottom
+//                }
+//
+//                preMeasure()
+//                postDragging()
+//            }
+//        }
     }
 
     override fun onSaveInstanceState(): Parcelable {
