@@ -6,10 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.forEach
 import androidx.fragment.app.Fragment
+import com.kme.kaltura.kmesdk.ui.widget.overlap.IFloatingContainer
 
 abstract class KmeOverlapFragment: Fragment() {
 
     var isMediaOverlay: Boolean = false
+
+    var floatingCallback: IFloatingContainer? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
