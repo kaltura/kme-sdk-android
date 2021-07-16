@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.content.playkit
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import com.kme.kaltura.kmesdk.databinding.FragmentMediaContentBinding
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
+
 
 /**
  * Implementation for media files shared content
@@ -45,7 +47,9 @@ class KmeMediaContentFragment : KmeContentView() {
             setContentPayload(it)
         }
         setupUI()
+        setupKeyEventListener()
     }
+
 
     private fun setupUI() {
         with(binding) {
@@ -151,6 +155,24 @@ class KmeMediaContentFragment : KmeContentView() {
                 binding.mediaView.lifecycleOwner = viewLifecycleOwner
                 binding.mediaView.init(config)
                 subscribePlayerEvents()
+            }
+        }
+    }
+
+    private fun setupKeyEventListener(){
+        view?.isFocusableInTouchMode = true
+        view?.requestFocus()
+        view?.setOnKeyListener{ _, keyCode, _ ->
+            when (keyCode) {
+                KeyEvent.KEYCODE_VOLUME_UP -> {
+                    mediaContentViewModel.videoVolumeIncrease()
+                    true
+                }
+                KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                    mediaContentViewModel.videoVolumeDecrease()
+                    true
+                }
+                else -> false
             }
         }
     }

@@ -90,7 +90,7 @@ internal class KmeDesktopShareViewModel(
                         message.toType()
 
                     msg?.payload?.userId?.let {
-                        if (it.toLongOrNull() == null) {
+                        if (it.toLongOrNull() == null && it.contains("_desk")) {
                             onStreamReadyToView(it)
                         }
                     }

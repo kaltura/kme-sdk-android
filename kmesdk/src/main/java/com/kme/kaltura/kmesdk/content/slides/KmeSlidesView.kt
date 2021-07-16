@@ -384,7 +384,12 @@ class KmeSlidesView @JvmOverloads constructor(
     }
 
     override fun setZoomEnabled(zoomEnabled: Boolean) {
-        binding.zoomLayout.setZoomEnabled(zoomEnabled)
+        binding.zoomLayout.apply {
+            setZoomEnabled(zoomEnabled)
+            setOverPinchable(zoomEnabled)
+            setOverScrollHorizontal(zoomEnabled)
+            setOverScrollVertical(zoomEnabled)
+        }
     }
 
     class Config(

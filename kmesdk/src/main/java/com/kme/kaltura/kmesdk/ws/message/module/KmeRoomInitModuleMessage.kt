@@ -6,6 +6,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
+import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 
 class KmeRoomInitModuleMessage<T : KmeRoomInitModuleMessage.RoomInitPayload> : KmeMessage<T>() {
 
@@ -81,7 +82,7 @@ class KmeRoomInitModuleMessage<T : KmeRoomInitModuleMessage.RoomInitPayload> : K
         @SerializedName("join_time") val joinTime: Double? = null,
         @SerializedName("long") val long: Double? = null,
         @SerializedName("user_role") val userRole: String? = null,
-        @SerializedName("user_type") val userType: String? = null,
+        @SerializedName("user_type") val userType: KmeUserType? = null,
         @SerializedName("live_media_state") val liveMediaState: String? = null,
         @SerializedName("browser") val browser: String? = null,
         @SerializedName("region_name") val regionName: String? = null,

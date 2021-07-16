@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         app:cardBackgroundColor="@color/grayDarkTransparent"
         app:cardCornerRadius="8dp"
+        android:clipToPadding="true"
         app:cardPreventCornerOverlap="false">
 
         <FrameLayout
