@@ -12,6 +12,9 @@ enum class KmeUserType(
     @SerializedName("user", alternate = ["USER"])
     USER("user"),
 
+    @SerializedName("dialin", alternate = ["DIALIN"])
+    DIAL("dialin"),
+
     @SerializedName("guest", alternate = ["GUEST"])
     GUEST("guest")
 
