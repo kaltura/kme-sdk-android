@@ -48,7 +48,7 @@ class KmeMediaView @JvmOverloads constructor(
     private var youtubeTracker: YouTubePlayerTracker? = null
     private var youtubePlayerListener: AbstractYouTubePlayerListener? = null
 
-    private var syncPlayerState: KmePlayerState? = KmePlayerState.PAUSE
+    private var syncPlayerState: KmePlayerState? = null
     private var syncPlayerPosition: Float = 0f
     private var canPlay: Boolean = false
     private var isFirstYoutubeSync = true
@@ -90,12 +90,14 @@ class KmeMediaView @JvmOverloads constructor(
 
     private fun setupDefaultPlayerEventHandler() {
         syncPlayerPosition = config.metadata.progress ?: 0f
-        syncPlayerState = config.metadata.playState ?: KmePlayerState.PAUSE
+        syncPlayerState = config.metadata.playState
 
         addListener(this, PlayerEvent.canPlay) {
             if (!canPlay) {
                 canPlay = true
-                syncPlayerState()
+                if (!isYoutube() || !isFirstYoutubeSync) {
+                    syncPlayerState()
+                }
             }
         }
         defaultPlayerEventHandler.syncPlayerStateLiveData.observeForever(syncPlayerStateObserver)
@@ -193,15 +195,27 @@ class KmeMediaView @JvmOverloads constructor(
             ) {
                 super.onStateChange(youTubePlayer, state)
 
-                Log.e("TAG", "onStateChange: $state")
+                Log.e("TAG", "onStateChange: $state $isFirstYoutubeSync")
                 //If the Youtube player is paused when the function is called, it will remain paused.
                 //If the function is called from another state (playing, video cued, etc.), the player will play the video.
-                if (state == PlayerConstants.PlayerState.PLAYING
-                    && syncPlayerState != KmePlayerState.PLAY
-                    && syncPlayerState != KmePlayerState.PLAYING) {
-                    isFirstYoutubeSync = false
-                    pause()
+                if (state == PlayerConstants.PlayerState.VIDEO_CUED
+                    && syncPlayerState != null
+                ) {
+                    canPlay = true
                     syncPlayerState()
+                } else if (state == PlayerConstants.PlayerState.PLAYING
+                    && syncPlayerState != KmePlayerState.PLAY
+                    && syncPlayerState != KmePlayerState.PLAYING
+                    && syncPlayerState != KmePlayerState.SEEK_TO
+                ) {
+                    isFirstYoutubeSync = false
+                    syncPlayerState()
+                } else if (state == PlayerConstants.PlayerState.PLAYING
+                    && currentPosition.toInt() != syncPlayerPosition.toInt()
+                    && isFirstYoutubeSync
+                ) {
+                    isFirstYoutubeSync = false
+                    seekTo(syncPlayerPosition.toLong())
                 }
 
                 state.asKalturaEvent()?.let {
@@ -354,8 +368,8 @@ class KmeMediaView @JvmOverloads constructor(
     override fun seekTo(seekTo: Long) {
         val seekToMillis = TimeUnit.SECONDS.toMillis(seekTo)
         if (isYoutube()) {
-            if (seekTo != 0L && !isFirstYoutubeSync) {
-                Log.e("TAG", "seekTo: $seekTo, $isFirstYoutubeSync")
+            if (currentPosition != seekTo) {
+                Log.e("TAG", "seekTo: $seekTo, $youtubePlayer")
                 youtubePlayer?.seekTo(seekTo.toFloat())
                 messageBus?.post(PlayerEvent.Seeking(seekToMillis))
             }
@@ -466,8 +480,7 @@ class KmeMediaView @JvmOverloads constructor(
 
     override fun onRestoreInstanceState(state: Parcelable?) {
         if (state is Bundle) {
-            syncPlayerState =
-                if (state.getBoolean(SAVE_STATE)) KmePlayerState.PLAYING else KmePlayerState.PAUSE
+            syncPlayerState = state.getSerializable(SAVE_SYNC_STATE) as KmePlayerState?
             syncPlayerPosition = state.getFloat(SAVE_POSITION)
 
             if (config.useDefaultHandler) {
@@ -484,10 +497,7 @@ class KmeMediaView @JvmOverloads constructor(
         syncPlayerPosition =
             if (currentPosition == 0L) syncPlayerPosition else currentPosition.toFloat()
         return Bundle().apply {
-            putBoolean(
-                SAVE_STATE,
-                (syncPlayerState == KmePlayerState.PLAYING || syncPlayerState == KmePlayerState.PLAY)
-            )
+            putSerializable(SAVE_SYNC_STATE, syncPlayerState)
             putFloat(SAVE_POSITION, syncPlayerPosition)
             putParcelable(SAVE_SUPER_STATE_KEY, super.onSaveInstanceState())
         }
@@ -507,7 +517,7 @@ class KmeMediaView @JvmOverloads constructor(
         const val HTTP_PROVIDER_ID = "okhttp"
         const val ENTRY_ID = "shared_media_content_id"
         const val MEDIA_SOURCE_ID = "shared_media_source_id"
-        const val SAVE_STATE = "SAVE_STATE"
+        const val SAVE_SYNC_STATE = "SAVE_SYNC_STATE"
         const val SAVE_POSITION = "SAVE_POSITION"
         const val SAVE_SUPER_STATE_KEY = "SAVE_SUPER_STATE_KEY"
     }

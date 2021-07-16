@@ -73,7 +73,7 @@ class KmeDefaultPlayerEventHandler(
         syncPlayerState.value =
             ConsumableValue(
                 Pair(
-                    if (state.first == null) KmePlayerState.STOP else state.first,
+                    state.first,
                     state.second
                 )
             )
