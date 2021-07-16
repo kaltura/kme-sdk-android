@@ -14,6 +14,6 @@ val contentShareViewModels = module {
     single { KmeSlidesContentViewModel(get(), get(), get(), get()) }
     single { KmeDesktopShareViewModel(get(), get(), get()) }
     single { KmeWhiteboardContentViewModel(get()) }
-    single { KmeMediaContentViewModel(get(), get(), get()) }
+    single { KmeMediaContentViewModel(get(), get(), get(), get()) }
 
 }

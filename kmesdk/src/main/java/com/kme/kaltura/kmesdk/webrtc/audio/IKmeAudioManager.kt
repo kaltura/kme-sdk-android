@@ -1,5 +1,7 @@
 package com.kme.kaltura.kmesdk.webrtc.audio
 
+import android.media.AudioManager
+
 /**
  * An interface for handling audio devices in the room
  */
@@ -49,6 +51,16 @@ interface IKmeAudioManager {
      * @param listener
      */
     fun setListener(listener: AudioManagerListener)
+
+    /**
+     * Increase music & voice audio volume
+     */
+    fun adjustStreamVolumeRise()
+
+    /**
+     * Decrease music & voice audio volume
+     */
+    fun adjustStreamVolumeLow()
 
     /**
      * Remove listener for detecting audio route changes

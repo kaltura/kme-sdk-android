@@ -61,10 +61,16 @@ class KmeAudioManagerImpl(
         }
         hasWiredHeadset = hasWiredHeadset()
 
+//        audioManager.requestAudioFocus(
+//            audioFocusChangeListener,
+//            AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+//        )
+
         audioManager.requestAudioFocus(
             audioFocusChangeListener,
-            AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+            AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
         )
+
 
         audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
 
@@ -77,6 +83,7 @@ class KmeAudioManagerImpl(
         updateAudioDeviceState()
         registerReceiver(wiredHeadsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
     }
+
 
     /**
      * Stopping use audio
@@ -111,6 +118,23 @@ class KmeAudioManagerImpl(
     override fun removeListener() {
         this.listener = null
     }
+
+    /**
+     * Increase music & voice audio volume
+     */
+    override fun adjustStreamVolumeRise() {
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND)
+        audioManager.adjustStreamVolume(AudioManager.STREAM_VOICE_CALL, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI)
+    }
+    
+    /**
+     * Decrease music & voice audio volume
+     */
+    override fun adjustStreamVolumeLow() {
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_PLAY_SOUND)
+        audioManager.adjustStreamVolume(AudioManager.STREAM_VOICE_CALL, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI)
+    }
+
 
     /**
      * Setting default audio device
