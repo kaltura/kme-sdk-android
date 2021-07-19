@@ -18,6 +18,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollAudienceType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
 import kotlinx.coroutines.*
 import org.koin.core.inject
+import androidx.lifecycle.Observer
 import java.util.*
 
 class KmeQuickPollView @JvmOverloads constructor(
@@ -67,14 +68,30 @@ class KmeQuickPollView @JvmOverloads constructor(
         }
     }
 
+    private var pollStartedLiveDataObserver = Observer<QuickPollStartedPayload> {
+        it?.let { startPoll(it) }
+    }
+
+    private var pollEndedLiveDataObserver = Observer<QuickPollEndedPayload> {
+        it?.let { endPoll(it) }
+    }
+
+    private var userAnsweredPollLiveDatabserver = Observer<QuickPollUserAnsweredPayload> {
+        it?.let { onUserAnsweredPoll(it) }
+    }
+
     private fun setupDefaultEventHandler() {
-        defaultEventHandler.pollStartedLiveData.observeForever { it?.let { startPoll(it) } }
-        defaultEventHandler.pollEndedLiveData.observeForever { it?.let { endPoll(it) } }
-        defaultEventHandler.userAnsweredPollLiveData.observeForever {
-            it?.let { onUserAnsweredPoll(it) }
-        }
+        defaultEventHandler.pollStartedLiveData.observeForever(pollStartedLiveDataObserver)
+        defaultEventHandler.pollEndedLiveData.observeForever(pollEndedLiveDataObserver)
+        defaultEventHandler.userAnsweredPollLiveData.observeForever(userAnsweredPollLiveDatabserver)
+
         defaultEventHandler.subscribe()
     }
+
+
+
+
+
 
     override fun sendAnswer(answer: QuickPollPayload.Answer) {
         roomController.send(
@@ -220,6 +237,8 @@ class KmeQuickPollView @JvmOverloads constructor(
         hideResultsViewJob?.cancel()
         hideResultsViewJob = null
 
+        defaultEventHandler.resetValues()
+
         super.onDetachedFromWindow()
     }
 
@@ -235,5 +254,6 @@ class KmeQuickPollView @JvmOverloads constructor(
         private const val SAVE_VISIBILITY_KEY = "SAVE_VISIBILITY_KEY"
         private const val SAVE_SUPER_STATE_KEY = "SAVE_SUPER_STATE_KEY"
     }
+
 
 }
