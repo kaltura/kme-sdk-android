@@ -72,7 +72,7 @@ class KmeDefaultPollEventHandler(
         roomController.remove(quickPollHandler)
     }
 
-    fun resetValues(){
+    fun destroyValues(){
         pollEnded.postValue(null)
         pollStarted.postValue(null)
         userAnsweredPoll.postValue(null)

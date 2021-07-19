@@ -76,7 +76,7 @@ class KmeQuickPollView @JvmOverloads constructor(
         }
         defaultEventHandler.subscribe()
     }
-    
+
     override fun sendAnswer(answer: QuickPollPayload.Answer) {
         roomController.send(
             buildSendQuickPollAnswerMessage(
@@ -221,7 +221,7 @@ class KmeQuickPollView @JvmOverloads constructor(
         hideResultsViewJob?.cancel()
         hideResultsViewJob = null
 
-        defaultEventHandler.resetValues()
+        defaultEventHandler.destroyValues()
 
         super.onDetachedFromWindow()
     }
