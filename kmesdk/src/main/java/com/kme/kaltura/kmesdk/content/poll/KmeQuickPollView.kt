@@ -68,31 +68,15 @@ class KmeQuickPollView @JvmOverloads constructor(
         }
     }
 
-    private var pollStartedLiveDataObserver = Observer<QuickPollStartedPayload> {
-        it?.let { startPoll(it) }
-    }
-
-    private var pollEndedLiveDataObserver = Observer<QuickPollEndedPayload> {
-        it?.let { endPoll(it) }
-    }
-
-    private var userAnsweredPollLiveDatabserver = Observer<QuickPollUserAnsweredPayload> {
-        it?.let { onUserAnsweredPoll(it) }
-    }
-
     private fun setupDefaultEventHandler() {
-        defaultEventHandler.pollStartedLiveData.observeForever(pollStartedLiveDataObserver)
-        defaultEventHandler.pollEndedLiveData.observeForever(pollEndedLiveDataObserver)
-        defaultEventHandler.userAnsweredPollLiveData.observeForever(userAnsweredPollLiveDatabserver)
-
+        defaultEventHandler.pollStartedLiveData.observeForever { it?.let { startPoll(it) } }
+        defaultEventHandler.pollEndedLiveData.observeForever { it?.let { endPoll(it) } }
+        defaultEventHandler.userAnsweredPollLiveData.observeForever {
+            it?.let { onUserAnsweredPoll(it) }
+        }
         defaultEventHandler.subscribe()
     }
-
-
-
-
-
-
+    
     override fun sendAnswer(answer: QuickPollPayload.Answer) {
         roomController.send(
             buildSendQuickPollAnswerMessage(
