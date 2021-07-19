@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
-import android.util.Log
 import android.widget.FrameLayout
 import androidx.lifecycle.*
 import com.kaltura.playkit.*
@@ -52,7 +51,6 @@ class KmeMediaView @JvmOverloads constructor(
     private var syncPlayerPosition: Float = 0f
     private var canPlay: Boolean = false
     private var isFirstYoutubeSync = true
-    private var isYoutubeReady = false
 
     /**
      * Init media view
@@ -182,10 +180,7 @@ class KmeMediaView @JvmOverloads constructor(
                     youtubePlayer?.addListener(it)
                 }
 
-                isYoutubeReady = true
-
                 isFirstYoutubeSync = true
-                Log.e("TAG", "onReady: $syncPlayerPosition")
                 youtubePlayer?.cueVideo(url, syncPlayerPosition)
             }
 
@@ -194,8 +189,6 @@ class KmeMediaView @JvmOverloads constructor(
                 state: PlayerConstants.PlayerState
             ) {
                 super.onStateChange(youTubePlayer, state)
-
-                Log.e("TAG", "onStateChange: $state $isFirstYoutubeSync")
                 //If the Youtube player is paused when the function is called, it will remain paused.
                 //If the function is called from another state (playing, video cued, etc.), the player will play the video.
                 if (state == PlayerConstants.PlayerState.VIDEO_CUED
@@ -225,7 +218,6 @@ class KmeMediaView @JvmOverloads constructor(
 
             override fun onCurrentSecond(youTubePlayer: YouTubePlayer, second: Float) {
                 super.onCurrentSecond(youTubePlayer, second)
-                Log.e("TAG", "onCurrentSecond: $second")
                 val event = PlayerEvent.PlayheadUpdated(
                     TimeUnit.SECONDS.toMillis(second.toLong()),
                     TimeUnit.SECONDS.toMillis(duration)
@@ -369,7 +361,6 @@ class KmeMediaView @JvmOverloads constructor(
         val seekToMillis = TimeUnit.SECONDS.toMillis(seekTo)
         if (isYoutube()) {
             if (currentPosition != seekTo) {
-                Log.e("TAG", "seekTo: $seekTo, $youtubePlayer")
                 youtubePlayer?.seekTo(seekTo.toFloat())
                 messageBus?.post(PlayerEvent.Seeking(seekToMillis))
             }
@@ -401,7 +392,6 @@ class KmeMediaView @JvmOverloads constructor(
         it.consume { state ->
             syncPlayerState = state.first
             syncPlayerPosition = state.second
-            Log.e("TAG", "sync: $syncPlayerState $syncPlayerPosition")
             syncPlayerState()
         }
     }
@@ -463,7 +453,6 @@ class KmeMediaView @JvmOverloads constructor(
     }
 
     private fun releaseYoutubePlayer() {
-        isYoutubeReady = false
         youtubeTracker?.let {
             youtubePlayer?.removeListener(it)
         }
