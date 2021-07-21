@@ -18,6 +18,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollAudienceType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
 import kotlinx.coroutines.*
 import org.koin.core.inject
+import androidx.lifecycle.Observer
 import java.util.*
 
 class KmeQuickPollView @JvmOverloads constructor(
@@ -220,6 +221,8 @@ class KmeQuickPollView @JvmOverloads constructor(
         hideResultsViewJob?.cancel()
         hideResultsViewJob = null
 
+        defaultEventHandler.destroyValues()
+
         super.onDetachedFromWindow()
     }
 
@@ -235,5 +238,6 @@ class KmeQuickPollView @JvmOverloads constructor(
         private const val SAVE_VISIBILITY_KEY = "SAVE_VISIBILITY_KEY"
         private const val SAVE_SUPER_STATE_KEY = "SAVE_SUPER_STATE_KEY"
     }
+
 
 }
