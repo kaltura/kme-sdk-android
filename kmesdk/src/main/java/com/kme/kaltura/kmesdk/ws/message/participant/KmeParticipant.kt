@@ -24,7 +24,7 @@ data class KmeParticipant(
     @SerializedName("live_media_state") var liveMediaState: KmeMediaDeviceState? = null,
     @SerializedName("webcam_state") var webcamState: KmeMediaDeviceState? = null,
     @SerializedName("mic_state") var micState: KmeMediaDeviceState? = null,
-    @SerializedName("time_hand_raised") var timeHandRaised: Long? = null,
+    @SerializedName("time_hand_raised") var timeHandRaised: Long = 0,
     @SerializedName("last_unmute_time") var lastUnmuteTime: Long? = null,
     @SerializedName("device_type") var deviceType: KmePlatformType? = null,
     @SerializedName("browser") var browser: String? = null,
@@ -39,8 +39,7 @@ data class KmeParticipant(
     @SerializedName("long") var long: Double? = null,
 
 //    Local
-    var isSpeaking: Boolean = false,
-    var isHandRaised: Boolean = false
+    var isSpeaking: Boolean = false
 
 ) : Parcelable {
 
