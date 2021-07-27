@@ -67,9 +67,7 @@ class KmeOverlapLayout @JvmOverloads constructor(
         LayoutInflater.from(context),
         this
     )
-
-    private var isMovingMode = false
-
+    
     private var scaleFactor = 1f
     private var maxZoom = 2f
 
@@ -167,7 +165,7 @@ class KmeOverlapLayout @JvmOverloads constructor(
                 measureDelta(event)
             }
             MotionEvent.ACTION_MOVE -> {
-                if (isMovingMode && state == State.DRAGGING) {
+                if (state == State.DRAGGING) {
                     performDragging(event)
                 }
             }
@@ -178,7 +176,6 @@ class KmeOverlapLayout @JvmOverloads constructor(
 
                 deltaX = 0f
                 deltaY = 0f
-                isMovingMode = false
                 state = State.NONE
             }
         }
@@ -353,11 +350,6 @@ class KmeOverlapLayout @JvmOverloads constructor(
         private val gestureDetector = GestureDetector(context, this)
 
         fun handleTouchEvents(event: MotionEvent?): Boolean = gestureDetector.onTouchEvent(event)
-
-        override fun onLongPress(event: MotionEvent?) {
-            super.onLongPress(event)
-            isMovingMode = true
-        }
 
         override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
             listener?.onSwitchContent()
