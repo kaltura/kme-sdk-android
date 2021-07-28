@@ -92,6 +92,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 KmeMessageEvent.USER_MEDIA_STATE_CHANGED,
                 KmeMessageEvent.USER_SPEAKING
             )
+            blockMediaStateEvents = false
             isInitialized = true
         }
     }

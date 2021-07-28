@@ -219,7 +219,7 @@ class RenderersAdapter(
 
         fun updateHandRaiseState(participant: KmeParticipant) {
             with(itemView) {
-                if (isModerator && (participant.isHandRaised || participant.timeHandRaised != 0L)) {
+                if (isModerator && participant.timeHandRaised != 0L) {
                     ivRaiseHand.visible()
                 } else {
                     ivRaiseHand.invisible()

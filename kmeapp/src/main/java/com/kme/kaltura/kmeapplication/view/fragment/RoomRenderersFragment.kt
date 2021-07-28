@@ -121,7 +121,6 @@ class RoomRenderersFragment : KmeFragment() {
     private val raiseHandObserver = Observer<Pair<Long, Boolean>> {
         participantsViewModel.participants.find { tmp -> tmp.userId == it.first }
             ?.let { participant ->
-                participant.isHandRaised = it.second
                 if (it.second) {
                     participant.timeHandRaised = System.currentTimeMillis()
                 } else {
