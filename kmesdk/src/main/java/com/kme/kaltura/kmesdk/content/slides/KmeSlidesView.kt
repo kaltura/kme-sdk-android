@@ -389,6 +389,7 @@ class KmeSlidesView @JvmOverloads constructor(
             setOverPinchable(zoomEnabled)
             setOverScrollHorizontal(zoomEnabled)
             setOverScrollVertical(zoomEnabled)
+            setMinZoom(1.0F)
         }
     }
 
