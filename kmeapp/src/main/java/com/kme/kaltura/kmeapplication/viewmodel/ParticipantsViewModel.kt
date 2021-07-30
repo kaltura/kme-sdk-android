@@ -431,7 +431,6 @@ class ParticipantsViewModel(
         participantsList.find {
             it.userId == id
         }?.let { participant ->
-            participant.isHandRaised = isHandRaised
             if (isHandRaised) {
                 participant.timeHandRaised = System.currentTimeMillis()
                 raisedHandsList.add(id)
@@ -446,7 +445,6 @@ class ParticipantsViewModel(
 
     private fun updateAllHandsDown() {
         participantsList.forEach { participant ->
-            participant.isHandRaised = false
             participant.timeHandRaised = 0L
         }
 

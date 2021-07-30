@@ -93,7 +93,7 @@ class ParticipantsAdapter : RecyclerView.Adapter<ParticipantsAdapter.Participant
                         R.drawable.ic_desktop
                 )
 
-                when (participant.isHandRaised || participant.timeHandRaised != 0L) {
+                when (participant.timeHandRaised != 0L) {
                     true -> {
                         ivRaiseHand.visible()
                         ivRaiseHand.setImageResource(R.drawable.ic_room_raise_hand_off)
