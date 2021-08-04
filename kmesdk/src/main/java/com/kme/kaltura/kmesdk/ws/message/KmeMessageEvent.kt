@@ -62,7 +62,6 @@ enum class KmeMessageEvent(
     @SerializedName("roomPasswordStatusReceived", alternate = ["roompasswordstatusreceived"])
     ROOM_PASSWORD_STATUS_RECEIVED("roomPasswordStatusReceived"),
 
-
     /*
     * Room Participants
     * */
@@ -75,6 +74,9 @@ enum class KmeMessageEvent(
 
     @SerializedName("participantMuted", alternate = ["participantmuted"])
     PARTICIPANT_MUTED("participantMuted"),
+
+    @SerializedName("allParticipantsMuted", alternate = ["allparticipantsmuted"])
+    ALL_PARTICIPANTS_MUTED("allParticipantsMuted"),
 
     @SerializedName("changeUserFocusEvent", alternate = ["changeuserfocusevent"])
     CHANGE_USER_FOCUS_EVENT("changeUserFocusEvent"),
@@ -222,6 +224,7 @@ enum class KmeMessageEvent(
 
     @SerializedName("slideChanged", alternate = ["slideChanged"])
     SLIDE_CHANGED("slideChanged"),
+
     @SerializedName("annotationsStateChanged", alternate = ["annotationsstatechanged"])
     ANNOTATIONS_STATE_CHANGED("annotationsStateChanged"),
 
@@ -240,7 +243,6 @@ enum class KmeMessageEvent(
 
     @SerializedName("syncPlayerState", alternate = ["syncplayerstate"])
     SYNC_PLAYER_STATE("syncPlayerState"),
-
 
     /*
     * Recording
