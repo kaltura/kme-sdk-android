@@ -118,6 +118,9 @@ internal class KmeMessageParser(
             KmeMessageEvent.PARTICIPANT_MUTED.toString() -> {
                 text.jsonToObject<KmeParticipantsModuleMessage<UserMediaStateChangedPayload>>()
             }
+            KmeMessageEvent.ALL_PARTICIPANTS_MUTED.toString() -> {
+                text.jsonToObject<KmeParticipantsModuleMessage<AllParticipantsMutedPayload>>()
+            }
             KmeMessageEvent.CHANGE_USER_FOCUS_EVENT.toString() -> {
                 text.jsonToObject<KmeParticipantsModuleMessage<ChangeUserFocusEventPayload>>()
             }
