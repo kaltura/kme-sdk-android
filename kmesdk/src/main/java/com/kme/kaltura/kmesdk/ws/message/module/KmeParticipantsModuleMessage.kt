@@ -25,6 +25,12 @@ class KmeParticipantsModuleMessage<T : KmeParticipantsModuleMessage.Participants
         @SerializedName("state_value") var stateValue: KmeMediaDeviceState? = null,
     ) : ParticipantsPayload()
 
+    data class AllParticipantsMutedPayload(
+        @SerializedName("user_id") var userId: Long,
+        @SerializedName("media_type") var mediaStateType: KmeMediaStateType,
+        @SerializedName("state_value") var stateValue: KmeMediaDeviceState
+    ) : ParticipantsPayload()
+
     data class ChangeUserFocusEventPayload(
         @SerializedName("user_id") var userId: Long? = null,
         @SerializedName("room_id") var roomId: Long? = null,
