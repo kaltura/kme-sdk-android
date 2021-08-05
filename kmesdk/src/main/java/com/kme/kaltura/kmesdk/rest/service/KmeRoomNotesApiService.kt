@@ -32,7 +32,7 @@ interface KmeRoomNotesApiService {
     suspend fun getRoomNote(
         @Query("room_id") roomId: Long,
         @Query("note_id") noteId: Long,
-    ): KmeGetRoomNotesResponse
+    ): KmeGetRoomNoteResponse
 
     /**
      * Getting an url for download note as pdf file

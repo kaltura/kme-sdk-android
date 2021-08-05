@@ -56,7 +56,7 @@ class KmeNoteModuleImpl(
     override fun getRoomNote(
         roomId: Long,
         noteId: Long,
-        success: (response: KmeGetRoomNotesResponse) -> Unit,
+        success: (response: KmeGetRoomNoteResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit,
     ) {
         uiScope.launch {
