@@ -24,6 +24,21 @@ interface IKmeNoteModule : IKmeNoteDownloadModule {
     )
 
     /**
+     * Getting specific note
+     *
+     * @param roomId id of a room
+     * @param noteId id of a note
+     * @param success function to handle success result. Contains [KmeGetRoomNotesResponse] object
+     * @param error function to handle error result. Contains [KmeApiException] object
+     */
+    fun getRoomNote(
+        roomId: Long,
+        noteId: Long,
+        success: (response: KmeGetRoomNotesResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
+    /**
      * Getting an url for download note as pdf file
      *
      * @param roomId id of a room

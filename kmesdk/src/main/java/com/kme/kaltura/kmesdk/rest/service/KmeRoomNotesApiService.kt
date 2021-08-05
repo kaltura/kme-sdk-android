@@ -22,6 +22,19 @@ interface KmeRoomNotesApiService {
     ): KmeGetRoomNotesResponse
 
     /**
+     * Getting specific note
+     *
+     * @param roomId id of a room
+     * @param noteId id of a note
+     * @return [KmeGetRoomNotesResponse] object in success case
+     */
+    @GET("note/getNote")
+    suspend fun getRoomNote(
+        @Query("room_id") roomId: Long,
+        @Query("note_id") noteId: Long,
+    ): KmeGetRoomNotesResponse
+
+    /**
      * Getting an url for download note as pdf file
      *
      * @param roomId id of a room
