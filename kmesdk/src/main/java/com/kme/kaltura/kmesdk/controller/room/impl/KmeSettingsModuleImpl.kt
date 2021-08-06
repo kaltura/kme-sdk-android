@@ -79,17 +79,34 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
                         message.toType()
                     ifNonNull(settingsMessage?.payload?.changedRoomSetting,
                         settingsMessage?.payload?.roomSettingValue) { key, value ->
-                        if (key == KmePermissionKey.CLASS_MODE) {
-                            roomController.roomSettings?.roomInfo?.settingsV2?.general?.classMode =
-                                value
-                            settingsChanged.value = true
+                        when (key) {
+                            KmePermissionKey.CLASS_MODE -> {
+                                roomController.roomSettings?.roomInfo?.settingsV2?.general?.classMode =
+                                    value
+                                settingsChanged.value = true
+                            }
+                            KmePermissionKey.MUTE_MODE -> {
+                                roomController.roomSettings?.roomInfo?.settingsV2?.general?.muteMode =
+                                    value
+                            }
+                            KmePermissionKey.MUTE_ALL_MICS -> {
+                                roomController.roomSettings?.roomInfo?.settingsV2?.general?.muteAllMics =
+                                    value
+                            }
+                            KmePermissionKey.MUTE_ALL_CAMS -> {
+                                roomController.roomSettings?.roomInfo?.settingsV2?.general?.muteAllCams =
+                                    value
+                            }
+                            else -> {
+                            }
                         }
+                        settingsChanged.value = true
                     }
                 }
                 KmeMessageEvent.SET_PARTICIPANT_MODERATOR -> {
                     val settingsMessage: KmeParticipantsModuleMessage<SetParticipantModerator>? =
                         message.toType()
-                    ifNonNull (settingsMessage?.payload?.targetUserId,
+                    ifNonNull(settingsMessage?.payload?.targetUserId,
                         settingsMessage?.payload?.isModerator) { userId, isModerator ->
                         handleModeratorSetting(userId, isModerator)
                     }
