@@ -22,6 +22,12 @@ enum class KmePermissionValue(value: String) {
     @SerializedName("off")
     OFF("off"),
 
+    @SerializedName("standard")
+    STANDARD("standard"),
+
+    @SerializedName("hard")
+    HARD("hard"),
+
     @SerializedName("ONLY_MODERATORS")
     ONLY_MODERATORS("ONLY_MODERATORS"),
 

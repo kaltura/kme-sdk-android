@@ -51,6 +51,24 @@ class KmeNoteModuleImpl(
     }
 
     /**
+     * Getting specific note
+     */
+    override fun getRoomNote(
+        roomId: Long,
+        noteId: Long,
+        success: (response: KmeGetRoomNoteResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit,
+    ) {
+        uiScope.launch {
+            safeApiCall(
+                { roomNotesApiService.getRoomNote(roomId, noteId) },
+                success,
+                error
+            )
+        }
+    }
+
+    /**
      * Getting an url for download note as pdf file
      */
     override fun getDownloadRoomNoteUrl(

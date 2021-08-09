@@ -62,10 +62,13 @@ data class KmeGeneral(
     var classMode: KmePermissionValue? = null,
 
     @SerializedName("mute_all_mics")
-    val muteAllMics: KmePermissionValue? = null,
+    var muteAllMics: KmePermissionValue? = null,
 
     @SerializedName("mute_all_cams")
-    val muteAllCams: KmePermissionValue? = null,
+    var muteAllCams: KmePermissionValue? = null,
+
+    @SerializedName("mute_mode")
+    var muteMode: KmePermissionValue? = null,
 
     @SerializedName("use_ice_lite")
     val useIceLite: String? = null,

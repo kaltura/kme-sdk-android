@@ -130,15 +130,23 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
      * Toggle publisher's camera
      *
      * @param isEnable flag to enable/disable camera
+     * @param silent allows to skip server message
      */
-    fun enableCamera(isEnable: Boolean)
+    fun enableCamera(
+        isEnable: Boolean,
+        silent: Boolean = false
+    )
 
     /**
      * Toggle publisher's audio
      *
      * @param isEnable flag to enable/disable audio
+     * @param silent allows to skip server message
      */
-    fun enableAudio(isEnable: Boolean)
+    fun enableAudio(
+        isEnable: Boolean,
+        silent: Boolean = false
+    )
 
     /**
      * Toggle all viewer's audio
