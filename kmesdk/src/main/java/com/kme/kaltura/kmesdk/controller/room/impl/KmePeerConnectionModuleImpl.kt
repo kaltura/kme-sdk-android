@@ -312,10 +312,15 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      * Toggle publisher's camera
      *
      */
-    override fun enableCamera(isEnable: Boolean) {
+    override fun enableCamera(
+        isEnable: Boolean,
+        silent: Boolean
+    ) {
         publisher?.let {
             if (blockMediaStateEvents) return
-            sendChangeMediaStateMessage(isEnable, KmeMediaStateType.WEBCAM)
+            if (!silent) {
+                sendChangeMediaStateMessage(isEnable, KmeMediaStateType.WEBCAM)
+            }
             it.enableCamera(isEnable)
         }
         preview?.enableCamera(isEnable)
@@ -324,9 +329,14 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     /**
      * Toggle publisher's audio
      */
-    override fun enableAudio(isEnable: Boolean) {
+    override fun enableAudio(
+        isEnable: Boolean,
+        silent: Boolean
+    ) {
         if (blockMediaStateEvents) return
-        sendChangeMediaStateMessage(isEnable, KmeMediaStateType.MIC)
+        if (!silent) {
+            sendChangeMediaStateMessage(isEnable, KmeMediaStateType.MIC)
+        }
         publisher?.enableAudio(isEnable)
     }
 
