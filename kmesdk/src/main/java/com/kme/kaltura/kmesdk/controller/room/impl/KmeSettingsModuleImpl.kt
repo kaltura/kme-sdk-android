@@ -83,7 +83,6 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
                             KmePermissionKey.CLASS_MODE -> {
                                 roomController.roomSettings?.roomInfo?.settingsV2?.general?.classMode =
                                     value
-                                settingsChanged.value = true
                             }
                             KmePermissionKey.MUTE_MODE -> {
                                 roomController.roomSettings?.roomInfo?.settingsV2?.general?.muteMode =
