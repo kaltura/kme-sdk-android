@@ -9,8 +9,8 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
 class KmeRoomNotesMessage<T : KmeRoomNotesMessage.NotesPayload> : KmeMessage<T>() {
 
     data class CreateNotePayload(
-        @SerializedName("room_id") val roomId: Long? = null,
-        @SerializedName("company_id") val companyId: Long? = null,
+        @SerializedName("room_id", alternate = ["roomId"]) val roomId: Long? = null,
+        @SerializedName("company_id", alternate = ["companyId"]) val companyId: Long? = null,
         @SerializedName("newNote") val newNoteWrapper: NewNoteWrapper? = null
     ) : NotesPayload()
 
@@ -31,7 +31,7 @@ class KmeRoomNotesMessage<T : KmeRoomNotesMessage.NotesPayload> : KmeMessage<T>(
     ) : NotesPayload()
 
     data class NoteEventData(
-        @SerializedName("noteId") val noteId: String? = null,
+        @SerializedName("noteId") val noteId: Long? = null,
         @SerializedName("noteName") val noteName: String? = null,
         @SerializedName("noteNewName") val noteNewName: String? = null,
         @SerializedName("isSubscribeToNote") val isSubscribeToNote: Boolean? = null,
