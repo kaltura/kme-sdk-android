@@ -135,8 +135,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     override fun addPublisher(
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView?,
-        micEnabled: Boolean,
-        camEnabled: Boolean,
+        micState: KmeMediaDeviceState,
+        camState: KmeMediaDeviceState,
         frontCamEnabled: Boolean,
     ) {
         checkData()
@@ -151,8 +151,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                     roomId,
                     companyId,
                     publisherId,
-                    if (micEnabled) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE,
-                    if (camEnabled) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE
+                    micState,
+                    camState
                 )
             )
 
@@ -162,7 +162,11 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 if (renderer != null) {
                     setRenderer(renderer)
                 }
-                setPreferredSettings(micEnabled, camEnabled, frontCamEnabled)
+                setPreferredSettings(
+                    micState == KmeMediaDeviceState.LIVE,
+                    camState == KmeMediaDeviceState.LIVE,
+                    frontCamEnabled
+                )
                 createPeerConnection(
                     requestedUserIdStream,
                     isPublisher = true,

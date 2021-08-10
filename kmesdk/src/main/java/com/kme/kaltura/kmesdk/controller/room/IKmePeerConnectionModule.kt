@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk.controller.room
 import android.content.Intent
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
+import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 
 /**
  * An interface for wrap actions with [IKmePeerConnection]
@@ -56,8 +57,8 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
     fun addPublisher(
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView?,
-        micEnabled: Boolean,
-        camEnabled: Boolean,
+        micState: KmeMediaDeviceState,
+        camState: KmeMediaDeviceState,
         frontCamEnabled: Boolean
     )
 
