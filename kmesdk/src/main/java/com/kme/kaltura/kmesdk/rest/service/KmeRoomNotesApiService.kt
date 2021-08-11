@@ -76,7 +76,7 @@ interface KmeRoomNotesApiService {
     @POST("note/updateNoteName")
     suspend fun renameRoomNote(
         @Field("room_id") roomId: Long,
-        @Field("note_id") noteId: String,
+        @Field("note_id") noteId: Long,
         @Field("newName") name: String
     ): KmeRoomNoteRenameResponse
 

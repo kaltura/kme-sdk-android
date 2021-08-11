@@ -83,7 +83,7 @@ interface IKmeNoteModule : IKmeNoteDownloadModule {
     fun renameRoomNote(
         roomId: Long,
         companyId: Long,
-        noteId: String,
+        noteId: Long,
         name: String,
         success: (response: KmeRoomNoteRenameResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
@@ -121,7 +121,7 @@ interface IKmeNoteModule : IKmeNoteDownloadModule {
     fun broadcastNote(
         roomId: Long,
         companyId: Long,
-        noteId: String,
+        noteId: Long,
         name: String
     )
 
@@ -136,7 +136,7 @@ interface IKmeNoteModule : IKmeNoteDownloadModule {
     fun subscribeToNoteChanges(
         roomId: Long,
         companyId: Long,
-        noteId: String,
+        noteId: Long,
         isSubscribeToNote: Boolean
     )
 
@@ -152,7 +152,7 @@ interface IKmeNoteModule : IKmeNoteDownloadModule {
     fun deleteRoomNote(
         roomId: Long,
         companyId: Long,
-        noteId: String,
+        noteId: Long,
         success: (response: KmeDeleteRoomNoteResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )
