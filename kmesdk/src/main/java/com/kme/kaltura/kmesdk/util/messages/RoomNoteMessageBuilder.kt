@@ -32,7 +32,7 @@ internal fun buildCreateRoomNoteMessage(
 internal fun buildRenameRoomNoteMessage(
     roomId: Long,
     companyId: Long,
-    noteId: String,
+    noteId: Long,
     noteNewName: String
 ): KmeRoomNotesMessage<NotePayload> {
     return KmeRoomNotesMessage<NotePayload>().apply {
@@ -51,7 +51,7 @@ internal fun buildRenameRoomNoteMessage(
 internal fun buildBroadcastRoomNoteMessage(
     roomId: Long,
     companyId: Long,
-    noteId: String,
+    noteId: Long,
     noteName: String
 ): KmeRoomNotesMessage<NotePayload> {
     return KmeRoomNotesMessage<NotePayload>().apply {
@@ -70,7 +70,7 @@ internal fun buildBroadcastRoomNoteMessage(
 internal fun buildSubscribeRoomNoteMessage(
     roomId: Long,
     companyId: Long,
-    noteId: String,
+    noteId: Long,
     isSubscribeToNote: Boolean
 ): KmeRoomNotesMessage<NotePayload> {
     return KmeRoomNotesMessage<NotePayload>().apply {
@@ -88,7 +88,7 @@ internal fun buildSubscribeRoomNoteMessage(
 internal fun buildSendNoteChangesMessage(
     roomId: Long,
     companyId: Long,
-    noteId: String,
+    noteId: Long,
     manifest: List<String>,
     editor: NoteEditor,
     deltas: NoteEditKeyValueContent
@@ -114,7 +114,7 @@ internal fun buildSendNoteChangesMessage(
 internal fun buildDeleteRoomNoteMessage(
     roomId: Long,
     companyId: Long,
-    noteId: String
+    noteId: Long
 ): KmeRoomNotesMessage<NotePayload> {
     return KmeRoomNotesMessage<NotePayload>().apply {
         constraint = listOf(KmeConstraint.INCLUDE_SELF)
