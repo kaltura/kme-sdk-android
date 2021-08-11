@@ -125,7 +125,7 @@ class KmeNoteModuleImpl(
     override fun renameRoomNote(
         roomId: Long,
         companyId: Long,
-        noteId: String,
+        noteId: Long,
         name: String,
         success: (response: KmeRoomNoteRenameResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
@@ -171,7 +171,7 @@ class KmeNoteModuleImpl(
     /**
      * Propagate note to all participants
      */
-    override fun broadcastNote(roomId: Long, companyId: Long, noteId: String, name: String) {
+    override fun broadcastNote(roomId: Long, companyId: Long, noteId: Long, name: String) {
         webSocketModule.send(buildBroadcastRoomNoteMessage(
             roomId,
             companyId,
@@ -186,7 +186,7 @@ class KmeNoteModuleImpl(
     override fun subscribeToNoteChanges(
         roomId: Long,
         companyId: Long,
-        noteId: String,
+        noteId: Long,
         isSubscribeToNote: Boolean
     ) {
         webSocketModule.send(buildSubscribeRoomNoteMessage(
@@ -226,7 +226,7 @@ class KmeNoteModuleImpl(
     override fun deleteRoomNote(
         roomId: Long,
         companyId: Long,
-        noteId: String,
+        noteId: Long,
         success: (response: KmeDeleteRoomNoteResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
