@@ -49,6 +49,15 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
     fun stopPreview()
 
     /**
+     */
+    fun startLive(
+        requestedUserIdStream: String,
+        liveState: KmeMediaDeviceState,
+        micState: KmeMediaDeviceState,
+        camState: KmeMediaDeviceState
+    )
+
+    /**
      * Creates publisher connection
      *
      * @param requestedUserIdStream id of a user (publisher)
@@ -57,6 +66,7 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
     fun addPublisher(
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView?,
+        liveState: KmeMediaDeviceState,
         micState: KmeMediaDeviceState,
         camState: KmeMediaDeviceState,
         frontCamEnabled: Boolean

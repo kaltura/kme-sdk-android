@@ -13,6 +13,7 @@ internal fun buildMediaInitMessage(
     roomId: Long,
     companyId: Long,
     userId: Long,
+    liveState: KmeMediaDeviceState,
     micState: KmeMediaDeviceState,
     webcamState: KmeMediaDeviceState
 ): KmeParticipantsModuleMessage<UserMediaStateInitPayload> {
@@ -25,7 +26,7 @@ internal fun buildMediaInitMessage(
             userId,
             roomId,
             companyId,
-            KmeMediaDeviceState.LIVE_INIT,
+            liveState,
             micState,
             webcamState
         )
