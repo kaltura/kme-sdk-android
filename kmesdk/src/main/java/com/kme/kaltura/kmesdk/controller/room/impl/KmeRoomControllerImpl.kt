@@ -9,6 +9,7 @@ import android.os.IBinder
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
+import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
@@ -22,6 +23,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.RoomStatePayload
 import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
+import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmeAppAccessValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -132,11 +134,15 @@ class KmeRoomControllerImpl(
                 { roomApiService.getWebRTCLiveServer(roomAlias) },
                 success = {
                     roomSettings = it.data
-
-                    val wssUrl = it.data?.wssUrl
-                    val token = it.data?.token
-                    if (wssUrl != null && token != null) {
-                        startService(wssUrl, companyId, roomId, isReconnect, token, listener)
+                    if (roomSettings?.roomInfo?.settingsV2?.general?.appAccess == KmeAppAccessValue.OFF) {
+                        val appAccessException = KmeApiException.AppAccessException()
+                        listener.onFailure(Throwable(appAccessException))
+                    } else {
+                        val wssUrl = it.data?.wssUrl
+                        val token = it.data?.token
+                        if (wssUrl != null && token != null) {
+                            startService(wssUrl, companyId, roomId, isReconnect, token, listener)
+                        }
                     }
                 },
                 error = {

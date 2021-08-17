@@ -53,4 +53,8 @@ sealed class KmeApiException(
         cause: Throwable? = null,
     ) : KmeApiException(message, 0, cause)
 
+    class AppAccessException(
+        message: String? = null,
+        cause: Throwable? = null,
+    ) : KmeApiException(message, 0, cause)
 }
