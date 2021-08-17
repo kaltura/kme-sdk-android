@@ -129,12 +129,31 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         preview = null
     }
 
+    override fun startLive(
+        requestedUserIdStream: String,
+        liveState: KmeMediaDeviceState,
+        micState: KmeMediaDeviceState,
+        camState: KmeMediaDeviceState,
+    ) {
+        webSocketModule.send(
+            buildMediaInitMessage(
+                roomId,
+                companyId,
+                publisherId,
+                liveState,
+                micState,
+                camState
+            )
+        )
+    }
+
     /**
      * Creates publisher connection
      */
     override fun addPublisher(
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView?,
+        liveState: KmeMediaDeviceState,
         micState: KmeMediaDeviceState,
         camState: KmeMediaDeviceState,
         frontCamEnabled: Boolean,
@@ -151,6 +170,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                     roomId,
                     companyId,
                     publisherId,
+                    liveState,
                     micState,
                     camState
                 )
