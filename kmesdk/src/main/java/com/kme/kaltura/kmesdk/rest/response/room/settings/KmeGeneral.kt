@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.rest.response.room.settings
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmeAppAccessValue
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 import kotlinx.android.parcel.Parcelize
 
@@ -122,5 +123,9 @@ data class KmeGeneral(
     val enableMobileVideo: String? = null,
 
     @SerializedName("user_timeout")
-    val userTimeout: String? = null
+    val userTimeout: String? = null,
+
+    @SerializedName("m_app")
+    val appAccess: KmeAppAccessValue? = null
+
 ) : Parcelable
