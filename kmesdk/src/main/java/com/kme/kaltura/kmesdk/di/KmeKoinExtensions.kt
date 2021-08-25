@@ -14,6 +14,9 @@ object KmeKoinContext {
     private lateinit var context: Context
 
     internal val sdkKoin: Koin by lazy {
+        if (!::context.isInitialized) {
+            throw IllegalStateException("SDK is not initialized. Try to use KME.init() first.")
+        }
         koinApplication {
             androidContext(context)
             modules(restModule)

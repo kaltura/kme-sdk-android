@@ -30,9 +30,6 @@ class KME : KmeKoinComponent {
     private val prefs: IKmePreferences by inject()
     private val metadataController: IKmeMetadataController by inject()
 
-    var isSDKInitialized = false
-        private set
-
     companion object {
         private lateinit var instance: KME
 
@@ -47,26 +44,25 @@ class KME : KmeKoinComponent {
             }
             return instance
         }
+
+        fun init(context: Context) {
+            KmeKoinContext.init(context)
+        }
     }
+
 
     /**
      * Initialization function. Initializes all needed controllers and modules.
      * In the same place - fetching metadata from the server to use it in future REST API calls.
      *
-     * @param context application context
      * @param success function to handle success initialization event
      * @param error function to handle error initialization event
      */
-    fun initSDK(
-        context: Context,
+    fun startSDK(
         success: () -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
-        KmeKoinContext.init(context)
-
         metadataController.fetchMetadata(success = {
-            isSDKInitialized = true
-
             if (roomController.isConnected()) {
                 roomController.disconnect()
             }
@@ -81,21 +77,15 @@ class KME : KmeKoinComponent {
     /**
      * Initialization function. Reload metadata from the server to use it in future REST API calls.
      *
-     * @throws IllegalStateException if it is called before [initSDK]
+     * @throws IllegalStateException if it is called before [startSDK]
      * @param success function to handle success initialization event
      * @param error function to handle error initialization event
      */
-    fun reloadSDK(
+    fun restartSDK(
         success: () -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
-        if (!isSDKInitialized) {
-            throw IllegalStateException("SDK is not initialized. Try to use initSDK() first.")
-        }
-        isSDKInitialized = false
         metadataController.fetchMetadata(success = {
-            isSDKInitialized = true
-
             if (roomController.isConnected()) {
                 roomController.disconnect()
             }
