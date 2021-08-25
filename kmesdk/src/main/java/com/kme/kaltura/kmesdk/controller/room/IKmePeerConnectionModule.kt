@@ -40,6 +40,8 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
 
     /**
      * Creates a video preview
+     *
+     * @param previewRenderer view for video rendering
      */
     fun startPreview(previewRenderer: KmeSurfaceRendererView)
 
@@ -49,6 +51,12 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
     fun stopPreview()
 
     /**
+     * Join the room without publishing
+     *
+     * @param requestedUserIdStream id of a user (publisher)
+     * @param liveState default live state
+     * @param micState default mic state
+     * @param camState default cam state
      */
     fun startLive(
         requestedUserIdStream: String,
@@ -62,6 +70,10 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
      *
      * @param requestedUserIdStream id of a user (publisher)
      * @param renderer view for video rendering
+     * @param liveState default live state
+     * @param micState default mic state
+     * @param camState default cam state
+     * @param frontCamEnabled flag for usage front camera
      */
     fun addPublisher(
         requestedUserIdStream: String,
@@ -92,11 +104,16 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
 
     /**
      * Add renderer for publisher connection
+     *
+     * @param renderer view for video rendering
      */
     fun addPublisherRenderer(renderer: KmeSurfaceRendererView)
 
     /**
      * Add renderer for viewer connection
+     *
+     * @param requestedUserIdStream id of a user (stream)
+     * @param renderer view for video rendering
      */
     fun addViewerRenderer(
         requestedUserIdStream: String,
@@ -105,11 +122,16 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
 
     /**
      * Remove renderer for publisher connection
+     *
+     * @param renderer view for video rendering
      */
     fun removePublisherRenderer(renderer: KmeSurfaceRendererView)
 
     /**
      * Remove renderer for viewer connection
+     *
+     * @param requestedUserIdStream id of a user (stream)
+     * @param renderer view for video rendering
      */
     fun removeViewerRenderer(
         requestedUserIdStream: String,
