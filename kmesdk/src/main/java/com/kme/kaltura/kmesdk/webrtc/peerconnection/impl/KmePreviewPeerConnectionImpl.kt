@@ -7,6 +7,7 @@ import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import org.webrtc.CameraVideoCapturer
 import org.webrtc.PeerConnection
+import org.webrtc.RendererCommon
 import org.webrtc.VideoCapturer
 
 /**
@@ -27,7 +28,6 @@ class KmePreviewPeerConnectionImpl(
         rendererView: KmeSurfaceRendererView
     ) {
         this.videoCapturer = videoCapturer
-        this.rendererView = rendererView
 
         peerConnection =
             factory?.createPeerConnection(PeerConnection.RTCConfiguration(listOf()), pcObserver)
@@ -35,6 +35,31 @@ class KmePreviewPeerConnectionImpl(
             videoCapturer?.let {
                 peerConnection.addTrack(createLocalVideoTrack(videoCapturer), videoStreamId)
             }
+        }
+
+        setRenderer(rendererView)
+    }
+
+    override fun setRenderer(rendererView: KmeSurfaceRendererView) {
+        removeRenderer()
+
+        with(rendererView) {
+            if (isInitialized) return
+
+            init(getRenderContext(), null)
+            setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+            setEnableHardwareScaler(true)
+            setMirror(true)
+        }
+
+        this.rendererView = rendererView
+        localVideoTrack?.addSink(rendererView)
+    }
+
+    override fun removeRenderer() {
+        this.rendererView?.let {
+            localVideoTrack?.removeSink(it)
+            it.release()
         }
     }
 
@@ -50,7 +75,8 @@ class KmePreviewPeerConnectionImpl(
      * Switch between existing cameras
      */
     @RequiresPermission(Manifest.permission.CAMERA)
-    override fun switchCamera() {
+    override fun switchCamera(frontCamera: Boolean) {
+        rendererView?.setMirror(frontCamera)
         videoCapturer?.let {
             if (it is CameraVideoCapturer) {
                 it.switchCamera(null)

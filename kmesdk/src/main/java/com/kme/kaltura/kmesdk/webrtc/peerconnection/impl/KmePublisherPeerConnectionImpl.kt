@@ -7,10 +7,7 @@ import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
 import com.kme.kaltura.kmesdk.webrtc.stats.KmeSoundAmplitudeListener
 import com.kme.kaltura.kmesdk.webrtc.stats.KmeSoundAmplitudeMeter
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
-import org.webrtc.CameraVideoCapturer
-import org.webrtc.DataChannel
-import org.webrtc.PeerConnection
-import org.webrtc.VideoCapturer
+import org.webrtc.*
 import java.nio.ByteBuffer
 
 /**
@@ -35,13 +32,11 @@ class KmePublisherPeerConnectionImpl(
     }
 
     override fun createPeerConnection(
-        rendererView: KmeSurfaceRendererView?,
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
         iceServers: MutableList<PeerConnection.IceServer>
     ) {
         super.createPeerConnection(
-            rendererView,
             videoCapturer,
             useDataChannel,
             iceServers
@@ -66,12 +61,27 @@ class KmePublisherPeerConnectionImpl(
         events?.onPeerConnectionCreated()
     }
 
-    override fun addRenderer(rendererView: KmeSurfaceRendererView) {
+    override fun setRenderer(rendererView: KmeSurfaceRendererView) {
+        removeRenderer()
+
+        with(rendererView) {
+            if (isInitialized) return
+
+            init(getRenderContext(), null)
+            setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+            setEnableHardwareScaler(true)
+            setMirror(true)
+        }
+
+        this.rendererView = rendererView
         localVideoTrack?.addSink(rendererView)
     }
 
-    override fun removeRenderer(rendererView: KmeSurfaceRendererView) {
-        localVideoTrack?.removeSink(rendererView)
+    override fun removeRenderer() {
+        this.rendererView?.let {
+            localVideoTrack?.removeSink(it)
+            it.release()
+        }
     }
 
     /**
@@ -128,7 +138,8 @@ class KmePublisherPeerConnectionImpl(
      * Switch between existing cameras
      */
     @RequiresPermission(Manifest.permission.CAMERA)
-    override fun switchCamera() {
+    override fun switchCamera(frontCamera: Boolean) {
+        rendererView?.setMirror(frontCamera)
         videoCapturer?.let {
             if (it is CameraVideoCapturer) {
                 it.switchCamera(null)

@@ -10,7 +10,6 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeSettingsModule
 import com.kme.kaltura.kmesdk.databinding.FragmentDesktopShareContentBinding
 import com.kme.kaltura.kmesdk.gone
 import com.kme.kaltura.kmesdk.setVisibility
-import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.visible
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import org.koin.android.ext.android.inject
@@ -38,9 +37,9 @@ internal class KmeDesktopShareFragment : KmeContentView() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (savedInstanceState == null) {
+//        if (savedInstanceState == null) {
             setupViewModel()
-        }
+//        }
         setupAdminControls()
     }
 
@@ -79,15 +78,15 @@ internal class KmeDesktopShareFragment : KmeContentView() {
             desktopShareHDQualityObserver
         )
 
-        val isActive = viewModel.isDesktopShareActiveLiveData.value?.first ?: false
-        val isYour = viewModel.isDesktopShareActiveLiveData.value?.second ?: false
-        if (isActive) {
-            if (isYour) {
-                viewModel.changeScreenShareRenderer(binding.desktopShareRenderer)
-            } else {
-                viewModel.changeViewerRenderer(binding.desktopShareRenderer)
-            }
-        }
+//        val isActive = viewModel.isDesktopShareActiveLiveData.value?.first ?: false
+//        val isYour = viewModel.isDesktopShareActiveLiveData.value?.second ?: false
+//        if (isActive) {
+//            if (isYour) {
+//                viewModel.changeScreenShareRenderer(binding.desktopShareRenderer)
+//            } else {
+//                viewModel.changeViewerRenderer(binding.desktopShareRenderer)
+//            }
+//        }
 
         settingsModule.moderatorStateLiveData.observe(
             viewLifecycleOwner,
@@ -149,11 +148,9 @@ internal class KmeDesktopShareFragment : KmeContentView() {
         closeView.gone()
     }
 
-    private val desktopShareAvailableObserver = Observer<ConsumableValue<Boolean>> {
-        it.consume {
-            binding.desktopShareRenderer.visible()
-            viewModel.startView(binding.desktopShareRenderer)
-        }
+    private val desktopShareAvailableObserver = Observer<Boolean> {
+        binding.desktopShareRenderer.visible()
+        viewModel.startView(binding.desktopShareRenderer)
     }
 
     private val desktopShareHDQualityObserver = Observer<Boolean> { isHD ->
@@ -183,7 +180,6 @@ internal class KmeDesktopShareFragment : KmeContentView() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.clearRenderer(binding.desktopShareRenderer)
         _binding = null
     }
 

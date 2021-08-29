@@ -150,9 +150,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     /**
      * Creates publisher connection
      */
-    override fun addPublisher(
+    override fun addPublisherConnection(
         requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView?,
         liveState: KmeMediaDeviceState,
         micState: KmeMediaDeviceState,
         camState: KmeMediaDeviceState,
@@ -161,9 +160,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         checkData()
 
         publisher?.let {
-            if (renderer != null) {
-                addPublisherRenderer(renderer)
-            }
+
         } ?: run {
             webSocketModule.send(
                 buildMediaInitMessage(
@@ -179,9 +176,6 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
             publisher = get()
             publisher?.apply {
                 setTurnServer(turnUrl, turnUser, turnCred)
-                if (renderer != null) {
-                    setRenderer(renderer)
-                }
                 setPreferredSettings(
                     micState == KmeMediaDeviceState.LIVE,
                     camState == KmeMediaDeviceState.LIVE,
@@ -200,16 +194,11 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     /**
      * Creates a viewer connection
      */
-    override fun addViewer(
-        requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView?,
-    ) {
+    override fun addViewerConnection(requestedUserIdStream: String) {
         checkData()
 
         viewers[requestedUserIdStream]?.let {
-            if (renderer != null) {
-                it.addRenderer(renderer)
-            }
+
         } ?: run {
             webSocketModule.send(
                 buildStartViewingMessage(
@@ -223,9 +212,6 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
             val viewer: IKmePeerConnection by inject()
             viewer.apply {
                 setTurnServer(turnUrl, turnUser, turnCred)
-                if (renderer != null) {
-                    setRenderer(renderer)
-                }
                 createPeerConnection(
                     requestedUserIdStream,
                     isPublisher = false,
@@ -237,36 +223,31 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         }
     }
 
+    override fun setPublisherRenderer(renderer: KmeSurfaceRendererView) {
+        publisher?.setRenderer(renderer)
+    }
+
+    override fun setViewerRenderer(
+        requestedUserIdStream: String,
+        renderer: KmeSurfaceRendererView,
+    ) {
+        viewers[requestedUserIdStream]?.setRenderer(renderer)
+    }
+
+    override fun removePublisherRenderer() {
+        checkData()
+        publisher?.removeRenderer()
+    }
+
+    override fun removeViewerRenderer(requestedUserIdStream: String) {
+        checkData()
+        viewers[requestedUserIdStream]?.removeRenderer()
+    }
+
     /**
      * Getting publishing state
      */
     override fun isPublishing() = publisher != null
-
-    override fun addPublisherRenderer(renderer: KmeSurfaceRendererView) {
-        checkData()
-        publisher?.addRenderer(renderer)
-    }
-
-    override fun addViewerRenderer(
-        requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView,
-    ) {
-        checkData()
-        viewers[requestedUserIdStream]?.addRenderer(renderer)
-    }
-
-    override fun removePublisherRenderer(renderer: KmeSurfaceRendererView) {
-        checkData()
-        publisher?.removeRenderer(renderer)
-    }
-
-    override fun removeViewerRenderer(
-        requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView,
-    ) {
-        checkData()
-        viewers[requestedUserIdStream]?.removeRenderer(renderer)
-    }
 
     /**
      * Asking for screen permission from MediaProjectionManager
@@ -541,6 +522,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 )
             }
             else -> {
+                listener.onViewerReady(requestedUserIdStream)
+
                 msg = buildAnswerFromViewerMessage(
                     roomId,
                     companyId,
@@ -589,8 +572,6 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 )
             }
             else -> {
-                listener.onViewerReady(requestedUserIdStream)
-
                 msg = buildGatheringViewDoneMessage(
                     roomId,
                     companyId,

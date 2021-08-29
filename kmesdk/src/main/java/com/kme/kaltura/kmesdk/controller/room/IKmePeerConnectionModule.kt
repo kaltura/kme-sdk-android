@@ -69,15 +69,13 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
      * Creates publisher connection
      *
      * @param requestedUserIdStream id of a user (publisher)
-     * @param renderer view for video rendering
      * @param liveState default live state
      * @param micState default mic state
      * @param camState default cam state
      * @param frontCamEnabled flag for usage front camera
      */
-    fun addPublisher(
+    fun addPublisherConnection(
         requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView?,
         liveState: KmeMediaDeviceState,
         micState: KmeMediaDeviceState,
         camState: KmeMediaDeviceState,
@@ -88,12 +86,8 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
      * Creates a viewer connection
      *
      * @param requestedUserIdStream id of a user (stream)
-     * @param renderer view for video rendering
      */
-    fun addViewer(
-        requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView?
-    )
+    fun addViewerConnection(requestedUserIdStream: String)
 
     /**
      * Getting publishing state
@@ -107,7 +101,7 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
      *
      * @param renderer view for video rendering
      */
-    fun addPublisherRenderer(renderer: KmeSurfaceRendererView)
+    fun setPublisherRenderer(renderer: KmeSurfaceRendererView)
 
     /**
      * Add renderer for viewer connection
@@ -115,27 +109,23 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
      * @param requestedUserIdStream id of a user (stream)
      * @param renderer view for video rendering
      */
-    fun addViewerRenderer(
+    fun setViewerRenderer(
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView
     )
 
     /**
      * Remove renderer for publisher connection
-     *
-     * @param renderer view for video rendering
      */
-    fun removePublisherRenderer(renderer: KmeSurfaceRendererView)
+    fun removePublisherRenderer()
 
     /**
      * Remove renderer for viewer connection
      *
      * @param requestedUserIdStream id of a user (stream)
-     * @param renderer view for video rendering
      */
     fun removeViewerRenderer(
-        requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView
+        requestedUserIdStream: String
     )
 
     /**

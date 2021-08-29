@@ -113,12 +113,10 @@ open class KmeBasePeerConnectionImpl(
      * Creates peer connection
      */
     override fun createPeerConnection(
-        rendererView: KmeSurfaceRendererView?,
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
         iceServers: MutableList<IceServer>
     ) {
-        this.rendererView = rendererView
         this.videoCapturer = videoCapturer
         this.useDataChannel = useDataChannel
         this.iceServers = iceServers
@@ -135,11 +133,11 @@ open class KmeBasePeerConnectionImpl(
         }
     }
 
-    override fun addRenderer(rendererView: KmeSurfaceRendererView) {
+    override fun setRenderer(rendererView: KmeSurfaceRendererView) {
         throw Exception("Wrong state.")
     }
 
-    override fun removeRenderer(rendererView: KmeSurfaceRendererView) {
+    override fun removeRenderer() {
         throw Exception("Wrong state.")
     }
 
@@ -339,7 +337,7 @@ open class KmeBasePeerConnectionImpl(
      * Switch between existing cameras
      */
     @RequiresPermission(Manifest.permission.CAMERA)
-    override fun switchCamera() {
+    override fun switchCamera(frontCamera: Boolean) {
         throw Exception("Wrong state.")
     }
 
@@ -369,6 +367,11 @@ open class KmeBasePeerConnectionImpl(
         volumeDataChannel?.close()
         volumeDataChannel?.dispose()
         volumeDataChannel = null
+
+        remoteVideoTrack?.removeSink(rendererView)
+        localVideoTrack?.removeSink(rendererView)
+        rendererView?.release()
+        rendererView = null
 
         localAudioSource?.dispose()
         localAudioSource = null

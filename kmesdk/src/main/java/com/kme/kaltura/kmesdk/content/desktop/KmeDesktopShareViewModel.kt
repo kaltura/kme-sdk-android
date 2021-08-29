@@ -7,7 +7,8 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.toType
-import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
+import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
+import com.kme.kaltura.kmesdk.util.livedata.toSingleEvent
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -29,8 +30,8 @@ internal class KmeDesktopShareViewModel(
     private val isDesktopShareActive = MutableLiveData<Pair<Boolean, Boolean>>()
     val isDesktopShareActiveLiveData get() = isDesktopShareActive as LiveData<Pair<Boolean, Boolean>>
 
-    private val isDesktopShareAvailable = MutableLiveData<ConsumableValue<Boolean>>()
-    val isDesktopShareAvailableLiveData get() = isDesktopShareAvailable as LiveData<ConsumableValue<Boolean>>
+    private val isDesktopShareAvailable = LiveEvent<Boolean>()
+    val isDesktopShareAvailableLiveData get() = isDesktopShareAvailable.toSingleEvent()
 
     private val desktopShareHDQuality = MutableLiveData<Boolean>()
     val desktopShareHDQualityLiveData get() = desktopShareHDQuality as LiveData<Boolean>
@@ -114,20 +115,21 @@ internal class KmeDesktopShareViewModel(
             return
         }
         this.requestedUserIdStream = requestedUserIdStream
-        isDesktopShareAvailable.value = ConsumableValue(true)
+        roomController.peerConnectionModule.addViewerConnection(requestedUserIdStream)
+        isDesktopShareAvailable.value = true
     }
 
     fun startView(renderer: KmeSurfaceRendererView) {
         requestedUserIdStream?.let {
-            roomController.peerConnectionModule.addViewer(it, renderer)
+            roomController.peerConnectionModule.setViewerRenderer(it, renderer)
         }
     }
 
-    fun changeViewerRenderer(renderer: KmeSurfaceRendererView) {
-        requestedUserIdStream?.let {
-            roomController.peerConnectionModule.addViewerRenderer(it, renderer)
-        }
-    }
+//    fun changeViewerRenderer(renderer: KmeSurfaceRendererView) {
+//        requestedUserIdStream?.let {
+//            roomController.peerConnectionModule.setViewerRenderer(it, renderer)
+//        }
+//    }
 
     fun stopView() {
         requestedUserIdStream?.let {
@@ -144,17 +146,9 @@ internal class KmeDesktopShareViewModel(
         roomController.peerConnectionModule.askForScreenSharePermission()
     }
 
-    fun changeScreenShareRenderer(renderer: KmeSurfaceRendererView) {
-        roomController.peerConnectionModule.addPublisherRenderer(renderer)
-    }
-
-    fun clearRenderer(renderer: KmeSurfaceRendererView) {
-        requestedUserIdStream?.let {
-            roomController.peerConnectionModule.removeViewerRenderer(it, renderer)
-        } ?: run {
-            roomController.peerConnectionModule.removePublisherRenderer(renderer)
-        }
-    }
+//    fun changeScreenShareRenderer(renderer: KmeSurfaceRendererView) {
+//        roomController.peerConnectionModule.setPublisherRenderer(renderer)
+//    }
 
     fun stopScreenShare() {
         roomController.peerConnectionModule.stopScreenShare()

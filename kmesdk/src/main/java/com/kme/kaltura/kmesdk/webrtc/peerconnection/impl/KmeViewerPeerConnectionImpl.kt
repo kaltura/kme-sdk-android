@@ -5,6 +5,7 @@ import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import org.webrtc.DataChannel
 import org.webrtc.PeerConnection
+import org.webrtc.RendererCommon
 import org.webrtc.VideoCapturer
 
 /**
@@ -12,7 +13,7 @@ import org.webrtc.VideoCapturer
  */
 class KmeViewerPeerConnectionImpl(
     context: Context,
-    events: IKmePeerConnectionEvents
+    events: IKmePeerConnectionEvents,
 ) : KmeBasePeerConnectionImpl(context, events) {
 
     init {
@@ -21,13 +22,11 @@ class KmeViewerPeerConnectionImpl(
     }
 
     override fun createPeerConnection(
-        rendererView: KmeSurfaceRendererView?,
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
-        iceServers: MutableList<PeerConnection.IceServer>
+        iceServers: MutableList<PeerConnection.IceServer>,
     ) {
         super.createPeerConnection(
-            rendererView,
             videoCapturer,
             useDataChannel,
             iceServers
@@ -45,12 +44,27 @@ class KmeViewerPeerConnectionImpl(
         events?.onPeerConnectionCreated()
     }
 
-    override fun addRenderer(rendererView: KmeSurfaceRendererView) {
+    override fun setRenderer(rendererView: KmeSurfaceRendererView) {
+        removeRenderer()
+
+        with(rendererView) {
+            if (isInitialized) return
+
+            init(getRenderContext(), null)
+            setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+            setEnableHardwareScaler(true)
+            setMirror(false)
+        }
+
+        this.rendererView = rendererView
         remoteVideoTrack?.addSink(rendererView)
     }
 
-    override fun removeRenderer(rendererView: KmeSurfaceRendererView) {
-        remoteVideoTrack?.removeSink(rendererView)
+    override fun removeRenderer() {
+        this.rendererView?.let {
+            remoteVideoTrack?.removeSink(it)
+            it.release()
+        }
     }
 
     override fun setAudioEnabled(enable: Boolean) {
