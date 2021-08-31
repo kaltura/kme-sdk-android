@@ -44,12 +44,12 @@ class KmePreviewPeerConnectionImpl(
         removeRenderer()
 
         with(rendererView) {
-            if (isInitialized) return
-
-            init(getRenderContext(), null)
-            setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-            setEnableHardwareScaler(true)
-            setMirror(true)
+            if (!isInitialized) {
+                init(getRenderContext(), null)
+                setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+                setEnableHardwareScaler(true)
+                setMirror(true)
+            }
         }
 
         this.rendererView = rendererView
@@ -60,6 +60,7 @@ class KmePreviewPeerConnectionImpl(
         this.rendererView?.let {
             localVideoTrack?.removeSink(it)
             it.release()
+            this.rendererView = null
         }
     }
 

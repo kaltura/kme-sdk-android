@@ -150,6 +150,13 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
     fun stopScreenShare()
 
     /**
+     * Add renderer for screen sharer connection
+     *
+     * @param renderer view for video rendering
+     */
+    fun setScreenShareRenderer(renderer: KmeSurfaceRendererView)
+
+    /**
      * Toggle publisher's camera
      *
      * @param isEnable flag to enable/disable camera

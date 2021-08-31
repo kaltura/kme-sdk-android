@@ -12,7 +12,6 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
 import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.toType
-import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
@@ -56,15 +55,6 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
      */
     override fun unsubscribe() {
         roomController.removeListener(activeContentHandler)
-    }
-
-    /**
-     * Asking content view for screen share renderer. Fired once KmeSDK needs view to render own screen
-     */
-    override fun askForScreenShareRenderer(callback: (view: KmeSurfaceRendererView) -> Unit) {
-        if (contentView is KmeDesktopShareFragment) {
-            (contentView as KmeDesktopShareFragment).onGetRenderer(callback)
-        }
     }
 
     /**

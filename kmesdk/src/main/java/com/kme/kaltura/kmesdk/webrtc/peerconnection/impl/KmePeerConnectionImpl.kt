@@ -107,14 +107,6 @@ internal class KmePeerConnectionImpl(
             this.isPublisher = true
             peerConnection = KmePublisherPeerConnectionImpl(context, this)
 
-//            rendererView?.let {
-//                it.visibility = View.INVISIBLE
-//                it.init(peerConnection?.getRenderContext(), null)
-//                it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-//                it.setEnableHardwareScaler(true)
-//                it.setMirror(preferredFrontCamera)
-//            }
-
             if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.CAMERA
@@ -126,13 +118,6 @@ internal class KmePeerConnectionImpl(
             peerConnection?.setPreferredSettings(preferredMicEnabled, preferredCamEnabled)
         } else {
             peerConnection = KmeViewerPeerConnectionImpl(context, this)
-
-//            rendererView?.let {
-//                it.init(peerConnection?.getRenderContext(), null)
-//                it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-//                it.setEnableHardwareScaler(true)
-//                it.setMirror(false)
-//            }
         }
 
         peerConnection?.createPeerConnection(
@@ -151,15 +136,6 @@ internal class KmePeerConnectionImpl(
         this.listener = listener
 
         peerConnection = KmeScreenSharePeerConnectionImpl(context, this)
-
-//        rendererView?.let {
-//            rendererView = it
-//            it.visibility = View.INVISIBLE
-//            it.init(peerConnection?.getRenderContext(), null)
-//            it.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-//            it.setEnableHardwareScaler(true)
-//        }
-
         peerConnection?.createPeerConnection(
             createScreenCapturer(screenCaptureIntent),
             false,
@@ -244,9 +220,6 @@ internal class KmePeerConnectionImpl(
      * Callback fired once peerConnection instance created
      */
     override fun onPeerConnectionCreated() {
-        if (isPublisher) {
-//            rendererView?.visibility = View.VISIBLE
-        }
         listener?.onPeerConnectionCreated(requestedUserIdStream)
     }
 

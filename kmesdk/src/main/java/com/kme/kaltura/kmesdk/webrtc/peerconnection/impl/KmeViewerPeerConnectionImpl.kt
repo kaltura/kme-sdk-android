@@ -48,12 +48,12 @@ class KmeViewerPeerConnectionImpl(
         removeRenderer()
 
         with(rendererView) {
-            if (isInitialized) return
-
-            init(getRenderContext(), null)
-            setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-            setEnableHardwareScaler(true)
-            setMirror(false)
+            if (!isInitialized) {
+                init(getRenderContext(), null)
+                setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+                setEnableHardwareScaler(true)
+                setMirror(false)
+            }
         }
 
         this.rendererView = rendererView
@@ -64,6 +64,7 @@ class KmeViewerPeerConnectionImpl(
         this.rendererView?.let {
             remoteVideoTrack?.removeSink(it)
             it.release()
+            this.rendererView = null
         }
     }
 

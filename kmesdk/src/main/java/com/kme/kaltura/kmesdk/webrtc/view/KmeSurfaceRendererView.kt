@@ -24,4 +24,9 @@ class KmeSurfaceRendererView(context: Context?, attrs: AttributeSet?) :
         }
     }
 
+    override fun release() {
+        super.release()
+        isInitialized = false
+    }
+
 }

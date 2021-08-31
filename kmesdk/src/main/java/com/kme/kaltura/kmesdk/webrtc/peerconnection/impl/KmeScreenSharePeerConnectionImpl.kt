@@ -2,7 +2,9 @@ package com.kme.kaltura.kmesdk.webrtc.peerconnection.impl
 
 import android.content.Context
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionEvents
+import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import org.webrtc.PeerConnection
+import org.webrtc.RendererCommon
 import org.webrtc.VideoCapturer
 
 /**
@@ -37,6 +39,29 @@ class KmeScreenSharePeerConnectionImpl(
         }
 
         events?.onPeerConnectionCreated()
+    }
+
+    override fun setRenderer(rendererView: KmeSurfaceRendererView) {
+        removeRenderer()
+
+        with(rendererView) {
+            if (!isInitialized) {
+                init(getRenderContext(), null)
+                setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+                setEnableHardwareScaler(true)
+            }
+        }
+
+        this.rendererView = rendererView
+        localVideoTrack?.addSink(rendererView)
+    }
+
+    override fun removeRenderer() {
+        this.rendererView?.let {
+            localVideoTrack?.removeSink(it)
+            it.release()
+            this.rendererView = null
+        }
     }
 
 }

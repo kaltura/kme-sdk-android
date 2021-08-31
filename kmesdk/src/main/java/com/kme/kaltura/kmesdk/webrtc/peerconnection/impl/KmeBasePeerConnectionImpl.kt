@@ -368,10 +368,7 @@ open class KmeBasePeerConnectionImpl(
         volumeDataChannel?.dispose()
         volumeDataChannel = null
 
-        remoteVideoTrack?.removeSink(rendererView)
-        localVideoTrack?.removeSink(rendererView)
-        rendererView?.release()
-        rendererView = null
+        removeRenderer()
 
         localAudioSource?.dispose()
         localAudioSource = null

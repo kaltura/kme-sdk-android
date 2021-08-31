@@ -159,35 +159,33 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     ) {
         checkData()
 
-        publisher?.let {
+        publisher?.let { return }
 
-        } ?: run {
-            webSocketModule.send(
-                buildMediaInitMessage(
-                    roomId,
-                    companyId,
-                    publisherId,
-                    liveState,
-                    micState,
-                    camState
-                )
+        webSocketModule.send(
+            buildMediaInitMessage(
+                roomId,
+                companyId,
+                publisherId,
+                liveState,
+                micState,
+                camState
             )
+        )
 
-            publisher = get()
-            publisher?.apply {
-                setTurnServer(turnUrl, turnUser, turnCred)
-                setPreferredSettings(
-                    micState == KmeMediaDeviceState.LIVE,
-                    camState == KmeMediaDeviceState.LIVE,
-                    frontCamEnabled
-                )
-                createPeerConnection(
-                    requestedUserIdStream,
-                    isPublisher = true,
-                    !useWsEvents,
-                    this@KmePeerConnectionModuleImpl
-                )
-            }
+        publisher = get()
+        publisher?.apply {
+            setTurnServer(turnUrl, turnUser, turnCred)
+            setPreferredSettings(
+                micState == KmeMediaDeviceState.LIVE,
+                camState == KmeMediaDeviceState.LIVE,
+                frontCamEnabled
+            )
+            createPeerConnection(
+                requestedUserIdStream,
+                isPublisher = true,
+                !useWsEvents,
+                this@KmePeerConnectionModuleImpl
+            )
         }
     }
 
@@ -197,30 +195,28 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     override fun addViewerConnection(requestedUserIdStream: String) {
         checkData()
 
-        viewers[requestedUserIdStream]?.let {
+        viewers[requestedUserIdStream]?.let { return }
 
-        } ?: run {
-            webSocketModule.send(
-                buildStartViewingMessage(
-                    roomId,
-                    companyId,
-                    publisherId,
-                    requestedUserIdStream
-                )
+        webSocketModule.send(
+            buildStartViewingMessage(
+                roomId,
+                companyId,
+                publisherId,
+                requestedUserIdStream
             )
+        )
 
-            val viewer: IKmePeerConnection by inject()
-            viewer.apply {
-                setTurnServer(turnUrl, turnUser, turnCred)
-                createPeerConnection(
-                    requestedUserIdStream,
-                    isPublisher = false,
-                    !useWsEvents,
-                    this@KmePeerConnectionModuleImpl
-                )
-            }
-            viewers[requestedUserIdStream] = viewer
+        val viewer: IKmePeerConnection by inject()
+        viewer.apply {
+            setTurnServer(turnUrl, turnUser, turnCred)
+            createPeerConnection(
+                requestedUserIdStream,
+                isPublisher = false,
+                !useWsEvents,
+                this@KmePeerConnectionModuleImpl
+            )
         }
+        viewers[requestedUserIdStream] = viewer
     }
 
     override fun setPublisherRenderer(renderer: KmeSurfaceRendererView) {
@@ -266,9 +262,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         val approved = resultCode == Activity.RESULT_OK
         contentModule.onScreenSharePermission(approved)
 
-        if (!approved) {
-            return
-        }
+        if (!approved) { return }
 
         screenSharer?.let { return }
 
@@ -281,16 +275,13 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
             )
         )
 
-        contentModule.askForScreenShareRenderer {
-            screenSharer = get()
-            screenSharer?.setTurnServer(turnUrl, turnUser, turnCred)
-            screenSharer?.setRenderer(it)
-            screenSharer?.startScreenShare(
-                "${publisherId}_desk",
-                screenCaptureIntent,
-                this
-            )
-        }
+        screenSharer = get()
+        screenSharer?.setTurnServer(turnUrl, turnUser, turnCred)
+        screenSharer?.startScreenShare(
+            "${publisherId}_desk",
+            screenCaptureIntent,
+            this
+        )
     }
 
     /**
@@ -310,6 +301,13 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
             it.disconnectPeerConnection()
             screenSharer = null
+        }
+    }
+
+    override fun setScreenShareRenderer(renderer: KmeSurfaceRendererView) {
+        checkData()
+        screenSharer?.let {
+            it.setRenderer(renderer)
         }
     }
 
