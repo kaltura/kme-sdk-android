@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.toType
+import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
+import com.kme.kaltura.kmesdk.util.livedata.toSingleEvent
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
@@ -14,17 +16,14 @@ class KmeDefaultPollEventHandler(
     private val roomController: IKmeRoomController
 ) {
 
-    private val pollStarted = MutableLiveData<QuickPollStartedPayload>()
-    val pollStartedLiveData
-        get() = pollStarted as LiveData<QuickPollStartedPayload>
+    private val pollStarted = LiveEvent<QuickPollStartedPayload>()
+    val pollStartedLiveData get() = pollStarted.toSingleEvent()
 
-    private val pollEnded = MutableLiveData<QuickPollEndedPayload>()
-    val pollEndedLiveData
-        get() = pollEnded as LiveData<QuickPollEndedPayload>
+    private val pollEnded = LiveEvent<QuickPollEndedPayload>()
+    val pollEndedLiveData get() = pollEnded.toSingleEvent()
 
-    private val userAnsweredPoll = MutableLiveData<QuickPollUserAnsweredPayload>()
-    val userAnsweredPollLiveData
-        get() = userAnsweredPoll as LiveData<QuickPollUserAnsweredPayload>
+    private val userAnsweredPoll = LiveEvent<QuickPollUserAnsweredPayload>()
+    val userAnsweredPollLiveData get() = userAnsweredPoll.toSingleEvent()
 
     fun subscribe() {
         roomController.listen(
@@ -73,8 +72,12 @@ class KmeDefaultPollEventHandler(
     }
 
     fun destroyValues(){
-        pollEnded.postValue(null)
+        destroyEndedValue()
         pollStarted.postValue(null)
         userAnsweredPoll.postValue(null)
+    }
+
+    fun destroyEndedValue(){
+        pollEnded.postValue(null)
     }
 }
