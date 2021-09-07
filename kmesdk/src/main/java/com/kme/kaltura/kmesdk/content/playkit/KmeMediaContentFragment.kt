@@ -177,6 +177,16 @@ class KmeMediaContentFragment : KmeContentView() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        handlePlayerState(PAUSE)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        handlePlayerState(PLAY)
+    }
+    
     override fun onDestroyView() {
         with(binding) {
             mediaView.removeListeners(this)
