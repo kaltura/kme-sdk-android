@@ -17,13 +17,13 @@ class KmeDefaultPollEventHandler(
 ) {
 
     private val pollStarted = LiveEvent<QuickPollStartedPayload>()
-    val pollStartedLiveData get() = pollStarted.toSingleEvent()
+    val pollStartedLiveData get() = pollStarted
 
     private val pollEnded = LiveEvent<QuickPollEndedPayload>()
-    val pollEndedLiveData get() = pollEnded.toSingleEvent()
+    val pollEndedLiveData get() = pollEnded
 
     private val userAnsweredPoll = LiveEvent<QuickPollUserAnsweredPayload>()
-    val userAnsweredPollLiveData get() = userAnsweredPoll.toSingleEvent()
+    val userAnsweredPollLiveData get() = userAnsweredPoll
 
     fun subscribe() {
         roomController.listen(
@@ -71,13 +71,13 @@ class KmeDefaultPollEventHandler(
         roomController.remove(quickPollHandler)
     }
 
-    fun destroyValues(){
+    fun destroyValues() {
         destroyEndedValue()
         pollStarted.postValue(null)
         userAnsweredPoll.postValue(null)
     }
 
-    fun destroyEndedValue(){
+    fun destroyEndedValue() {
         pollEnded.postValue(null)
     }
 }
