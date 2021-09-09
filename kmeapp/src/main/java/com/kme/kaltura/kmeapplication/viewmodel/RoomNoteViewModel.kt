@@ -57,8 +57,8 @@ class RoomNoteViewModel(
     private val noteTextChanged = MutableLiveData<SpannableString>()
     val noteTextChangedLiveData = noteTextChanged as LiveData<SpannableString>
 
-    private val deletedNote = MutableLiveData<Long>()
-    val deletedNoteLiveData get() = deletedNote as LiveData<Long>
+    private val deletedNote = MutableLiveData<String>()
+    val deletedNoteLiveData get() = deletedNote as LiveData<String>
 
     private var noteBlocks: MutableList<NoteEditBlock> = mutableListOf()
 
@@ -112,7 +112,7 @@ class RoomNoteViewModel(
                 openNote.value = KmeRoomNote(
                     name = name,
                     dateCreated = date,
-                    id = id
+                    id = id.toString()
                 )
             }, error = {
                 isLoading.value = false
@@ -120,7 +120,7 @@ class RoomNoteViewModel(
         )
     }
 
-    fun renameNote(noteId: Long, newName: String) {
+    fun renameNote(noteId: String, newName: String) {
         isLoading.value = true
         kmeSdk.roomController.noteModule.renameRoomNote(
             roomId, companyId, noteId, newName,
@@ -204,7 +204,7 @@ class RoomNoteViewModel(
         }
     }
 
-    fun subscribeToNoteChanges(noteId: Long, isSubscribe: Boolean) {
+    fun subscribeToNoteChanges(noteId: String, isSubscribe: Boolean) {
         kmeSdk.roomController.noteModule.subscribeToNoteChanges(
             roomId,
             companyId,
@@ -298,22 +298,22 @@ class RoomNoteViewModel(
         }
     }
 
-    private fun handleRenameNote(noteId: Long, newNoteName: String) {
+    private fun handleRenameNote(noteId: String, newNoteName: String) {
         val notes: MutableList<KmeRoomNote> = roomNotes.value?.toMutableList() ?: mutableListOf()
-        notes.find { note -> note.id == noteId }?.let { target ->
+        notes.find { note -> note.id.equals(noteId) }?.let { target ->
             target.id = noteId
             target.name = newNoteName
             roomNotes.value = notes
         }
     }
 
-    private fun handleBroadcastNote(noteId: Long) {
+    private fun handleBroadcastNote(noteId: String) {
         if (kmeSdk.userController.isModerator() || kmeSdk.userController.isAdminFor(companyId)) {
             return
         }
 
         val notes: MutableList<KmeRoomNote> = roomNotes.value?.toMutableList() ?: mutableListOf()
-        notes.find { note -> note.id == noteId }?.let { target ->
+        notes.find { note -> note.id.equals(noteId) }?.let { target ->
             openNote.value = target
             broadcastNote.value = target
         }
@@ -344,9 +344,9 @@ class RoomNoteViewModel(
         noteBlocks = orderedBlocks
     }
 
-    private fun handleDeleteNote(noteId: Long) {
+    private fun handleDeleteNote(noteId: String) {
         val notes: MutableList<KmeRoomNote> = roomNotes.value?.toMutableList() ?: mutableListOf()
-        val isRemoved = notes.removeAll { note -> note.id == noteId }
+        val isRemoved = notes.removeAll { note -> note.id.equals(noteId) }
         if (isRemoved) {
             deletedNote.value = noteId
             roomNotes.value = notes
