@@ -130,7 +130,7 @@ class RoomNoteFragment : Fragment() {
         edtNoteText.setText(it)
     }
 
-    private val deletedNoteObserver = Observer<String> {
+    private val deletedNoteObserver = Observer<Long> {
         if (it == roomNote?.id) {
             removeFragment()
         }
