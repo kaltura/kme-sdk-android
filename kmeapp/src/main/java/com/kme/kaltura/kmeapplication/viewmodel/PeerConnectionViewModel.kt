@@ -92,13 +92,13 @@ class PeerConnectionViewModel(
     fun isPublishing() = kmeSdk.roomController.peerConnectionModule.isPublishing()
 
     private fun startPublish(localRenderer: KmeSurfaceRendererView) {
-        kmeSdk.roomController.peerConnectionModule.addPublisher(
-            publisherId.toString(),
-            localRenderer,
-            micEnabled.value ?: true,
-            camEnabled.value ?: true,
-            frontCamEnabled.value ?: true
-        )
+//        kmeSdk.roomController.peerConnectionModule.addPublisher(
+//            publisherId.toString(),
+//            localRenderer,
+//            micEnabled.value ?: true,
+//            camEnabled.value ?: true,
+//            frontCamEnabled.value ?: true
+//        )
 
         publisherAdded.value = true
     }
