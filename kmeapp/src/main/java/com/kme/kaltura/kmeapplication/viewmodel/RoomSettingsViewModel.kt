@@ -41,7 +41,7 @@ class RoomSettingsViewModel(
     fun subscribe() {
         kmeSdk.roomController.listen(
             roomSettingsHandler,
-            KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED,
+            KmeMessageEvent.ROOM_MODULE_SETTINGS_CHANGED,
             KmeMessageEvent.SET_PARTICIPANT_MODERATOR,
             KmeMessageEvent.ROOM_SETTINGS_CHANGED
         )
@@ -50,8 +50,8 @@ class RoomSettingsViewModel(
     private val roomSettingsHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
-                KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED -> {
-                    val settingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload>? =
+                KmeMessageEvent.ROOM_MODULE_SETTINGS_CHANGED -> {
+                    val settingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomModuleSettingsChangedPayload>? =
                         message.toType()
                     val settingsPayload = settingsMessage?.payload
 

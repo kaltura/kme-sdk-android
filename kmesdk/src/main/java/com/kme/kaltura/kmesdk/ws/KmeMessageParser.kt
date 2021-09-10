@@ -10,6 +10,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.DesktopShareQualityUpdatedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.DesktopShareStateUpdatedPayload
@@ -19,7 +20,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.CreateNotePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.NotePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomRecordingMessage.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomModuleSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.AnnotationStateChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
@@ -238,8 +239,8 @@ internal class KmeMessageParser(
                 text.jsonToObject<KmeRoomRecordingMessage<RecordingFailurePayload>>()
             }
 
-            KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED.toString() -> {
-                text.jsonToObject<KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload>>()
+            KmeMessageEvent.ROOM_MODULE_SETTINGS_CHANGED.toString() -> {
+                text.jsonToObject<KmeRoomSettingsModuleMessage<RoomModuleSettingsChangedPayload>>()
             }
             KmeMessageEvent.ROOM_SETTINGS_CHANGED.toString() -> {
                 text.jsonToObject<KmeRoomSettingsModuleMessage<RoomSettingsChangedPayload>>()
@@ -330,6 +331,39 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.QUICK_POLL_USER_ANSWERED.toString() -> {
                 text.jsonToObject<KmeQuickPollModuleMessage<QuickPollUserAnsweredPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_START.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_STOP.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_ADD_ROOM.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutAddRoomPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_DELETE_ROOM.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_CHANGE_ROOM_NAME.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutChangeRoomNamePayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_MODERATOR_JOINED.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_USER_JOINED.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_EXTEND_TIME_LIMIT.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutExtendTimePayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
             }
             else -> null
         }

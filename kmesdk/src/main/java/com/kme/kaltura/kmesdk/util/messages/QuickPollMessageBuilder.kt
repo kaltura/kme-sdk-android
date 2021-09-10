@@ -4,9 +4,21 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEventType
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageModule
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.QuickPollPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.QuickPollSendAnswerPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeConstraint
+
+internal fun buildGetQuickPollStateMessage(
+    roomId: Long,
+    companyId: Long
+): KmeQuickPollModuleMessage<GetQuickPollStatePayload> {
+    return KmeQuickPollModuleMessage<GetQuickPollStatePayload>().apply {
+        constraint = listOf(KmeConstraint.INCLUDE_SELF)
+        module = KmeMessageModule.QUICK_POLL
+        name = KmeMessageEvent.QUICK_POLL_GET_STATE
+        type = KmeMessageEventType.VOID
+        payload = GetQuickPollStatePayload(roomId, companyId)
+    }
+}
 
 internal fun buildSendQuickPollAnswerMessage(
     answer: QuickPollPayload.Answer,

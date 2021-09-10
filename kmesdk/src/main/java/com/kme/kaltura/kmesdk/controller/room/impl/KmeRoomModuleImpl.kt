@@ -75,6 +75,8 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
      */
     override fun joinRoom(roomId: Long, companyId: Long) {
         webSocketModule.send(buildJoinRoomMessage(roomId, companyId))
+        webSocketModule.send(buildGetQuickPollStateMessage(roomId, companyId))
+        webSocketModule.send(buildGetBreakoutStateMessage(roomId, companyId))
     }
 
     /**

@@ -50,6 +50,7 @@ class KmeRoomControllerImpl(
     override val noteModule: IKmeNoteModule by inject()
     override val recordingModule: IKmeRecordingModule by inject()
     override val audioModule: IKmeAudioModule by inject()
+    override val breakoutModule: IKmeBreakoutModule by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -187,6 +188,9 @@ class KmeRoomControllerImpl(
                 )
 
                 settingsModule.subscribe()
+
+                // TODO check if it is already a breakout room
+                breakoutModule.subscribe()
 
                 listener.onOpen()
             }

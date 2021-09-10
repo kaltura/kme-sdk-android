@@ -47,7 +47,10 @@ enum class KmeMessageModule(
     QUICK_POLL("quickPoll"),
 
     @SerializedName("DesktopShare", alternate = ["desktopshare"])
-    DESKTOP_SHARE("DesktopShare");
+    DESKTOP_SHARE("DesktopShare"),
+
+    @SerializedName("breakout", alternate = ["breakout"])
+    BREAKOUT("breakout");
 
     @SuppressLint("DefaultLocale")
     override fun toString(): String {

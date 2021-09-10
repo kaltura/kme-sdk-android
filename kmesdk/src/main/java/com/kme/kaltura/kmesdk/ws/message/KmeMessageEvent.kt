@@ -197,7 +197,7 @@ enum class KmeMessageEvent(
     * */
 
     @SerializedName("moduleDefaultSettingsChanged", alternate = ["moduledefaultsettingschanged"])
-    ROOM_DEFAULT_SETTINGS_CHANGED("moduleDefaultSettingsChanged"),
+    ROOM_MODULE_SETTINGS_CHANGED("moduleDefaultSettingsChanged"),
 
     @SerializedName("roomSettingsChanged", alternate = ["roomsettingschanged"])
     ROOM_SETTINGS_CHANGED("roomSettingsChanged"),
@@ -360,7 +360,47 @@ enum class KmeMessageEvent(
     UPDATE_DESKTOP_SHARE_STATE("updateDesktopShareState"),
 
     @SerializedName("stopDesktopShare", alternate = ["stopdesktopshare"])
-    STOP_DESKTOP_SHARE("stopDesktopShare");
+    STOP_DESKTOP_SHARE("stopDesktopShare"),
+
+    /*
+    * Breakout
+    * */
+
+    @SerializedName("getModuleState", alternate = ["getmodulestate"])
+    BREAKOUT_GET_STATE("getModuleState"),
+
+    @SerializedName("startBreakoutSucceeded", alternate = ["startbreakoutsucceeded"])
+    BREAKOUT_START("startBreakoutSucceeded"),
+
+    @SerializedName("stopBreakoutSucceeded", alternate = ["stopbreakoutsucceeded"])
+    BREAKOUT_STOP("stopBreakoutSucceeded"),
+
+    @SerializedName("addBreakoutRoomSucceeded", alternate = ["addbreakoutroomsucceeded"])
+    BREAKOUT_ADD_ROOM("addBreakoutRoomSucceeded"),
+
+    @SerializedName("deleteBreakoutRoomSucceeded", alternate = ["deletebreakoutroomducceeded"])
+    BREAKOUT_DELETE_ROOM("deleteBreakoutRoomSucceeded"),
+
+    @SerializedName("changeBreakoutRoomNameSucceeded", alternate = ["changebreakoutroomnamesucceeded"])
+    BREAKOUT_CHANGE_ROOM_NAME("changeBreakoutRoomNameSucceeded"),
+
+    @SerializedName("assignParticipantsSucceeded", alternate = ["assignparticipantssucceeded"])
+    BREAKOUT_ASSIGN_PARTICIPANTS("assignParticipantsSucceeded"),
+
+    @SerializedName("reshuffleAssignmentsSucceeded", alternate = ["reshuffleassignmentssucceeded"])
+    BREAKOUT_RESHUFFLE_ASSIGNMENTS("reshuffleAssignmentsSucceeded"),
+
+    @SerializedName("moderatorJoinedBreakoutRoomSucceeded", alternate = ["moderatorjoinedbreakoutroomsucceeded"])
+    BREAKOUT_MODERATOR_JOINED("moderatorJoinedBreakoutRoomSucceeded"),
+
+    @SerializedName("userJoinedBreakoutRoomSucceeded", alternate = ["userjoinedbreakoutroomsucceeded"])
+    BREAKOUT_USER_JOINED("userJoinedBreakoutRoomSucceeded"),
+
+    @SerializedName("extendTimeLimitSucceeded", alternate = ["extendtimelimitsucceeded"])
+    BREAKOUT_EXTEND_TIME_LIMIT("extendTimeLimitSucceeded"),
+
+    @SerializedName("callToInstructorSucceeded", alternate = ["calltoinstructorsucceeded"])
+    BREAKOUT_CALL_TO_INSTRUCTOR("callToInstructorSucceeded");
 
     @SuppressLint("DefaultLocale")
     override fun toString(): String {
