@@ -1,7 +1,6 @@
 package com.kme.kaltura.kmesdk.di
 
 import android.content.Context
-import android.util.Log
 import com.kme.kaltura.kmesdk.util.ResetableLazy
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.Koin
@@ -21,7 +20,6 @@ object KmeKoinContext {
 
     internal val controllerScope: ResetableLazy<Scope> = ResetableLazy({
         if (isControllersScopesReleased()) {
-            Log.e("TAG", "new controllerScope", )
             sdkKoin.createScope(
                 SDK_SCOPE_CONTROLLERS_ID,
                 named(SCOPE_CONTROLLER)
@@ -32,7 +30,6 @@ object KmeKoinContext {
 
     internal val modulesScope: ResetableLazy<Scope> = ResetableLazy({
         if (isModulesScopesReleased()) {
-            Log.e("TAG", "new modulesScope", )
             sdkKoin.createScope(
                 SDK_SCOPE_MODULES_ID,
                 named(SCOPE_MODULES)
@@ -43,7 +40,6 @@ object KmeKoinContext {
 
     internal val viewModelsScope: ResetableLazy<Scope> = ResetableLazy({
         if (isViewModelsScopesReleased()) {
-            Log.e("TAG", "new viewModelsScope", )
             sdkKoin.createScope(
                 SDK_SCOPE_VIEW_MODELS_ID,
                 named(SCOPE_VIEW_MODELS)
@@ -106,8 +102,6 @@ internal interface KmeKoinComponent : KoinComponent {
 
         viewModelsScope().value.close()
         viewModelsScope().invalidate()
-
-        Log.e("TAG", "------ releaseScopes", )
     }
 
 }

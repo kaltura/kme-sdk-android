@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.di
 
-import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeMetadataController
 import com.kme.kaltura.kmesdk.controller.IKmeSignInController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
@@ -24,7 +23,6 @@ val controllersModule = module {
 
     scope(named(SCOPE_CONTROLLER)) {
         scoped<IKmeRoomController> {
-            Log.e("TAG", "----- new IKmeRoomController", )
             KmeRoomControllerImpl(androidContext())
         }
     }

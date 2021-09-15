@@ -69,10 +69,8 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
      * Disconnect from the room. Destroy all related connections
      */
     override fun disconnect() {
-        if (!isModulesScopesReleased() && !isControllersScopesReleased()) {
-            webSocketModule.disconnect()
-            peerConnectionModule.disconnectAll()
-        }
+        webSocketModule.disconnect()
+        peerConnectionModule.disconnectAll()
     }
 
     private fun stopService() {
