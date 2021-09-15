@@ -14,8 +14,8 @@ import com.kme.kaltura.kmesdk.content.playkit.controls.BaseControlsView
 import com.kme.kaltura.kmesdk.content.playkit.controls.PlayerControlsEvent
 import com.kme.kaltura.kmesdk.content.playkit.controls.PlayerControlsEvent.*
 import com.kme.kaltura.kmesdk.databinding.FragmentMediaContentBinding
+import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
-import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
 
 
@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
  */
 class KmeMediaContentFragment : KmeContentView() {
 
-    private val mediaContentViewModel: KmeMediaContentViewModel by inject()
+    private val mediaContentViewModel: KmeMediaContentViewModel by viewModelsScope().inject()
 
     private var _binding: FragmentMediaContentBinding? = null
     private val binding get() = _binding!!

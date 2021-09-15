@@ -1,30 +1,31 @@
 package com.kme.kaltura.kmesdk.content.poll
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.di.KmeKoinComponent
+import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.toType
+import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
 
-class KmeDefaultPollEventHandler(
-    private val roomController: IKmeRoomController
-) {
+class KmeDefaultPollEventHandler : KmeKoinComponent {
 
-    private val pollStarted = MutableLiveData<QuickPollStartedPayload>()
+    private val roomController: IKmeRoomController by controllersScope().inject()
+
+    private val pollStarted = LiveEvent<QuickPollStartedPayload>()
     val pollStartedLiveData
-        get() = pollStarted as LiveData<QuickPollStartedPayload>
+        get() = pollStarted
 
-    private val pollEnded = MutableLiveData<QuickPollEndedPayload>()
+    private val pollEnded = LiveEvent<QuickPollEndedPayload>()
     val pollEndedLiveData
-        get() = pollEnded as LiveData<QuickPollEndedPayload>
+        get() = pollEnded
 
-    private val userAnsweredPoll = MutableLiveData<QuickPollUserAnsweredPayload>()
+    private val userAnsweredPoll = LiveEvent<QuickPollUserAnsweredPayload>()
     val userAnsweredPollLiveData
-        get() = userAnsweredPoll as LiveData<QuickPollUserAnsweredPayload>
+        get() = userAnsweredPoll
 
     fun subscribe() {
         roomController.listen(
@@ -72,7 +73,7 @@ class KmeDefaultPollEventHandler(
         roomController.remove(quickPollHandler)
     }
 
-    fun destroyValues(){
+    fun destroyValues() {
         pollEnded.postValue(null)
         pollStarted.postValue(null)
         userAnsweredPoll.postValue(null)

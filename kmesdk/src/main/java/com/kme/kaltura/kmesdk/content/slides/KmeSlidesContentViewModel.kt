@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeMetadataController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.di.KmeKoinComponent
+import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.toNonNull
@@ -15,15 +17,17 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.AnnotationStateChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
+import org.koin.core.inject
 
-class KmeSlidesContentViewModel(
-    private val roomController: IKmeRoomController,
-    private val userController: IKmeUserController,
-    private val metadataController: IKmeMetadataController,
-    private val prefs: IKmePreferences
-) : ViewModel() {
+class KmeSlidesContentViewModel : ViewModel(), KmeKoinComponent {
+
+    private val userController: IKmeUserController by inject()
+    private val metadataController: IKmeMetadataController by inject()
+    private val roomController: IKmeRoomController by controllersScope().inject()
+    private val prefs: IKmePreferences by inject()
 
     private val slideChanged = MutableLiveData<Int>()
     val slideChangedLiveData get() = slideChanged as LiveData<Int>
@@ -62,7 +66,8 @@ class KmeSlidesContentViewModel(
                     }
                 }
                 KmeMessageEvent.ANNOTATIONS_STATE_CHANGED -> {
-                    val msg: KmeSlidesPlayerModuleMessage<AnnotationStateChangedPayload>? = message.toType()
+                    val msg: KmeSlidesPlayerModuleMessage<AnnotationStateChangedPayload>? =
+                        message.toType()
 
                     msg?.payload?.let {
                         annotationStateChanged.postValue(it.annotationsEnabled)

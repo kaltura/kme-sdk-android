@@ -9,17 +9,17 @@ import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
+import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
-import org.koin.android.ext.android.inject
 
 /**
  * Service wrapper under the room actions
  */
 class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
 
-    private val webSocketModule: IKmeWebSocketModule by inject()
-    private val peerConnectionModule: IKmePeerConnectionModule by inject()
+    private val peerConnectionModule: IKmePeerConnectionModule by modulesScope().inject()
+    private val webSocketModule: IKmeWebSocketModule by modulesScope().inject()
 
     private val binder: IBinder = RoomServiceBinder()
 
@@ -27,7 +27,11 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
 
     override fun onCreate() {
         super.onCreate()
-        val notification: Notification = createRoomNotification(context = this, title = getString(R.string.app_name), content = getString(R.string.notification_room_join_message))
+        val notification: Notification = createRoomNotification(
+            context = this,
+            title = getString(R.string.app_name),
+            content = getString(R.string.notification_room_join_message)
+        )
         startForeground(ROOM_NOTIFICATION_ID, notification)
     }
 
@@ -65,19 +69,27 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
      * Disconnect from the room. Destroy all related connections
      */
     override fun disconnect() {
-        webSocketModule.disconnect()
-        peerConnectionModule.disconnectAll()
+        if (!isModulesScopesReleased() && !isControllersScopesReleased()) {
+            webSocketModule.disconnect()
+            peerConnectionModule.disconnectAll()
+        }
+    }
+
+    private fun stopService() {
         stopForeground(true)
         stopSelf()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
         disconnect()
+        stopService()
         return super.onUnbind(intent)
     }
 
     override fun onDestroy() {
         disconnect()
+//        releaseScopes()
+        stopService()
         super.onDestroy()
     }
 

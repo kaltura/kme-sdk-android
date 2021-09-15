@@ -7,6 +7,7 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.KmeKoinContext
+import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
@@ -21,14 +22,19 @@ import org.koin.core.inject
 class KME : KmeKoinComponent {
 
     val signInController: IKmeSignInController by inject()
+    val userController: IKmeUserController by inject()
+
+    val roomController: IKmeRoomController
+        get() {
+            val controller: IKmeRoomController by controllersScope().inject()
+            return controller
+        }
+
     val csrfUpdater: CsrfUpdater by inject()
 
-    val userController: IKmeUserController by inject()
-    val roomController: IKmeRoomController by inject()
-
+    private val metadataController: IKmeMetadataController by inject()
     private val urlInterceptor: KmeChangeableBaseUrlInterceptor by inject()
     private val prefs: IKmePreferences by inject()
-    private val metadataController: IKmeMetadataController by inject()
 
     companion object {
         private lateinit var instance: KME
@@ -50,7 +56,6 @@ class KME : KmeKoinComponent {
         }
     }
 
-
     /**
      * Initialization function. Initializes all needed controllers and modules.
      * In the same place - fetching metadata from the server to use it in future REST API calls.
@@ -62,6 +67,7 @@ class KME : KmeKoinComponent {
         success: () -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
+        createControllersScope()
         metadataController.fetchMetadata(success = {
             if (roomController.isConnected()) {
                 roomController.disconnect()
@@ -116,4 +122,14 @@ class KME : KmeKoinComponent {
     }
 
     fun getServerConfiguration() = urlInterceptor.getServerConfiguration()
+
+    fun start() {
+        createControllersScope()
+        createModulesScope()
+        createViewModelsScope()
+    }
+
+    fun release() {
+        releaseScopes()
+    }
 }

@@ -6,26 +6,29 @@ import android.os.Parcelable
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import androidx.viewbinding.ViewBinding
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollTypeView
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
+import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.util.messages.buildSendQuickPollAnswerMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollAudienceType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
 import kotlinx.coroutines.*
 import org.koin.core.inject
-import androidx.lifecycle.Observer
 import java.util.*
 
 class KmeQuickPollView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr),
-    KmeKoinComponent, IKmeQuickPollView,
-    KmeQuickPollTypeView.OnAnswerListener, KmeQuickPollResultsView.OnCloseResultsListener {
+    KmeKoinComponent,
+    IKmeQuickPollView,
+    KmeQuickPollTypeView.OnAnswerListener,
+    KmeQuickPollResultsView.OnCloseResultsListener {
 
     private val RESULTS_HIDE_TIMEOUT = 20_000L
 
@@ -33,16 +36,18 @@ class KmeQuickPollView @JvmOverloads constructor(
         private set
 
     private lateinit var config: Config
+    private lateinit var lifecycleOwner: LifecycleOwner
 
     private val defaultEventHandler: KmeDefaultPollEventHandler by inject()
-    private val roomController: IKmeRoomController by inject()
     private val userController: IKmeUserController by inject()
+    private val roomController: IKmeRoomController by controllersScope().inject()
 
     private var hideResultsViewJob: Job? = null
 
     private var pollView: KmeQuickPollTypeView<out ViewBinding>? = null
     private var pollResultsView: KmeQuickPollResultsView? = null
-    private var currentPollPayload: QuickPollStartedPayload? = null
+    private var startPollPayload: QuickPollStartedPayload? = null
+    private var endPollPayload: QuickPollEndedPayload? = null
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -53,15 +58,24 @@ class KmeQuickPollView @JvmOverloads constructor(
 
     override fun onRestoreInstanceState(state: Parcelable?) {
         if (state is Bundle) {
-            visibility = state.getInt(SAVE_VISIBILITY_KEY)
+            this.visibility = state.getInt(SAVE_VISIBILITY_KEY)
+            this.startPollPayload =
+                state.getSerializable(SAVE_START_PAYLOAD_KEY) as QuickPollStartedPayload?
+            this.endPollPayload =
+                state.getSerializable(SAVE_END_PAYLOAD_KEY) as QuickPollEndedPayload?
+            this.state = state.getSerializable(SAVE_STATE_KEY) as State
+
+            restoreState()
+
             super.onRestoreInstanceState(state.getParcelable(SAVE_SUPER_STATE_KEY))
         } else {
             super.onRestoreInstanceState(state)
         }
     }
 
-    override fun init(config: Config) {
+    override fun init(lifecycleOwner: LifecycleOwner, config: Config) {
         this.config = config
+        this.lifecycleOwner = lifecycleOwner
 
         if (config.useDefaultHandler) {
             setupDefaultEventHandler()
@@ -69,12 +83,26 @@ class KmeQuickPollView @JvmOverloads constructor(
     }
 
     private fun setupDefaultEventHandler() {
-        defaultEventHandler.pollStartedLiveData.observeForever { it?.let { startPoll(it) } }
-        defaultEventHandler.pollEndedLiveData.observeForever { it?.let { endPoll(it) } }
-        defaultEventHandler.userAnsweredPollLiveData.observeForever {
+        defaultEventHandler.pollStartedLiveData.observe(lifecycleOwner) { it?.let { startPoll(it) } }
+        defaultEventHandler.pollEndedLiveData.observe(lifecycleOwner) { it?.let { endPoll(it) } }
+        defaultEventHandler.userAnsweredPollLiveData.observe(lifecycleOwner) {
             it?.let { onUserAnsweredPoll(it) }
         }
         defaultEventHandler.subscribe()
+    }
+
+    private fun restoreState() {
+        if (visibility != GONE) {
+            endPollPayload?.let {
+                endPoll(it)
+            } ?: startPollPayload?.let {
+                startPoll(it)
+            }
+        } else {
+            removeAllViews()
+            state = State.GONE
+            visibility = GONE
+        }
     }
 
     override fun sendAnswer(answer: QuickPollPayload.Answer) {
@@ -96,7 +124,7 @@ class KmeQuickPollView @JvmOverloads constructor(
 
         visibility = VISIBLE
         removeAllViews()
-        currentPollPayload = payload
+        startPollPayload = payload
 
         val isModerator = userController.isModerator()
         if (payload.targetAudience == KmeQuickPollAudienceType.NON_MODERATORS && isModerator) {
@@ -114,6 +142,7 @@ class KmeQuickPollView @JvmOverloads constructor(
     }
 
     override fun endPoll(payload: QuickPollEndedPayload) {
+        endPollPayload = payload
         if (payload.shouldPresent == true) {
             state = State.RESULT_VIEW
             showResultsView(payload)
@@ -122,7 +151,7 @@ class KmeQuickPollView @JvmOverloads constructor(
             state = State.GONE
             removeAllViews()
             pollView = null
-            currentPollPayload = null
+            startPollPayload = null
         }
     }
 
@@ -156,7 +185,7 @@ class KmeQuickPollView @JvmOverloads constructor(
         type: KmeQuickPollType,
         answer: Int
     ) {
-        sendAnswer(QuickPollPayload.Answer(answer, currentPollPayload?.pollId))
+        sendAnswer(QuickPollPayload.Answer(answer, startPollPayload?.pollId))
     }
 
     override fun showResultsView(
@@ -165,7 +194,7 @@ class KmeQuickPollView @JvmOverloads constructor(
         answers: List<QuickPollPayload.Answer>?
     ) {
         removeAllViews()
-        currentPollPayload?.let {
+        startPollPayload?.let {
             visibility = VISIBLE
             pollView = null
             pollResultsView = KmeQuickPollResultsView(context).also { resultsView ->
@@ -194,6 +223,8 @@ class KmeQuickPollView @JvmOverloads constructor(
         removeAllViews()
         state = State.GONE
         visibility = GONE
+        startPollPayload = null
+        endPollPayload = null
         pollResultsView = null
         hideResultsViewJob?.cancel()
         hideResultsViewJob = null
@@ -202,6 +233,9 @@ class KmeQuickPollView @JvmOverloads constructor(
     override fun onSaveInstanceState(): Parcelable {
         return Bundle().apply {
             putInt(SAVE_VISIBILITY_KEY, visibility)
+            putSerializable(SAVE_STATE_KEY, state)
+            putSerializable(SAVE_START_PAYLOAD_KEY, startPollPayload)
+            putSerializable(SAVE_END_PAYLOAD_KEY, endPollPayload)
             putParcelable(SAVE_SUPER_STATE_KEY, super.onSaveInstanceState())
         }
     }
@@ -214,14 +248,14 @@ class KmeQuickPollView @JvmOverloads constructor(
             defaultEventHandler.release()
         }
 
-        currentPollPayload = null
+        startPollPayload = null
         pollView = null
         pollResultsView = null
 
         hideResultsViewJob?.cancel()
         hideResultsViewJob = null
 
-        defaultEventHandler.destroyValues()
+//        defaultEventHandler.destroyValues()
 
         super.onDetachedFromWindow()
     }
@@ -236,8 +270,10 @@ class KmeQuickPollView @JvmOverloads constructor(
 
     companion object {
         private const val SAVE_VISIBILITY_KEY = "SAVE_VISIBILITY_KEY"
+        private const val SAVE_START_PAYLOAD_KEY = "SAVE_START_PAYLOAD_KEY"
+        private const val SAVE_END_PAYLOAD_KEY = "SAVE_END_PAYLOAD_KEY"
+        private const val SAVE_STATE_KEY = "SAVE_STATE_KEY"
         private const val SAVE_SUPER_STATE_KEY = "SAVE_SUPER_STATE_KEY"
     }
-
 
 }
