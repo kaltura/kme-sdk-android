@@ -10,7 +10,6 @@ import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.util.messages.*
-import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
@@ -25,7 +24,6 @@ import org.koin.core.inject
 class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
 
     private val roomApiService: KmeRoomApiService by inject()
-    private val messageManager: KmeMessageManager by inject()
     private val webSocketModule: IKmeWebSocketModule by inject()
     private val userController: IKmeUserController by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
@@ -116,7 +114,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
      */
     override fun endSession(roomId: Long, companyId: Long) {
         webSocketModule.send(buildEndSessionMessage(roomId, companyId))
-        messageManager.removeListeners()
+        webSocketModule.removeListeners()
     }
 
     /**
@@ -124,7 +122,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
      */
     override fun endSessionForEveryone(roomId: Long, companyId: Long) {
         webSocketModule.send(buildEndSessionForEveryoneMessage(roomId, companyId))
-        messageManager.removeListeners()
+        webSocketModule.removeListeners()
     }
 
 }

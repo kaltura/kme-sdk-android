@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.ws
 
 import android.util.Log
+import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
@@ -14,7 +15,7 @@ import okhttp3.WebSocketListener
 internal class KmeWebSocketHandler(
     private val messageParser: KmeMessageParser,
     private val messageManager: KmeMessageManager
-) : WebSocketListener() {
+) : WebSocketListener(), IKmeMessageManager {
 
     private val TAG = KmeWebSocketHandler::class.java.canonicalName
 
@@ -112,6 +113,39 @@ internal class KmeWebSocketHandler(
                 }
             }
         }
+    }
+
+    override fun addListener(listener: IKmeMessageListener) {
+        messageManager.addListener(listener)
+    }
+
+    override fun addListener(
+        event: KmeMessageEvent,
+        listener: IKmeMessageListener
+    ) {
+        messageManager.addListener(event, listener)
+    }
+
+    override fun listen(
+        listener: IKmeMessageListener,
+        vararg events: KmeMessageEvent,
+    ): IKmeMessageListener {
+        return messageManager.listen(listener, *events)
+    }
+
+    override fun remove(
+        listener: IKmeMessageListener,
+        vararg events: KmeMessageEvent
+    ) {
+        messageManager.removeListeners()
+    }
+
+    override fun removeListener(listener: IKmeMessageListener) {
+        messageManager.removeListeners()
+    }
+
+    override fun removeListeners() {
+        messageManager.removeListeners()
     }
 
 }

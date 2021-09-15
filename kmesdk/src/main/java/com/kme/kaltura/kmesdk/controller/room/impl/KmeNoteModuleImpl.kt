@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Environment
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeNoteModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.downloadFile
 import com.kme.kaltura.kmesdk.rest.response.room.notes.*
@@ -28,7 +28,7 @@ class KmeNoteModuleImpl(
 
     private val roomNotesApiService: KmeRoomNotesApiService by inject()
     private val fileLoaderApiService: KmeFileLoaderApiService by inject()
-    private val webSocketModule: IKmeWebSocketModule by inject()
+    private val roomController: IKmeRoomController by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -104,7 +104,7 @@ class KmeNoteModuleImpl(
                     val date = it.data?.dateCreated
                     val id = it.data?.id
                     if (name != null && date != null && id != null) {
-                        webSocketModule.send(buildCreateRoomNoteMessage(
+                        roomController.send(buildCreateRoomNoteMessage(
                             roomId,
                             companyId,
                             name,
@@ -134,7 +134,7 @@ class KmeNoteModuleImpl(
             safeApiCall(
                 { roomNotesApiService.renameRoomNote(roomId, noteId, name) },
                 {
-                    webSocketModule.send(buildRenameRoomNoteMessage(
+                    roomController.send(buildRenameRoomNoteMessage(
                         roomId,
                         companyId,
                         noteId,
@@ -172,7 +172,7 @@ class KmeNoteModuleImpl(
      * Propagate note to all participants
      */
     override fun broadcastNote(roomId: Long, companyId: Long, noteId: Long, name: String) {
-        webSocketModule.send(buildBroadcastRoomNoteMessage(
+        roomController.send(buildBroadcastRoomNoteMessage(
             roomId,
             companyId,
             noteId,
@@ -189,7 +189,7 @@ class KmeNoteModuleImpl(
         noteId: Long,
         isSubscribeToNote: Boolean
     ) {
-        webSocketModule.send(buildSubscribeRoomNoteMessage(
+        roomController.send(buildSubscribeRoomNoteMessage(
             roomId,
             companyId,
             noteId,
@@ -234,7 +234,7 @@ class KmeNoteModuleImpl(
             safeApiCall(
                 { roomNotesApiService.deleteRoomNote(roomId, noteId.toLong()) },
                 {
-                    webSocketModule.send(buildDeleteRoomNoteMessage(
+                    roomController.send(buildDeleteRoomNoteMessage(
                         roomId,
                         companyId,
                         noteId

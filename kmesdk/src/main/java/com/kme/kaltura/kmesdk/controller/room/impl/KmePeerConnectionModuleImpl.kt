@@ -7,7 +7,6 @@ import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
 import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.*
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnection
@@ -34,7 +33,6 @@ import kotlin.properties.Delegates
  */
 class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
-    private val webSocketModule: IKmeWebSocketModule by inject()
     private val roomController: IKmeRoomController by inject()
     private val userController: IKmeUserController by inject()
     private val contentModule: IKmeContentModule by inject()
@@ -135,7 +133,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         micState: KmeMediaDeviceState,
         camState: KmeMediaDeviceState,
     ) {
-        webSocketModule.send(
+        roomController.send(
             buildMediaInitMessage(
                 roomId,
                 companyId,
@@ -165,7 +163,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 addPublisherRenderer(renderer)
             }
         } ?: run {
-            webSocketModule.send(
+            roomController.send(
                 buildMediaInitMessage(
                     roomId,
                     companyId,
@@ -211,7 +209,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 it.addRenderer(renderer)
             }
         } ?: run {
-            webSocketModule.send(
+            roomController.send(
                 buildStartViewingMessage(
                     roomId,
                     companyId,
@@ -291,7 +289,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
         screenSharer?.let { return }
 
-        webSocketModule.send(
+        roomController.send(
             buildUpdateDesktopShareStateMessage(
                 roomId,
                 publisherId.toString(),
@@ -318,7 +316,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     override fun stopScreenShare() {
         checkData()
         screenSharer?.let {
-            webSocketModule.send(
+            roomController.send(
                 buildUpdateDesktopShareStateMessage(
                     roomId,
                     "${publisherId}_desk",
@@ -417,7 +415,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         checkData()
 
         blockMediaStateEvents = true
-        webSocketModule.send(
+        roomController.send(
             buildChangeMediaStateMessage(
                 roomId,
                 companyId,
@@ -552,7 +550,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 )
             }
         }
-        webSocketModule.send(msg)
+        roomController.send(msg)
     }
 
     override fun onIceCandidate(candidate: String) {
@@ -600,7 +598,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 )
             }
         }
-        webSocketModule.send(msg)
+        roomController.send(msg)
     }
 
     override fun onUserSpeaking(requestedUserIdStream: String, amplitude: Int) {
@@ -611,7 +609,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         bringToFrontPrev = bringToFront
 
         if (publisherId.toString() == requestedUserIdStream) {
-            webSocketModule.send(
+            roomController.send(
                 buildUserSpeakingMessage(
                     roomId,
                     companyId,

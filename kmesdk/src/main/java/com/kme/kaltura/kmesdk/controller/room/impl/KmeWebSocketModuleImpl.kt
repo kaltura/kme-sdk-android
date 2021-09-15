@@ -4,11 +4,9 @@ import android.util.Log
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
-import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
-import com.kme.kaltura.kmesdk.ws.IKmeWSListener
-import com.kme.kaltura.kmesdk.ws.KmeMessageManager
-import com.kme.kaltura.kmesdk.ws.KmeWebSocketHandler
+import com.kme.kaltura.kmesdk.ws.*
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
+import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -21,14 +19,13 @@ import org.koin.core.qualifier.named
  * An implementation for socket actions
  */
 internal class KmeWebSocketModuleImpl : KmeController(),
-    IKmeWebSocketModule, IKmeWSListener {
+    IKmeWebSocketModule, IKmeWSListener, IKmeMessageManager {
 
     private val TAG = KmeWebSocketModuleImpl::class.java.canonicalName
 
     private val okHttpClient: OkHttpClient by inject(named("wsOkHttpClient"))
     private val gson: Gson by inject()
     private val webSocketHandler: KmeWebSocketHandler by inject()
-    private val messageManager: KmeMessageManager by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
     private val reconnectionScope = CoroutineScope(Dispatchers.IO)
@@ -174,7 +171,40 @@ internal class KmeWebSocketModuleImpl : KmeController(),
         reconnectionJob = null
         webSocket?.cancel()
         webSocket = null
-        messageManager.removeListeners()
+        webSocketHandler.removeListeners()
+    }
+
+    override fun addListener(listener: IKmeMessageListener) {
+        webSocketHandler.addListener(listener)
+    }
+
+    override fun addListener(
+        event: KmeMessageEvent,
+        listener: IKmeMessageListener
+    ) {
+        webSocketHandler.addListener(event, listener)
+    }
+
+    override fun listen(
+        listener: IKmeMessageListener,
+        vararg events: KmeMessageEvent
+    ): IKmeMessageListener {
+        return webSocketHandler.listen(listener, *events)
+    }
+
+    override fun remove(
+        listener: IKmeMessageListener,
+        vararg events: KmeMessageEvent
+    ) {
+        webSocketHandler.removeListeners()
+    }
+
+    override fun removeListener(listener: IKmeMessageListener) {
+        webSocketHandler.removeListeners()
+    }
+
+    override fun removeListeners() {
+        webSocketHandler.removeListeners()
     }
 
     /**

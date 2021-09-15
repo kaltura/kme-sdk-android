@@ -2,7 +2,7 @@ package com.kme.kaltura.kmesdk.controller.room.impl
 
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeParticipantModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.util.messages.buildAllHandsDownMessage
 import com.kme.kaltura.kmesdk.util.messages.buildChangeMediaStateMessage
 import com.kme.kaltura.kmesdk.util.messages.buildRaiseHandMessage
@@ -16,7 +16,7 @@ import org.koin.core.inject
  */
 class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
 
-    private val webSocketModule: IKmeWebSocketModule by inject()
+    private val roomController: IKmeRoomController by inject()
 
     /**
      * Raise participant hand
@@ -28,7 +28,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
         targetUserId: Long,
         isRaise: Boolean
     ) {
-        webSocketModule.send(
+        roomController.send(
             buildRaiseHandMessage(
                 roomId,
                 companyId,
@@ -43,7 +43,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
      * Put all hands down in the room
      */
     override fun allHandsDown(roomId: Long, companyId: Long) {
-        webSocketModule.send(buildAllHandsDownMessage(roomId, companyId))
+        roomController.send(buildAllHandsDownMessage(roomId, companyId))
     }
 
     /**
@@ -56,7 +56,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
         mediaStateType: KmeMediaStateType,
         stateValue: KmeMediaDeviceState
     ) {
-        webSocketModule.send(
+        roomController.send(
             buildChangeMediaStateMessage(
                 roomId,
                 companyId,
@@ -73,7 +73,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
         userId: Long,
         targetId: Long
     ) {
-        webSocketModule.send(
+        roomController.send(
             buildRemoveParticipantMessage(
                 roomId,
                 companyId,

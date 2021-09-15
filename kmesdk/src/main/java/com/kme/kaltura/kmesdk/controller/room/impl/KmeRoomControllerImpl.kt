@@ -16,8 +16,8 @@ import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.service.KmeRoomService
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.IKmeMessageManager
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
-import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
@@ -34,11 +34,11 @@ import org.koin.core.inject
  */
 class KmeRoomControllerImpl(
     private val context: Context
-) : KmeController(), IKmeRoomController {
+) : KmeController(), IKmeRoomController, IKmeMessageManager {
 
     private val roomApiService: KmeRoomApiService by inject()
 
-    private val messageManager: KmeMessageManager by inject()
+    private val webSocketModule: IKmeWebSocketModule by inject()
     private val userController: IKmeUserController by inject()
     private val settingsModule: IKmeSettingsModule by inject()
     private val contentModule: IKmeContentModule by inject()
@@ -64,11 +64,12 @@ class KmeRoomControllerImpl(
 
     private var companyId: Long = 0
     private var roomId: Long = 0
+    private var breakoutRoomId: Long = 0
     private var isReconnect: Boolean = true
 
     private lateinit var url: String
     private lateinit var token: String
-    private lateinit var listener: IKmeWSConnectionListener
+    private lateinit var roomWSListener: IKmeWSConnectionListener
 
     /**
      * ServiceConnection block to pass data related to the room
@@ -78,7 +79,7 @@ class KmeRoomControllerImpl(
             val binder: KmeRoomService.RoomServiceBinder =
                 service as KmeRoomService.RoomServiceBinder
             roomService = binder.service
-            roomService?.connect(url, companyId, roomId, isReconnect, token, listener)
+            webSocketModule.connect(url, companyId, roomId, isReconnect, token, roomWSListener)
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
@@ -180,9 +181,9 @@ class KmeRoomControllerImpl(
 
         val intent = Intent(context, KmeRoomService::class.java)
 
-        this.listener = object : IKmeWSConnectionListener {
+        roomWSListener = object : IKmeWSConnectionListener {
             override fun onOpen() {
-                messageManager.listen(
+                webSocketModule.listen(
                     roomStateHandler,
                     KmeMessageEvent.ROOM_STATE
                 )
@@ -258,65 +259,103 @@ class KmeRoomControllerImpl(
     ) { /*Nothing to do*/
     }
 
+    override fun connectToBreakout(
+        roomId: Long,
+        roomAlias: String,
+        listener: IKmeWSConnectionListener
+    ) {
+        breakoutRoomId = roomId
+        uiScope.launch {
+            safeApiCall(
+                { roomApiService.getWebRTCLiveServer(roomAlias) },
+                success = {
+                    val wssUrl = it.data?.wssUrl
+                    val token = it.data?.token
+                    if (wssUrl != null && token != null) {
+                        webSocketModule.connect(
+                            wssUrl,
+                            companyId,
+                            roomId,
+                            isReconnect,
+                            token,
+                            roomWSListener
+                        )
+                    }
+                },
+                error = {
+                    roomSettings = null
+                    listener.onFailure(Throwable(it))
+                }
+            )
+        }
+
+    }
+
     /**
      * Check is socket connected
      */
-    override fun isConnected(): Boolean = roomService?.isConnected() ?: false
+    override fun isConnected(): Boolean = webSocketModule.isConnected() ?: false
 
     /**
      * Send message via socket
      */
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
-        roomService?.send(message)
+        webSocketModule.send(message)
     }
 
     /**
      * Disconnect socket connection
      */
     override fun disconnect() {
-        roomService?.disconnect()
+        webSocketModule.disconnect()
     }
 
     /**
      * Add listeners for socket messages
      */
     override fun addListener(listener: IKmeMessageListener) {
-        messageManager.addListener(listener)
+        webSocketModule.addListener(listener)
     }
 
     /**
      * Add event to listener
      */
-    override fun addListener(event: KmeMessageEvent, listener: IKmeMessageListener) {
-        messageManager.addListener(event, listener)
+    override fun addListener(
+        event: KmeMessageEvent,
+        listener: IKmeMessageListener
+    ) {
+        webSocketModule.addListener(event, listener)
     }
 
     /**
      * Start listen events for listener
      */
-    override fun listen(listener: IKmeMessageListener, vararg events: KmeMessageEvent) {
-        messageManager.listen(listener, *events)
+    override fun listen(
+        listener: IKmeMessageListener,
+        vararg events: KmeMessageEvent
+    ): IKmeMessageListener {
+        return webSocketModule.listen(listener, *events)
     }
 
     /**
      * Stop listen events for listener
      */
     override fun remove(listener: IKmeMessageListener, vararg events: KmeMessageEvent) {
-        messageManager.remove(listener, *events)
+        webSocketModule.remove(listener, *events)
     }
 
     /**
      * Remove listener
      */
     override fun removeListener(listener: IKmeMessageListener) {
-        messageManager.removeListener(listener)
+        webSocketModule.removeListener(listener)
     }
 
     /**
      * Remove all attached listeners
      */
     override fun removeListeners() {
-        messageManager.removeListeners()
+        webSocketModule.removeListeners()
     }
 
 }

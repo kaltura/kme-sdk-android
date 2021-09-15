@@ -9,16 +9,14 @@ import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
-import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
-import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import org.koin.android.ext.android.inject
 
 /**
  * Service wrapper under the room actions
  */
-class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
+class KmeRoomService : Service(), KmeKoinComponent {
 
-    private val webSocketModule: IKmeWebSocketModule by inject()
+    private val roomWSModule: IKmeWebSocketModule by inject()
     private val peerConnectionModule: IKmePeerConnectionModule by inject()
 
     private val binder: IBinder = RoomServiceBinder()
@@ -35,42 +33,6 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
         return START_NOT_STICKY
     }
 
-    /**
-     * Establish socket connection
-     */
-    override fun connect(
-        url: String,
-        companyId: Long,
-        roomId: Long,
-        isReconnect: Boolean,
-        token: String,
-        listener: IKmeWSConnectionListener
-    ) {
-        webSocketModule.connect(url, companyId, roomId, isReconnect, token, listener)
-    }
-
-    /**
-     * Check is socket connected
-     */
-    override fun isConnected(): Boolean = webSocketModule.isConnected()
-
-    /**
-     * Send message via socket
-     */
-    override fun send(message: KmeMessage<out KmeMessage.Payload>) {
-        webSocketModule.send(message)
-    }
-
-    /**
-     * Disconnect from the room. Destroy all related connections
-     */
-    override fun disconnect() {
-        webSocketModule.disconnect()
-        peerConnectionModule.disconnectAll()
-        stopForeground(true)
-        stopSelf()
-    }
-
     override fun onUnbind(intent: Intent?): Boolean {
         disconnect()
         return super.onUnbind(intent)
@@ -79,6 +41,16 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
     override fun onDestroy() {
         disconnect()
         super.onDestroy()
+    }
+
+    /**
+     * Disconnect from the room. Destroy all related connections
+     */
+    private fun disconnect() {
+        roomWSModule.disconnect()
+        peerConnectionModule.disconnectAll()
+        stopForeground(true)
+        stopSelf()
     }
 
     inner class RoomServiceBinder : Binder() {

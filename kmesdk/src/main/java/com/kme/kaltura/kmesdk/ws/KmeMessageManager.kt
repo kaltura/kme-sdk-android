@@ -10,7 +10,7 @@ import java.util.*
 /**
  * An implementation for transferring messages to appropriate listeners
  */
-internal class KmeMessageManager {
+internal class KmeMessageManager : IKmeMessageManager {
 
     private val listeners: MutableMap<KmeMessageEvent?, MutableList<IKmeMessageListener>?> =
         Collections.synchronizedMap(mutableMapOf())
@@ -40,55 +40,18 @@ internal class KmeMessageManager {
         }
     }
 
-    /**
-     * Add listener to the listeners collection
-     *
-     * @param listener listener to be added
-     */
-    fun addListener(listener: IKmeMessageListener) {
+    override fun addListener(listener: IKmeMessageListener) {
         addToMap(null, listener)
     }
 
-    /**
-     * Add listener to the listeners collection
-     *
-     * @param event event to be listed by [listener]
-     * @param listener listener to be added
-     */
-    fun addListener(event: KmeMessageEvent, listener: IKmeMessageListener) {
+    override fun addListener(
+        event: KmeMessageEvent,
+        listener: IKmeMessageListener
+    ) {
         addToMap(event, listener)
     }
 
-    /**
-     * Clear listeners collection
-     */
-    fun removeListeners() {
-        for (listener in listeners.values) {
-            listener?.clear()
-        }
-
-        listeners.clear()
-    }
-
-    /**
-     * Remove specific listener from the listeners collection
-     *
-     * @param listener listener to be removed
-     */
-    fun removeListener(listener: IKmeMessageListener) {
-        for (listenerSet in listeners.values) {
-            listenerSet?.remove(listener)
-        }
-    }
-
-    /**
-     * Listen list of events by specific listener
-     *
-     * @param listener listener to be added
-     * @param events events to be listed by [listener]
-     * @return [IKmeMessageListener] as listener object
-     */
-    fun listen(
+    override fun listen(
         listener: IKmeMessageListener,
         vararg events: KmeMessageEvent
     ): IKmeMessageListener {
@@ -98,17 +61,27 @@ internal class KmeMessageManager {
         return listener
     }
 
-    /**
-     * Stop listen events for listener
-     *
-     * @param listener target listener
-     * @param eventTypes list of events
-     */
-    fun remove(listener: IKmeMessageListener, vararg eventTypes: KmeMessageEvent) {
-        for (eventType in eventTypes) {
+    override fun remove(
+        listener: IKmeMessageListener,
+        vararg events: KmeMessageEvent
+    ) {
+        for (eventType in events) {
             val listenerSet: MutableList<IKmeMessageListener>? = listeners[eventType]
             listenerSet?.remove(listener)
         }
+    }
+
+    override fun removeListener(listener: IKmeMessageListener) {
+        for (listenerSet in listeners.values) {
+            listenerSet?.remove(listener)
+        }
+    }
+
+    override fun removeListeners() {
+        for (listener in listeners.values) {
+            listener?.clear()
+        }
+        listeners.clear()
     }
 
     /**

@@ -3,7 +3,7 @@ package com.kme.kaltura.kmesdk.controller.room.impl
 import android.annotation.SuppressLint
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeChatModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeChangeRoomSettingsResponse
 import com.kme.kaltura.kmesdk.rest.response.user.KmeUserInfoData
@@ -26,7 +26,7 @@ import org.koin.core.inject
 class KmeChatModuleImpl : KmeController(), IKmeChatModule {
 
     private val chatApiService: KmeChatApiService by inject()
-    private val webSocketModule: IKmeWebSocketModule by inject()
+    private val roomController: IKmeRoomController by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -40,7 +40,7 @@ class KmeChatModuleImpl : KmeController(), IKmeChatModule {
         loadType: KmeLoadType,
         fromMessageId: String?
     ) {
-        webSocketModule.send(
+        roomController.send(
             buildLoadMessagesMessage(
                 roomId,
                 companyId,
@@ -61,7 +61,7 @@ class KmeChatModuleImpl : KmeController(), IKmeChatModule {
         message: String,
         userInfo: KmeUserInfoData?
     ) {
-        webSocketModule.send(
+        roomController.send(
             buildSendMessage(
                 roomId,
                 companyId,
@@ -83,7 +83,7 @@ class KmeChatModuleImpl : KmeController(), IKmeChatModule {
         replyMessage: KmeChatMessage,
         userInfo: KmeUserInfoData?
     ) {
-        webSocketModule.send(
+        roomController.send(
             buildReplyMessage(
                 roomId,
                 companyId,
@@ -104,14 +104,14 @@ class KmeChatModuleImpl : KmeController(), IKmeChatModule {
         conversationId: String,
         messageId: String
     ) {
-        webSocketModule.send(buildDeleteMessage(roomId, companyId, conversationId, messageId))
+        roomController.send(buildDeleteMessage(roomId, companyId, conversationId, messageId))
     }
 
     /**
      * Starts a private chat with participant in case specific setting is enabled
      */
     override fun startPrivateChat(roomId: Long, companyId: Long, targetUserId: Long) {
-        webSocketModule.send(buildStartPrivateChatMessage(roomId, companyId, targetUserId))
+        roomController.send(buildStartPrivateChatMessage(roomId, companyId, targetUserId))
     }
 
     /**
@@ -122,7 +122,7 @@ class KmeChatModuleImpl : KmeController(), IKmeChatModule {
         companyId: Long,
         conversationId: String
     ) {
-        webSocketModule.send(
+        roomController.send(
             buildGetConversationMessage(
                 roomId,
                 companyId,
@@ -135,7 +135,7 @@ class KmeChatModuleImpl : KmeController(), IKmeChatModule {
      * Load all available room conversations
      */
     override fun loadConversation(roomId: Long, companyId: Long) {
-        webSocketModule.send(buildLoadConversationsMessage(roomId, companyId))
+        roomController.send(buildLoadConversationsMessage(roomId, companyId))
     }
 
     /**

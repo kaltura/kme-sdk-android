@@ -13,7 +13,6 @@ import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeDefaultSettings
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
-import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
@@ -31,7 +30,6 @@ import org.koin.core.inject
 internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
 
     private val roomController: IKmeRoomController by inject()
-    private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
     private val breakoutModule: IKmeBreakoutModule by inject()
 
@@ -46,7 +44,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
      * for the users and for the room itself
      */
     override fun subscribe() {
-        messageManager.listen(
+        roomController.listen(
             roomSettingsHandler,
             KmeMessageEvent.ROOM_MODULE_SETTINGS_CHANGED,
             KmeMessageEvent.ROOM_SETTINGS_CHANGED,

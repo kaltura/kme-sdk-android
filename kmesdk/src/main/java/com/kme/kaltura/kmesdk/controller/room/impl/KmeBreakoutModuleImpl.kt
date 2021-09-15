@@ -3,9 +3,9 @@ package com.kme.kaltura.kmesdk.controller.room.impl
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule.IKmeBreakoutEvents
+import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
-import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage
@@ -18,7 +18,7 @@ import org.koin.core.inject
  */
 class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
 
-    private val messageManager: KmeMessageManager by inject()
+    private val roomController: IKmeRoomController by inject()
 
     private var eventListener: IKmeBreakoutEvents? = null
 
@@ -26,7 +26,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
      * Subscribing for the room events related breakout rooms
      */
     override fun subscribe() {
-        messageManager.listen(
+        roomController.listen(
             breakoutRoomMessageHandler,
             KmeMessageEvent.BREAKOUT_START,
             KmeMessageEvent.BREAKOUT_STOP,
