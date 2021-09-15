@@ -67,7 +67,6 @@ class KME : KmeKoinComponent {
         success: () -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
-        createControllersScope()
         metadataController.fetchMetadata(success = {
             if (roomController.isConnected()) {
                 roomController.disconnect()
@@ -123,13 +122,4 @@ class KME : KmeKoinComponent {
 
     fun getServerConfiguration() = urlInterceptor.getServerConfiguration()
 
-    fun start() {
-        createControllersScope()
-        createModulesScope()
-        createViewModelsScope()
-    }
-
-    fun release() {
-        releaseScopes()
-    }
 }

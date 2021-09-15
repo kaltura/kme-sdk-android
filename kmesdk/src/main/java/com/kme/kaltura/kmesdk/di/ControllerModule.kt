@@ -21,8 +21,7 @@ val controllersModule = module {
     single<IKmeMetadataController> { KmeMetadataControllerImpl() }
     single<IKmeSignInController> { KmeSignInControllerImpl(androidContext()) }
     single<IKmeUserController> { KmeUserControllerImpl() }
-//    single<IKmeRoomController> { KmeRoomControllerImpl(androidContext()) }
-//
+
     scope(named(SCOPE_CONTROLLER)) {
         scoped<IKmeRoomController> {
             Log.e("TAG", "----- new IKmeRoomController", )

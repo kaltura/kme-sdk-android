@@ -88,7 +88,7 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
 
     override fun onDestroy() {
         disconnect()
-//        releaseScopes()
+        releaseScopes()
         stopService()
         super.onDestroy()
     }
