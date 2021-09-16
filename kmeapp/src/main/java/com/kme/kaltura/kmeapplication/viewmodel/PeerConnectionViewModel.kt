@@ -95,8 +95,9 @@ class PeerConnectionViewModel(
         kmeSdk.roomController.peerConnectionModule.addPublisher(
             publisherId.toString(),
             localRenderer,
-            micEnabled.value ?: true,
-            camEnabled.value ?: true,
+            KmeMediaDeviceState.LIVE,
+            if (micEnabled.value == true) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE,
+            if (camEnabled.value == true) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE,
             frontCamEnabled.value ?: true
         )
 
