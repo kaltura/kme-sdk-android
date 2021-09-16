@@ -153,7 +153,7 @@ class KmeQuickPollView @JvmOverloads constructor(
             pollView = null
             startPollPayload = null
         }
-        defaultEventHandler.destroyEndedValue()
+//        defaultEventHandler.destroyEndedValue()
     }
 
     private fun onUserAnsweredPoll(payload: QuickPollUserAnsweredPayload) {
