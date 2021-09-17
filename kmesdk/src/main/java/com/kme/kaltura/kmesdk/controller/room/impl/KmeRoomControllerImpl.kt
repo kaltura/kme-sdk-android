@@ -38,10 +38,10 @@ class KmeRoomControllerImpl(
 ) : KmeController(), IKmeRoomController, IKmeMessageManager {
 
     private val roomApiService: KmeRoomApiService by inject()
-
-    private val roomSocketModule: IKmeWebSocketModule by inject()
-    private val borSocketModule: IKmeWebSocketModule by inject()
     private val userController: IKmeUserController by inject()
+
+    private val roomSocketModule: IKmeWebSocketModule by modulesScope().inject()
+    private val borSocketModule: IKmeWebSocketModule by modulesScope().inject()
     private val settingsModule: IKmeSettingsModule by modulesScope().inject()
     private val contentModule: IKmeContentModule by modulesScope().inject()
 
@@ -52,7 +52,7 @@ class KmeRoomControllerImpl(
     override val noteModule: IKmeNoteModule by modulesScope().inject()
     override val recordingModule: IKmeRecordingModule by modulesScope().inject()
     override val audioModule: IKmeAudioModule by modulesScope().inject()
-    override val breakoutModule: IKmeBreakoutModule by inject()
+    override val breakoutModule: IKmeBreakoutModule by modulesScope().inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 

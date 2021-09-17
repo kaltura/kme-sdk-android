@@ -9,10 +9,7 @@ import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
-import org.koin.android.ext.android.inject
 import com.kme.kaltura.kmesdk.di.inject
-import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
-import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 
 /**
  * Service wrapper under the room actions
@@ -20,9 +17,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 class KmeRoomService : Service(), KmeKoinComponent {
 
     private val peerConnectionModule: IKmePeerConnectionModule by modulesScope().inject()
-    private val webSocketModule: IKmeWebSocketModule by modulesScope().inject()
-    private val roomWSModule: IKmeWebSocketModule by inject()
-    private val peerConnectionModule: IKmePeerConnectionModule by inject()
+    private val roomWSModule: IKmeWebSocketModule by modulesScope().inject()
 
     private val binder: IBinder = RoomServiceBinder()
 
@@ -66,8 +61,6 @@ class KmeRoomService : Service(), KmeKoinComponent {
     private fun disconnect() {
         roomWSModule.disconnect()
         peerConnectionModule.disconnectAll()
-        stopForeground(true)
-        stopSelf()
     }
 
     inner class RoomServiceBinder : Binder() {

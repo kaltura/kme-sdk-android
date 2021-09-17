@@ -4,9 +4,8 @@ import android.content.Context
 import android.os.Environment
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeNoteModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
-import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.downloadFile
 import com.kme.kaltura.kmesdk.rest.response.room.notes.*
@@ -28,10 +27,9 @@ class KmeNoteModuleImpl(
     private val context: Context
 ) : KmeController(), IKmeNoteModule {
 
+    private val roomController: IKmeRoomController by controllersScope().inject()
     private val roomNotesApiService: KmeRoomNotesApiService by inject()
     private val fileLoaderApiService: KmeFileLoaderApiService by inject()
-    private val webSocketModule: IKmeWebSocketModule by modulesScope().inject()
-    private val roomController: IKmeRoomController by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 

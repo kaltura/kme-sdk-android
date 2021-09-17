@@ -31,8 +31,8 @@ import org.koin.core.inject
 internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
 
     private val roomController:  IKmeRoomController by controllersScope().inject()
+    private val breakoutModule: IKmeBreakoutModule by modulesScope().inject()
     private val userController: IKmeUserController by inject()
-    private val breakoutModule: IKmeBreakoutModule by inject()
 
     private val moderatorState = MutableLiveData<Boolean>()
     override val moderatorStateLiveData get() = moderatorState as LiveData<Boolean>
