@@ -6,6 +6,7 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeSettingsModule
+import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeChatModule
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeDefaultSettings
@@ -29,9 +30,9 @@ import org.koin.core.inject
  */
 internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
 
-    private val roomController: IKmeRoomController by inject()
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
+    private val roomController:  IKmeRoomController by controllersScope().inject()
 
     private val moderatorState = MutableLiveData<Boolean>()
     override val moderatorStateLiveData get() = moderatorState as LiveData<Boolean>
@@ -77,8 +78,10 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
                 KmeMessageEvent.ROOM_SETTINGS_CHANGED -> {
                     val settingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload>? =
                         message.toType()
-                    ifNonNull(settingsMessage?.payload?.changedRoomSetting,
-                        settingsMessage?.payload?.roomSettingValue) { key, value ->
+                    ifNonNull(
+                        settingsMessage?.payload?.changedRoomSetting,
+                        settingsMessage?.payload?.roomSettingValue
+                    ) { key, value ->
                         when (key) {
                             KmePermissionKey.CLASS_MODE -> {
                                 roomController.roomSettings?.roomInfo?.settingsV2?.general?.classMode =
@@ -105,8 +108,10 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
                 KmeMessageEvent.SET_PARTICIPANT_MODERATOR -> {
                     val settingsMessage: KmeParticipantsModuleMessage<SetParticipantModerator>? =
                         message.toType()
-                    ifNonNull(settingsMessage?.payload?.targetUserId,
-                        settingsMessage?.payload?.isModerator) { userId, isModerator ->
+                    ifNonNull(
+                        settingsMessage?.payload?.targetUserId,
+                        settingsMessage?.payload?.isModerator
+                    ) { userId, isModerator ->
                         handleModeratorSetting(userId, isModerator)
                     }
                 }

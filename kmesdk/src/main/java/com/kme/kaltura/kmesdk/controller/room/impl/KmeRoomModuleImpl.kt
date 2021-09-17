@@ -4,6 +4,7 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
@@ -26,8 +27,9 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
 
     private val roomApiService: KmeRoomApiService by inject()
     private val messageManager: KmeMessageManager by inject()
-    private val webSocketModule: IKmeWebSocketModule by inject()
     private val userController: IKmeUserController by inject()
+    private val webSocketModule: IKmeWebSocketModule by modulesScope().inject()
+
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     private val publisherId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
