@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollAudienceType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
+import java.io.Serializable
 
 class KmeQuickPollModuleMessage<T : KmeQuickPollModuleMessage.QuickPollPayload> :
     KmeMessage<T>() {
@@ -47,7 +48,7 @@ class KmeQuickPollModuleMessage<T : KmeQuickPollModuleMessage.QuickPollPayload> 
         @SerializedName("eventName") private val eventName: String = "answerPoll"
     ) : QuickPollPayload()
 
-    open class QuickPollPayload : Payload() {
+    open class QuickPollPayload : Payload(), Serializable {
 
         data class Answer(
             @SerializedName("answer") val answer: Int?,

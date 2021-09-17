@@ -8,20 +8,20 @@ import androidx.lifecycle.Observer
 import com.kme.kaltura.kmesdk.content.KmeContentView
 import com.kme.kaltura.kmesdk.controller.room.IKmeSettingsModule
 import com.kme.kaltura.kmesdk.databinding.FragmentDesktopShareContentBinding
+import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.gone
 import com.kme.kaltura.kmesdk.setVisibility
 import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.visible
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
-import org.koin.android.ext.android.inject
 
 /**
  * Implementation for desktop shared content
  */
 internal class KmeDesktopShareFragment : KmeContentView() {
 
-    private val viewModel: KmeDesktopShareViewModel by inject()
-    private val settingsModule: IKmeSettingsModule by inject()
+    private val settingsModule: IKmeSettingsModule by modulesScope().inject()
+    private val viewModel: KmeDesktopShareViewModel by viewModelsScope().inject()
 
     private var _binding: FragmentDesktopShareContentBinding? = null
     private val binding get() = _binding!!
@@ -115,7 +115,7 @@ internal class KmeDesktopShareFragment : KmeContentView() {
 //        if (isAdmin) {
 //            showPublisherUI(isActive, isYour)
 //        } else {
-            showViewerUI(isActive)
+        showViewerUI(isActive)
 //        }
     }
 

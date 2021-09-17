@@ -5,6 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.di.KmeKoinComponent
+import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
@@ -15,11 +18,13 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
+import org.koin.core.inject
 
-internal class KmeDesktopShareViewModel(
-    private val userController: IKmeUserController,
-    private val roomController: IKmeRoomController
-) : ViewModel() {
+internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinComponent {
+
+    private val userController: IKmeUserController by inject()
+    private val roomController: IKmeRoomController by controllersScope().inject()
+    private val webSocketModule: IKmeWebSocketModule by modulesScope().inject()
 
     private val isAdmin = MutableLiveData<Boolean>()
     val isAdminLiveData get() = isAdmin as LiveData<Boolean>

@@ -2,6 +2,8 @@ package com.kme.kaltura.kmesdk.controller.room.impl
 
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRecordingModule
+import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeCheckRecordingLicenseResponse
@@ -20,6 +22,7 @@ import org.koin.core.inject
 class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
 
     private val roomRecordingApiService: KmeRoomRecordingApiService by inject()
+    private val webSocketModule: IKmeWebSocketModule by modulesScope().inject()
     private val roomController: IKmeRoomController by inject()
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -48,25 +51,27 @@ class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
         companyId: Long,
         timestamp: Long,
         recordingDuration: Long,
-        timeZone: Long
+        timeZone: Long,
     ) {
-        roomController.send(buildStartRoomRecordingMessage(
-            roomId,
-            companyId,
-            timestamp,
-            recordingDuration,
-            timeZone
-        ))
+        roomController.send(
+            buildStartRoomRecordingMessage(
+                roomId,
+                companyId,
+                timestamp,
+                recordingDuration,
+                timeZone
+            ))
     }
 
     /**
      * Stops active recording
      */
     override fun stopRecording(roomId: Long, companyId: Long) {
-        roomController.send(buildStopRoomRecordingMessage(
-            roomId,
-            companyId
-        ))
+        roomController.send(
+            buildStopRoomRecordingMessage(
+                roomId,
+                companyId
+            ))
     }
 
 }

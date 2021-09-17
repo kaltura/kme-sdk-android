@@ -10,12 +10,17 @@ import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import org.koin.android.ext.android.inject
+import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
+import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 
 /**
  * Service wrapper under the room actions
  */
 class KmeRoomService : Service(), KmeKoinComponent {
 
+    private val peerConnectionModule: IKmePeerConnectionModule by modulesScope().inject()
+    private val webSocketModule: IKmeWebSocketModule by modulesScope().inject()
     private val roomWSModule: IKmeWebSocketModule by inject()
     private val peerConnectionModule: IKmePeerConnectionModule by inject()
 
@@ -25,7 +30,11 @@ class KmeRoomService : Service(), KmeKoinComponent {
 
     override fun onCreate() {
         super.onCreate()
-        val notification: Notification = createRoomNotification(context = this, title = getString(R.string.app_name), content = getString(R.string.notification_room_join_message))
+        val notification: Notification = createRoomNotification(
+            context = this,
+            title = getString(R.string.app_name),
+            content = getString(R.string.notification_room_join_message)
+        )
         startForeground(ROOM_NOTIFICATION_ID, notification)
     }
 
@@ -33,13 +42,21 @@ class KmeRoomService : Service(), KmeKoinComponent {
         return START_NOT_STICKY
     }
 
+    private fun stopService() {
+        stopForeground(true)
+        stopSelf()
+    }
+
     override fun onUnbind(intent: Intent?): Boolean {
         disconnect()
+        stopService()
         return super.onUnbind(intent)
     }
 
     override fun onDestroy() {
         disconnect()
+        releaseScopes()
+        stopService()
         super.onDestroy()
     }
 
