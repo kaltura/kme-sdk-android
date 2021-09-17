@@ -23,7 +23,10 @@ internal class KmeMessageManager : IKmeMessageManager {
      * @param event event name
      * @param message message to send
      */
-    fun post(event: KmeMessageEvent, message: KmeMessage<KmeMessage.Payload>) {
+    fun post(
+        event: KmeMessageEvent,
+        message: KmeMessage<KmeMessage.Payload>
+    ) {
         val postListeners: MutableSet<IKmeMessageListener> = mutableSetOf()
         val eventListeners = listeners[event]
         val allEventListeners = listeners[null]
@@ -94,8 +97,8 @@ internal class KmeMessageManager : IKmeMessageManager {
         key: KmeMessageEvent?,
         listener: IKmeMessageListener
     ) {
-        var listenerSet: List<IKmeMessageListener>?
-        listenerSet = listeners[key]
+        var listenerSet = listeners[key]
+
         if (listenerSet == null) {
             listenerSet = mutableListOf()
             listenerSet.add(listener)

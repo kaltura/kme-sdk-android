@@ -2,14 +2,25 @@ package com.kme.kaltura.kmesdk.controller.room.impl
 
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
+import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule.ExitRoomListener
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
+import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.*
+import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.message.KmeMessage
+import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
+import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.ParticipantRemovedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.ApprovalPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.CloseWebSocketPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
@@ -23,12 +34,64 @@ import org.koin.core.inject
  */
 class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
 
+    private val roomController: IKmeRoomController by inject()
     private val roomApiService: KmeRoomApiService by inject()
-    private val webSocketModule: IKmeWebSocketModule by inject()
     private val userController: IKmeUserController by inject()
+
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     private val publisherId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
+    private var exitListener: ExitRoomListener? = null
+
+    /**
+     * Subscribing for the room events
+     */
+    override fun subscribe() {
+        roomController.listen(
+            roomEventsHandler,
+            KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR,
+            KmeMessageEvent.USER_REMOVED,
+            KmeMessageEvent.CLOSE_WEB_SOCKET
+        )
+    }
+
+    override fun setExitListener(listener: ExitRoomListener) {
+        exitListener = listener
+    }
+
+    /**
+     * Listen for subscribed events
+     */
+    private val roomEventsHandler = object : IKmeMessageListener {
+        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
+            when (message.name) {
+                KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR -> {
+                    val msg: KmeRoomInitModuleMessage<ApprovalPayload>? = message.toType()
+                    msg?.payload?.userId?.let {
+                        if (it == publisherId) {
+                            exitListener?.onRoomExit(KmeRoomExitReason.REMOVED_USER)
+                        }
+                    }
+                }
+                KmeMessageEvent.USER_REMOVED -> {
+                    val msg: KmeParticipantsModuleMessage<ParticipantRemovedPayload>? = message.toType()
+                    msg?.payload?.targetUserId?.let {
+                        if (it == publisherId) {
+                            exitListener?.onRoomExit(KmeRoomExitReason.REMOVED_USER)
+                        }
+                    }
+                }
+                KmeMessageEvent.CLOSE_WEB_SOCKET -> {
+                    val msg: KmeRoomInitModuleMessage<CloseWebSocketPayload>? = message.toType()
+                    msg?.payload?.reason?.let { reason ->
+                        exitListener?.onRoomExit(reason)
+                    }
+                }
+                else -> {
+                }
+            }
+        }
+    }
 
     /**
      * Getting all rooms for specific company
@@ -72,16 +135,16 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
      * Joining the room
      */
     override fun joinRoom(roomId: Long, companyId: Long) {
-        webSocketModule.send(buildJoinRoomMessage(roomId, companyId))
-        webSocketModule.send(buildGetQuickPollStateMessage(roomId, companyId))
-        webSocketModule.send(buildGetBreakoutStateMessage(roomId, companyId))
+        roomController.send(buildJoinRoomMessage(roomId, companyId))
+        roomController.send(buildGetQuickPollStateMessage(roomId, companyId))
+        roomController.send(buildGetBreakoutStateMessage(roomId, companyId))
     }
 
     /**
      * Joining the room
      */
     override fun joinRoom(roomId: Long, companyId: Long, password: String) {
-        webSocketModule.send(buildRoomPasswordMessage(roomId, companyId, password))
+        roomController.send(buildRoomPasswordMessage(roomId, companyId, password))
     }
 
     /**
@@ -93,7 +156,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         key: KmePermissionKey,
         value: KmePermissionValue
     ) {
-        webSocketModule.send(buildRoomSettingsChangedMessage(roomId, userId, key, value))
+        roomController.send(buildRoomSettingsChangedMessage(roomId, userId, key, value))
     }
 
     /**
@@ -106,23 +169,23 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         } else {
             publisherId
         }
-        webSocketModule.send(buildSetActiveContentMessage(userId, view))
+        roomController.send(buildSetActiveContentMessage(userId, view))
     }
 
     /**
      * Ends active room session
      */
     override fun endSession(roomId: Long, companyId: Long) {
-        webSocketModule.send(buildEndSessionMessage(roomId, companyId))
-        webSocketModule.removeListeners()
+        roomController.send(buildEndSessionMessage(roomId, companyId))
+        roomController.removeListeners()
     }
 
     /**
      * Ends active room session
      */
     override fun endSessionForEveryone(roomId: Long, companyId: Long) {
-        webSocketModule.send(buildEndSessionForEveryoneMessage(roomId, companyId))
-        webSocketModule.removeListeners()
+        roomController.send(buildEndSessionForEveryoneMessage(roomId, companyId))
+        roomController.removeListeners()
     }
 
 }

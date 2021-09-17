@@ -45,6 +45,7 @@ interface IKmeRoomController : IKmeWebSocketModule {
      * @param roomAlias alias of a room
      * @param companyId alias of a company
      * @param isReconnect reconnection flag
+     * @param exitListener exit room listener
      * @param listener connection listener
      */
     fun connect(
@@ -52,6 +53,7 @@ interface IKmeRoomController : IKmeWebSocketModule {
         roomAlias: String,
         companyId: Long,
         isReconnect: Boolean = true,
+        exitListener: IKmeRoomModule.ExitRoomListener,
         listener: IKmeWSConnectionListener
     )
 

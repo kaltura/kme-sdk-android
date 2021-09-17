@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
@@ -19,8 +18,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 
 internal class KmeDesktopShareViewModel(
     private val userController: IKmeUserController,
-    private val roomController: IKmeRoomController,
-    private val webSocketModule: IKmeWebSocketModule
+    private val roomController: IKmeRoomController
 ) : ViewModel() {
 
     private val isAdmin = MutableLiveData<Boolean>()
@@ -57,7 +55,7 @@ internal class KmeDesktopShareViewModel(
             KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
             KmeMessageEvent.DESKTOP_SHARE_QUALITY_UPDATED
         )
-        webSocketModule.send(buildDesktopShareInitOnRoomInitMessage())
+        roomController.send(buildDesktopShareInitOnRoomInitMessage())
     }
 
     /**

@@ -2,7 +2,7 @@ package com.kme.kaltura.kmesdk.ws.message
 
 import com.google.gson.annotations.SerializedName
 
-enum class KmeMessageReason(
+enum class KmeRoomExitReason(
     @SerializedName("reason") val reason: String
 ) {
 

@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
+import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule.IKmeBreakoutEvents
@@ -19,6 +20,9 @@ import org.koin.core.inject
 class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
 
     private val roomController: IKmeRoomController by inject()
+    private val userController: IKmeUserController by inject()
+
+    private val currentUserId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
 
     private var eventListener: IKmeBreakoutEvents? = null
 
@@ -58,9 +62,11 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
             when (message.name) {
                 KmeMessageEvent.BREAKOUT_START -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    val test = ""
-
-                    eventListener?.onBreakoutRoomChanged(0)
+                    msg?.payload?.assignments?.find { assignment ->
+                        assignment.userId == currentUserId
+                    }?.breakoutRoomId?.let { roomId ->
+                        eventListener?.onBreakoutRoomStarted(roomId)
+                    }
                 }
                 KmeMessageEvent.BREAKOUT_STOP -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
@@ -83,7 +89,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
                     val test = ""
 
-                    eventListener?.onBreakoutRoomChanged(0)
+//                    eventListener?.onBreakoutRoomStarted(0)
                 }
                 KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()

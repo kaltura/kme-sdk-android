@@ -3,14 +3,17 @@ package com.kme.kaltura.kmeapplication.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.kme.kaltura.kmeapplication.util.LiveEvent
 import com.kme.kaltura.kmesdk.KME
 import com.kme.kaltura.kmesdk.content.KmeContentView
 import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
+import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
@@ -19,7 +22,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 
 class RoomViewModel(
     private val kmeSdk: KME
-) : ViewModel(), IKmeWSConnectionListener {
+) : ViewModel(), IKmeRoomModule.ExitRoomListener, IKmeWSConnectionListener {
 
     private val isLoading = MutableLiveData<Boolean>()
     val isLoadingLiveData get() = isLoading as LiveData<Boolean>
@@ -69,10 +72,8 @@ class RoomViewModel(
     private val handRaised = MutableLiveData<Boolean>()
     val handRaisedLiveData get() = handRaised as LiveData<Boolean>
 
-    private val closeConnection =
-        MutableLiveData<KmeRoomInitModuleMessage<CloseWebSocketPayload>?>()
-    val closeConnectionLiveData
-        get() = closeConnection as LiveData<KmeRoomInitModuleMessage<CloseWebSocketPayload>?>
+    private val closeConnection = LiveEvent<KmeRoomExitReason>()
+    val closeConnectionLiveData get() = closeConnection
 
     private val roomStateLoaded = MutableLiveData<RoomStatePayload>()
     val roomStateLoadedLiveData get() = roomStateLoaded as LiveData<RoomStatePayload>
@@ -99,7 +100,7 @@ class RoomViewModel(
         this.roomAlias = roomAlias
 
         isLoading.value = true
-        kmeSdk.roomController.connect(roomId, roomAlias, companyId, true, this)
+        kmeSdk.roomController.connect(roomId, roomAlias, companyId, true, this, this)
         kmeSdk.roomController.subscribeForContent(object : IKmeContentModule.KmeContentListener {
             override fun onContentAvailable(view: KmeContentView) {
                 sharedContent.value = view
@@ -254,12 +255,16 @@ class RoomViewModel(
                     roomParticipantLimitReached.value = message.toType()
                 }
                 KmeMessageEvent.CLOSE_WEB_SOCKET -> {
-                    closeConnection.value = message.toType()
+
                 }
                 else -> {
                 }
             }
         }
+    }
+
+    override fun onRoomExit(reason: KmeRoomExitReason) {
+        closeConnection.value = reason
     }
 
     private fun disconnect() {

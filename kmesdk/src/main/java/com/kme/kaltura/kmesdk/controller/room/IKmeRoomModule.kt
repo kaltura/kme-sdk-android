@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk.controller.room
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
+import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
@@ -11,6 +12,13 @@ import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
  * An interface for room actions
  */
 interface IKmeRoomModule {
+
+    /**
+     * Subscribing for the room events
+     */
+    fun subscribe()
+
+    fun setExitListener(listener: ExitRoomListener)
 
     /**
      * Getting all rooms for specific company
@@ -113,5 +121,11 @@ interface IKmeRoomModule {
         roomId: Long,
         companyId: Long
     )
+
+    interface ExitRoomListener {
+
+        fun onRoomExit(reason: KmeRoomExitReason)
+
+    }
 
 }
