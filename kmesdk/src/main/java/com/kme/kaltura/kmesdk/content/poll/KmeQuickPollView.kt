@@ -13,7 +13,7 @@ import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollTypeView
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
-import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.util.messages.buildSendQuickPollAnswerMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollAudienceType
@@ -40,7 +40,7 @@ class KmeQuickPollView @JvmOverloads constructor(
 
     private val defaultEventHandler: KmeDefaultPollEventHandler by inject()
     private val userController: IKmeUserController by inject()
-    private val roomController: IKmeRoomController by controllersScope().inject()
+    private val roomController: IKmeRoomController by scopedInject()
 
     private var hideResultsViewJob: Job? = null
 

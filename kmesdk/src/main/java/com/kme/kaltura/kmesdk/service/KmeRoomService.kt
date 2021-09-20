@@ -9,7 +9,7 @@ import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
-import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 
@@ -18,8 +18,8 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
  */
 class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
 
-    private val peerConnectionModule: IKmePeerConnectionModule by modulesScope().inject()
-    private val webSocketModule: IKmeWebSocketModule by modulesScope().inject()
+    private val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
+    private val webSocketModule: IKmeWebSocketModule by scopedInject()
 
     private val binder: IBinder = RoomServiceBinder()
 

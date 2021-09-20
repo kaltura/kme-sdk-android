@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.di
 
-import android.util.Log
 import com.kme.kaltura.kmesdk.content.desktop.KmeDesktopShareViewModel
 import com.kme.kaltura.kmesdk.content.playkit.KmeMediaContentViewModel
 import com.kme.kaltura.kmesdk.content.slides.KmeSlidesContentViewModel
@@ -13,12 +12,9 @@ import org.koin.dsl.module
  */
 val contentShareViewModels = module {
 
-    scope(named(SCOPE_VIEW_MODELS)) {
+    scope(named(KmeKoinScope.VIEW_MODELS)) {
         scoped { KmeSlidesContentViewModel() }
-        scoped {
-            Log.e("TAG", "new KmeDesktopShareViewModel()")
-            KmeDesktopShareViewModel()
-        }
+        scoped { KmeDesktopShareViewModel() }
         scoped { KmeWhiteboardContentViewModel() }
         scoped { KmeMediaContentViewModel() }
     }
