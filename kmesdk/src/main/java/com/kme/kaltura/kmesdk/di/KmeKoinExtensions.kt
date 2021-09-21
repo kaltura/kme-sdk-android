@@ -1,7 +1,6 @@
 package com.kme.kaltura.kmesdk.di
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.room.IKmeModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
@@ -71,13 +70,11 @@ object KmeKoinContext {
 
 }
 
-internal interface KmeKoinComponent : KoinComponent {
+internal interface KmeKoinViewModel : KmeKoinComponent {
+    fun onClosed()
+}
 
-    private fun getScope(scope: KmeKoinScope) = when (scope) {
-        ROOM_CONTROLLER -> KmeKoinContext.controllerScope
-        MODULES -> KmeKoinContext.modulesScope
-        VIEW_MODELS -> KmeKoinContext.viewModelsScope
-    }
+internal interface KmeKoinComponent : KoinComponent {
 
     override fun getKoin(): Koin {
         if (!KmeKoinContext.isInitialized()) {
@@ -96,24 +93,30 @@ internal interface KmeKoinComponent : KoinComponent {
 
 }
 
-internal inline fun <reified T> scopedInject(): Lazy<T> = lazy(LazyThreadSafetyMode.NONE) {
+internal fun getScope(scope: KmeKoinScope) = when (scope) {
+    ROOM_CONTROLLER -> KmeKoinContext.controllerScope
+    MODULES -> KmeKoinContext.modulesScope
+    VIEW_MODELS -> KmeKoinContext.viewModelsScope
+}
+
+internal inline fun <reified T> scopedInject(
+    scope: KmeKoinScope? = null
+): Lazy<T> = lazy(LazyThreadSafetyMode.NONE) {
     when {
-        T::class is IKmeRoomController -> {
+        scope != null -> {
+            getScope(scope).value.get()
+        }
+        T::class.java == IKmeRoomController::class.java -> {
             KmeKoinContext.controllerScope.value.get()
         }
-        IKmeModule::class.java.isAssignableFrom( T::class.java) -> {
+        IKmeModule::class.java.isAssignableFrom(T::class.java) -> {
             KmeKoinContext.modulesScope.value.get()
         }
         ViewModel::class.java.isAssignableFrom(T::class.java) -> {
             KmeKoinContext.viewModelsScope.value.get()
         }
         else -> {
-            Log.e("TAG", "scope: throw")
             throw IllegalArgumentException("Unknown scope type")
         }
     }
 }
-
-//inline fun <reified T> Lazy<Scope>.inject(): Lazy<T> = lazy(LazyThreadSafetyMode.NONE) {
-//    this.value.get()
-//}

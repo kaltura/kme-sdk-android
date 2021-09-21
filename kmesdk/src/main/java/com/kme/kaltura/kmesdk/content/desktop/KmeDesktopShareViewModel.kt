@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
-import com.kme.kaltura.kmesdk.di.KmeKoinComponent
+import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
@@ -20,7 +20,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import org.koin.core.inject
 
-internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinComponent {
+internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
 
     private val userController: IKmeUserController by inject()
     private val roomController: IKmeRoomController by scopedInject()
@@ -168,6 +168,10 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinComponent {
         roomController.removeListener(desktopShareHandler)
         stopView()
         stopScreenShare()
+    }
+
+    override fun onClosed() {
+        onCleared()
     }
 
 }
