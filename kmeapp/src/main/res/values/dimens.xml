@@ -8,5 +8,6 @@
     <dimen name="default_avatar_size">46dp</dimen>
 
     <dimen name="chat_bubble_corner_radius">8dp</dimen>
+    <dimen name="default_avatar_radius">8dp</dimen>
 
 </resources>

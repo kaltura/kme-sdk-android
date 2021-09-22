@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.view.ViewTreeObserver
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.RecycledViewPool
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.kme.kaltura.kmeapplication.GridSpacingItemDecoration
 import com.kme.kaltura.kmeapplication.R
 import com.kme.kaltura.kmeapplication.view.adapter.RenderersAdapter
@@ -14,8 +16,8 @@ import com.kme.kaltura.kmeapplication.viewmodel.ParticipantsViewModel
 import com.kme.kaltura.kmeapplication.viewmodel.PeerConnectionViewModel
 import com.kme.kaltura.kmeapplication.viewmodel.RoomRenderersViewModel
 import com.kme.kaltura.kmeapplication.viewmodel.RoomSettingsViewModel
-import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.UserMediaStateChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 import kotlinx.android.synthetic.main.fragment_renderers.*
@@ -70,14 +72,11 @@ class RoomRenderersFragment : KmeFragment() {
 
         roomSettingsViewModel.youModeratorLiveData.observe(viewLifecycleOwner, youModeratorObserver)
 
-        peerConnectionViewModel.viewerAddLiveData.observe(
+        peerConnectionViewModel.addToGalleryLiveData.observe(
             viewLifecycleOwner,
-            viewerAddObserver
+            addToGalleryObserver
         )
-        peerConnectionViewModel.publisherAddLiveData.observe(
-            viewLifecycleOwner,
-            publisherAddObserver
-        )
+
         peerConnectionViewModel.participantRemoveLiveData.observe(
             viewLifecycleOwner,
             participantRemoveObserver
@@ -97,14 +96,22 @@ class RoomRenderersFragment : KmeFragment() {
     }
 
     private fun setupUI() {
-        rvRenderers.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+        rvRenderers.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 rvRenderers.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 adapter = RenderersAdapter(
-                    (rvRenderers.width / 2) - DEFAULT_SPACING * 2,
-                    (rvRenderers.height / 2) - DEFAULT_SPACING * 2
+                    resources,
+                    onViewBind = { renderer, id ->
+                        if (id == peerConnectionViewModel.publisherId) {
+                            peerConnectionViewModel.setPublisherRenderer(renderer)
+                        } else {
+                            peerConnectionViewModel.setViewerRenderer(id, renderer)
+                        }
+                    }
                 )
                 rvRenderers.adapter = adapter
+                rvRenderers.layoutManager = StaggeredGridLayoutManager(2, RecyclerView.HORIZONTAL)
                 rvRenderers.addItemDecoration(GridSpacingItemDecoration(spacing = DEFAULT_SPACING))
             }
         })
@@ -142,35 +149,29 @@ class RoomRenderersFragment : KmeFragment() {
         }
     }
 
-    private val viewerAddObserver = Observer<Long> { newUserId ->
-        participantsViewModel.participants.find { tmp -> tmp.userId == newUserId }
-            ?.let { participant ->
-                clearRecyclerViewPool()
-
-                val renderer = KmeSurfaceRendererView(activity, null)
-                adapter.addRenderer(participant, renderer)
-
-                peerConnectionViewModel.addPeerConnection(newUserId, renderer)
+    private val addToGalleryObserver = Observer<Long> { newUserId ->
+        participantsViewModel.participants.find { tmp ->
+            tmp.userId == newUserId
+        }?.let { participant ->
+            if (participant.userId == peerConnectionViewModel.publisherId) {
+                addPublisherFor(participant)
+            } else {
+                addRendererFor(participant)
             }
+        }
     }
 
-    private val publisherAddObserver = Observer<Long> { newUserId ->
-        participantsViewModel.participants.find { tmp -> tmp.userId == newUserId }
-            ?.let { participant ->
-                clearRecyclerViewPool()
+    private fun addPublisherFor(participant: KmeParticipant) {
+        participant.micState = KmeMediaDeviceState.LIVE
+        participant.webcamState = KmeMediaDeviceState.LIVE
+        addRendererFor(participant)
+    }
 
-                val micEnabled = peerConnectionViewModel.micEnabledLiveData.value ?: true
-                val camEnabled = peerConnectionViewModel.camEnabledLiveData.value ?: true
-
-                participant.micState = if (micEnabled) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE
-                participant.webcamState = if (camEnabled) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE
-
-                val renderer = KmeSurfaceRendererView(activity, null)
-                adapter.addRenderer(participant, renderer)
-                rvRenderers.smoothScrollToPosition(adapter.itemCount - 1)
-
-                peerConnectionViewModel.addPeerConnection(newUserId, renderer)
-            }
+    private fun addRendererFor(participant: KmeParticipant) {
+        adapter.apply {
+            addRenderer(participant)
+            invalidateSpans()
+        }
     }
 
     private val participantRemoveObserver = Observer<Long> {
@@ -250,6 +251,12 @@ class RoomRenderersFragment : KmeFragment() {
                     adapter.updateVideoStateFor(participant)
                 }
             }
+    }
+
+    private fun invalidateSpans() {
+        rvRenderers.post {
+            (rvRenderers.layoutManager as StaggeredGridLayoutManager).invalidateSpanAssignments()
+        }
     }
 
     companion object {

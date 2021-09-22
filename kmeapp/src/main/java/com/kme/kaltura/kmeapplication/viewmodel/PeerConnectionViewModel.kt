@@ -3,9 +3,11 @@ package com.kme.kaltura.kmeapplication.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.kme.kaltura.kmesdk.KME
 import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.toType
+import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.webrtc.audio.KmeAudioDevice.EARPIECE
 import com.kme.kaltura.kmesdk.webrtc.audio.KmeAudioDevice.SPEAKER_PHONE
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
@@ -16,19 +18,16 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.RoomSta
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.StartedPublishPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PeerConnectionViewModel(
     private val kmeSdk: KME
 ) : ViewModel(), IKmePeerConnectionModule.KmePeerConnectionEvents {
 
-    private val viewerAdd = MutableLiveData<Long>()
-    val viewerAddLiveData get() = viewerAdd as LiveData<Long>
-
-    private val publisherAdd = MutableLiveData<Long>()
-    val publisherAddLiveData get() = publisherAdd as LiveData<Long>
-
-    private val publisherAdded = MutableLiveData<Boolean>()
-    val publisherAddedLiveData get() = publisherAdded as LiveData<Boolean>
+    private val addToGallery = LiveEvent<Long>()
+    val addToGalleryLiveData get() = addToGallery
 
     private val peerConnectionRemove = MutableLiveData<Long>()
     val participantRemoveLiveData get() = peerConnectionRemove as LiveData<Long>
@@ -51,7 +50,7 @@ class PeerConnectionViewModel(
     private val frontCamEnabled = MutableLiveData<Boolean>()
     val frontCameraEnabledLiveData get() = frontCamEnabled as LiveData<Boolean>
 
-    private val publisherId: Long by lazy {
+    val publisherId: Long by lazy {
         kmeSdk.userController.getCurrentUserInfo()?.getUserId() ?: 0
     }
 
@@ -73,9 +72,17 @@ class PeerConnectionViewModel(
 
     fun setRoomState(payload: RoomStatePayload?) {
         payload?.participants?.forEach {
-            if (it.value.liveMediaState == KmeMediaDeviceState.LIVE_SUCCESS) {
-                if (it.key != publisherId.toString()) {
-                    viewerAdd.value = it.key.toLongOrNull()
+            val participant = it.value
+            when (participant.liveMediaState) {
+                KmeMediaDeviceState.LIVE_INIT,
+                KmeMediaDeviceState.LIVE_SUCCESS -> {
+                    if (participant.userId != publisherId) {
+                        participant.userId?.let { id ->
+                            kmeSdk.roomController.peerConnectionModule.addViewerConnection(id.toString())
+                        }
+                    }
+                }
+                else -> {
                 }
             }
         }
@@ -91,31 +98,24 @@ class PeerConnectionViewModel(
 
     fun isPublishing() = kmeSdk.roomController.peerConnectionModule.isPublishing()
 
-    private fun startPublish(localRenderer: KmeSurfaceRendererView) {
-        kmeSdk.roomController.peerConnectionModule.addPublisher(
-            publisherId.toString(),
-            localRenderer,
-            KmeMediaDeviceState.LIVE,
-            if (micEnabled.value == true) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE,
-            if (camEnabled.value == true) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE,
-            frontCamEnabled.value ?: true
-        )
-
-        publisherAdded.value = true
-    }
-
     fun startPublish(
         micEnabled: Boolean,
         camEnabled: Boolean,
         frontCamEnabled: Boolean
     ) {
-        this.publisherAdded.value = false
-
         this.micEnabled.value = micEnabled
         this.camEnabled.value = camEnabled
         this.frontCamEnabled.value = frontCamEnabled
 
-        createPublisherRenderer(publisherId)
+        if (!isPublishing()) {
+            kmeSdk.roomController.peerConnectionModule.addPublisherConnection(
+                publisherId.toString(),
+                KmeMediaDeviceState.LIVE,
+                if (micEnabled) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE,
+                if (camEnabled) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE,
+                frontCamEnabled
+            )
+        }
     }
 
     fun toggleCamera() {
@@ -167,7 +167,14 @@ class PeerConnectionViewModel(
             if (it == enable) return
 
             if (enable) {
-                createPublisherRenderer(publisherId)
+                // disable output devices due to privacy reasons
+                kmeSdk.roomController.peerConnectionModule.addPublisherConnection(
+                    publisherId.toString(),
+                    KmeMediaDeviceState.LIVE_INIT,
+                    micState = KmeMediaDeviceState.DISABLED_LIVE,
+                    camState = KmeMediaDeviceState.DISABLED_LIVE,
+                    frontCamEnabled = frontCamEnabled.value ?: true
+                )
             } else {
                 kmeSdk.roomController.peerConnectionModule.disconnect(publisherId.toString())
             }
@@ -186,24 +193,46 @@ class PeerConnectionViewModel(
         }
     }
 
-    fun addPeerConnection(userId: Long, rendererView: KmeSurfaceRendererView) {
-        if (publisherId == userId) {
-            startPublish(rendererView)
-        } else {
-            if (speakerEnabled.value == null) {
-                speakerEnabled.value = false
-            }
-            kmeSdk.roomController.peerConnectionModule.addViewer(userId.toString(), rendererView)
-        }
+    fun setViewerRenderer(
+        userId: Long?,
+        renderer: KmeSurfaceRendererView
+    ) {
+        kmeSdk.roomController.peerConnectionModule.setViewerRenderer(
+            userId.toString(),
+            renderer
+        )
     }
+
+    fun setPublisherRenderer(renderer: KmeSurfaceRendererView) {
+        kmeSdk.roomController.peerConnectionModule.setPublisherRenderer(renderer)
+    }
+
+//    fun addPeerConnection(userId: Long, rendererView: KmeSurfaceRendererView) {
+//        if (publisherId == userId) {
+//            if (!isPublishing()) {
+//                kmeSdk.roomController.peerConnectionModule.addPublisherConnection(
+//                    publisherId.toString(),
+//                    KmeMediaDeviceState.LIVE,
+//                    if (micEnabled.value == true) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE,
+//                    if (camEnabled.value == true) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE,
+//                    frontCamEnabled.value ?: true
+//                )
+//            }
+//        } else {
+//            if (speakerEnabled.value == null) {
+//                speakerEnabled.value = false
+//            }
+////            kmeSdk.roomController.peerConnectionModule.addViewer(userId.toString(), rendererView)
+//        }
+//    }
 
     fun removePeerConnection(id: String) {
         kmeSdk.roomController.peerConnectionModule.disconnect(id)
     }
 
-    private fun createPublisherRenderer(userId: Long) {
-        publisherAdd.value = userId
-    }
+//    private fun createPublisherRenderer(userId: Long) {
+//        publisherAdd.value = userId
+//    }
 
     private val peerConnectionHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
@@ -211,7 +240,8 @@ class PeerConnectionViewModel(
                 KmeMessageEvent.USER_STARTED_TO_PUBLISH -> {
                     val msg: KmeStreamingModuleMessage<StartedPublishPayload>? = message.toType()
                     msg?.payload?.userId?.toLongOrNull()?.let {
-                        viewerAdd.value = it
+//                        viewerAdd.value = it
+                        kmeSdk.roomController.peerConnectionModule.addViewerConnection(it.toString())
                     }
                 }
                 else -> {
@@ -222,10 +252,17 @@ class PeerConnectionViewModel(
 
     override fun onPublisherReady() {
         liveEnabled.postValue(true)
+        addToGallery.postValue(publisherId)
     }
 
     override fun onViewerReady(id: String) {
-
+        id.toLongOrNull()?.let {
+            viewModelScope.launch {
+                withContext(Dispatchers.Main) {
+                    addToGallery.value = it
+                }
+            }
+        }
     }
 
     override fun onUserSpeaking(id: String, isSpeaking: Boolean) {
