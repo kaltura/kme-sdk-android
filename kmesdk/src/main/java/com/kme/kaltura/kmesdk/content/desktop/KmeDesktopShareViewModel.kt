@@ -9,7 +9,7 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.toType
-import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
+import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -32,8 +32,8 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinComponent {
     private val isDesktopShareActive = MutableLiveData<Pair<Boolean, Boolean>>()
     val isDesktopShareActiveLiveData get() = isDesktopShareActive as LiveData<Pair<Boolean, Boolean>>
 
-    private val isDesktopShareAvailable = MutableLiveData<ConsumableValue<Boolean>>()
-    val isDesktopShareAvailableLiveData get() = isDesktopShareAvailable as LiveData<ConsumableValue<Boolean>>
+    private val isDesktopShareAvailable = LiveEvent<Boolean>()
+    val isDesktopShareAvailableLiveData get() = isDesktopShareAvailable
 
     private val desktopShareHDQuality = MutableLiveData<Boolean>()
     val desktopShareHDQualityLiveData get() = desktopShareHDQuality as LiveData<Boolean>
@@ -117,7 +117,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinComponent {
             return
         }
         this.requestedUserIdStream = requestedUserIdStream
-        isDesktopShareAvailable.value = ConsumableValue(true)
+        isDesktopShareAvailable.value = true
     }
 
     fun startView(renderer: KmeSurfaceRendererView) {
