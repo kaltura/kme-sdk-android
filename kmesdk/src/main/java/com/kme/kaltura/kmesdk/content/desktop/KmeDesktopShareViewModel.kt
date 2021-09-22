@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
@@ -17,12 +19,13 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import kotlin.properties.Delegates
+import org.koin.core.inject
 
-internal class KmeDesktopShareViewModel(
-    private val userController: IKmeUserController,
-    private val roomController: IKmeRoomController,
-    private val webSocketModule: IKmeWebSocketModule
-) : ViewModel() {
+internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
+
+    private val userController: IKmeUserController by inject()
+    private val roomController: IKmeRoomController by scopedInject()
+    private val webSocketModule: IKmeWebSocketModule by scopedInject()
 
     private val isAdmin = LiveEvent<Boolean>()
     val isAdminLiveData get() = isAdmin
@@ -36,12 +39,13 @@ internal class KmeDesktopShareViewModel(
     private val desktopShareHDQuality = LiveEvent<Boolean>()
     val desktopShareHDQualityLiveData get() = desktopShareHDQuality
 
-    private var publisherId by Delegates.notNull<String>()
+    private val publisherId: String by lazy {
+        userController.getCurrentUserInfo()?.getUserId().toString()
+    }
+
     private var requestedUserIdStream: String? = null
 
     init {
-        publisherId = userController.getCurrentUserInfo()?.getUserId().toString()
-
         isAdmin.value = userController.isModerator()
                 || userController.isAdminFor(roomController.getCompanyId())
     }
@@ -164,6 +168,10 @@ internal class KmeDesktopShareViewModel(
         roomController.removeListener(desktopShareHandler)
         stopView()
         stopScreenShare()
+    }
+
+    override fun onClosed() {
+        onCleared()
     }
 
 }

@@ -10,7 +10,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 /**
  * An interface for actions related to chat
  */
-interface IKmeChatModule {
+interface IKmeChatModule : IKmeModule {
 
     /**
      * Loads chat messages for specific conversation

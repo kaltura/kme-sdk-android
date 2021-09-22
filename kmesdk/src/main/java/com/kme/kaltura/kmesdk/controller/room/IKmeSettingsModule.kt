@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 /**
  * An interface for room settings
  */
-interface IKmeSettingsModule {
+interface IKmeSettingsModule : IKmeModule {
 
     val moderatorStateLiveData: LiveData<Boolean>
     val settingsChangedLiveData: LiveData<Boolean>

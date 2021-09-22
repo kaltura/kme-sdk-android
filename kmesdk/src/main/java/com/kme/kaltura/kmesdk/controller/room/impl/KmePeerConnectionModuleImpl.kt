@@ -8,6 +8,7 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
 import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.*
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnection
@@ -34,10 +35,10 @@ import kotlin.properties.Delegates
  */
 class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
-    private val webSocketModule: IKmeWebSocketModule by inject()
-    private val roomController: IKmeRoomController by inject()
     private val userController: IKmeUserController by inject()
-    private val contentModule: IKmeContentModule by inject()
+    private val roomController: IKmeRoomController by scopedInject()
+    private val webSocketModule: IKmeWebSocketModule by scopedInject()
+    private val contentModule: IKmeContentModule by scopedInject()
 
     private var preview: IKmePeerConnection? = null
     private var publisher: IKmePeerConnection? = null

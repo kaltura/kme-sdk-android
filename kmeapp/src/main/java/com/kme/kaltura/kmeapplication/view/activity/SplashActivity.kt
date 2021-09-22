@@ -34,8 +34,7 @@ class SplashActivity : AppCompatActivity() {
             }
 
             override fun onAnimationEnd(animation: Animator?) {
-                kme.initSDK(
-                    applicationContext,
+                kme.startSDK(
                     success = {
                         handleDeepLink()
                     },

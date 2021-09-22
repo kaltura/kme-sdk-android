@@ -6,7 +6,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 /**
  * An interface for actions with participants
  */
-interface IKmeParticipantModule {
+interface IKmeParticipantModule : IKmeModule {
 
     /**
      * Raise hand for participant

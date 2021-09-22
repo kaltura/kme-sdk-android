@@ -5,7 +5,7 @@ import com.kme.kaltura.kmesdk.content.KmeContentView
 /**
  * An interface for content sharing
  */
-interface IKmeContentModule {
+interface IKmeContentModule : IKmeModule {
 
     /**
      * Subscribing for the room events related to content sharing

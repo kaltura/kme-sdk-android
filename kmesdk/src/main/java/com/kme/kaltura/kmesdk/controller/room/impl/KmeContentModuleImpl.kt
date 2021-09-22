@@ -11,6 +11,7 @@ import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
 import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
@@ -18,18 +19,17 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType.*
-import org.koin.core.inject
 
 /**
  * An implementation for content sharing
  */
 internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
 
-    private val roomController: IKmeRoomController by inject()
-    private val slidesContentViewModel: KmeSlidesContentViewModel by inject()
-    private val whiteboardViewModel: KmeWhiteboardContentViewModel by inject()
-    private val desktopShareViewModel: KmeDesktopShareViewModel by inject()
-    private val peerConnectionModule: IKmePeerConnectionModule by inject()
+    private val roomController: IKmeRoomController by scopedInject()
+    private val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
+    private val slidesContentViewModel: KmeSlidesContentViewModel by scopedInject()
+    private val whiteboardViewModel: KmeWhiteboardContentViewModel by scopedInject()
+    private val desktopShareViewModel: KmeDesktopShareViewModel by scopedInject()
 
     private var contentView: KmeContentView? = null
     private var listener: IKmeContentModule.KmeContentListener? = null

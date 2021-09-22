@@ -34,12 +34,14 @@ class LiveEvent<T> : MediatorLiveData<T>() {
     }
 
     override fun removeObserver(observer: Observer<in T>) {
-        observers.forEach {
-            if (it.value.remove(observer)) {
-                if (it.value.isEmpty()) {
-                    observers.remove(it.key)
+        if (observer is ObserverWrapper) {
+            observers.forEach {
+                if (it.value.remove(observer)) {
+                    if (it.value.isEmpty()) {
+                        observers.remove(it.key)
+                    }
+                    return@forEach
                 }
-                return@forEach
             }
         }
         super.removeObserver(observer)

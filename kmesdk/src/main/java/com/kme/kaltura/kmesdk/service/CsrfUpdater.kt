@@ -5,6 +5,7 @@ import androidx.work.*
 import com.kme.kaltura.kmesdk.controller.IKmeMetadataController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import org.koin.core.inject
+import org.koin.core.qualifier.named
 import java.util.concurrent.TimeUnit
 
 class CsrfUpdater(
