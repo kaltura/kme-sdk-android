@@ -383,7 +383,7 @@ class RoomActivity : KmeActivity(), PreviewListener {
     }
 
     private fun setupQuickPollView() {
-        quickPollView.init(KmeQuickPollView.Config())
+        quickPollView.init(this, KmeQuickPollView.Config())
     }
 
     private fun showConversationFragment() {
