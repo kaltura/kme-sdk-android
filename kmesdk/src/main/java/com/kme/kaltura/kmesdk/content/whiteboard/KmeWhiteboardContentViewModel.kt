@@ -8,7 +8,7 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.toType
-import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
+import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
@@ -24,27 +24,26 @@ class KmeWhiteboardContentViewModel : ViewModel(), KmeKoinComponent {
     private val setActivePage = MutableLiveData<String>()
     val setActivePageLiveData get() = setActivePage as LiveData<String>
 
-    private val whiteboardPageData =
-        MutableLiveData<ConsumableValue<List<WhiteboardPayload.Drawing>>>()
-    val whiteboardPageLiveData get() = whiteboardPageData as LiveData<ConsumableValue<List<WhiteboardPayload.Drawing>>>
+    private val whiteboardPageData = LiveEvent<List<WhiteboardPayload.Drawing>>()
+    val whiteboardPageLiveData get() = whiteboardPageData
 
-    private val whiteboardCleared = MutableLiveData<ConsumableValue<Nothing?>>()
-    val whiteboardClearedLiveData get() = whiteboardCleared as LiveData<ConsumableValue<Nothing?>>
+    private val whiteboardCleared = LiveEvent<Unit>()
+    val whiteboardClearedLiveData get() = whiteboardCleared
 
-    private val backgroundChanged = MutableLiveData<ConsumableValue<KmeWhiteboardBackgroundType?>>()
-    val backgroundChangedLiveData get() = backgroundChanged as LiveData<ConsumableValue<KmeWhiteboardBackgroundType?>>
+    private val backgroundChanged = LiveEvent<KmeWhiteboardBackgroundType?>()
+    val backgroundChangedLiveData get() = backgroundChanged
 
-    private val receiveDrawing = MutableLiveData<ConsumableValue<WhiteboardPayload.Drawing>>()
-    val receiveDrawingLiveData get() = receiveDrawing as LiveData<ConsumableValue<WhiteboardPayload.Drawing>>
+    private val receiveDrawing = LiveEvent<WhiteboardPayload.Drawing>()
+    val receiveDrawingLiveData get() = receiveDrawing
 
-    private val receiveLaserPosition = MutableLiveData<ConsumableValue<PointF>>()
-    val receiveLaserPositionLiveData get() = receiveLaserPosition as LiveData<ConsumableValue<PointF>>
+    private val receiveLaserPosition = LiveEvent<PointF>()
+    val receiveLaserPositionLiveData get() = receiveLaserPosition
 
-    private val hideLaser = MutableLiveData<ConsumableValue<Nothing?>>()
-    val hideLaserLiveData get() = hideLaser as LiveData<ConsumableValue<Nothing?>>
+    private val hideLaser = LiveEvent<Unit>()
+    val hideLaserLiveData get() = hideLaser
 
-    private val deleteDrawing = MutableLiveData<ConsumableValue<String>>()
-    val deleteDrawingLiveData get() = deleteDrawing as LiveData<ConsumableValue<String>>
+    private val deleteDrawing = LiveEvent<String>()
+    val deleteDrawingLiveData get() = deleteDrawing
 
     private val savedDrawings: MutableList<WhiteboardPayload.Drawing> = mutableListOf()
     val savedDrawingsList get() = savedDrawings.toImmutableList()
@@ -85,7 +84,7 @@ class KmeWhiteboardContentViewModel : ViewModel(), KmeKoinComponent {
                     pageId = contentMessage?.payload?.pageId
 
                     contentMessage?.payload?.drawings?.let {
-                        whiteboardPageData.postValue(ConsumableValue(it))
+                        whiteboardPageData.postValue(it)
                         savedDrawings.clear()
                         savedDrawings.addAll(it)
                     }
@@ -96,18 +95,18 @@ class KmeWhiteboardContentViewModel : ViewModel(), KmeKoinComponent {
 
                     contentMessage?.payload?.let {
                         laserPosition.set(it.laserX, it.laserY)
-                        receiveLaserPosition.postValue(ConsumableValue(laserPosition))
+                        receiveLaserPosition.postValue(laserPosition)
                     }
                 }
                 KmeMessageEvent.LASER_DEACTIVATED -> {
-                    hideLaser.postValue(ConsumableValue(null))
+                    hideLaser.postValue(Unit)
                 }
                 KmeMessageEvent.RECEIVE_DRAWING, KmeMessageEvent.RECEIVE_TRANSFORMATION -> {
                     val contentMessage: KmeWhiteboardModuleMessage<ReceiveDrawingPayload>? =
                         message.toType()
 
                     contentMessage?.payload?.drawing?.let {
-                        receiveDrawing.postValue(ConsumableValue(it))
+                        receiveDrawing.postValue(it)
                         savedDrawings.add(it)
                     }
                 }
@@ -116,7 +115,7 @@ class KmeWhiteboardContentViewModel : ViewModel(), KmeKoinComponent {
                         message.toType()
 
                     contentMessage?.payload?.layer?.let {
-                        deleteDrawing.postValue(ConsumableValue(it))
+                        deleteDrawing.postValue(it)
                         savedDrawings.removeAll { drawing -> drawing.layer == it }
                     }
                 }
@@ -126,7 +125,7 @@ class KmeWhiteboardContentViewModel : ViewModel(), KmeKoinComponent {
 
                     contentMessage?.payload?.let {
                         if (boardId == it.boardId && pageId == it.pageId) {
-                            whiteboardCleared.postValue(ConsumableValue(null))
+                            whiteboardCleared.postValue(Unit)
                             savedDrawings.clear()
                         }
                     }
@@ -137,7 +136,7 @@ class KmeWhiteboardContentViewModel : ViewModel(), KmeKoinComponent {
 
                     contentMessage?.payload?.let {
                         if (boardId == it.boardId) {
-                            whiteboardCleared.postValue(ConsumableValue(null))
+                            whiteboardCleared.postValue(Unit)
                             savedDrawings.clear()
                         }
                     }
@@ -148,7 +147,7 @@ class KmeWhiteboardContentViewModel : ViewModel(), KmeKoinComponent {
 
                     contentMessage?.payload?.let {
                         if (pageId == it.pageId) {
-                            backgroundChanged.postValue(ConsumableValue(it.backgroundType))
+                            backgroundChanged.postValue(it.backgroundType)
                         }
                     }
                 }
@@ -169,7 +168,7 @@ class KmeWhiteboardContentViewModel : ViewModel(), KmeKoinComponent {
                         pageId = it.id
                         setActivePage.postValue(pageId)
                         savedDrawings.clear()
-                        whiteboardPageData.postValue(ConsumableValue(savedDrawings))
+                        whiteboardPageData.postValue(savedDrawings)
                     }
                 }
                 else -> {
