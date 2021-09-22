@@ -8,7 +8,7 @@ import androidx.lifecycle.Observer
 import com.kme.kaltura.kmesdk.content.KmeContentView
 import com.kme.kaltura.kmesdk.controller.room.IKmeSettingsModule
 import com.kme.kaltura.kmesdk.databinding.FragmentDesktopShareContentBinding
-import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.gone
 import com.kme.kaltura.kmesdk.setVisibility
 import com.kme.kaltura.kmesdk.visible
@@ -19,8 +19,8 @@ import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
  */
 internal class KmeDesktopShareFragment : KmeContentView() {
 
-    private val settingsModule: IKmeSettingsModule by modulesScope().inject()
-    private val viewModel: KmeDesktopShareViewModel by viewModelsScope().inject()
+    private val settingsModule: IKmeSettingsModule by scopedInject()
+    private val viewModel: KmeDesktopShareViewModel by scopedInject()
 
     private var _binding: FragmentDesktopShareContentBinding? = null
     private val binding get() = _binding!!

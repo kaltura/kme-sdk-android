@@ -6,7 +6,7 @@ import com.kme.kaltura.kmesdk.rest.response.room.KmeCheckRecordingLicenseRespons
 /**
  * An interface for recording in the room
  */
-interface IKmeRecordingModule {
+interface IKmeRecordingModule : IKmeModule {
 
     /**
      * Checking recording license for the room

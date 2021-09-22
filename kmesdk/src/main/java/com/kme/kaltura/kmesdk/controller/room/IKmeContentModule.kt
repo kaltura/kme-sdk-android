@@ -6,7 +6,7 @@ import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 /**
  * An interface for content sharing
  */
-interface IKmeContentModule {
+interface IKmeContentModule : IKmeModule {
 
     /**
      * Subscribing for the room events related to content sharing

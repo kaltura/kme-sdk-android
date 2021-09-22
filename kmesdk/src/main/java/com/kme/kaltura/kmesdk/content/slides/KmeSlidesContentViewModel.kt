@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeMetadataController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.di.KmeKoinComponent
-import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.toNonNull
@@ -22,11 +22,11 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.Sli
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import org.koin.core.inject
 
-class KmeSlidesContentViewModel : ViewModel(), KmeKoinComponent {
+class KmeSlidesContentViewModel : ViewModel(), KmeKoinViewModel {
 
     private val userController: IKmeUserController by inject()
     private val metadataController: IKmeMetadataController by inject()
-    private val roomController: IKmeRoomController by controllersScope().inject()
+    private val roomController: IKmeRoomController by scopedInject()
     private val prefs: IKmePreferences by inject()
 
     private val slideChanged = MutableLiveData<Int>()
@@ -93,6 +93,10 @@ class KmeSlidesContentViewModel : ViewModel(), KmeKoinComponent {
     override fun onCleared() {
         super.onCleared()
         roomController.removeListener(slidePlayerHandler)
+    }
+
+    override fun onClosed() {
+        onCleared()
     }
 
 }

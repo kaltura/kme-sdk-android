@@ -9,7 +9,7 @@ import android.os.IBinder
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
-import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
 import com.kme.kaltura.kmesdk.rest.safeApiCall
@@ -41,16 +41,16 @@ class KmeRoomControllerImpl(
 
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
-    private val settingsModule: IKmeSettingsModule by modulesScope().inject()
-    private val contentModule: IKmeContentModule by modulesScope().inject()
+    private val settingsModule: IKmeSettingsModule by scopedInject()
+    private val contentModule: IKmeContentModule by scopedInject()
 
-    override val roomModule: IKmeRoomModule by modulesScope().inject()
-    override val peerConnectionModule: IKmePeerConnectionModule by modulesScope().inject()
-    override val participantModule: IKmeParticipantModule by modulesScope().inject()
-    override val chatModule: IKmeChatModule by modulesScope().inject()
-    override val noteModule: IKmeNoteModule by modulesScope().inject()
-    override val recordingModule: IKmeRecordingModule by modulesScope().inject()
-    override val audioModule: IKmeAudioModule by modulesScope().inject()
+    override val roomModule: IKmeRoomModule by scopedInject()
+    override val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
+    override val participantModule: IKmeParticipantModule by scopedInject()
+    override val chatModule: IKmeChatModule by scopedInject()
+    override val noteModule: IKmeNoteModule by scopedInject()
+    override val recordingModule: IKmeRecordingModule by scopedInject()
+    override val audioModule: IKmeAudioModule by scopedInject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 

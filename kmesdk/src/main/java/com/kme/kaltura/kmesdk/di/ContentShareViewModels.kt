@@ -7,20 +7,18 @@ import com.kme.kaltura.kmesdk.content.slides.KmeSlidesContentViewModel
 import com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardContentViewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import org.koin.dsl.onClose
 
 /**
  * Kme room content view models
  */
 val contentShareViewModels = module {
 
-    scope(named(SCOPE_VIEW_MODELS)) {
-        scoped { KmeSlidesContentViewModel() }
-        scoped {
-            Log.e("TAG", "new KmeDesktopShareViewModel()")
-            KmeDesktopShareViewModel()
-        }
-        scoped { KmeWhiteboardContentViewModel() }
-        scoped { KmeMediaContentViewModel() }
+    scope(named(KmeKoinScope.VIEW_MODELS)) {
+        scoped { KmeSlidesContentViewModel() }.onClose { it?.onClosed() }
+        scoped { KmeDesktopShareViewModel() }.onClose { it?.onClosed() }
+        scoped { KmeWhiteboardContentViewModel() }.onClose { it?.onClosed() }
+        scoped { KmeMediaContentViewModel() }.onClose { it?.onClosed() }
     }
 
 }
