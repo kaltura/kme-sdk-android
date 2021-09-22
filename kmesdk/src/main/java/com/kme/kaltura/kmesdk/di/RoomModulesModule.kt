@@ -11,7 +11,7 @@ import org.koin.dsl.module
  */
 val roomModules = module {
 
-    scope(named(SCOPE_MODULES)) {
+    scope(named(KmeKoinScope.MODULES)) {
         scoped<IKmeRoomModule> { KmeRoomModuleImpl() }
         scoped<IKmeWebSocketModule> { KmeWebSocketModuleImpl() }
         scoped<IKmePeerConnectionModule> { KmePeerConnectionModuleImpl() }

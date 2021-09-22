@@ -11,7 +11,7 @@ import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.content.KmeContentView
 import com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardContentViewModel
 import com.kme.kaltura.kmesdk.databinding.FragmentSlidesContentBinding
-import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
@@ -24,8 +24,8 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
  */
 class KmeSlidesContentFragment : KmeContentView() {
 
-    private val slidesContentViewModel: KmeSlidesContentViewModel by viewModelsScope().inject()
-    private val whiteboardViewModel: KmeWhiteboardContentViewModel by viewModelsScope().inject()
+    private val slidesContentViewModel: KmeSlidesContentViewModel by scopedInject()
+    private val whiteboardViewModel: KmeWhiteboardContentViewModel by scopedInject()
 
     private var _binding: FragmentSlidesContentBinding? = null
     private val binding get() = _binding!!

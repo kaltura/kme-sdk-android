@@ -21,7 +21,7 @@ val controllersModule = module {
     single<IKmeSignInController> { KmeSignInControllerImpl(androidContext()) }
     single<IKmeUserController> { KmeUserControllerImpl() }
 
-    scope(named(SCOPE_CONTROLLER)) {
+    scope(named(KmeKoinScope.ROOM_CONTROLLER)) {
         scoped<IKmeRoomController> {
             KmeRoomControllerImpl(androidContext())
         }

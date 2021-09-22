@@ -8,7 +8,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 /**
  * An interface for wrap actions with [IKmePeerConnection]
  */
-interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents {
+interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule {
 
     /**
      * Setting initialization data to the module

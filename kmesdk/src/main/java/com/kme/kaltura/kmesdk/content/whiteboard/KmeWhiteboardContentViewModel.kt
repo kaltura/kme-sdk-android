@@ -1,12 +1,13 @@
 package com.kme.kaltura.kmesdk.content.whiteboard
 
 import android.graphics.PointF
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.di.KmeKoinComponent
-import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -17,9 +18,9 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
 import okhttp3.internal.toImmutableList
 
-class KmeWhiteboardContentViewModel : ViewModel(), KmeKoinComponent {
+class KmeWhiteboardContentViewModel : ViewModel(), KmeKoinViewModel {
 
-    private val roomController:  IKmeRoomController by controllersScope().inject()
+    private val roomController:  IKmeRoomController by scopedInject()
 
     private val setActivePage = MutableLiveData<String>()
     val setActivePageLiveData get() = setActivePage as LiveData<String>
@@ -181,6 +182,10 @@ class KmeWhiteboardContentViewModel : ViewModel(), KmeKoinComponent {
     override fun onCleared() {
         super.onCleared()
         roomController.removeListener(whiteboardHandler)
+    }
+
+    override fun onClosed() {
+        onCleared()
     }
 
 }

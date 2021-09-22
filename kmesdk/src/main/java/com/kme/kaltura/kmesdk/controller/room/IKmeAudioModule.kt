@@ -6,7 +6,7 @@ import com.kme.kaltura.kmesdk.webrtc.audio.KmeAudioDevice
 /**
  * An interface for handling audio in the room
  */
-interface IKmeAudioModule {
+interface IKmeAudioModule : IKmeModule {
 
     /**
      * Starting audio manager

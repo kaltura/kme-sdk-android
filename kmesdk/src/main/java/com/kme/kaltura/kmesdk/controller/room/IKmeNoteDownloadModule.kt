@@ -6,7 +6,7 @@ import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeGetRoomNotesResponse
 /**
  * An interface for download notes
  */
-interface IKmeNoteDownloadModule {
+interface IKmeNoteDownloadModule : IKmeModule {
 
     /**
      * Download specific note as pdf file
