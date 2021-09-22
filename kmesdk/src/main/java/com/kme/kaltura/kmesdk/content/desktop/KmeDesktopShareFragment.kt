@@ -11,7 +11,6 @@ import com.kme.kaltura.kmesdk.databinding.FragmentDesktopShareContentBinding
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.gone
 import com.kme.kaltura.kmesdk.setVisibility
-import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.visible
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 
@@ -149,11 +148,9 @@ internal class KmeDesktopShareFragment : KmeContentView() {
         closeView.gone()
     }
 
-    private val desktopShareAvailableObserver = Observer<ConsumableValue<Boolean>> {
-        it.consume {
-            binding.desktopShareRenderer.visible()
-            viewModel.startView(binding.desktopShareRenderer)
-        }
+    private val desktopShareAvailableObserver = Observer<Boolean> {
+        binding.desktopShareRenderer.visible()
+        viewModel.startView(binding.desktopShareRenderer)
     }
 
     private val desktopShareHDQualityObserver = Observer<Boolean> { isHD ->
