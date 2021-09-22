@@ -30,7 +30,15 @@ interface IKmeBreakoutModule {
         /**
          * Events triggers when current participant going to be moved to another room
          */
-        fun onBreakoutRoomStarted(roomId: Long)
+        fun onBreakoutRoomStart(
+            roomId: Long,
+            roomAlias: String
+        )
+
+        /**
+         * Events triggers when administrator closes the breakout rooms
+         */
+        fun onBreakoutRoomStop()
 
     }
 

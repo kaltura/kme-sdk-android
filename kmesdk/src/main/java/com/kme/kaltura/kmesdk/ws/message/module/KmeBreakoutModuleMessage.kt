@@ -36,6 +36,17 @@ class KmeBreakoutModuleMessage<T : BreakoutPayload> : KmeMessage<T>() {
         @SerializedName("end_time") val end: Long?,
     ) : BreakoutPayload()
 
+    data class BreakoutMessagePayload(
+        @SerializedName("messageType") val messageType: String?,
+        @SerializedName("messageMetadata") val messageMetadata: BreakoutMessageMetadata?,
+    ) : BreakoutPayload()
+
+    data class BreakoutMessageMetadata(
+        @SerializedName("messageText") val messageText: String?,
+        @SerializedName("senderId") val senderId: Long?,
+        @SerializedName("senderName") val senderName: String?,
+        @SerializedName("name") val name: String?,
+    )
 
     data class BreakoutRoom(
         @SerializedName("room_id") val id: Long?,

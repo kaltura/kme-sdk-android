@@ -317,9 +317,6 @@ internal class KmeMessageParser(
             KmeMessageEvent.WHITEBOARD_PAGE_CREATED.toString() -> {
                 text.jsonToObject<KmeWhiteboardModuleMessage<PageCreatedPayload>>()
             }
-            KmeMessageEvent.QUICK_POLL_STATE.toString() -> {
-                text.jsonToObject<KmeQuickPollModuleMessage<GetQuickPollStatePayload>>()
-            }
             KmeMessageEvent.QUICK_POLL_STARTED.toString() -> {
                 text.jsonToObject<KmeQuickPollModuleMessage<QuickPollStartedPayload>>()
             }
@@ -331,6 +328,9 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.QUICK_POLL_USER_ANSWERED.toString() -> {
                 text.jsonToObject<KmeQuickPollModuleMessage<QuickPollUserAnsweredPayload>>()
+            }
+            KmeMessageEvent.MODULE_STATE.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
             }
             KmeMessageEvent.BREAKOUT_START.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
@@ -364,6 +364,9 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_INSTRUCTOR_MESSAGE.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutMessagePayload>>()
             }
             else -> null
         }

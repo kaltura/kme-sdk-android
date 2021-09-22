@@ -13,7 +13,7 @@ val roomModules = module {
 
     scope(named(SCOPE_MODULES)) {
         scoped<IKmeRoomModule> { KmeRoomModuleImpl() }
-        scoped<IKmeWebSocketModule> { KmeWebSocketModuleImpl() }
+        scoped<IKmeWebSocketModule> { KmeWebSocketModuleImpl(get(named("wsOkHttpClient"))) }
         scoped<IKmePeerConnectionModule> { KmePeerConnectionModuleImpl() }
         scoped<IKmeParticipantModule> { KmeParticipantModuleImpl() }
         scoped<IKmeChatModule> { KmeChatModuleImpl() }
@@ -24,5 +24,7 @@ val roomModules = module {
         scoped<IKmeContentModule> { KmeContentModuleImpl() }
         scoped<IKmeBreakoutModule> { KmeBreakoutModuleImpl() }
     }
+
+    single<IKmeWebSocketModule> { KmeWebSocketModuleImpl(get(named("wsOkHttpClient"))) }
 
 }

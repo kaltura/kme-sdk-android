@@ -5,9 +5,12 @@ import com.kme.kaltura.kmesdk.util.ResetableLazy
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.Koin
 import org.koin.core.KoinComponent
+import org.koin.core.parameter.ParametersDefinition
+import org.koin.core.qualifier.Qualifier
 import org.koin.core.qualifier.named
 import org.koin.core.scope.Scope
 import org.koin.dsl.koinApplication
+import org.koin.java.KoinJavaComponent.getKoin
 
 /**
  * Base class for the KME controllers which has an access for Koin container
@@ -108,4 +111,11 @@ internal interface KmeKoinComponent : KoinComponent {
 
 inline fun <reified T> Lazy<Scope>.inject(): Lazy<T> = lazy(LazyThreadSafetyMode.NONE) {
     value.get()
+}
+
+inline fun <reified T> Lazy<Scope>.inject(
+    qualifier: Qualifier? = null,
+    noinline parameters: ParametersDefinition? = null
+): Lazy<T> = lazy(LazyThreadSafetyMode.NONE) {
+    getKoin().get(qualifier, parameters)
 }

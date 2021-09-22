@@ -14,7 +14,7 @@ internal fun buildGetBreakoutStateMessage(
     return KmeBreakoutModuleMessage<GetBreakoutStatePayload>().apply {
         constraint = listOf(KmeConstraint.INCLUDE_SELF)
         module = KmeMessageModule.BREAKOUT
-        name = KmeMessageEvent.BREAKOUT_GET_STATE
+        name = KmeMessageEvent.GET_MODULE_STATE
         type = KmeMessageEventType.VOID
         payload = GetBreakoutStatePayload(roomId, companyId)
     }

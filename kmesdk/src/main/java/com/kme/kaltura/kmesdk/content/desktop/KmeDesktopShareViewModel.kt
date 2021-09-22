@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.inject
 import com.kme.kaltura.kmesdk.toType
@@ -24,7 +23,6 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinComponent {
 
     private val userController: IKmeUserController by inject()
     private val roomController: IKmeRoomController by controllersScope().inject()
-    private val webSocketModule: IKmeWebSocketModule by modulesScope().inject()
 
     private val isAdmin = MutableLiveData<Boolean>()
     val isAdminLiveData get() = isAdmin as LiveData<Boolean>

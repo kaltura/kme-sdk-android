@@ -14,7 +14,7 @@ internal fun buildGetQuickPollStateMessage(
     return KmeQuickPollModuleMessage<GetQuickPollStatePayload>().apply {
         constraint = listOf(KmeConstraint.INCLUDE_SELF)
         module = KmeMessageModule.QUICK_POLL
-        name = KmeMessageEvent.QUICK_POLL_GET_STATE
+        name = KmeMessageEvent.GET_MODULE_STATE
         type = KmeMessageEventType.VOID
         payload = GetQuickPollStatePayload(roomId, companyId)
     }

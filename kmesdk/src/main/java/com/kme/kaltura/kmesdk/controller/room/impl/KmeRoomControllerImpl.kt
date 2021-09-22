@@ -17,7 +17,6 @@ import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.service.KmeRoomService
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
-import com.kme.kaltura.kmesdk.ws.IKmeMessageManager
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
@@ -35,13 +34,13 @@ import org.koin.core.inject
  */
 class KmeRoomControllerImpl(
     private val context: Context,
-) : KmeController(), IKmeRoomController, IKmeMessageManager {
+) : KmeController(), IKmeRoomController {
 
     private val roomApiService: KmeRoomApiService by inject()
     private val userController: IKmeUserController by inject()
 
-    private val roomSocketModule: IKmeWebSocketModule by modulesScope().inject()
-    private val borSocketModule: IKmeWebSocketModule by modulesScope().inject()
+    private val mainRoomSocketModule: IKmeWebSocketModule by modulesScope().inject()
+    private val borSocketModule: IKmeWebSocketModule by inject()
     private val settingsModule: IKmeSettingsModule by modulesScope().inject()
     private val contentModule: IKmeContentModule by modulesScope().inject()
 
@@ -112,6 +111,13 @@ class KmeRoomControllerImpl(
         listener: IKmeWSConnectionListener,
     ) {
         roomModule.setExitListener(exitListener)
+        breakoutRoomId = null
+
+        if (mainRoomSocketModule.isConnected()) {
+            listener.onOpen()
+            return
+        }
+
         userController.getUserInformation(
             roomAlias,
             success = {
@@ -189,7 +195,8 @@ class KmeRoomControllerImpl(
             override fun onOpen() {
                 getActiveSocket().listen(
                     roomStateHandler,
-                    KmeMessageEvent.ROOM_STATE
+                    KmeMessageEvent.ROOM_STATE,
+                    KmeMessageEvent.GET_MODULE_STATE
                 )
 
                 subscribeInternalModules()
@@ -231,18 +238,22 @@ class KmeRoomControllerImpl(
      */
     private val roomStateHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-            if (KmeMessageEvent.ROOM_STATE == message.name) {
-                val msg: KmeRoomInitModuleMessage<RoomStatePayload>? = message.toType()
+            when (message.name) {
+                KmeMessageEvent.ROOM_STATE -> {
+                    val msg: KmeRoomInitModuleMessage<RoomStatePayload>? = message.toType()
 
-                roomMetadata = msg?.payload?.metaData
+                    roomMetadata = msg?.payload?.metaData
 
-                val participantsList = msg?.payload?.participants?.values?.toMutableList()
-                val currentUserId = userController.getCurrentUserInfo()?.getUserId()
-                val currentParticipant =
-                    participantsList?.find { kmeParticipant -> kmeParticipant.userId == currentUserId }
-                currentParticipant?.userPermissions = roomSettings?.roomInfo?.settingsV2
+                    val participantsList = msg?.payload?.participants?.values?.toMutableList()
+                    val currentParticipant = participantsList?.find { participant ->
+                        participant.userId == userController.getCurrentUserInfo()?.getUserId()
+                    }
+                    currentParticipant?.userPermissions = roomSettings?.roomInfo?.settingsV2
 
-                userController.updateParticipant(currentParticipant)
+                    userController.updateParticipant(currentParticipant)
+                }
+                else -> {
+                }
             }
         }
     }
@@ -272,6 +283,7 @@ class KmeRoomControllerImpl(
                     val wssUrl = it.data?.wssUrl
                     val token = it.data?.token
                     if (wssUrl != null && token != null) {
+                        breakoutRoomId = roomId
                         getActiveSocket().connect(
                             wssUrl,
                             companyId,
@@ -280,31 +292,27 @@ class KmeRoomControllerImpl(
                             token,
                             object : IKmeWSConnectionListener {
                                 override fun onOpen() {
-                                    roomSocketModule.removeListeners()
+                                    mainRoomSocketModule.removeListeners()
                                     subscribeInternalModules()
-
-                                    // subscribe to BOR socket events
-                                    breakoutRoomId = roomId
-                                    subscribeInternalModules()
+                                    listener.onOpen()
                                 }
 
                                 override fun onFailure(throwable: Throwable) {
-
+                                    listener.onFailure(throwable)
                                 }
 
                                 override fun onClosing(code: Int, reason: String) {
-
+                                    listener.onClosing(code, reason)
                                 }
 
                                 override fun onClosed(code: Int, reason: String) {
-
+                                    listener.onClosed(code, reason)
                                 }
                             }
                         )
                     }
                 },
                 error = {
-                    roomSettings = null
                     listener.onFailure(Throwable(it))
                 }
             )
@@ -382,7 +390,7 @@ class KmeRoomControllerImpl(
     private fun getActiveSocket(): IKmeWebSocketModule = breakoutRoomId?.let {
         borSocketModule
     } ?: run {
-        roomSocketModule
+        mainRoomSocketModule
     }
 
     private fun subscribeInternalModules() {

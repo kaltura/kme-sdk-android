@@ -33,7 +33,6 @@ class KmeDefaultPollEventHandler : KmeKoinComponent {
             KmeMessageEvent.QUICK_POLL_STARTED,
             KmeMessageEvent.QUICK_POLL_ENDED,
             KmeMessageEvent.QUICK_POLL_ANSWERS,
-            KmeMessageEvent.QUICK_POLL_STATE,
             KmeMessageEvent.QUICK_POLL_USER_ANSWERED
         )
     }
@@ -55,8 +54,6 @@ class KmeDefaultPollEventHandler : KmeKoinComponent {
                     }
                 }
                 KmeMessageEvent.QUICK_POLL_ANSWERS -> {
-                }
-                KmeMessageEvent.QUICK_POLL_STATE -> {
                 }
                 KmeMessageEvent.QUICK_POLL_USER_ANSWERED -> {
                     val msg: KmeQuickPollModuleMessage<QuickPollUserAnsweredPayload>? =

@@ -268,7 +268,7 @@ class RoomViewModel(
     }
 
     private fun disconnect() {
-        kmeSdk.roomController.disconnect()
+//        kmeSdk.roomController.disconnect()
     }
 
     override fun onCleared() {

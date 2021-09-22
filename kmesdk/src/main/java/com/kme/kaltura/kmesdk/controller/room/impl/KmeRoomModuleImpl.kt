@@ -68,16 +68,16 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
             when (message.name) {
                 KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR -> {
                     val msg: KmeRoomInitModuleMessage<ApprovalPayload>? = message.toType()
-                    msg?.payload?.userId?.let {
-                        if (it == publisherId) {
+                    msg?.payload?.userId?.let { userId ->
+                        if (userId == publisherId) {
                             exitListener?.onRoomExit(KmeRoomExitReason.REMOVED_USER)
                         }
                     }
                 }
                 KmeMessageEvent.USER_REMOVED -> {
                     val msg: KmeParticipantsModuleMessage<ParticipantRemovedPayload>? = message.toType()
-                    msg?.payload?.targetUserId?.let {
-                        if (it == publisherId) {
+                    msg?.payload?.targetUserId?.let { userId ->
+                        if (userId == publisherId) {
                             exitListener?.onRoomExit(KmeRoomExitReason.REMOVED_USER)
                         }
                     }

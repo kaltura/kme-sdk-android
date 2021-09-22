@@ -40,6 +40,12 @@ enum class KmeMessageEvent(
     @SerializedName("roomState", alternate = ["roomstate"])
     ROOM_STATE("roomState"),
 
+    @SerializedName("getModuleState", alternate = ["getmodulestate"])
+    GET_MODULE_STATE("getModuleState"),
+
+    @SerializedName("moduleState", alternate = ["modulestate"])
+    MODULE_STATE("moduleState"),
+
     @SerializedName("newUserJoined", alternate = ["newuserjoined"])
     NEW_USER_JOINED("newUserJoined"),
 
@@ -334,12 +340,6 @@ enum class KmeMessageEvent(
     @SerializedName("userAnsweredPoll", alternate = ["useransweredpoll"])
     QUICK_POLL_USER_ANSWERED("userAnsweredPoll"),
 
-    @SerializedName("getModuleState", alternate = ["getmodulestate"])
-    QUICK_POLL_GET_STATE("getModuleState"),
-
-    @SerializedName("moduleState", alternate = ["modulestate"])
-    QUICK_POLL_STATE("moduleState"),
-
     @SerializedName("pollAnswers", alternate = ["pollanswers"])
     QUICK_POLL_ANSWERS("pollAnswers"),
 
@@ -365,9 +365,6 @@ enum class KmeMessageEvent(
     /*
     * Breakout
     * */
-
-    @SerializedName("getModuleState", alternate = ["getmodulestate"])
-    BREAKOUT_GET_STATE("getModuleState"),
 
     @SerializedName("startBreakoutSucceeded", alternate = ["startbreakoutsucceeded"])
     BREAKOUT_START("startBreakoutSucceeded"),
@@ -400,7 +397,10 @@ enum class KmeMessageEvent(
     BREAKOUT_EXTEND_TIME_LIMIT("extendTimeLimitSucceeded"),
 
     @SerializedName("callToInstructorSucceeded", alternate = ["calltoinstructorsucceeded"])
-    BREAKOUT_CALL_TO_INSTRUCTOR("callToInstructorSucceeded");
+    BREAKOUT_CALL_TO_INSTRUCTOR("callToInstructorSucceeded"),
+
+    @SerializedName("breakoutMessage", alternate = ["breakoutmessage"])
+    BREAKOUT_INSTRUCTOR_MESSAGE("breakoutMessage");
 
     @SuppressLint("DefaultLocale")
     override fun toString(): String {
