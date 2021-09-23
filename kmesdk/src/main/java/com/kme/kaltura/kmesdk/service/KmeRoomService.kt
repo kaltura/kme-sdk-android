@@ -6,18 +6,15 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import com.kme.kaltura.kmesdk.R
-import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
-import com.kme.kaltura.kmesdk.di.inject
 
 /**
  * Service wrapper under the room actions
  */
 class KmeRoomService : Service(), KmeKoinComponent {
 
-    private val peerConnectionModule: IKmePeerConnectionModule by modulesScope().inject()
-    private val roomWSModule: IKmeWebSocketModule by modulesScope().inject()
+//    private val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
+//    private val roomWSModule: IKmeWebSocketModule by scopedInject()
 
     private val binder: IBinder = RoomServiceBinder()
 
@@ -43,13 +40,13 @@ class KmeRoomService : Service(), KmeKoinComponent {
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        disconnect()
+//        disconnect()
         stopService()
         return super.onUnbind(intent)
     }
 
     override fun onDestroy() {
-        disconnect()
+//        disconnect()
         releaseScopes()
         stopService()
         super.onDestroy()
@@ -58,10 +55,10 @@ class KmeRoomService : Service(), KmeKoinComponent {
     /**
      * Disconnect from the room. Destroy all related connections
      */
-    private fun disconnect() {
-        roomWSModule.disconnect()
-        peerConnectionModule.disconnectAll()
-    }
+//    private fun disconnect() {
+//        roomWSModule.disconnect()
+//        peerConnectionModule.disconnectAll()
+//    }
 
     inner class RoomServiceBinder : Binder() {
         val service: KmeRoomService

@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.ws
 
 import android.util.Log
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener

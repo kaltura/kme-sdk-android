@@ -7,7 +7,7 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.KmeKoinContext
-import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
@@ -26,11 +26,11 @@ class KME : KmeKoinComponent {
 
     val roomController: IKmeRoomController
         get() {
-            val controller: IKmeRoomController by controllersScope().inject()
+            val controller: IKmeRoomController by scopedInject()
             return controller
         }
 
-    val csrfUpdater: CsrfUpdater by inject()
+    private val csrfUpdater: CsrfUpdater by inject()
 
     private val metadataController: IKmeMetadataController by inject()
     private val urlInterceptor: KmeChangeableBaseUrlInterceptor by inject()

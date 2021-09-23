@@ -5,10 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.di.KmeKoinComponent
-import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
-import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
+import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -19,22 +19,22 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import org.koin.core.inject
 
-internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinComponent {
+internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
 
     private val userController: IKmeUserController by inject()
-    private val roomController: IKmeRoomController by controllersScope().inject()
+    private val roomController: IKmeRoomController by scopedInject()
 
-    private val isAdmin = MutableLiveData<Boolean>()
-    val isAdminLiveData get() = isAdmin as LiveData<Boolean>
+    private val isAdmin = LiveEvent<Boolean>()
+    val isAdminLiveData get() = isAdmin
 
     private val isDesktopShareActive = MutableLiveData<Pair<Boolean, Boolean>>()
     val isDesktopShareActiveLiveData get() = isDesktopShareActive as LiveData<Pair<Boolean, Boolean>>
 
-    private val isDesktopShareAvailable = MutableLiveData<ConsumableValue<Boolean>>()
-    val isDesktopShareAvailableLiveData get() = isDesktopShareAvailable as LiveData<ConsumableValue<Boolean>>
+    private val isDesktopShareAvailable = LiveEvent<Boolean>()
+    val isDesktopShareAvailableLiveData get() = isDesktopShareAvailable
 
-    private val desktopShareHDQuality = MutableLiveData<Boolean>()
-    val desktopShareHDQualityLiveData get() = desktopShareHDQuality as LiveData<Boolean>
+    private val desktopShareHDQuality = LiveEvent<Boolean>()
+    val desktopShareHDQualityLiveData get() = desktopShareHDQuality
 
     private val publisherId: String by lazy {
         userController.getCurrentUserInfo()?.getUserId().toString()
@@ -115,18 +115,15 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinComponent {
             return
         }
         this.requestedUserIdStream = requestedUserIdStream
-        isDesktopShareAvailable.value = ConsumableValue(true)
+        roomController.peerConnectionModule.addViewerConnection(requestedUserIdStream)
+        isDesktopShareAvailable.value = true
     }
 
-    fun startView(renderer: KmeSurfaceRendererView) {
-        requestedUserIdStream?.let {
-            roomController.peerConnectionModule.addViewer(it, renderer)
-        }
-    }
+    // Viewer actions
 
-    fun changeViewerRenderer(renderer: KmeSurfaceRendererView) {
+    fun setViewerRenderer(renderer: KmeSurfaceRendererView) {
         requestedUserIdStream?.let {
-            roomController.peerConnectionModule.addViewerRenderer(it, renderer)
+            roomController.peerConnectionModule.setViewerRenderer(it, renderer)
         }
     }
 
@@ -137,6 +134,8 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinComponent {
         }
     }
 
+    // Admin actions
+
     fun setConferenceView() {
         roomController.roomModule.setActiveContent(KmeContentType.CONFERENCE_VIEW)
     }
@@ -145,20 +144,20 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinComponent {
         roomController.peerConnectionModule.askForScreenSharePermission()
     }
 
-    fun changeScreenShareRenderer(renderer: KmeSurfaceRendererView) {
-        roomController.peerConnectionModule.addPublisherRenderer(renderer)
-    }
-
-    fun clearRenderer(renderer: KmeSurfaceRendererView) {
-        requestedUserIdStream?.let {
-            roomController.peerConnectionModule.removeViewerRenderer(it, renderer)
-        } ?: run {
-            roomController.peerConnectionModule.removePublisherRenderer(renderer)
-        }
+    fun setScreenShareRenderer(renderer: KmeSurfaceRendererView) {
+        roomController.peerConnectionModule.setScreenShareRenderer(renderer)
     }
 
     fun stopScreenShare() {
         roomController.peerConnectionModule.stopScreenShare()
+    }
+
+    fun updateModeratorState(isModerator: Boolean): Boolean {
+        if (isAdmin.value != isModerator) {
+            isAdmin.value = isModerator
+            return true
+        }
+        return false
     }
 
     override fun onCleared() {
@@ -166,6 +165,10 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinComponent {
         roomController.removeListener(desktopShareHandler)
         stopView()
         stopScreenShare()
+    }
+
+    override fun onClosed() {
+        onCleared()
     }
 
 }

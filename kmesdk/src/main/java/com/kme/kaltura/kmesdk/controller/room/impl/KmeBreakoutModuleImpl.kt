@@ -5,7 +5,7 @@ import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule.IKmeBreakoutEvents
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -22,7 +22,7 @@ import org.koin.core.inject
  */
 class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
 
-    private val roomController: IKmeRoomController by controllersScope().inject()
+    private val roomController: IKmeRoomController by scopedInject()
     private val userController: IKmeUserController by inject()
 
     private val currentUserId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }

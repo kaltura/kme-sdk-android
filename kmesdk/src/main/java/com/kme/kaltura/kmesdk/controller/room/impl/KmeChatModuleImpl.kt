@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeChatModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeChangeRoomSettingsResponse
 import com.kme.kaltura.kmesdk.rest.response.user.KmeUserInfoData
@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.inject
+import java.util.*
 
 /**
  * An implementation actions related to chat
@@ -27,7 +28,7 @@ import org.koin.core.inject
 class KmeChatModuleImpl : KmeController(), IKmeChatModule {
 
     private val chatApiService: KmeChatApiService by inject()
-    private val roomController: IKmeRoomController by controllersScope().inject()
+    private val roomController: IKmeRoomController by scopedInject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -154,9 +155,9 @@ class KmeChatModuleImpl : KmeController(), IKmeChatModule {
                 {
                     chatApiService.changePublicChatVisibility(
                         roomId,
-                        KmePermissionModule.CHAT_MODULE.name.toLowerCase(),
-                        KmePermissionKey.PUBLIC_CHAT.name.toLowerCase(),
-                        value.name.toLowerCase()
+                        KmePermissionModule.CHAT_MODULE.name.lowercase(Locale.getDefault()),
+                        KmePermissionKey.PUBLIC_CHAT.name.lowercase(Locale.getDefault()),
+                        value.name.lowercase(Locale.getDefault())
                     )
                 },
                 success,

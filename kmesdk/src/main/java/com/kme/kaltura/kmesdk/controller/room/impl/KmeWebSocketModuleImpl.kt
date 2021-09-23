@@ -120,7 +120,9 @@ internal class KmeWebSocketModuleImpl(
         isSocketConnected = false
         reconnect()
         uiScope.launch {
-            listener.onFailure(throwable)
+            if (allowReconnection) {
+                listener.onFailure(throwable)
+            }
         }
         if (!allowReconnection) {
             onClosed(1000, "")

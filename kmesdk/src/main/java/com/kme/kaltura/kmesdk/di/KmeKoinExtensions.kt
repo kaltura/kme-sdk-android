@@ -1,16 +1,17 @@
 package com.kme.kaltura.kmesdk.di
 
 import android.content.Context
+import androidx.lifecycle.ViewModel
+import com.kme.kaltura.kmesdk.controller.room.IKmeModule
+import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.di.KmeKoinScope.*
 import com.kme.kaltura.kmesdk.util.ResetableLazy
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.Koin
 import org.koin.core.KoinComponent
-import org.koin.core.parameter.ParametersDefinition
-import org.koin.core.qualifier.Qualifier
 import org.koin.core.qualifier.named
 import org.koin.core.scope.Scope
 import org.koin.dsl.koinApplication
-import org.koin.java.KoinJavaComponent.getKoin
 
 /**
  * Base class for the KME controllers which has an access for Koin container
@@ -22,33 +23,27 @@ object KmeKoinContext {
     internal fun isInitialized() = ::sdkKoin.isInitialized
 
     internal val controllerScope: ResetableLazy<Scope> = ResetableLazy({
-        if (isControllersScopesReleased()) {
+        if (isScopeReleased(ROOM_CONTROLLER)) {
             sdkKoin.createScope(
-                SDK_SCOPE_CONTROLLERS_ID,
-                named(SCOPE_CONTROLLER)
+                ROOM_CONTROLLER.id,
+                named(ROOM_CONTROLLER.named)
             )
         }
-        sdkKoin.getScope(SDK_SCOPE_CONTROLLERS_ID)
+        sdkKoin.getScope(ROOM_CONTROLLER.id)
     })
 
     internal val modulesScope: ResetableLazy<Scope> = ResetableLazy({
-        if (isModulesScopesReleased()) {
-            sdkKoin.createScope(
-                SDK_SCOPE_MODULES_ID,
-                named(SCOPE_MODULES)
-            )
+        if (isScopeReleased(MODULES)) {
+            sdkKoin.createScope(MODULES.id, named(MODULES.named))
         }
-        sdkKoin.getScope(SDK_SCOPE_MODULES_ID)
+        sdkKoin.getScope(MODULES.id)
     })
 
     internal val viewModelsScope: ResetableLazy<Scope> = ResetableLazy({
-        if (isViewModelsScopesReleased()) {
-            sdkKoin.createScope(
-                SDK_SCOPE_VIEW_MODELS_ID,
-                named(SCOPE_VIEW_MODELS)
-            )
+        if (isScopeReleased(VIEW_MODELS)) {
+            sdkKoin.createScope(VIEW_MODELS.id, named(VIEW_MODELS.named))
         }
-        sdkKoin.getScope(SDK_SCOPE_VIEW_MODELS_ID)
+        sdkKoin.getScope(VIEW_MODELS.id)
     })
 
     fun init(appContext: Context) {
@@ -70,24 +65,16 @@ object KmeKoinContext {
         }.koin
     }
 
-    private fun isControllersScopesReleased() =
-        sdkKoin.getScopeOrNull(SDK_SCOPE_CONTROLLERS_ID)?.closed ?: true
-
-    private fun isModulesScopesReleased(): Boolean =
-        sdkKoin.getScopeOrNull(SDK_SCOPE_MODULES_ID)?.closed ?: true
-
-    private fun isViewModelsScopesReleased(): Boolean =
-        sdkKoin.getScopeOrNull(SDK_SCOPE_VIEW_MODELS_ID)?.closed ?: true
+    private fun isScopeReleased(scope: KmeKoinScope) =
+        sdkKoin.getScopeOrNull(scope.id)?.closed ?: true
 
 }
 
+internal interface KmeKoinViewModel : KmeKoinComponent {
+    fun onClosed()
+}
+
 internal interface KmeKoinComponent : KoinComponent {
-
-    fun controllersScope(): ResetableLazy<Scope> = KmeKoinContext.controllerScope
-
-    fun modulesScope(): ResetableLazy<Scope> = KmeKoinContext.modulesScope
-
-    fun viewModelsScope(): ResetableLazy<Scope> = KmeKoinContext.viewModelsScope
 
     override fun getKoin(): Koin {
         if (!KmeKoinContext.isInitialized()) {
@@ -97,25 +84,39 @@ internal interface KmeKoinComponent : KoinComponent {
     }
 
     fun releaseScopes() {
-        controllersScope().value.close()
-        controllersScope().invalidate()
-
-        modulesScope().value.close()
-        modulesScope().invalidate()
-
-        viewModelsScope().value.close()
-        viewModelsScope().invalidate()
+        for (scopeType in KmeKoinScope.values()) {
+            val scope = getScope(scopeType)
+            scope.value.close()
+            scope.invalidate()
+        }
     }
 
 }
 
-inline fun <reified T> Lazy<Scope>.inject(): Lazy<T> = lazy(LazyThreadSafetyMode.NONE) {
-    value.get()
+internal fun getScope(scope: KmeKoinScope) = when (scope) {
+    ROOM_CONTROLLER -> KmeKoinContext.controllerScope
+    MODULES -> KmeKoinContext.modulesScope
+    VIEW_MODELS -> KmeKoinContext.viewModelsScope
 }
 
-inline fun <reified T> Lazy<Scope>.inject(
-    qualifier: Qualifier? = null,
-    noinline parameters: ParametersDefinition? = null
+internal inline fun <reified T> scopedInject(
+    scope: KmeKoinScope? = null
 ): Lazy<T> = lazy(LazyThreadSafetyMode.NONE) {
-    getKoin().get(qualifier, parameters)
+    when {
+        scope != null -> {
+            getScope(scope).value.get()
+        }
+        T::class.java == IKmeRoomController::class.java -> {
+            KmeKoinContext.controllerScope.value.get()
+        }
+        IKmeModule::class.java.isAssignableFrom(T::class.java) -> {
+            KmeKoinContext.modulesScope.value.get()
+        }
+        ViewModel::class.java.isAssignableFrom(T::class.java) -> {
+            KmeKoinContext.viewModelsScope.value.get()
+        }
+        else -> {
+            throw IllegalArgumentException("Unknown scope type")
+        }
+    }
 }

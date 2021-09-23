@@ -5,7 +5,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.Roo
 /**
  * An interface for actions with breakout rooms
  */
-interface IKmeBreakoutModule {
+interface IKmeBreakoutModule : IKmeModule {
 
     /**
      * Subscribing for the room events related breakout rooms

@@ -1,9 +1,19 @@
 package com.kme.kaltura.kmesdk.di
 
-internal const val SDK_SCOPE_CONTROLLERS_ID = "SDK_SCOPE_CONTROLLERS_ID"
-internal const val SDK_SCOPE_MODULES_ID = "SDK_SCOPE_MODULES_ID"
-internal const val SDK_SCOPE_VIEW_MODELS_ID = "SDK_SCOPE_VIEW_MODELS_ID"
+private const val SCOPE_ROOM_CONTROLLER_ID = "SCOPE_ROOM_CONTROLLER_ID"
+private const val SCOPE_MODULES_ID = "SCOPE_MODULES_ID"
+private const val SCOPE_VIEW_MODELS_ID = "SCOPE_VIEW_MODELS_ID"
 
-internal const val SCOPE_CONTROLLER = "scope_controller"
-internal const val SCOPE_MODULES = "scope_modules"
-internal const val SCOPE_VIEW_MODELS = "scope_view_models"
+private const val SCOPE_ROOM_CONTROLLER = "scope_room_controller"
+private const val SCOPE_MODULES = "scope_modules"
+private const val SCOPE_VIEW_MODELS = "scope_view_models"
+
+enum class KmeKoinScope(val id: String, val named: String) {
+    ROOM_CONTROLLER(SCOPE_ROOM_CONTROLLER_ID, SCOPE_ROOM_CONTROLLER),
+    MODULES(SCOPE_MODULES_ID, SCOPE_MODULES),
+    VIEW_MODELS(SCOPE_VIEW_MODELS_ID, SCOPE_VIEW_MODELS);
+
+    override fun toString(): String {
+        return named
+    }
+}

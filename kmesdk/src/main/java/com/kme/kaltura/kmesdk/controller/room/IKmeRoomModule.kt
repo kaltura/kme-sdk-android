@@ -11,7 +11,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 /**
  * An interface for room actions
  */
-interface IKmeRoomModule {
+interface IKmeRoomModule : IKmeModule {
 
     /**
      * Subscribing for the room events

@@ -113,7 +113,7 @@ class RoomActivity : KmeActivity(), PreviewListener {
         viewModel.handRaisedLiveData.observe(this, raiseHandObserver)
         viewModel.sharedContentLiveData.observe(this, sharedContentObserver)
 
-        peerConnectionViewModel.publisherAddedLiveData.observe(this, publisherAddedObserver)
+//        peerConnectionViewModel.publisherAddedLiveData.observe(this, publisherAddedObserver)
         peerConnectionViewModel.userSpeakingLiveData.observe(this, currentlySpeakingObserver)
         peerConnectionViewModel.speakerEnabledLiveData.observe(this, speakerObserver)
         peerConnectionViewModel.micEnabledLiveData.observe(this, micObserver)
@@ -383,7 +383,7 @@ class RoomActivity : KmeActivity(), PreviewListener {
     }
 
     private fun setupQuickPollView() {
-        quickPollView.init(KmeQuickPollView.Config())
+        quickPollView.init(this, KmeQuickPollView.Config())
     }
 
     private fun showConversationFragment() {
@@ -623,9 +623,9 @@ class RoomActivity : KmeActivity(), PreviewListener {
             alertDialog?.show()
         }
 
-    private val publisherAddedObserver = Observer<Boolean> {
-        btnToggleCamera.isEnabled = it
-    }
+//    private val publisherAddedObserver = Observer<Boolean> {
+//        btnToggleCamera.isEnabled = it
+//    }
 
     private val currentlySpeakingObserver = Observer<Pair<Long, Boolean>> {
         participantsViewModel.participants.find { tmp -> tmp.userId == it.first }

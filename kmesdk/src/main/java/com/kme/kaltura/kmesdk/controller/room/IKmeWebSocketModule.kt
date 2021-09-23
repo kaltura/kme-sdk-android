@@ -7,7 +7,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 /**
  * An interface for communication with socket in the room
  */
-interface IKmeWebSocketModule: IKmeMessageManager {
+interface IKmeWebSocketModule : IKmeModule, IKmeMessageManager {
 
     /**
      * Check is socket connected

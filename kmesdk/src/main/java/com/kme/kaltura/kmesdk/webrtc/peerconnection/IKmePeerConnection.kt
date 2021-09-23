@@ -43,6 +43,11 @@ internal interface IKmePeerConnection {
     fun setRenderer(rendererView: KmeSurfaceRendererView)
 
     /**
+     * Remove renderer for viewer connection
+     */
+    fun removeRenderer()
+
+    /**
      * Creates a local video preview
      */
     fun startPreview(previewRenderer: KmeSurfaceRendererView)
@@ -61,16 +66,6 @@ internal interface IKmePeerConnection {
         useDataChannel: Boolean,
         listener: IKmePeerConnectionClientEvents
     )
-
-    /**
-     * Add renderer for publisher connection
-     */
-    fun addRenderer(renderer: KmeSurfaceRendererView): Unit?
-
-    /**
-     * Remove renderer for viewer connection
-     */
-    fun removeRenderer(renderer: KmeSurfaceRendererView): Unit?
 
     /**
      * Starts screen share publishing

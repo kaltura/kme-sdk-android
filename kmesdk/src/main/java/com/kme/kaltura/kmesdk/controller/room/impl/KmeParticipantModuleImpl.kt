@@ -3,7 +3,7 @@ package com.kme.kaltura.kmesdk.controller.room.impl
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeParticipantModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.util.messages.buildAllHandsDownMessage
 import com.kme.kaltura.kmesdk.util.messages.buildChangeMediaStateMessage
 import com.kme.kaltura.kmesdk.util.messages.buildRaiseHandMessage
@@ -16,7 +16,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
  */
 class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
 
-    private val roomController: IKmeRoomController by controllersScope().inject()
+    private val roomController: IKmeRoomController by scopedInject()
 
     /**
      * Raise participant hand

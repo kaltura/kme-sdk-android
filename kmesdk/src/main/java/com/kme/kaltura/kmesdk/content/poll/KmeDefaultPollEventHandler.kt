@@ -2,7 +2,7 @@ package com.kme.kaltura.kmesdk.content.poll
 
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
-import com.kme.kaltura.kmesdk.di.inject
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -13,7 +13,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
 
 class KmeDefaultPollEventHandler : KmeKoinComponent {
 
-    private val roomController: IKmeRoomController by controllersScope().inject()
+    private val roomController: IKmeRoomController by scopedInject()
 
     private val pollStarted = LiveEvent<QuickPollStartedPayload>()
     val pollStartedLiveData
