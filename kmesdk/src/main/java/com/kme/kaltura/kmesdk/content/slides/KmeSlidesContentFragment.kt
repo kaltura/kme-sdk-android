@@ -12,7 +12,6 @@ import com.kme.kaltura.kmesdk.content.KmeContentView
 import com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardContentViewModel
 import com.kme.kaltura.kmesdk.databinding.FragmentSlidesContentBinding
 import com.kme.kaltura.kmesdk.di.scopedInject
-import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
@@ -141,50 +140,36 @@ class KmeSlidesContentFragment : KmeContentView() {
     }
 
     private val whiteboardPageDataObserver =
-        Observer<ConsumableValue<List<WhiteboardPayload.Drawing>>> { consumableValue ->
-            consumableValue.consume {
-                binding.slidesView.setDrawings(it)
-            }
+        Observer<List<WhiteboardPayload.Drawing>> {
+            binding.slidesView.setDrawings(it)
         }
 
     private val whiteboardPageClearedObserver =
-        Observer<ConsumableValue<Nothing?>> { consumableValue ->
-            consumableValue.consume {
-                binding.slidesView.removeDrawings()
-            }
+        Observer<Unit> {
+            binding.slidesView.removeDrawings()
         }
 
     private val receiveDrawingObserver =
-        Observer<ConsumableValue<WhiteboardPayload.Drawing>> { consumableValue ->
-            consumableValue.consume {
-                binding.slidesView.addDrawing(it)
-            }
+        Observer<WhiteboardPayload.Drawing> {
+            binding.slidesView.addDrawing(it)
         }
 
     private val receivedLaserPositionObserver =
-        Observer<ConsumableValue<PointF>> { consumableValue ->
-            consumableValue.consume {
-                binding.slidesView.updateLaserPosition(it)
-            }
+        Observer<PointF> {
+            binding.slidesView.updateLaserPosition(it)
         }
 
-    private val hideLaserObserver = Observer<ConsumableValue<Nothing?>> { consumableValue ->
-        consumableValue.consume {
-            binding.slidesView.hideLaser()
-        }
+    private val hideLaserObserver = Observer<Unit> {
+        binding.slidesView.hideLaser()
     }
 
-    private val deleteDrawingObserver = Observer<ConsumableValue<String>> { consumableValue ->
-        consumableValue.consume {
-            binding.slidesView.removeDrawing(it)
-        }
+    private val deleteDrawingObserver = Observer<String> {
+        binding.slidesView.removeDrawing(it)
     }
 
     private val backgroundTypeChangedObserver =
-        Observer<ConsumableValue<KmeWhiteboardBackgroundType?>> { consumableValue ->
-            consumableValue.consume {
-                binding.slidesView.updateBackground(it)
-            }
+        Observer<KmeWhiteboardBackgroundType?> {
+            binding.slidesView.updateBackground(it)
         }
 
     private val setActivePageObserver = Observer<String> {
