@@ -197,7 +197,7 @@ class KmeSlidesView @JvmOverloads constructor(
 
     private fun setupSlidesPreview() {
         with(binding) {
-            rvSlides.visibility = if (config.showPreview) VISIBLE else GONE
+            if (config.showPreview) showPreview() else hidePreview()
             slidesAdapter = SlidesAdapter(config.cookie, config.fileUrl).apply {
                 setData(slides)
             }
@@ -367,7 +367,7 @@ class KmeSlidesView @JvmOverloads constructor(
      * Show a preview list of current slides
      */
     override fun showPreview() {
-        if (this.pages.isNotEmpty()) {
+        if (!config.showPreview || this.pages.isNotEmpty()) {
             return
         }
         binding.rvSlides.visibility = VISIBLE
