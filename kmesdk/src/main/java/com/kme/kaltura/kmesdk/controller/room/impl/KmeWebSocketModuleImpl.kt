@@ -21,11 +21,11 @@ import org.koin.core.inject
  * An implementation for socket actions
  */
 internal class KmeWebSocketModuleImpl(
-    private val okHttpClient: OkHttpClient
+    private val okHttpClient: OkHttpClient,
+    private val webSocketHandler: KmeWebSocketHandler
 ) : KmeController(), IKmeWebSocketModule, IKmeWSListener {
 
     private val gson: Gson by inject()
-    private val webSocketHandler: KmeWebSocketHandler by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
     private val reconnectionScope = CoroutineScope(Dispatchers.IO)
@@ -34,7 +34,7 @@ internal class KmeWebSocketModuleImpl(
 
     private lateinit var request: Request
 
-    private lateinit var listener: IKmeWSConnectionListener
+    private var listener: IKmeWSConnectionListener? = null
     private var roomId: Long = 0
 
     private var companyId: Long = 0
@@ -44,6 +44,10 @@ internal class KmeWebSocketModuleImpl(
     private var isSocketConnected = false
 
     private var reconnectionJob: Job? = null
+
+    init {
+        Log.e(TAG, "KmeWebSocketModuleImpl ${hashCode()} created")
+    }
 
     /**
      * Establish socket connection
@@ -56,6 +60,7 @@ internal class KmeWebSocketModuleImpl(
         token: String,
         listener: IKmeWSConnectionListener
     ) {
+        Log.e(TAG,"${hashCode()} connect()")
         if (isConnected()) {
             disconnect()
         }
@@ -82,7 +87,9 @@ internal class KmeWebSocketModuleImpl(
      * Trying to connect socket again if need
      */
     private fun reconnect() {
+        Log.e(TAG,"${hashCode()} reconnect()")
         if (allowReconnection && reconnectionAttempts < RECONNECTION_ATTEMPTS) {
+            Log.e(TAG,"${hashCode()} reconnecting...")
             reconnectionJob?.cancel()
             reconnectionJob = reconnectionScope.launch {
                 delay(5000)
@@ -103,11 +110,12 @@ internal class KmeWebSocketModuleImpl(
      * messages.
      */
     override fun onOpen(response: Response) {
+        Log.e(TAG,"${hashCode()} onOpen()")
         isSocketConnected = true
         reconnectionJob?.cancel()
         reconnectionAttempts = 0
         uiScope.launch {
-            listener.onOpen()
+            listener?.onOpen()
         }
     }
 
@@ -117,11 +125,12 @@ internal class KmeWebSocketModuleImpl(
      * listener will be made.
      */
     override fun onFailure(throwable: Throwable, response: Response?) {
+        Log.e(TAG,"${hashCode()} onFailure()")
         isSocketConnected = false
         reconnect()
         uiScope.launch {
             if (allowReconnection) {
-                listener.onFailure(throwable)
+                listener?.onFailure(throwable)
             }
         }
         if (!allowReconnection) {
@@ -133,13 +142,14 @@ internal class KmeWebSocketModuleImpl(
      * Invoked when the remote peer has indicated that no more incoming messages will be transmitted.
      */
     override fun onClosing(code: Int, reason: String) {
+        Log.e(TAG,"${hashCode()} onClosing()")
         isSocketConnected = false
         //Status code == 1000 - normal closure, the connection successfully completed
         if (code != 1000) {
             reconnect()
         }
         uiScope.launch {
-            listener.onClosing(code, reason)
+            listener?.onClosing(code, reason)
         }
     }
 
@@ -148,10 +158,11 @@ internal class KmeWebSocketModuleImpl(
      * connection has been successfully released. No further calls to this listener will be made.
      */
     override fun onClosed(code: Int, reason: String) {
+        Log.e(TAG,"${hashCode()} onClosed()")
         isSocketConnected = false
         reconnectionJob?.cancel()
         uiScope.launch {
-            listener.onClosed(code, reason)
+            listener?.onClosed(code, reason)
         }
     }
 
@@ -160,7 +171,7 @@ internal class KmeWebSocketModuleImpl(
      */
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
         val strMessage = gson.toJson(message)
-        Log.e(TAG, "send: $strMessage")
+        Log.e(TAG,"${hashCode()} send: $strMessage")
         webSocket?.send(strMessage)
     }
 
@@ -168,6 +179,7 @@ internal class KmeWebSocketModuleImpl(
      * Disconnect socket connection
      */
     override fun disconnect() {
+        Log.e(TAG,"${hashCode()} disconnect()")
         allowReconnection = false
         reconnectionJob?.cancel()
         reconnectionJob = null

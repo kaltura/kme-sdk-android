@@ -43,7 +43,7 @@ interface IKmeWebSocketModule : IKmeModule, IKmeMessageManager {
     fun send(message: KmeMessage<out KmeMessage.Payload>)
 
     /**
-     * Disconnect socket connection
+     * Disconnect from the room
      */
     fun disconnect()
 

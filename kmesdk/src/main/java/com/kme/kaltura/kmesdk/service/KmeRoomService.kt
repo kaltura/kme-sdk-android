@@ -13,9 +13,6 @@ import com.kme.kaltura.kmesdk.di.KmeKoinComponent
  */
 class KmeRoomService : Service(), KmeKoinComponent {
 
-//    private val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
-//    private val roomWSModule: IKmeWebSocketModule by scopedInject()
-
     private val binder: IBinder = RoomServiceBinder()
 
     override fun onBind(intent: Intent?): IBinder = binder
@@ -40,25 +37,15 @@ class KmeRoomService : Service(), KmeKoinComponent {
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-//        disconnect()
         stopService()
         return super.onUnbind(intent)
     }
 
     override fun onDestroy() {
-//        disconnect()
         releaseScopes()
         stopService()
         super.onDestroy()
     }
-
-    /**
-     * Disconnect from the room. Destroy all related connections
-     */
-//    private fun disconnect() {
-//        roomWSModule.disconnect()
-//        peerConnectionModule.disconnectAll()
-//    }
 
     inner class RoomServiceBinder : Binder() {
         val service: KmeRoomService

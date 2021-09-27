@@ -13,7 +13,12 @@ val roomModules = module {
 
     scope(named(KmeKoinScope.MODULES)) {
         scoped<IKmeRoomModule> { KmeRoomModuleImpl() }
-        scoped<IKmeWebSocketModule> { KmeWebSocketModuleImpl(get(named("wsOkHttpClient"))) }
+        scoped<IKmeWebSocketModule> {
+            KmeWebSocketModuleImpl(
+                get(named("wsOkHttpClient")),
+                get(named("main"))
+            )
+        }
         scoped<IKmePeerConnectionModule> { KmePeerConnectionModuleImpl() }
         scoped<IKmeParticipantModule> { KmeParticipantModuleImpl() }
         scoped<IKmeChatModule> { KmeChatModuleImpl() }
@@ -25,6 +30,13 @@ val roomModules = module {
         scoped<IKmeBreakoutModule> { KmeBreakoutModuleImpl() }
     }
 
-    single<IKmeWebSocketModule> { KmeWebSocketModuleImpl(get(named("wsOkHttpClient"))) }
+    scope(named(KmeKoinScope.BOR_MODULES)) {
+        scoped<IKmeWebSocketModule> {
+            KmeWebSocketModuleImpl(
+                get(named("wsOkHttpClient")),
+                get(named("bor"))
+            )
+        }
+    }
 
 }

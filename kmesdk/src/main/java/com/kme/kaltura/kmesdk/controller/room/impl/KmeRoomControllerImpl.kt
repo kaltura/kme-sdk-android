@@ -9,6 +9,7 @@ import android.os.IBinder
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
+import com.kme.kaltura.kmesdk.di.KmeKoinScope
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
@@ -39,7 +40,7 @@ class KmeRoomControllerImpl(
     private val roomApiService: KmeRoomApiService by inject()
     private val userController: IKmeUserController by inject()
 
-    private val borSocketModule: IKmeWebSocketModule by inject()
+    private val borSocketModule: IKmeWebSocketModule by scopedInject(KmeKoinScope.BOR_MODULES)
     private val mainRoomSocketModule: IKmeWebSocketModule by scopedInject()
     private val settingsModule: IKmeSettingsModule by scopedInject()
     private val contentModule: IKmeContentModule by scopedInject()
@@ -189,6 +190,21 @@ class KmeRoomControllerImpl(
         this.isReconnect = isReconnect
         this.token = token
 
+        if (mainRoomSocketModule.isConnected()) {
+            getActiveSocket().listen(
+                roomStateHandler,
+                KmeMessageEvent.ROOM_STATE,
+                KmeMessageEvent.GET_MODULE_STATE
+            )
+
+            peerConnectionModule.disconnectAll()
+
+            subscribeInternalModules()
+
+            listener.onOpen()
+            return
+        }
+
         val intent = Intent(context, KmeRoomService::class.java)
 
         roomWSListener = object : IKmeWSConnectionListener {
@@ -294,6 +310,9 @@ class KmeRoomControllerImpl(
                                 override fun onOpen() {
                                     mainRoomSocketModule.removeListeners()
                                     subscribeInternalModules()
+
+                                    peerConnectionModule.disconnectAll()
+
                                     listener.onOpen()
                                 }
 
@@ -303,10 +322,12 @@ class KmeRoomControllerImpl(
 
                                 override fun onClosing(code: Int, reason: String) {
                                     listener.onClosing(code, reason)
+                                    releaseBorScope()
                                 }
 
                                 override fun onClosed(code: Int, reason: String) {
                                     listener.onClosed(code, reason)
+                                    releaseBorScope()
                                 }
                             }
                         )
@@ -333,7 +354,7 @@ class KmeRoomControllerImpl(
     }
 
     /**
-     * Disconnect socket connection
+     * Disconnect from the room
      */
     override fun disconnect() {
         if (mainRoomSocketModule.isConnected())
