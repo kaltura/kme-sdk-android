@@ -4,12 +4,10 @@ import android.util.Log
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
-import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSListener
 import com.kme.kaltura.kmesdk.ws.KmeWebSocketHandler
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
-import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -44,10 +42,6 @@ internal class KmeWebSocketModuleImpl(
     private var isSocketConnected = false
 
     private var reconnectionJob: Job? = null
-
-    init {
-        Log.e(TAG, "KmeWebSocketModuleImpl ${hashCode()} created")
-    }
 
     /**
      * Establish socket connection
@@ -110,7 +104,7 @@ internal class KmeWebSocketModuleImpl(
      * messages.
      */
     override fun onOpen(response: Response) {
-        Log.e(TAG,"${hashCode()} onOpen()")
+        Log.e(TAG,"${hashCode()} onOpen() Response: $response")
         isSocketConnected = true
         reconnectionJob?.cancel()
         reconnectionAttempts = 0
@@ -125,7 +119,7 @@ internal class KmeWebSocketModuleImpl(
      * listener will be made.
      */
     override fun onFailure(throwable: Throwable, response: Response?) {
-        Log.e(TAG,"${hashCode()} onFailure()")
+        Log.e(TAG,"${hashCode()} onFailure() Throwable: $throwable, Response: $response")
         isSocketConnected = false
         reconnect()
         uiScope.launch {
@@ -142,7 +136,7 @@ internal class KmeWebSocketModuleImpl(
      * Invoked when the remote peer has indicated that no more incoming messages will be transmitted.
      */
     override fun onClosing(code: Int, reason: String) {
-        Log.e(TAG,"${hashCode()} onClosing()")
+        Log.e(TAG,"${hashCode()} onClosing() Code: $code, Reason: $reason")
         isSocketConnected = false
         //Status code == 1000 - normal closure, the connection successfully completed
         if (code != 1000) {
@@ -158,7 +152,7 @@ internal class KmeWebSocketModuleImpl(
      * connection has been successfully released. No further calls to this listener will be made.
      */
     override fun onClosed(code: Int, reason: String) {
-        Log.e(TAG,"${hashCode()} onClosed()")
+        Log.e(TAG,"${hashCode()} onClosed() Code: $code, Reason: $reason")
         isSocketConnected = false
         reconnectionJob?.cancel()
         uiScope.launch {
@@ -185,39 +179,6 @@ internal class KmeWebSocketModuleImpl(
         reconnectionJob = null
         webSocket?.cancel()
         webSocket = null
-        webSocketHandler.removeListeners()
-    }
-
-    override fun addListener(listener: IKmeMessageListener) {
-        webSocketHandler.addListener(listener)
-    }
-
-    override fun addListener(
-        event: KmeMessageEvent,
-        listener: IKmeMessageListener
-    ) {
-        webSocketHandler.addListener(event, listener)
-    }
-
-    override fun listen(
-        listener: IKmeMessageListener,
-        vararg events: KmeMessageEvent
-    ): IKmeMessageListener {
-        return webSocketHandler.listen(listener, *events)
-    }
-
-    override fun remove(
-        listener: IKmeMessageListener,
-        vararg events: KmeMessageEvent
-    ) {
-        webSocketHandler.removeListeners()
-    }
-
-    override fun removeListener(listener: IKmeMessageListener) {
-        webSocketHandler.removeListeners()
-    }
-
-    override fun removeListeners() {
         webSocketHandler.removeListeners()
     }
 

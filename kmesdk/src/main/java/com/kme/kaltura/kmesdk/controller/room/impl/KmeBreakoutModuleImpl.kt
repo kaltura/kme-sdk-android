@@ -5,6 +5,8 @@ import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule.IKmeBreakoutEvents
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.di.KmeKoinScope
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.toType
@@ -23,6 +25,11 @@ import org.koin.core.inject
 class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
 
     private val roomController: IKmeRoomController by scopedInject()
+    private val borSocketModule: IKmeWebSocketModule
+        get() {
+            val module: IKmeWebSocketModule by scopedInject(KmeKoinScope.BOR_MODULES)
+            return module
+        }
     private val userController: IKmeUserController by inject()
 
     private val currentUserId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
@@ -80,6 +87,8 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                 }
                 KmeMessageEvent.BREAKOUT_STOP -> {
 //                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
+                    if (borSocketModule.isConnected())
+                        borSocketModule.disconnect()
                     eventListener?.onBreakoutRoomStop()
                 }
                 KmeMessageEvent.BREAKOUT_ADD_ROOM -> {

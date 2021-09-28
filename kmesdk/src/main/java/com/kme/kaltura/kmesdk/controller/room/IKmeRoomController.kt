@@ -1,13 +1,14 @@
 package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
+import com.kme.kaltura.kmesdk.ws.IKmeMessageManager
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 
 /**
  * An interface for room data
  */
-interface IKmeRoomController : IKmeWebSocketModule {
+interface IKmeRoomController : IKmeWebSocketModule, IKmeMessageManager {
 
     val roomModule: IKmeRoomModule
     val peerConnectionModule: IKmePeerConnectionModule

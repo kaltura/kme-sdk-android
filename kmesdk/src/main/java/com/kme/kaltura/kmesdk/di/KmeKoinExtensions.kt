@@ -90,10 +90,6 @@ internal interface KmeKoinComponent : KoinComponent {
         return KmeKoinContext.sdkKoin
     }
 
-    fun releaseBorScope() {
-        releaseScope(getScope(BOR_MODULES))
-    }
-
     fun releaseScopes() {
         for (scopeType in KmeKoinScope.values()) {
             releaseScope(getScope(scopeType))

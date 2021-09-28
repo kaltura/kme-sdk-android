@@ -10,6 +10,7 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
 import com.kme.kaltura.kmesdk.di.KmeKoinScope
+import com.kme.kaltura.kmesdk.di.getScope
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
@@ -19,6 +20,7 @@ import com.kme.kaltura.kmesdk.service.KmeRoomService
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
+import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
@@ -39,8 +41,13 @@ class KmeRoomControllerImpl(
 
     private val roomApiService: KmeRoomApiService by inject()
     private val userController: IKmeUserController by inject()
+    private val messageManager: KmeMessageManager by inject()
 
-    private val borSocketModule: IKmeWebSocketModule by scopedInject(KmeKoinScope.BOR_MODULES)
+    private val borSocketModule: IKmeWebSocketModule
+        get() {
+            val module: IKmeWebSocketModule by scopedInject(KmeKoinScope.BOR_MODULES)
+            return module
+        }
     private val mainRoomSocketModule: IKmeWebSocketModule by scopedInject()
     private val settingsModule: IKmeSettingsModule by scopedInject()
     private val contentModule: IKmeContentModule by scopedInject()
@@ -112,12 +119,6 @@ class KmeRoomControllerImpl(
         listener: IKmeWSConnectionListener,
     ) {
         roomModule.setExitListener(exitListener)
-        breakoutRoomId = null
-
-        if (mainRoomSocketModule.isConnected()) {
-            listener.onOpen()
-            return
-        }
 
         userController.getUserInformation(
             roomAlias,
@@ -191,7 +192,7 @@ class KmeRoomControllerImpl(
         this.token = token
 
         if (mainRoomSocketModule.isConnected()) {
-            getActiveSocket().listen(
+            messageManager.listen(
                 roomStateHandler,
                 KmeMessageEvent.ROOM_STATE,
                 KmeMessageEvent.GET_MODULE_STATE
@@ -209,7 +210,7 @@ class KmeRoomControllerImpl(
 
         roomWSListener = object : IKmeWSConnectionListener {
             override fun onOpen() {
-                getActiveSocket().listen(
+                messageManager.listen(
                     roomStateHandler,
                     KmeMessageEvent.ROOM_STATE,
                     KmeMessageEvent.GET_MODULE_STATE
@@ -308,7 +309,7 @@ class KmeRoomControllerImpl(
                             token,
                             object : IKmeWSConnectionListener {
                                 override fun onOpen() {
-                                    mainRoomSocketModule.removeListeners()
+                                    messageManager.removeListeners()
                                     subscribeInternalModules()
 
                                     peerConnectionModule.disconnectAll()
@@ -322,12 +323,14 @@ class KmeRoomControllerImpl(
 
                                 override fun onClosing(code: Int, reason: String) {
                                     listener.onClosing(code, reason)
-                                    releaseBorScope()
+                                    releaseScope(getScope(KmeKoinScope.BOR_MODULES))
+                                    breakoutRoomId = null
                                 }
 
                                 override fun onClosed(code: Int, reason: String) {
                                     listener.onClosed(code, reason)
-                                    releaseBorScope()
+                                    releaseScope(getScope(KmeKoinScope.BOR_MODULES))
+                                    breakoutRoomId = null
                                 }
                             }
                         )
@@ -359,8 +362,6 @@ class KmeRoomControllerImpl(
     override fun disconnect() {
         if (mainRoomSocketModule.isConnected())
             mainRoomSocketModule.disconnect()
-        if (borSocketModule.isConnected())
-            borSocketModule.disconnect()
 
         peerConnectionModule.disconnectAll()
         audioModule.stop()
@@ -370,7 +371,7 @@ class KmeRoomControllerImpl(
      * Add listeners for socket messages
      */
     override fun addListener(listener: IKmeMessageListener) {
-        getActiveSocket().addListener(listener)
+        messageManager.addListener(listener)
     }
 
     /**
@@ -380,7 +381,7 @@ class KmeRoomControllerImpl(
         event: KmeMessageEvent,
         listener: IKmeMessageListener,
     ) {
-        getActiveSocket().addListener(event, listener)
+        messageManager.addListener(event, listener)
     }
 
     /**
@@ -390,28 +391,28 @@ class KmeRoomControllerImpl(
         listener: IKmeMessageListener,
         vararg events: KmeMessageEvent,
     ): IKmeMessageListener {
-        return getActiveSocket().listen(listener, *events)
+        return messageManager.listen(listener, *events)
     }
 
     /**
      * Stop listen events for listener
      */
     override fun remove(listener: IKmeMessageListener, vararg events: KmeMessageEvent) {
-        getActiveSocket().remove(listener, *events)
+        messageManager.remove(listener, *events)
     }
 
     /**
      * Remove listener
      */
     override fun removeListener(listener: IKmeMessageListener) {
-        getActiveSocket().removeListener(listener)
+        messageManager.removeListener(listener)
     }
 
     /**
      * Remove all attached listeners
      */
     override fun removeListeners() {
-        getActiveSocket().removeListeners()
+        messageManager.removeListeners()
     }
 
     private fun getActiveSocket(): IKmeWebSocketModule = breakoutRoomId?.let {
