@@ -7,7 +7,7 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeParticipantModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.scopedInject
-import com.kme.kaltura.kmesdk.extensions.defineNewDeviceStateByAdmin
+import com.kme.kaltura.kmesdk.util.extensions.defineNewDeviceStateByAdmin
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.buildAllHandsDownMessage

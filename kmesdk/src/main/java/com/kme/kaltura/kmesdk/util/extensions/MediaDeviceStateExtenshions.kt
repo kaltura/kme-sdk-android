@@ -1,4 +1,4 @@
-package com.kme.kaltura.kmesdk.extensions
+package com.kme.kaltura.kmesdk.util.extensions
 
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
