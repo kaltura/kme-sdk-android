@@ -32,17 +32,16 @@ import kotlin.properties.Delegates
 class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
 
     private val roomController: IKmeRoomController by scopedInject()
+    private val webSocketModule: IKmeWebSocketModule by scopedInject()
     private val userController: IKmeUserController by inject()
 
-    private val webSocketModule: IKmeWebSocketModule by scopedInject()
-
     private var publisherId by Delegates.notNull<Long>()
-
     private var listener: IKmeParticipantModule.KmeParticipantListener? = null
-
     private var participants: MutableList<KmeParticipant> = mutableListOf()
 
-
+    /**
+     * subscribe roomStateHandler to get participants list
+     */
     override fun init(listener: IKmeParticipantModule.KmeParticipantListener) {
         this.listener = listener
 
@@ -52,8 +51,10 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
         )
     }
 
+    /**
+     * subscribe participantsHandler to get participants event
+     */
     override fun subscribe() {
-        publisherId = userController.getCurrentUserInfo()?.getUserId() ?: 0
         roomController.listen(
             participantsHandler,
             KmeMessageEvent.USER_MEDIA_STATE_INIT,
@@ -89,6 +90,9 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                     participants.filter { participant -> participant.userId ?: 0 < 0 }.forEach {
                         remove(it)
                     }
+
+                    publisherId = userController.getCurrentUserInfo()?.getUserId() ?: 0
+
                     listener?.onParticipantsLoaded(participants)
                 }
             }
@@ -375,6 +379,9 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
         )
     }
 
+    /**
+     * mute all users mics
+     */
     override fun updateStrongMuteAllMics(value: KmePermissionValue) {
         participants.forEach { participant ->
             if (!isModerator(participant)) {
@@ -386,6 +393,9 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
         }
     }
 
+    /**
+     * mute all users cams
+     */
     override fun updateStrongMuteAllCams(value: KmePermissionValue) {
         participants.forEach { participant ->
             if (!isModerator(participant)) {
@@ -395,12 +405,18 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
         }
     }
 
+    /**
+     * user role change with moderator
+     */
     override fun updateUserModeratorState(userId: Long, isModerator: Boolean) {
         getParticipant(userId)?.let { participant ->
             participant.isModerator = isModerator
         }
     }
 
+    /**
+     * check if user is moderator
+     */
     override fun isModerator(participant: KmeParticipant?): Boolean {
         return participant != null
                 && (participant.userRole == KmeUserRole.INSTRUCTOR ||
@@ -409,6 +425,9 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                 participant.isModerator == true)
     }
 
+    /**
+     * remove user from websoket
+     */
     override fun remove(
         roomId: Long,
         companyId: Long,
@@ -425,10 +444,16 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
         )
     }
 
+    /**
+     * remove user from list with an object
+     */
     override fun remove(participant: KmeParticipant) {
         participants.remove(participant)
     }
 
+    /**
+     * remove user from list with an userId
+     */
     override fun remove(userId: Long) {
         val isRemoved = participants.removeAll { tmp -> tmp.userId == userId }
         listener?.onParticipantRemoved(userId, isRemoved)
