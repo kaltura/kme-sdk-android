@@ -1,13 +1,10 @@
 package com.kme.kaltura.kmesdk.controller.room
 
-import com.kme.kaltura.kmesdk.content.KmeContentView
-import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule.KmePeerConnectionEvents
-import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule.KmeScreenShareEvents
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.UserMediaStateChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
-import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 
 /**
@@ -23,17 +20,17 @@ interface IKmeParticipantModule : IKmeModule {
     fun init(listener: KmeParticipantListener)
 
     /**
-     * Subscribing for the room events related to messaging
+     * Subscribing for the room events related to participants
      */
     fun subscribe()
 
     /**
-     * get participants list
+     * Get participants list
      */
     fun participants(): List<KmeParticipant>
 
     /**
-     * add or update participants list
+     * Add or update participants list
      *
      * @param userId id of an interactor
      *
@@ -49,7 +46,6 @@ interface IKmeParticipantModule : IKmeModule {
      * */
     fun addOrUpdateParticipant(participant: KmeParticipant)
 
-
     /**
      * initialize user media state
      *
@@ -64,7 +60,7 @@ interface IKmeParticipantModule : IKmeModule {
      * @param payload for to update participant media state
      *
      * */
-    fun updateUserMediaState(payload: KmeParticipantsModuleMessage.UserMediaStateChangedPayload)
+    fun updateUserMediaState(payload: UserMediaStateChangedPayload)
 
     /**
      * Raise hand for participant
@@ -112,6 +108,21 @@ interface IKmeParticipantModule : IKmeModule {
     )
 
     /**
+     * Removes participant from the room
+     *
+     * @param roomId id of a room
+     * @param companyId id of a company
+     * @param userId id of moderator
+     * @param targetId id of a target participant
+     */
+    fun remove(
+        roomId: Long,
+        companyId: Long,
+        userId: Long,
+        targetId: Long
+    )
+
+    /**
      * mute all participant
      *
      * @param initiatorId id of a initiator
@@ -149,7 +160,10 @@ interface IKmeParticipantModule : IKmeModule {
      * @param userId id of a user
      * @param isHandRaised change raise state
      */
-    fun updateRaiseHandState(userId: Long, isHandRaised: Boolean)
+    fun updateRaiseHandState(
+        userId: Long,
+        isHandRaised: Boolean
+    )
 
     /**
      * update all users hand down
@@ -157,65 +171,38 @@ interface IKmeParticipantModule : IKmeModule {
     fun updateAllHandsDown()
 
     /**
-     * update user  moderator state
+     * Update user moderator state
+     *
      * @param userId id of a user
      * @param isModerator change state
      */
-    fun updateUserModeratorState(userId: Long, isModerator: Boolean)
+    fun updateUserModeratorState(
+        userId: Long,
+        isModerator: Boolean
+    )
 
     /**
-     * check is participant is moderator
+     * Check is participant is moderator
+     *
      * @param participant for a user
      * @return boolean
      */
     fun isModerator(participant: KmeParticipant?): Boolean
 
     /**
-     * Removes participant from the room
-     *
-     * @param roomId id of a room
-     * @param companyId id of a company
-     * @param userId id of moderator
-     * @param targetId id of a target participant
-     */
-    fun remove(
-        roomId: Long,
-        companyId: Long,
-        userId: Long,
-        targetId: Long
-    )
-
-    /**
-     * Remove participant from the list
-     *
-     * @param participant
-     */
-    fun remove(
-        participant: KmeParticipant,
-    )
-
-    /**
-     * Remove participant from the list
-     *
-     * @param userId for a user
-     */
-    fun remove(
-        userId: Long,
-    )
-
-    /**
      * Participant listener
      */
     interface KmeParticipantListener {
+
         /**
-         * Callback fired once participant list is available
+         * Callback fired once participants are loaded from the server
          *
          * @param participants list
          */
         fun onParticipantsLoaded(participants: List<KmeParticipant>)
 
         /**
-         * Callback fired when Participant updated
+         * Callback fired when participant updated
          *
          * @param participant
          */
@@ -226,7 +213,7 @@ interface IKmeParticipantModule : IKmeModule {
          *
          * @param payload
          */
-        fun onParticipantMediaStatePayLoadChanged(payload: KmeParticipantsModuleMessage.UserMediaStateChangedPayload)
+        fun onParticipantMediaStatePayLoadChanged(payload: UserMediaStateChangedPayload)
 
         /**
          * Callback fired when medea state changed
@@ -247,7 +234,10 @@ interface IKmeParticipantModule : IKmeModule {
          * @param targetUserId for a user
          * @param isRaise for a turn on/off
          */
-        fun onUserHandRaised(targetUserId: Long, isRaise: Boolean)
+        fun onUserHandRaised(
+            targetUserId: Long,
+            isRaise: Boolean
+        )
 
         /**
          * Callback fired once when all users hand is down
@@ -256,13 +246,17 @@ interface IKmeParticipantModule : IKmeModule {
 
         /**
          * Callback fired once when participant removed
+         *
          * @param userId for a user
          * @param isRemoved for checking if user already removed
          */
-        fun onParticipantRemoved(userId: Long, isRemoved: Boolean)
+        fun onParticipantRemoved(
+            userId: Long,
+            isRemoved: Boolean
+        )
 
         /**
-         * Callback fired  once dail participant added
+         * Callback fired once dial participant added
          *
          * @param participant
          */

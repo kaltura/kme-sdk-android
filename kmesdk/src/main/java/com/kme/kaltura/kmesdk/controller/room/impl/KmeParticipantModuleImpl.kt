@@ -7,9 +7,9 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeParticipantModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.scopedInject
-import com.kme.kaltura.kmesdk.util.extensions.defineNewDeviceStateByAdmin
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.toType
+import com.kme.kaltura.kmesdk.util.extensions.defineNewDeviceStateByAdmin
 import com.kme.kaltura.kmesdk.util.messages.buildAllHandsDownMessage
 import com.kme.kaltura.kmesdk.util.messages.buildChangeMediaStateMessage
 import com.kme.kaltura.kmesdk.util.messages.buildRaiseHandMessage
@@ -18,8 +18,11 @@ import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
@@ -27,7 +30,6 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 import org.koin.core.inject
-import kotlin.properties.Delegates
 
 class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
 
@@ -35,7 +37,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     private val webSocketModule: IKmeWebSocketModule by scopedInject()
     private val userController: IKmeUserController by inject()
 
-    private var publisherId by Delegates.notNull<Long>()
+    private val publisherId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
     private var listener: IKmeParticipantModule.KmeParticipantListener? = null
     private var participants: MutableList<KmeParticipant> = mutableListOf()
 
@@ -52,7 +54,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     }
 
     /**
-     * subscribe participantsHandler to get participants event
+     * Subscribing for the room events related to participants
      */
     override fun subscribe() {
         roomController.listen(
@@ -74,24 +76,21 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     /**
      * get participants list
      */
-    override fun participants(): List<KmeParticipant> {
-        return participants
-    }
+    override fun participants() = participants
 
     private val roomStateHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
                 KmeMessageEvent.ROOM_STATE -> {
-                    val msg: KmeRoomInitModuleMessage<KmeRoomInitModuleMessage.RoomStatePayload>? =
-                        message.toType()
+                    val msg: KmeRoomInitModuleMessage<RoomStatePayload>? = message.toType()
                     participants =
                         msg?.payload?.participants?.values?.toMutableList() ?: mutableListOf()
 
-                    participants.filter { participant -> participant.userId ?: 0 < 0 }.forEach {
-                        remove(it)
+                    participants.filter { participant ->
+                        participant.userId ?: 0 < 0
+                    }.forEach {
+                        participants.remove(it)
                     }
-
-                    publisherId = userController.getCurrentUserInfo()?.getUserId() ?: 0
 
                     listener?.onParticipantsLoaded(participants)
                 }
@@ -103,8 +102,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
                 KmeMessageEvent.NEW_USER_JOINED -> {
-                    val msg: KmeRoomInitModuleMessage<KmeRoomInitModuleMessage.NewUserJoinedPayload>? =
-                        message.toType()
+                    val msg: KmeRoomInitModuleMessage<NewUserJoinedPayload>? = message.toType()
                     msg?.let {
                         val json = Gson().toJson(it.payload)
                         val participant = Gson().fromJson(json, KmeParticipant::class.java)
@@ -114,7 +112,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                     }
                 }
                 KmeMessageEvent.USER_MEDIA_STATE_INIT -> {
-                    val msg: KmeParticipantsModuleMessage<KmeParticipantsModuleMessage.UserMediaStateInitPayload>? =
+                    val msg: KmeParticipantsModuleMessage<UserMediaStateInitPayload>? =
                         message.toType()
                     msg?.payload?.let {
                         initUserMediaState(it)
@@ -122,9 +120,8 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                 }
                 KmeMessageEvent.USER_MEDIA_STATE_CHANGED,
                 KmeMessageEvent.PARTICIPANT_MUTED -> {
-                    val msg: KmeParticipantsModuleMessage<KmeParticipantsModuleMessage.UserMediaStateChangedPayload>? =
+                    val msg: KmeParticipantsModuleMessage<UserMediaStateChangedPayload>? =
                         message.toType()
-
                     msg?.payload?.let { payload ->
                         ifNonNull(
                             payload.mediaStateType,
@@ -141,11 +138,9 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                         }
                     }
                 }
-
                 KmeMessageEvent.ALL_PARTICIPANTS_MUTED -> {
-                    val msg: KmeParticipantsModuleMessage<KmeParticipantsModuleMessage.AllParticipantsMutedPayload>? =
+                    val msg: KmeParticipantsModuleMessage<AllParticipantsMutedPayload>? =
                         message.toType()
-
                     msg?.payload?.let { payload ->
                         ifNonNull(
                             payload.mediaStateType,
@@ -161,14 +156,13 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                     }
                 }
                 KmeMessageEvent.USER_STARTED_TO_PUBLISH -> {
-                    val msg: KmeStreamingModuleMessage<KmeStreamingModuleMessage.StartedPublishPayload>? =
-                        message.toType()
-                    msg?.payload?.userId?.toLongOrNull()?.let { updateUserLive(it) }
+                    val msg: KmeStreamingModuleMessage<StartedPublishPayload>? = message.toType()
+                    msg?.payload?.userId?.toLongOrNull()?.let {
+                        updateUserLive(it)
+                    }
                 }
                 KmeMessageEvent.USER_HAND_RAISED -> {
-                    val msg: KmeParticipantsModuleMessage<KmeParticipantsModuleMessage.UserRaiseHandPayload>? =
-                        message.toType()
-
+                    val msg: KmeParticipantsModuleMessage<UserRaiseHandPayload>? = message.toType()
                     ifNonNull(
                         msg?.payload?.targetUserId,
                         msg?.payload?.isRaise
@@ -182,18 +176,15 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                     listener?.onUpdateAllHandsDown()
                 }
                 KmeMessageEvent.USER_REMOVED -> {
-                    val msg: KmeParticipantsModuleMessage<KmeParticipantsModuleMessage.ParticipantRemovedPayload>? =
+                    val msg: KmeParticipantsModuleMessage<ParticipantRemovedPayload>? =
                         message.toType()
-
                     msg?.payload?.targetUserId?.let {
                         remove(it)
                     }
                 }
                 KmeMessageEvent.USER_DISCONNECTED -> {
-                    val userDisconnectedMessage: KmeStreamingModuleMessage<KmeStreamingModuleMessage.UserDisconnectedPayload>? =
-                        message.toType()
-
-                    userDisconnectedMessage?.payload?.userId?.let {
+                    val msg: KmeStreamingModuleMessage<UserDisconnectedPayload>? = message.toType()
+                    msg?.payload?.userId?.let {
                         remove(it)
                     }
                 }
@@ -206,10 +197,8 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     /**
      * get participant with userId
      */
-    override fun getParticipant(userId: Long?): KmeParticipant? {
-        return participants.find {
-            it.userId == userId
-        }
+    override fun getParticipant(userId: Long?) = participants.find {
+        it.userId == userId
     }
 
     /**
@@ -217,7 +206,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
      */
     override fun addOrUpdateParticipant(participant: KmeParticipant) {
         getParticipant(participant.userId)?.let { foundParticipant ->
-            remove(foundParticipant)
+            participants.remove(foundParticipant)
         }
 
         if (participant.userType == KmeUserType.DIAL) {
@@ -231,7 +220,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     /**
      * initialize participant media state
      */
-    override fun initUserMediaState(payload: KmeParticipantsModuleMessage.UserMediaStateInitPayload) {
+    override fun initUserMediaState(payload: UserMediaStateInitPayload) {
         getParticipant(payload.userId)?.let { participant ->
             participant.micState = payload.micState
             participant.webcamState = payload.webcamState
@@ -244,7 +233,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     /**
      * update participant media state
      */
-    override fun updateUserMediaState(payload: KmeParticipantsModuleMessage.UserMediaStateChangedPayload) {
+    override fun updateUserMediaState(payload: UserMediaStateChangedPayload) {
         getParticipant(payload.userId)?.let { participant ->
             when (payload.mediaStateType) {
                 KmeMediaStateType.MIC -> {
@@ -287,7 +276,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                 }
             }
 
-            val mediaChangePayload = KmeParticipantsModuleMessage.UserMediaStateChangedPayload()
+            val mediaChangePayload = UserMediaStateChangedPayload()
             mediaChangePayload.userId = participant.userId
             mediaChangePayload.mediaStateType = stateType
             mediaChangePayload.stateValue = KmeMediaDeviceState.DISABLED_LIVE
@@ -310,7 +299,10 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     /**
      * update raise hand state
      */
-    override fun updateRaiseHandState(userId: Long, isHandRaised: Boolean) {
+    override fun updateRaiseHandState(
+        userId: Long,
+        isHandRaised: Boolean
+    ) {
         getParticipant(userId)?.let { participant ->
             if (isHandRaised) {
                 participant.timeHandRaised = System.currentTimeMillis()
@@ -354,7 +346,10 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     /**
      * Put all hands down in the room
      */
-    override fun allHandsDown(roomId: Long, companyId: Long) {
+    override fun allHandsDown(
+        roomId: Long,
+        companyId: Long
+    ) {
         webSocketModule.send(buildAllHandsDownMessage(roomId, companyId))
     }
 
@@ -408,7 +403,10 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     /**
      * user role change with moderator
      */
-    override fun updateUserModeratorState(userId: Long, isModerator: Boolean) {
+    override fun updateUserModeratorState(
+        userId: Long,
+        isModerator: Boolean
+    ) {
         getParticipant(userId)?.let { participant ->
             participant.isModerator = isModerator
         }
@@ -426,7 +424,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     }
 
     /**
-     * remove user from websoket
+     * Removes participant from the room
      */
     override fun remove(
         roomId: Long,
@@ -445,17 +443,13 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     }
 
     /**
-     * remove user from list with an object
-     */
-    override fun remove(participant: KmeParticipant) {
-        participants.remove(participant)
-    }
-
-    /**
      * remove user from list with an userId
      */
-    override fun remove(userId: Long) {
-        val isRemoved = participants.removeAll { tmp -> tmp.userId == userId }
+    private fun remove(userId: Long) {
+        val isRemoved = participants.removeAll { tmp ->
+            tmp.userId == userId
+        }
         listener?.onParticipantRemoved(userId, isRemoved)
     }
+
 }
