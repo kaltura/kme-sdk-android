@@ -74,7 +74,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     }
 
     /**
-     * get participants list
+     * Get participants list
      */
     override fun participants() = participants
 
@@ -158,7 +158,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                 KmeMessageEvent.USER_STARTED_TO_PUBLISH -> {
                     val msg: KmeStreamingModuleMessage<StartedPublishPayload>? = message.toType()
                     msg?.payload?.userId?.toLongOrNull()?.let {
-                        updateUserLive(it)
+                        userLive(it)
                     }
                 }
                 KmeMessageEvent.USER_HAND_RAISED -> {
@@ -172,7 +172,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                     }
                 }
                 KmeMessageEvent.MAKE_ALL_USERS_HAND_PUT -> {
-                    updateAllHandsDown()
+                    allHandsDown()
                     listener?.onUpdateAllHandsDown()
                 }
                 KmeMessageEvent.USER_REMOVED -> {
@@ -195,130 +195,19 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     }
 
     /**
-     * get participant with userId
+     * Get participant with userId
      */
     override fun getParticipant(userId: Long?) = participants.find {
         it.userId == userId
     }
 
     /**
-     * add or update participant inside  participants list
+     * User live media state
      */
-    override fun addOrUpdateParticipant(participant: KmeParticipant) {
-        getParticipant(participant.userId)?.let { foundParticipant ->
-            participants.remove(foundParticipant)
-        }
-
-        if (participant.userType == KmeUserType.DIAL) {
-            listener?.onDialAdded(participant)
-        }
-
-        participants.add(participant)
-        listener?.onParticipantChanged(participant)
-    }
-
-    /**
-     * initialize participant media state
-     */
-    override fun initUserMediaState(payload: UserMediaStateInitPayload) {
-        getParticipant(payload.userId)?.let { participant ->
-            participant.micState = payload.micState
-            participant.webcamState = payload.webcamState
-            participant.liveMediaState = payload.liveMediaState
-            listener?.onParticipantChanged(participant)
-        }
-    }
-
-
-    /**
-     * update participant media state
-     */
-    override fun updateUserMediaState(payload: UserMediaStateChangedPayload) {
-        getParticipant(payload.userId)?.let { participant ->
-            when (payload.mediaStateType) {
-                KmeMediaStateType.MIC -> {
-                    participant.micState = payload.stateValue
-                }
-                KmeMediaStateType.WEBCAM -> {
-                    participant.webcamState = payload.stateValue
-                }
-                KmeMediaStateType.LIVE_MEDIA -> {
-                    participant.liveMediaState = payload.stateValue
-                }
-                null -> {
-                }
-            }
-
-            listener?.onParticipantMediaStatePayLoadChanged(payload)
-            listener?.onParticipantChanged(participant)
-        }
-    }
-
-    /**
-     * mute all participant
-     */
-    override fun updateAllMute(
-        initiatorId: Long,
-        stateType: KmeMediaStateType
-    ) {
-        participants.forEach { participant ->
-            if (initiatorId == participant.userId) {
-                return@forEach
-            }
-            when (stateType) {
-                KmeMediaStateType.MIC -> {
-                    participant.micState = KmeMediaDeviceState.DISABLED_LIVE
-                }
-                KmeMediaStateType.WEBCAM -> {
-                    participant.webcamState = KmeMediaDeviceState.DISABLED_LIVE
-                }
-                else -> {
-                }
-            }
-
-            val mediaChangePayload = UserMediaStateChangedPayload()
-            mediaChangePayload.userId = participant.userId
-            mediaChangePayload.mediaStateType = stateType
-            mediaChangePayload.stateValue = KmeMediaDeviceState.DISABLED_LIVE
-
-            listener?.onParticipantMediaStatePayLoadChanged(mediaChangePayload)
-            listener?.onParticipantChanged(participant)
-        }
-    }
-
-    /**
-     * update user live state
-     */
-    override fun updateUserLive(userId: Long) {
+    override fun userLive(userId: Long) {
         getParticipant(userId)?.let { participant ->
             participant.liveMediaState = KmeMediaDeviceState.LIVE_SUCCESS
             listener?.onParticipantChanged(participant)
-        }
-    }
-
-    /**
-     * update raise hand state
-     */
-    override fun updateRaiseHandState(
-        userId: Long,
-        isHandRaised: Boolean
-    ) {
-        getParticipant(userId)?.let { participant ->
-            if (isHandRaised) {
-                participant.timeHandRaised = System.currentTimeMillis()
-            } else {
-                participant.timeHandRaised = 0L
-            }
-            listener?.onParticipantChanged(participant)
-        }
-    }
-
-    /**
-     * update all users hand down
-     */
-    override fun updateAllHandsDown() {
-        participants.forEach { participant ->
-            participant.timeHandRaised = 0L
         }
     }
 
@@ -375,9 +264,9 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     }
 
     /**
-     * mute all users mics
+     * Mute all users mics
      */
-    override fun updateStrongMuteAllMics(value: KmePermissionValue) {
+    override fun muteAllMics(value: KmePermissionValue) {
         participants.forEach { participant ->
             if (!isModerator(participant)) {
                 participant.micState = participant.micState?.defineNewDeviceStateByAdmin(value)
@@ -389,9 +278,9 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     }
 
     /**
-     * mute all users cams
+     * Mute all users cams
      */
-    override fun updateStrongMuteAllCams(value: KmePermissionValue) {
+    override fun muteAllCams(value: KmePermissionValue) {
         participants.forEach { participant ->
             if (!isModerator(participant)) {
                 participant.webcamState =
@@ -401,7 +290,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     }
 
     /**
-     * user role change with moderator
+     * The user role has been modified by moderator
      */
     override fun updateUserModeratorState(
         userId: Long,
@@ -410,17 +299,6 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
         getParticipant(userId)?.let { participant ->
             participant.isModerator = isModerator
         }
-    }
-
-    /**
-     * check if user is moderator
-     */
-    override fun isModerator(participant: KmeParticipant?): Boolean {
-        return participant != null
-                && (participant.userRole == KmeUserRole.INSTRUCTOR ||
-                participant.userRole == KmeUserRole.ADMIN ||
-                participant.userRole == KmeUserRole.OWNER ||
-                participant.isModerator == true)
     }
 
     /**
@@ -443,7 +321,130 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     }
 
     /**
-     * remove user from list with an userId
+     * Add or update participants list
+     */
+    private fun addOrUpdateParticipant(participant: KmeParticipant) {
+        getParticipant(participant.userId)?.let { foundParticipant ->
+            participants.remove(foundParticipant)
+        }
+
+        if (participant.userType == KmeUserType.DIAL) {
+            listener?.onDialAdded(participant)
+        }
+
+        participants.add(participant)
+        listener?.onParticipantChanged(participant)
+    }
+
+    /**
+     * Initialize user media state
+     */
+    private fun initUserMediaState(payload: UserMediaStateInitPayload) {
+        getParticipant(payload.userId)?.let { participant ->
+            participant.micState = payload.micState
+            participant.webcamState = payload.webcamState
+            participant.liveMediaState = payload.liveMediaState
+            listener?.onParticipantChanged(participant)
+        }
+    }
+
+    /**
+     * Update user media state
+     */
+    private fun updateUserMediaState(payload: UserMediaStateChangedPayload) {
+        getParticipant(payload.userId)?.let { participant ->
+            when (payload.mediaStateType) {
+                KmeMediaStateType.MIC -> {
+                    participant.micState = payload.stateValue
+                }
+                KmeMediaStateType.WEBCAM -> {
+                    participant.webcamState = payload.stateValue
+                }
+                KmeMediaStateType.LIVE_MEDIA -> {
+                    participant.liveMediaState = payload.stateValue
+                }
+                null -> {
+                }
+            }
+
+            listener?.onParticipantMediaStatePayLoadChanged(payload)
+            listener?.onParticipantChanged(participant)
+        }
+    }
+
+    /**
+     * Mute all participant
+     */
+    private fun updateAllMute(
+        initiatorId: Long,
+        stateType: KmeMediaStateType
+    ) {
+        participants.forEach { participant ->
+            if (initiatorId == participant.userId) {
+                return@forEach
+            }
+            when (stateType) {
+                KmeMediaStateType.MIC -> {
+                    participant.micState = KmeMediaDeviceState.DISABLED_LIVE
+                }
+                KmeMediaStateType.WEBCAM -> {
+                    participant.webcamState = KmeMediaDeviceState.DISABLED_LIVE
+                }
+                else -> {
+                }
+            }
+
+            val mediaChangePayload = UserMediaStateChangedPayload()
+            mediaChangePayload.userId = participant.userId
+            mediaChangePayload.mediaStateType = stateType
+            mediaChangePayload.stateValue = KmeMediaDeviceState.DISABLED_LIVE
+
+            listener?.onParticipantMediaStatePayLoadChanged(mediaChangePayload)
+            listener?.onParticipantChanged(participant)
+        }
+    }
+
+    /**
+     * Update user raise state
+     */
+    private fun updateRaiseHandState(
+        userId: Long,
+        isHandRaised: Boolean
+    ) {
+        getParticipant(userId)?.let { participant ->
+            if (isHandRaised) {
+                participant.timeHandRaised = System.currentTimeMillis()
+            } else {
+                participant.timeHandRaised = 0L
+            }
+            listener?.onParticipantChanged(participant)
+        }
+    }
+
+    /**
+     * All users hand down
+     */
+    private fun allHandsDown() {
+        participants.forEach { participant ->
+            participant.timeHandRaised = 0L
+        }
+    }
+
+    /**
+     * Check participant is moderator
+     */
+    private fun isModerator(participant: KmeParticipant?): Boolean {
+        return participant != null
+                && (participant.userRole == KmeUserRole.INSTRUCTOR ||
+                participant.userRole == KmeUserRole.ADMIN ||
+                participant.userRole == KmeUserRole.OWNER ||
+                participant.isModerator == true)
+    }
+
+
+
+    /**
+     *    Remove user from list with an userId
      */
     private fun remove(userId: Long) {
         val isRemoved = participants.removeAll { tmp ->

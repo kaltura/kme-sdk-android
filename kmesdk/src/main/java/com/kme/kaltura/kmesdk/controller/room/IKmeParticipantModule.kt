@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.controller.room
 
-import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.UserMediaStateChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
@@ -30,37 +29,13 @@ interface IKmeParticipantModule : IKmeModule {
     fun participants(): List<KmeParticipant>
 
     /**
-     * Add or update participants list
+     * Get participant with userId from the list
      *
      * @param userId id of an interactor
      *
      * @return participant from list
      */
     fun getParticipant(userId: Long?): KmeParticipant?
-
-    /**
-     * get participant with userId
-     *
-     * @param participant for add or update list
-     *
-     * */
-    fun addOrUpdateParticipant(participant: KmeParticipant)
-
-    /**
-     * initialize user media state
-     *
-     * @param payload for to get participant media state
-     *
-     * */
-    fun initUserMediaState(payload: KmeParticipantsModuleMessage.UserMediaStateInitPayload)
-
-    /**
-     * update user media state
-     *
-     * @param payload for to update participant media state
-     *
-     * */
-    fun updateUserMediaState(payload: UserMediaStateChangedPayload)
 
     /**
      * Raise hand for participant
@@ -123,55 +98,28 @@ interface IKmeParticipantModule : IKmeModule {
     )
 
     /**
-     * mute all participant
-     *
-     * @param initiatorId id of a initiator
-     * @param stateType type of a media
-     */
-    fun updateAllMute(
-        initiatorId: Long,
-        stateType: KmeMediaStateType
-    )
-
-    /**
-     * update user live media state
+     * User live media state
      *
      * @param userId id of a user
      */
-    fun updateUserLive(userId: Long)
+    fun userLive(userId: Long)
 
     /**
-     * mute all users mics
+     * Mute all users mics
      *
      * @param value value of a permission
      */
-    fun updateStrongMuteAllMics(value: KmePermissionValue)
+    fun muteAllMics(value: KmePermissionValue)
 
     /**
-     * mute all users cams
+     * Mute all users cams
      *
      * @param value value of a permission
      */
-    fun updateStrongMuteAllCams(value: KmePermissionValue)
+    fun muteAllCams(value: KmePermissionValue)
 
     /**
-     * update user raise state
-     *
-     * @param userId id of a user
-     * @param isHandRaised change raise state
-     */
-    fun updateRaiseHandState(
-        userId: Long,
-        isHandRaised: Boolean
-    )
-
-    /**
-     * update all users hand down
-     */
-    fun updateAllHandsDown()
-
-    /**
-     * Update user moderator state
+     * The user role has been modified by moderator
      *
      * @param userId id of a user
      * @param isModerator change state
@@ -180,14 +128,6 @@ interface IKmeParticipantModule : IKmeModule {
         userId: Long,
         isModerator: Boolean
     )
-
-    /**
-     * Check is participant is moderator
-     *
-     * @param participant for a user
-     * @return boolean
-     */
-    fun isModerator(participant: KmeParticipant?): Boolean
 
     /**
      * Participant listener
