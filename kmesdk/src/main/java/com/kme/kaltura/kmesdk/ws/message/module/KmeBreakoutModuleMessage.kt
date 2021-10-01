@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.ws.message.module
 
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
+import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.BreakoutPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeBreakoutAssignmentStatusType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeBreakoutRoomStatusType
@@ -27,7 +28,7 @@ class KmeBreakoutModuleMessage<T : BreakoutPayload> : KmeMessage<T>() {
         @SerializedName("room") val room: BreakoutRoom?,
     ) : BreakoutPayload()
 
-    data class BreakoutChangeRoomNamePayload(
+    data class BreakoutChangeNamePayload(
         @SerializedName("room") val room: BreakoutRoom?,
     ) : BreakoutPayload()
 
@@ -52,7 +53,7 @@ class KmeBreakoutModuleMessage<T : BreakoutPayload> : KmeMessage<T>() {
         @SerializedName("room_id") val id: Long?,
         @SerializedName("room_alias") val alias: String?,
         @SerializedName("index_id") val index: Long?,
-        @SerializedName("name") val name: String?,
+        @SerializedName("name") var name: String?,
         @SerializedName("raised_hand_user_id") val raisedHandUserId: Long?,
         @SerializedName("participants_count") val participantsCount: Long?,
     ) : BreakoutPayload()
@@ -61,6 +62,19 @@ class KmeBreakoutModuleMessage<T : BreakoutPayload> : KmeMessage<T>() {
         @SerializedName("user_id") val userId: Long?,
         @SerializedName("breakout_room_id") val breakoutRoomId: Long?,
         @SerializedName("status") val status: KmeBreakoutAssignmentStatusType?,
+    ) : BreakoutPayload()
+
+
+    data class BreakoutUserJoinedData(
+        @SerializedName("user_id") val userId: String?,
+        @SerializedName("breakout_room_id") val breakoutRoomId: String?,
+    ) : BreakoutPayload()
+
+    data class BreakoutUserJoinedPayload(
+        @SerializedName("event_name") val eventName: KmeMessageEvent?,
+        @SerializedName("data") val data: BreakoutUserJoinedData?,
+        @SerializedName("room_id") val roomId: Long?,
+        @SerializedName("company_id") val companyId: Long?,
     ) : BreakoutPayload()
 
     open class BreakoutPayload : KmeMessage.Payload()

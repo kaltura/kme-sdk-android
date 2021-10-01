@@ -332,37 +332,43 @@ internal class KmeMessageParser(
             KmeMessageEvent.MODULE_STATE.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
             }
-            KmeMessageEvent.BREAKOUT_START.toString() -> {
+            KmeMessageEvent.BREAKOUT_START_SUCCESS.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
             }
-            KmeMessageEvent.BREAKOUT_STOP.toString() -> {
+            KmeMessageEvent.BREAKOUT_STOP_SUCCESS.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
             }
-            KmeMessageEvent.BREAKOUT_ADD_ROOM.toString() -> {
+            KmeMessageEvent.BREAKOUT_ADD_ROOM_SUCCESS.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutAddRoomPayload>>()
             }
-            KmeMessageEvent.BREAKOUT_DELETE_ROOM.toString() -> {
+            KmeMessageEvent.BREAKOUT_DELETE_ROOM_SUCCESS.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
             }
-            KmeMessageEvent.BREAKOUT_CHANGE_ROOM_NAME.toString() -> {
-                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutChangeRoomNamePayload>>()
+            KmeMessageEvent.BREAKOUT_CHANGE_ROOM_NAME_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutChangeNamePayload>>()
             }
-            KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS.toString() -> {
+            KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
             }
-            KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS.toString() -> {
+            KmeMessageEvent.BREAKOUT_MOVE_TO_NEXT_ROOM.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
             }
-            KmeMessageEvent.BREAKOUT_MODERATOR_JOINED.toString() -> {
+            KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS_SUCCESS.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
             }
-            KmeMessageEvent.BREAKOUT_USER_JOINED.toString() -> {
+            KmeMessageEvent.BREAKOUT_CLEAR_ASSIGNMENTS_SUCCESS.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
             }
-            KmeMessageEvent.BREAKOUT_EXTEND_TIME_LIMIT.toString() -> {
+            KmeMessageEvent.BREAKOUT_MODERATOR_JOINED_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_USER_JOINED_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_EXTEND_TIME_LIMIT_SUCCESS.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutExtendTimePayload>>()
             }
-            KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR.toString() -> {
+            KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR_SUCCESS.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>>()
             }
             KmeMessageEvent.BREAKOUT_INSTRUCTOR_MESSAGE.toString() -> {

@@ -18,6 +18,7 @@ import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.service.KmeRoomService
 import com.kme.kaltura.kmesdk.toType
+import com.kme.kaltura.kmesdk.util.messages.buildJoinBorMessage
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.KmeMessageManager
@@ -315,6 +316,15 @@ class KmeRoomControllerImpl(
                                     peerConnectionModule.disconnectAll()
 
                                     listener.onOpen()
+
+                                    mainRoomSocketModule.send(
+                                        buildJoinBorMessage(
+                                            roomId,
+                                            companyId,
+                                            userController.getCurrentUserInfo()?.getUserId(),
+                                            breakoutRoomId
+                                        )
+                                    )
                                 }
 
                                 override fun onFailure(throwable: Throwable) {

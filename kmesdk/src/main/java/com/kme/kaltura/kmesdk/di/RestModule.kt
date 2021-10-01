@@ -40,7 +40,7 @@ val restModule = module {
             .registerTypeAdapter(KmeIntegrations::class.java, KmeIntegrationsAdapter())
             .registerTypeAdapter(BreakoutRoomStatusPayload::class.java, KmeBreakoutRoomTypeAdapter())
             .registerTypeAdapter(BreakoutAddRoomPayload::class.java, KmeBreakoutAddRoomTypeAdapter())
-            .registerTypeAdapter(BreakoutChangeRoomNamePayload::class.java, KmeBreakoutChangeRoomNameTypeAdapter())
+            .registerTypeAdapter(BreakoutChangeNamePayload::class.java, KmeBreakoutChangeRoomNameTypeAdapter())
             .create()
     }
 

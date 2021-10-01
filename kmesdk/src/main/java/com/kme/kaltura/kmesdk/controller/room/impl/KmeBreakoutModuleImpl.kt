@@ -34,7 +34,8 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
 
     private val currentUserId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
 
-    private var breakoutRooms: List<BreakoutRoom>? = mutableListOf()
+    private var breakoutRooms: MutableList<BreakoutRoom> = mutableListOf()
+    private var borState: BreakoutRoomStatusPayload? = null
     private var eventListener: IKmeBreakoutEvents? = null
 
     /**
@@ -44,17 +45,19 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
         roomController.listen(
             breakoutRoomMessageHandler,
             KmeMessageEvent.MODULE_STATE,
-            KmeMessageEvent.BREAKOUT_START,
-            KmeMessageEvent.BREAKOUT_STOP,
-            KmeMessageEvent.BREAKOUT_ADD_ROOM,
-            KmeMessageEvent.BREAKOUT_DELETE_ROOM,
-            KmeMessageEvent.BREAKOUT_CHANGE_ROOM_NAME,
-            KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS,
-            KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS,
-            KmeMessageEvent.BREAKOUT_MODERATOR_JOINED,
-            KmeMessageEvent.BREAKOUT_USER_JOINED,
-            KmeMessageEvent.BREAKOUT_EXTEND_TIME_LIMIT,
-            KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR,
+            KmeMessageEvent.BREAKOUT_START_SUCCESS,
+            KmeMessageEvent.BREAKOUT_STOP_SUCCESS,
+            KmeMessageEvent.BREAKOUT_ADD_ROOM_SUCCESS,
+            KmeMessageEvent.BREAKOUT_DELETE_ROOM_SUCCESS,
+            KmeMessageEvent.BREAKOUT_CHANGE_ROOM_NAME_SUCCESS,
+            KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS,
+            KmeMessageEvent.BREAKOUT_MOVE_TO_NEXT_ROOM,
+            KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS_SUCCESS,
+            KmeMessageEvent.BREAKOUT_CLEAR_ASSIGNMENTS_SUCCESS,
+            KmeMessageEvent.BREAKOUT_MODERATOR_JOINED_SUCCESS,
+            KmeMessageEvent.BREAKOUT_USER_JOINED_SUCCESS,
+            KmeMessageEvent.BREAKOUT_EXTEND_TIME_LIMIT_SUCCESS,
+            KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR_SUCCESS,
             KmeMessageEvent.BREAKOUT_INSTRUCTOR_MESSAGE
         )
     }
@@ -75,62 +78,93 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
             when (message.name) {
                 KmeMessageEvent.MODULE_STATE -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    breakoutRooms = msg?.payload?.breakoutRooms
+                    borState = msg?.payload
+                    borState?.breakoutRooms?.let {
+                        breakoutRooms.addAll(it)
+                    }
 
                     if (msg?.payload?.status == KmeBreakoutRoomStatusType.ACTIVE) {
-                        handleBreakoutStart(msg)
+                        handleJoinRoom(msg)
                     }
                 }
-                KmeMessageEvent.BREAKOUT_START -> {
+                KmeMessageEvent.BREAKOUT_START_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    handleBreakoutStart(msg)
+                    borState = msg?.payload
+
+                    handleJoinRoom(msg)
                 }
-                KmeMessageEvent.BREAKOUT_STOP -> {
-//                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    if (borSocketModule.isConnected())
-                        borSocketModule.disconnect()
-                    eventListener?.onBreakoutRoomStop()
+                KmeMessageEvent.BREAKOUT_STOP_SUCCESS -> {
+                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
+                    // TODO: handle removed assignments for moderator
+                    borState = null
+                    handleLeaveRoom()
                 }
-                KmeMessageEvent.BREAKOUT_ADD_ROOM -> {
+                KmeMessageEvent.BREAKOUT_ADD_ROOM_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutAddRoomPayload>? = message.toType()
-                    val test = ""
+                    msg?.payload?.room?.let {
+                        breakoutRooms.add(it)
+                    }
                 }
-                KmeMessageEvent.BREAKOUT_DELETE_ROOM -> {
+                KmeMessageEvent.BREAKOUT_DELETE_ROOM_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    val test = ""
+                    msg?.payload?.breakoutRooms?.let {
+                        breakoutRooms.clear()
+                        breakoutRooms.addAll(it)
+                    }
+                    msg?.payload?.removedAssignments?.let { assignments ->
+                        if (assignments.isNullOrEmpty()) return
+                        // TODO: handle removed assignments for moderator
+                    }
                 }
-                KmeMessageEvent.BREAKOUT_CHANGE_ROOM_NAME -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutChangeRoomNamePayload>? =
-                        message.toType()
-                    val test = ""
+                KmeMessageEvent.BREAKOUT_CHANGE_ROOM_NAME_SUCCESS -> {
+                    val msg: KmeBreakoutModuleMessage<BreakoutChangeNamePayload>? = message.toType()
+                    breakoutRooms.find { room ->
+                        room.id == msg?.payload?.room?.id
+                    }?.let {
+                        it.name = msg?.payload?.room?.name
+                    }
                 }
-                KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS -> {
+                KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    val test = ""
+                    if (borState?.status == KmeBreakoutRoomStatusType.ACTIVE) {
+                        msg?.payload?.removedAssignments?.find { assignment ->
+                            assignment.userId == currentUserId
+                        }?.let {
+                            handleLeaveRoom()
+                        } ?: run {
+                            handleJoinRoom(msg)
+                        }
+                    }
                 }
-                KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS -> {
+                KmeMessageEvent.BREAKOUT_MOVE_TO_NEXT_ROOM,
+                KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    val test = ""
+                    if (borState?.status == KmeBreakoutRoomStatusType.ACTIVE) {
+                        msg?.payload?.assignments?.find { assignment ->
+                            assignment.userId == currentUserId
+                        }?.let {
+                            handleJoinRoom(msg)
+                        }
+                    }
                 }
-                KmeMessageEvent.BREAKOUT_MODERATOR_JOINED -> {
+                KmeMessageEvent.BREAKOUT_CLEAR_ASSIGNMENTS_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    val test = ""
+                    // TODO: handle removed assignments for moderator
                 }
-                KmeMessageEvent.BREAKOUT_USER_JOINED -> {
+                KmeMessageEvent.BREAKOUT_MODERATOR_JOINED_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    val test = ""
                 }
-                KmeMessageEvent.BREAKOUT_EXTEND_TIME_LIMIT -> {
+                KmeMessageEvent.BREAKOUT_USER_JOINED_SUCCESS -> {
+                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
+                }
+                KmeMessageEvent.BREAKOUT_EXTEND_TIME_LIMIT_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutExtendTimePayload>? = message.toType()
-                    val test = ""
                 }
-                KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR -> {
+                KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    val test = ""
                 }
                 KmeMessageEvent.BREAKOUT_INSTRUCTOR_MESSAGE -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    val test = ""
                 }
                 else -> {
                 }
@@ -138,16 +172,24 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
         }
     }
 
-    private fun handleBreakoutStart(msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>?) {
-        breakoutRooms?.find { room ->
+    private fun handleJoinRoom(msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>?) {
+        breakoutRooms.find { room ->
             room.id == msg?.payload?.assignments?.find { assignment ->
                 assignment.userId == currentUserId
             }?.breakoutRoomId
         }?.let { breakoutRoom ->
             ifNonNull(breakoutRoom.id, breakoutRoom.alias) { id, alias ->
+                if (borSocketModule.isConnected())
+                    borSocketModule.disconnect()
                 eventListener?.onBreakoutRoomStart(id, alias)
             }
         }
+    }
+
+    private fun handleLeaveRoom() {
+        if (borSocketModule.isConnected())
+            borSocketModule.disconnect()
+        eventListener?.onBreakoutRoomStop()
     }
 
 }
