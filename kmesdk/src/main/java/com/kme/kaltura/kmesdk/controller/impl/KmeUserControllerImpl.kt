@@ -53,10 +53,7 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
      * Checks is actual user has moderator permissions
      */
     override fun isModerator(): Boolean {
-        getCurrentParticipant()?.let {
-            return it.isModerator()
-        }
-        return false
+        return getCurrentParticipant()?.isModerator() == true
     }
 
     /**
