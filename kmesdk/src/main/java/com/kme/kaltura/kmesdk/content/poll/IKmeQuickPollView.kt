@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.content.poll
 
+import androidx.lifecycle.LifecycleOwner
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage
 
 /**
@@ -12,7 +13,7 @@ interface IKmeQuickPollView {
      *
      * @param config sets initial data for the QuickPoll view.
      */
-    fun init(config: KmeQuickPollView.Config)
+    fun init(lifecycleOwner: LifecycleOwner, config: KmeQuickPollView.Config)
 
     /**
      * Send an answer event.

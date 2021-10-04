@@ -33,27 +33,27 @@ interface IKmeBasePeerConnection {
     /**
      * Creates peer connection
      *
-     * @param rendererView video renderer
      * @param videoCapturer video capturer
      * @param useDataChannel indicates if data channel is used for speaking indication
      * @param iceServers collection of ice servers
      */
     fun createPeerConnection(
-        rendererView: KmeSurfaceRendererView?,
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
         iceServers: MutableList<PeerConnection.IceServer>
     )
 
     /**
-     * Add connection renderer
+     * Attach renderer for peerconnection peer connection
+     *
+     * @param rendererView video renderer
      */
-    fun addRenderer(rendererView: KmeSurfaceRendererView)
+    fun setRenderer(rendererView: KmeSurfaceRendererView)
 
     /**
      * Remove connection renderer
      */
-    fun removeRenderer(rendererView: KmeSurfaceRendererView)
+    fun removeRenderer()
 
     /**
      * Toggle audio
@@ -113,7 +113,7 @@ interface IKmeBasePeerConnection {
     /**
      * Switch between existing cameras
      */
-    fun switchCamera()
+    fun switchCamera(frontCamera: Boolean)
 
     /**
      * Closes actual connection

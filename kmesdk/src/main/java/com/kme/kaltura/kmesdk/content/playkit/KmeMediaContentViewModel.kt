@@ -1,22 +1,24 @@
 package com.kme.kaltura.kmesdk.content.playkit
 
-import android.media.AudioManager
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.toNonNull
 import com.kme.kaltura.kmesdk.webrtc.audio.IKmeAudioManager
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
+import org.koin.core.inject
 
-class KmeMediaContentViewModel(
-    private val roomController: IKmeRoomController,
-    private val userController: IKmeUserController,
-    private val audioManager: IKmeAudioManager,
-    private val prefs: IKmePreferences
-) : ViewModel() {
+class KmeMediaContentViewModel : ViewModel(), KmeKoinViewModel {
+
+    private val userController: IKmeUserController by inject()
+    private val prefs: IKmePreferences by inject()
+    private val audioManager: IKmeAudioManager by inject()
+    private val roomController:  IKmeRoomController by scopedInject()
 
     fun getCookie(): String = prefs.getString(KmePrefsKeys.COOKIE).toNonNull()
 
@@ -30,11 +32,16 @@ class KmeMediaContentViewModel(
         return partnerId?.toInt() ?: 0
     }
 
-    fun videoVolumeIncrease(){
+    fun videoVolumeIncrease() {
         audioManager.adjustStreamVolumeRise()
     }
 
-    fun videoVolumeDecrease(){
+    fun videoVolumeDecrease() {
         audioManager.adjustStreamVolumeLow()
     }
+
+    override fun onClosed() {
+        onCleared()
+    }
+
 }
