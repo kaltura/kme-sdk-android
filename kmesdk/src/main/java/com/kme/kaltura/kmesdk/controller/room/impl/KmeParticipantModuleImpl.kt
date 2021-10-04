@@ -10,6 +10,7 @@ import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.extensions.defineNewDeviceStateByAdmin
+import com.kme.kaltura.kmesdk.util.extensions.isModerator
 import com.kme.kaltura.kmesdk.util.messages.buildAllHandsDownMessage
 import com.kme.kaltura.kmesdk.util.messages.buildChangeMediaStateMessage
 import com.kme.kaltura.kmesdk.util.messages.buildRaiseHandMessage
@@ -65,6 +66,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
             KmeMessageEvent.ALL_PARTICIPANTS_MUTED,
             KmeMessageEvent.USER_STARTED_TO_PUBLISH,
             KmeMessageEvent.NEW_USER_JOINED,
+            KmeMessageEvent.SET_PARTICIPANT_MODERATOR,
             KmeMessageEvent.ROOM_SETTINGS_CHANGED,
             KmeMessageEvent.MAKE_ALL_USERS_HAND_PUT,
             KmeMessageEvent.USER_HAND_RAISED,
@@ -109,6 +111,17 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                         if (participant != null) {
                             addOrUpdateParticipant(participant)
                         }
+                    }
+                }
+                KmeMessageEvent.SET_PARTICIPANT_MODERATOR -> {
+                    val settingsMessage: KmeParticipantsModuleMessage<SetParticipantModerator>? =
+                        message.toType()
+
+                    ifNonNull(
+                        settingsMessage?.payload?.targetUserId,
+                        settingsMessage?.payload?.isModerator
+                    ) { userId, isModerator ->
+                        updateUserModeratorState(userId, isModerator)
                     }
                 }
                 KmeMessageEvent.USER_MEDIA_STATE_INIT -> {
@@ -268,7 +281,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
      */
     override fun muteAllMics(value: KmePermissionValue) {
         participants.forEach { participant ->
-            if (!isModerator(participant)) {
+            if (!participant.isModerator()) {
                 participant.micState = participant.micState?.defineNewDeviceStateByAdmin(value)
                 if (participant.micState != KmeMediaDeviceState.LIVE) {
                     participant.isSpeaking = false
@@ -282,22 +295,10 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
      */
     override fun muteAllCams(value: KmePermissionValue) {
         participants.forEach { participant ->
-            if (!isModerator(participant)) {
+            if (!participant.isModerator()) {
                 participant.webcamState =
                     participant.webcamState?.defineNewDeviceStateByAdmin(value)
             }
-        }
-    }
-
-    /**
-     * The user role has been modified by moderator
-     */
-    override fun updateUserModeratorState(
-        userId: Long,
-        isModerator: Boolean
-    ) {
-        getParticipant(userId)?.let { participant ->
-            participant.isModerator = isModerator
         }
     }
 
@@ -431,17 +432,16 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     }
 
     /**
-     * Check participant is moderator
+     * The user role has been modified by moderator
      */
-    private fun isModerator(participant: KmeParticipant?): Boolean {
-        return participant != null
-                && (participant.userRole == KmeUserRole.INSTRUCTOR ||
-                participant.userRole == KmeUserRole.ADMIN ||
-                participant.userRole == KmeUserRole.OWNER ||
-                participant.isModerator == true)
+    private fun updateUserModeratorState(
+        userId: Long,
+        isModerator: Boolean
+    ) {
+        getParticipant(userId)?.let { participant ->
+            participant.isModerator = isModerator
+        }
     }
-
-
 
     /**
      *    Remove user from list with an userId

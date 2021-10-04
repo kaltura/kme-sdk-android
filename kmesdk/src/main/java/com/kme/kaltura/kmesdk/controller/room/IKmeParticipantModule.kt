@@ -119,17 +119,6 @@ interface IKmeParticipantModule : IKmeModule {
     fun muteAllCams(value: KmePermissionValue)
 
     /**
-     * The user role has been modified by moderator
-     *
-     * @param userId id of a user
-     * @param isModerator change state
-     */
-    fun updateUserModeratorState(
-        userId: Long,
-        isModerator: Boolean
-    )
-
-    /**
      * Participant listener
      */
     interface KmeParticipantListener {
