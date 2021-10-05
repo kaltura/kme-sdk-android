@@ -51,6 +51,7 @@ class KmeRoomControllerImpl(
     override val noteModule: IKmeNoteModule by scopedInject()
     override val recordingModule: IKmeRecordingModule by scopedInject()
     override val audioModule: IKmeAudioModule by scopedInject()
+    override val terms: IKmeTermsModule by scopedInject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 

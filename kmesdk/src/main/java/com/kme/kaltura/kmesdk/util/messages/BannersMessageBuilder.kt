@@ -25,8 +25,8 @@ internal fun buildTermsAgreementMessage(
 ): KmeBannersModuleMessage<TermsAgreementPayload> {
     return KmeBannersModuleMessage<TermsAgreementPayload>().apply {
         module = KmeMessageModule.BANNERS
-        name = KmeMessageEvent.BANNERS_SET_AGREEMENT
-//        type = KmeMessageEventType.CALLBACK
+        name = KmeMessageEvent.SET_TERMS_AGREEMENT
+        type = KmeMessageEventType.CALLBACK
         payload = TermsAgreementPayload(agree)
     }
 }

@@ -62,8 +62,17 @@ enum class KmeMessageEvent(
     @SerializedName("roomPasswordStatusReceived", alternate = ["roompasswordstatusreceived"])
     ROOM_PASSWORD_STATUS_RECEIVED("roomPasswordStatusReceived"),
 
+    @SerializedName("termsNeeded", alternate = ["termsneeded"])
+    TERMS_NEEDED("termsNeeded"),
+
     @SerializedName("setTermsAgreement", alternate = ["settermsagreement"])
-    BANNERS_SET_AGREEMENT("setTermsAgreement"),
+    SET_TERMS_AGREEMENT("setTermsAgreement"),
+
+    @SerializedName("termsAgreed", alternate = ["termsagreed"])
+    TERMS_AGREED("termsAgreed"),
+
+    @SerializedName("termsRejected", alternate = ["termsrejected"])
+    TERMS_REJECTED("termsRejected"),
 
     /*
     * Room Participants

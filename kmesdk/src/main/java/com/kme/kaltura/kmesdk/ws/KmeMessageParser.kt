@@ -109,6 +109,18 @@ internal class KmeMessageParser(
             KmeMessageEvent.ROOM_PASSWORD_STATUS_RECEIVED.toString() -> {
                 text.jsonToObject<KmeBannersModuleMessage<RoomPasswordStatusReceivedPayload>>()
             }
+            KmeMessageEvent.TERMS_NEEDED.toString() -> {
+                text.jsonToObject<KmeBannersModuleMessage<BannersPayload>>()
+            }
+            KmeMessageEvent.SET_TERMS_AGREEMENT.toString() -> {
+                text.jsonToObject<KmeBannersModuleMessage<KmeBannersModuleMessage.TermsAgreementPayload>>()
+            }
+            KmeMessageEvent.TERMS_AGREED.toString() -> {
+                text.jsonToObject<KmeBannersModuleMessage<BannersPayload>>()
+            }
+            KmeMessageEvent.TERMS_REJECTED.toString() -> {
+                text.jsonToObject<KmeBannersModuleMessage<BannersPayload>>()
+            }
             KmeMessageEvent.USER_MEDIA_STATE_INIT.toString() -> {
                 text.jsonToObject<KmeParticipantsModuleMessage<UserMediaStateInitPayload>>()
             }
