@@ -16,5 +16,10 @@ class KmeBannersModuleMessage<T : KmeBannersModuleMessage.BannersPayload> : KmeM
         @SerializedName("tryCount") val tryCount: Int? = null,
     ) : BannersPayload()
 
+    data class TermsAgreementPayload(
+        @SerializedName("agreed") val agreed: Boolean? = null,
+    ) : BannersPayload()
+
     open class BannersPayload : Payload()
+
 }
