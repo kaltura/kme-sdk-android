@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-android-extensions'
     id 'kotlin-kapt'
     id 'org.jetbrains.dokka-android'
+    id 'maven-publish'
 }
 
 android {
@@ -14,7 +15,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 31
         versionCode 29
-        versionName "1.0.29"
+        versionName "1.0.32"
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -33,14 +34,14 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-    }
+//    compileOptions {
+//        sourceCompatibility JavaVersion.VERSION_1_8
+//        targetCompatibility JavaVersion.VERSION_1_8
+//    }
+//
+//    kotlinOptions {
+//        jvmTarget = JavaVersion.VERSION_1_8.toString()
+//    }
 
     dokka {
         outputFormat = 'javadoc'
@@ -49,6 +50,19 @@ android {
 
     buildFeatures {
         viewBinding true
+    }
+
+    afterEvaluate {
+        publishing {
+            publications {
+                release(MavenPublication) {
+                    from components.release
+                    groupId = "com.kaltura.kme"
+                    artifactId = "kmesdk"
+                    version = '1.0.32'
+                }
+            }
+        }
     }
 }
 
