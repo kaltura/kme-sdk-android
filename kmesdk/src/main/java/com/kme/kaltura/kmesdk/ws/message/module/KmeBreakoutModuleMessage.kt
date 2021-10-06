@@ -71,7 +71,7 @@ class KmeBreakoutModuleMessage<T : BreakoutPayload> : KmeMessage<T>() {
     ) : BreakoutPayload()
 
     data class BreakoutUserJoinedPayload(
-        @SerializedName("event_name") val eventName: KmeMessageEvent?,
+        @SerializedName("eventName") val eventName: KmeMessageEvent?,
         @SerializedName("data") val data: BreakoutUserJoinedData?,
         @SerializedName("room_id") val roomId: Long?,
         @SerializedName("company_id") val companyId: Long?,

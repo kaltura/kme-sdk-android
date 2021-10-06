@@ -18,6 +18,7 @@ import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.service.KmeRoomService
 import com.kme.kaltura.kmesdk.toType
+import com.kme.kaltura.kmesdk.util.messages.buildChangeMediaStateMessage
 import com.kme.kaltura.kmesdk.util.messages.buildJoinBorMessage
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
@@ -27,6 +28,8 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.RoomStatePayload
 import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
+import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
+import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmeAppAccessValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -72,6 +75,7 @@ class KmeRoomControllerImpl(
 
     private var roomService: KmeRoomService? = null
 
+    private val publisherId by lazy { userController.getCurrentUserInfo()?.getUserId() }
     private var companyId: Long = 0
     private var roomId: Long = 0
     private var breakoutRoomId: Long? = null
@@ -264,7 +268,7 @@ class KmeRoomControllerImpl(
 
                     val participantsList = msg?.payload?.participants?.values?.toMutableList()
                     val currentParticipant = participantsList?.find { participant ->
-                        participant.userId == userController.getCurrentUserInfo()?.getUserId()
+                        participant.userId == publisherId
                     }
                     currentParticipant?.userPermissions = roomSettings?.roomInfo?.settingsV2
 
@@ -302,6 +306,17 @@ class KmeRoomControllerImpl(
                     val token = it.data?.token
                     if (wssUrl != null && token != null) {
                         breakoutRoomId = roomId
+
+                        mainRoomSocketModule.send(
+                            buildChangeMediaStateMessage(
+                                roomId,
+                                companyId,
+                                publisherId,
+                                KmeMediaStateType.LIVE_MEDIA,
+                                KmeMediaDeviceState.DISABLED
+                            )
+                        )
+
                         getActiveSocket().connect(
                             wssUrl,
                             companyId,
