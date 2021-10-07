@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
+import com.kme.kaltura.kmesdk.controller.room.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
 import com.kme.kaltura.kmesdk.di.scopedInject
@@ -23,6 +24,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
 
     private val userController: IKmeUserController by inject()
     private val roomController: IKmeRoomController by scopedInject()
+    private val internalDataModule: IKmeInternalDataModule by scopedInject()
 
     private val isAdmin = LiveEvent<Boolean>()
     val isAdminLiveData get() = isAdmin
@@ -44,7 +46,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
 
     init {
         isAdmin.value = userController.isModerator()
-                || userController.isAdminFor(roomController.getCompanyId())
+                || userController.isAdminFor(internalDataModule.companyId)
     }
 
     /**

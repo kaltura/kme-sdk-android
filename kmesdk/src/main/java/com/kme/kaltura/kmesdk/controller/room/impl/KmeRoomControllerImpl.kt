@@ -55,6 +55,7 @@ class KmeRoomControllerImpl(
     private val mainRoomSocketModule: IKmeWebSocketModule by scopedInject()
     private val settingsModule: IKmeSettingsModule by scopedInject()
     private val contentModule: IKmeContentModule by scopedInject()
+    private val internalDataModule: IKmeInternalDataModule by scopedInject()
 
     override val roomModule: IKmeRoomModule by scopedInject()
     override val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
@@ -67,7 +68,7 @@ class KmeRoomControllerImpl(
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
-    override var roomSettings: KmeWebRTCServer? = null
+    override var webRTCServer: KmeWebRTCServer? = null
         private set
 
     override var roomMetadata: KmeRoomMetaData? = null
@@ -76,9 +77,7 @@ class KmeRoomControllerImpl(
     private var roomService: KmeRoomService? = null
 
     private val publisherId by lazy { userController.getCurrentUserInfo()?.getUserId() }
-    private var companyId: Long = 0
-    private var roomId: Long = 0
-    private var breakoutRoomId: Long? = null
+
     private var isReconnect: Boolean = true
 
     private lateinit var url: String
@@ -93,24 +92,20 @@ class KmeRoomControllerImpl(
             val binder: KmeRoomService.RoomServiceBinder =
                 service as KmeRoomService.RoomServiceBinder
             roomService = binder.service
-            getActiveSocket().connect(url, companyId, roomId, isReconnect, token, roomWSListener)
+            getActiveSocket().connect(
+                url,
+                internalDataModule.companyId,
+                internalDataModule.mainRoomId,
+                isReconnect,
+                token,
+                roomWSListener
+            )
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
             roomService = null
         }
     }
-
-    // TODO: avoid passing roomId and companyId to the KME controllers
-    /**
-     * Getting actual room id
-     */
-    override fun getRoomId() = roomId
-
-    /**
-     * Getting actual company id
-     */
-    override fun getCompanyId() = companyId
 
     /**
      * Connect to the room via web socket. Update actual user information first.
@@ -152,8 +147,8 @@ class KmeRoomControllerImpl(
             safeApiCall(
                 { roomApiService.getWebRTCLiveServer(roomAlias) },
                 success = {
-                    roomSettings = it.data
-                    if (roomSettings?.roomInfo?.settingsV2?.general?.appAccess == KmeAppAccessValue.OFF) {
+                    webRTCServer = it.data
+                    if (webRTCServer?.roomInfo?.settingsV2?.general?.appAccess == KmeAppAccessValue.OFF) {
                         val appAccessException = KmeApiException.AppAccessException()
                         listener.onFailure(Throwable(appAccessException))
                     } else {
@@ -165,7 +160,7 @@ class KmeRoomControllerImpl(
                     }
                 },
                 error = {
-                    roomSettings = null
+                    webRTCServer = null
                     listener.onFailure(Throwable(it))
                 }
             )
@@ -191,8 +186,8 @@ class KmeRoomControllerImpl(
         listener: IKmeWSConnectionListener,
     ) {
         this.url = url
-        this.companyId = companyId
-        this.roomId = roomId
+        internalDataModule.companyId = companyId
+        internalDataModule.mainRoomId = roomId
         this.isReconnect = isReconnect
         this.token = token
 
@@ -270,7 +265,7 @@ class KmeRoomControllerImpl(
                     val currentParticipant = participantsList?.find { participant ->
                         participant.userId == publisherId
                     }
-                    currentParticipant?.userPermissions = roomSettings?.roomInfo?.settingsV2
+                    currentParticipant?.userPermissions = webRTCServer?.roomInfo?.settingsV2
 
                     userController.updateParticipant(currentParticipant)
                 }
@@ -305,12 +300,12 @@ class KmeRoomControllerImpl(
                     val wssUrl = it.data?.wssUrl
                     val token = it.data?.token
                     if (wssUrl != null && token != null) {
-                        breakoutRoomId = roomId
+                        internalDataModule.breakoutRoomId = roomId
 
                         mainRoomSocketModule.send(
                             buildChangeMediaStateMessage(
                                 roomId,
-                                companyId,
+                                internalDataModule.companyId,
                                 publisherId,
                                 KmeMediaStateType.LIVE_MEDIA,
                                 KmeMediaDeviceState.DISABLED
@@ -319,7 +314,7 @@ class KmeRoomControllerImpl(
 
                         getActiveSocket().connect(
                             wssUrl,
-                            companyId,
+                            internalDataModule.companyId,
                             roomId,
                             isReconnect,
                             token,
@@ -335,9 +330,9 @@ class KmeRoomControllerImpl(
                                     mainRoomSocketModule.send(
                                         buildJoinBorMessage(
                                             roomId,
-                                            companyId,
+                                            internalDataModule.companyId,
                                             userController.getCurrentUserInfo()?.getUserId(),
-                                            breakoutRoomId
+                                            internalDataModule.breakoutRoomId
                                         )
                                     )
                                 }
@@ -349,13 +344,13 @@ class KmeRoomControllerImpl(
                                 override fun onClosing(code: Int, reason: String) {
                                     listener.onClosing(code, reason)
                                     releaseScope(getScope(KmeKoinScope.BOR_MODULES))
-                                    breakoutRoomId = null
+                                    internalDataModule.breakoutRoomId = 0
                                 }
 
                                 override fun onClosed(code: Int, reason: String) {
                                     listener.onClosed(code, reason)
                                     releaseScope(getScope(KmeKoinScope.BOR_MODULES))
-                                    breakoutRoomId = null
+                                    internalDataModule.breakoutRoomId = 0
                                 }
                             }
                         )
@@ -440,9 +435,9 @@ class KmeRoomControllerImpl(
         messageManager.removeListeners()
     }
 
-    private fun getActiveSocket(): IKmeWebSocketModule = breakoutRoomId?.let {
+    private fun getActiveSocket() = if (internalDataModule.breakoutRoomId != 0L) {
         borSocketModule
-    } ?: run {
+    } else {
         mainRoomSocketModule
     }
 

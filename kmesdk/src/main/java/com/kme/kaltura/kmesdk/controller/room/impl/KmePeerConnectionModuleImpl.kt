@@ -71,11 +71,11 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         this.companyId = companyId
 
         publisherId = userController.getCurrentUserInfo()?.getUserId() ?: 0
-        useWsEvents = roomController.roomSettings?.featureFlags?.nr2DataChannelViaRs ?: true
+        useWsEvents = roomController.webRTCServer?.featureFlags?.nr2DataChannelViaRs ?: true
 
-        val turnUrl = roomController.roomSettings?.turnUrl
-        val turnUser = roomController.roomSettings?.turnUsername
-        val turnCred = roomController.roomSettings?.turnCredential
+        val turnUrl = roomController.webRTCServer?.turnUrl
+        val turnUser = roomController.webRTCServer?.turnUsername
+        val turnCred = roomController.webRTCServer?.turnCredential
 
         if (turnUrl != null && turnUser != null && turnCred != null) {
             this.turnUrl = turnUrl

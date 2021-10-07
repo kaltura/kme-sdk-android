@@ -37,7 +37,7 @@ internal class KmeWebSocketHandler(
     /** Invoked when a text (type `0x1`) message has been received. */
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
-        Log.e(TAG, "onMessage: $text")
+        Log.e(TAG, "${hashCode()} onMessage: $text")
         handleMessage(webSocket, text)
     }
 

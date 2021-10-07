@@ -22,22 +22,12 @@ interface IKmeRoomController : IKmeWebSocketModule, IKmeMessageManager {
     /**
      * Getting WebRTC server data
      */
-    val roomSettings: KmeWebRTCServer?
+    val webRTCServer: KmeWebRTCServer?
 
     /**
      * Getting current room metadata
      */
     val roomMetadata: KmeRoomMetaData?
-
-    /**
-     * Getting actual room id
-     */
-    fun getRoomId(): Long
-
-    /**
-     * Getting actual company id
-     */
-    fun getCompanyId(): Long
 
     /**
      * Connect to the room via web socket. Update actual user information first.

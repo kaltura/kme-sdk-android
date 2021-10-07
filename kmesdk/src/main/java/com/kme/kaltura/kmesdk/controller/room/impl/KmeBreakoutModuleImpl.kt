@@ -4,12 +4,15 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule.IKmeBreakoutEvents
+import com.kme.kaltura.kmesdk.controller.room.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinScope
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.toType
+import com.kme.kaltura.kmesdk.util.messages.buildAssignUserBorMessage
+import com.kme.kaltura.kmesdk.util.messages.buildCallToInstructorMessage
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
@@ -30,6 +33,8 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
             val module: IKmeWebSocketModule by scopedInject(KmeKoinScope.BOR_MODULES)
             return module
         }
+    private val mainRoomSocketModule: IKmeWebSocketModule by scopedInject()
+    private val internalDataModule: IKmeInternalDataModule by scopedInject()
     private val userController: IKmeUserController by inject()
 
     private val currentUserId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
@@ -62,13 +67,62 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
         )
     }
 
+    /**
+     * Handle breakout room setting changes from main room
+     */
     override fun onSettingChanged(payload: RoomModuleSettingsChangedPayload) {
 
     }
 
+    /**
+     * Setting events listener
+     */
     override fun setEventsListener(listener: IKmeBreakoutEvents) {
         eventListener = listener
     }
+
+    /**
+     * Assign self to specific breakout room
+     */
+    override fun assignSelfToBor(breakoutRoomId: Long) {
+        assignUserToBor(currentUserId, breakoutRoomId)
+    }
+
+    /**
+     * Assign user to specific room
+     */
+    override fun assignUserToBor(
+        userId: Long,
+        breakoutRoomId: Long
+    ) {
+        mainRoomSocketModule.send(
+            buildAssignUserBorMessage(
+                internalDataModule.mainRoomId,
+                internalDataModule.companyId,
+                userId,
+                breakoutRoomId
+            )
+        )
+    }
+
+    /**
+     * Call instructor
+     */
+    override fun callToInstructor() {
+        mainRoomSocketModule.send(
+            buildCallToInstructorMessage(
+                internalDataModule.mainRoomId,
+                internalDataModule.companyId,
+                currentUserId,
+                internalDataModule.breakoutRoomId
+            )
+        )
+    }
+
+    /**
+     * Getting list of breakout rooms
+     */
+    override fun getBreakoutRooms() = breakoutRooms
 
     /**
      * Listen for subscribed events

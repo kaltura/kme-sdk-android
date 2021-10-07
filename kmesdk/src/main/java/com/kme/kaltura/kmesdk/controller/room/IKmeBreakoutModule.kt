@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.controller.room
 
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomModuleSettingsChangedPayload
 
 /**
@@ -21,6 +22,29 @@ interface IKmeBreakoutModule : IKmeModule {
      * Setting events listener
      */
     fun setEventsListener(listener: IKmeBreakoutEvents)
+
+    /**
+     * Assign self to specific breakout room
+     */
+    fun assignSelfToBor(breakoutRoomId: Long)
+
+    /**
+     * Assign user to specific breakout room
+     */
+    fun assignUserToBor(
+        userId: Long,
+        breakoutRoomId: Long
+    )
+
+    /**
+     * Call instructor
+     */
+    fun callToInstructor()
+
+    /**
+     * Getting list of breakout rooms
+     */
+    fun getBreakoutRooms(): List<KmeBreakoutModuleMessage.BreakoutRoom>
 
     /**
      * Subscribing for the room events related breakout rooms

@@ -109,8 +109,8 @@ class KmeQuickPollView @JvmOverloads constructor(
         roomController.send(
             buildSendQuickPollAnswerMessage(
                 answer,
-                roomController.roomSettings?.roomInfo?.id ?: 0L,
-                roomController.roomSettings?.roomInfo?.companyId ?: 0L,
+                roomController.webRTCServer?.roomInfo?.id ?: 0L,
+                roomController.webRTCServer?.roomInfo?.companyId ?: 0L,
             )
         )
 

@@ -87,19 +87,19 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
                     ) { key, value ->
                         when (key) {
                             KmePermissionKey.CLASS_MODE -> {
-                                roomController.roomSettings?.roomInfo?.settingsV2?.general?.classMode =
+                                roomController.webRTCServer?.roomInfo?.settingsV2?.general?.classMode =
                                     value
                             }
                             KmePermissionKey.MUTE_MODE -> {
-                                roomController.roomSettings?.roomInfo?.settingsV2?.general?.muteMode =
+                                roomController.webRTCServer?.roomInfo?.settingsV2?.general?.muteMode =
                                     value
                             }
                             KmePermissionKey.MUTE_ALL_MICS -> {
-                                roomController.roomSettings?.roomInfo?.settingsV2?.general?.muteAllMics =
+                                roomController.webRTCServer?.roomInfo?.settingsV2?.general?.muteAllMics =
                                     value
                             }
                             KmePermissionKey.MUTE_ALL_CAMS -> {
-                                roomController.roomSettings?.roomInfo?.settingsV2?.general?.muteAllCams =
+                                roomController.webRTCServer?.roomInfo?.settingsV2?.general?.muteAllCams =
                                     value
                             }
                             else -> {

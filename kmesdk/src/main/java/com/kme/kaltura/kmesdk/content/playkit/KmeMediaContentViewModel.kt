@@ -28,7 +28,7 @@ class KmeMediaContentViewModel : ViewModel(), KmeKoinViewModel {
         ?.userPermissions?.playlistModule?.defaultSettings?.isModerator == KmePermissionValue.ON
 
     fun getKalturaPartnerId(): Int {
-        val partnerId = roomController.roomSettings?.roomInfo?.integrations?.kaltura?.company?.id
+        val partnerId = roomController.webRTCServer?.roomInfo?.integrations?.kaltura?.company?.id
         return partnerId?.toInt() ?: 0
     }
 

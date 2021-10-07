@@ -39,3 +39,43 @@ internal fun buildJoinBorMessage(
         )
     }
 }
+
+internal fun buildAssignUserBorMessage(
+    roomId: Long?,
+    companyId: Long?,
+    userId: Long?,
+    breakoutRoomId: Long?
+): KmeBreakoutModuleMessage<BreakoutAssignUserPayload> {
+    return KmeBreakoutModuleMessage<BreakoutAssignUserPayload>().apply {
+        constraint = listOf()
+        module = KmeMessageModule.BREAKOUT
+        name = KmeMessageEvent.BREAKOUT_PASS_TO_MS
+        type = KmeMessageEventType.VOID
+        payload = BreakoutAssignUserPayload(
+            KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS,
+            BreakoutAssignmentsData(listOf(BreakoutRoomAssignment(userId, breakoutRoomId))),
+            roomId,
+            companyId
+        )
+    }
+}
+
+internal fun buildCallToInstructorMessage(
+    roomId: Long?,
+    companyId: Long?,
+    userId: Long?,
+    breakoutRoomId: Long?
+): KmeBreakoutModuleMessage<BreakoutUserJoinedPayload> {
+    return KmeBreakoutModuleMessage<BreakoutUserJoinedPayload>().apply {
+        constraint = listOf()
+        module = KmeMessageModule.BREAKOUT
+        name = KmeMessageEvent.BREAKOUT_PASS_TO_MS
+        type = KmeMessageEventType.VOID
+        payload = BreakoutUserJoinedPayload(
+            KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR,
+            BreakoutUserJoinedData(userId.toString(), breakoutRoomId.toString()),
+            roomId,
+            companyId
+        )
+    }
+}

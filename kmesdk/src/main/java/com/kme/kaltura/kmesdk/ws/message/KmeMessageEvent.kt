@@ -384,6 +384,9 @@ enum class KmeMessageEvent(
     @SerializedName("changeBreakoutRoomNameSucceeded", alternate = ["changebreakoutroomnamesucceeded"])
     BREAKOUT_CHANGE_ROOM_NAME_SUCCESS("changeBreakoutRoomNameSucceeded"),
 
+    @SerializedName("assignParticipants", alternate = ["assignparticipants"])
+    BREAKOUT_ASSIGN_PARTICIPANTS("assignParticipants"),
+
     @SerializedName("assignParticipantsSucceeded", alternate = ["assignparticipantssucceeded"])
     BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS("assignParticipantsSucceeded"),
 
@@ -407,6 +410,9 @@ enum class KmeMessageEvent(
 
     @SerializedName("extendTimeLimitSucceeded", alternate = ["extendtimelimitsucceeded"])
     BREAKOUT_EXTEND_TIME_LIMIT_SUCCESS("extendTimeLimitSucceeded"),
+
+    @SerializedName("callToInstructor", alternate = ["calltoinstructor"])
+    BREAKOUT_CALL_TO_INSTRUCTOR("callToInstructor"),
 
     @SerializedName("callToInstructorSucceeded", alternate = ["calltoinstructorsucceeded"])
     BREAKOUT_CALL_TO_INSTRUCTOR_SUCCESS("callToInstructorSucceeded"),
