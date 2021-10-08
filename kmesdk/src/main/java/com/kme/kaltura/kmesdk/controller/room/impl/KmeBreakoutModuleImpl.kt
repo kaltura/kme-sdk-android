@@ -209,10 +209,25 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                     }
                     eventListener?.onBreakoutRoomStateChanged()
                 }
-                KmeMessageEvent.BREAKOUT_MODERATOR_JOINED_SUCCESS,
+                KmeMessageEvent.BREAKOUT_MODERATOR_JOINED_SUCCESS -> {
+                    val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
+                    msg?.payload?.assignments?.get(0)?.let { assignment ->
+                        borState?.assignments?.find { localAssignment ->
+                            localAssignment.userId == assignment.userId
+                        }?.let {
+                            it.status = assignment.status
+                        }
+                        borState?.breakoutRooms?.find { room->
+                            room.id == assignment.breakoutRoomId
+                        }?.let {
+                            it.raisedHandUserId = null
+                        }
+                    }
+                    eventListener?.onBreakoutRoomStateChanged()
+                }
                 KmeMessageEvent.BREAKOUT_USER_JOINED_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
-                    msg?.payload?.assignments?.forEach { assignment ->
+                    msg?.payload?.assignments?.get(0)?.let { assignment ->
                         borState?.assignments?.find { localAssignment ->
                             localAssignment.userId == assignment.userId
                         }?.let {
