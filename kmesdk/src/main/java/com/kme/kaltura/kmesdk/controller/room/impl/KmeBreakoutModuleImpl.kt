@@ -111,7 +111,9 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
         borState?.breakoutRooms?.find {
             it.id == internalDataModule.breakoutRoomId
         }?.let { room ->
-            if (room.raisedHandUserId != null) {
+            if (room.raisedHandUserId != null ||
+                room.raisedHandUserId == currentUserId
+            ) {
                 mainRoomSocketModule.send(
                     buildCallToInstructorMessage(
                         internalDataModule.mainRoomId,
