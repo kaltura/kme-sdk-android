@@ -20,6 +20,16 @@ class KmeBannersModuleMessage<T : KmeBannersModuleMessage.BannersPayload> : KmeM
         @SerializedName("agreed") val agreed: Boolean? = null,
     ) : BannersPayload()
 
+    data class TermsAgreedPayload(
+        @SerializedName("room_id") val roomId: Long? = null,
+        @SerializedName("user_id") val userId: Long? = null,
+        ) : BannersPayload()
+
+    data class TermsRejectedPayload(
+        @SerializedName("room_id") val roomId: Long? = null,
+        @SerializedName("user_id") val userId: Long? = null,
+    ) : BannersPayload()
+
     open class BannersPayload : Payload()
 
 }

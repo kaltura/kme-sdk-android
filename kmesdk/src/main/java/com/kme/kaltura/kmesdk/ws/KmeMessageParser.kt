@@ -116,10 +116,10 @@ internal class KmeMessageParser(
                 text.jsonToObject<KmeBannersModuleMessage<KmeBannersModuleMessage.TermsAgreementPayload>>()
             }
             KmeMessageEvent.TERMS_AGREED.toString() -> {
-                text.jsonToObject<KmeBannersModuleMessage<BannersPayload>>()
+                text.jsonToObject<KmeBannersModuleMessage<KmeBannersModuleMessage.TermsAgreedPayload>>()
             }
             KmeMessageEvent.TERMS_REJECTED.toString() -> {
-                text.jsonToObject<KmeBannersModuleMessage<BannersPayload>>()
+                text.jsonToObject<KmeBannersModuleMessage<KmeBannersModuleMessage.TermsRejectedPayload>>()
             }
             KmeMessageEvent.USER_MEDIA_STATE_INIT.toString() -> {
                 text.jsonToObject<KmeParticipantsModuleMessage<UserMediaStateInitPayload>>()

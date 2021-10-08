@@ -25,6 +25,7 @@ interface IKmeTermsModule : IKmeModule {
      * @param error function to handle error result. Contains [KmeApiException] object
      */
     fun getTermsMessage(
+        roomId: Long,
         companyId: Long,
         success: (response: KmeGetTermsResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit

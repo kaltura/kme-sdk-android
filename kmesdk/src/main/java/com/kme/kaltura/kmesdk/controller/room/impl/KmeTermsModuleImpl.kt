@@ -35,13 +35,14 @@ class KmeTermsModuleImpl : KmeController(), IKmeTermsModule {
      * Getting terms and condition message
      */
     override fun getTermsMessage(
+        roomId: Long,
         companyId: Long,
         success: (response: KmeGetTermsResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
         uiScope.launch {
             safeApiCall(
-                { termsApiService.getTerms(companyId) },
+                { termsApiService.getTerms(roomId, companyId) },
                 success = {
                     success.invoke(it)
                 },

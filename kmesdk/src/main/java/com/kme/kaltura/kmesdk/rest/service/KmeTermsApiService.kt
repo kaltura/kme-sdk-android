@@ -17,6 +17,7 @@ interface KmeTermsApiService {
      */
     @GET("company/terms")
     suspend fun getTerms(
+        @Query("room_id") roomId: Long,
         @Query("company_id") companyId: Long,
     ): KmeGetTermsResponse
 
