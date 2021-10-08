@@ -69,7 +69,7 @@ interface IKmeBreakoutModule : IKmeModule {
          */
         fun onBreakoutCallInstructor(
             roomId: Long,
-            userId: Long
+            userId: Long?
         )
 
         /**

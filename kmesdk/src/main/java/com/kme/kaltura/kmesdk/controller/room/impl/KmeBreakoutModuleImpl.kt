@@ -108,14 +108,20 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
      * Call instructor
      */
     override fun callToInstructor() {
-        mainRoomSocketModule.send(
-            buildCallToInstructorMessage(
-                internalDataModule.mainRoomId,
-                internalDataModule.companyId,
-                currentUserId,
-                internalDataModule.breakoutRoomId
-            )
-        )
+        borState?.breakoutRooms?.find {
+            it.id == internalDataModule.breakoutRoomId
+        }?.let { room ->
+            if (room.raisedHandUserId != null) {
+                mainRoomSocketModule.send(
+                    buildCallToInstructorMessage(
+                        internalDataModule.mainRoomId,
+                        internalDataModule.companyId,
+                        currentUserId,
+                        internalDataModule.breakoutRoomId
+                    )
+                )
+            }
+        }
     }
 
     /**
@@ -221,13 +227,11 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                 }
                 KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
-                    ifNonNull(
-                        msg?.payload?.breakoutRooms?.get(0)?.id,
-                        msg?.payload?.breakoutRooms?.get(0)?.raisedHandUserId
-                    ) { callRoomId, callUserId ->
+                    msg?.payload?.breakoutRooms?.get(0)?.id?.let { callRoomId ->
                         borState?.breakoutRooms?.find { room ->
                             room.id == callRoomId
                         }?.let { breakoutRoom ->
+                            val callUserId = msg.payload?.breakoutRooms?.get(0)?.raisedHandUserId
                             breakoutRoom.raisedHandUserId = callUserId
                             eventListener?.onBreakoutCallInstructor(callRoomId, callUserId)
                         }
