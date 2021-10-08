@@ -1,22 +1,22 @@
 package com.kme.kaltura.kmesdk.rest.adapter
 
 import com.google.gson.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.BreakoutRoomStatusPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.BreakoutRoomState
 import java.lang.reflect.Type
 
-class KmeBreakoutRoomTypeAdapter : JsonDeserializer<BreakoutRoomStatusPayload> {
+class KmeBreakoutRoomTypeAdapter : JsonDeserializer<BreakoutRoomState> {
 
     override fun deserialize(
         json: JsonElement?,
         typeOfT: Type?,
         context: JsonDeserializationContext?,
-    ): BreakoutRoomStatusPayload {
+    ): BreakoutRoomState {
         mapRooms(json)
         mapAssignments(json, type = "assignments")
         mapAssignments(json, type = "failed_assignments")
         mapAssignments(json, type = "removed_assignments")
 
-        return Gson().fromJson(json, BreakoutRoomStatusPayload::class.java)
+        return Gson().fromJson(json, BreakoutRoomState::class.java)
     }
 
     private fun mapRooms(json: JsonElement?) {

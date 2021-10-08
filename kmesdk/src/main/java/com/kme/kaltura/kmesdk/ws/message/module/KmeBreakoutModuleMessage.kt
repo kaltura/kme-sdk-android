@@ -14,14 +14,14 @@ class KmeBreakoutModuleMessage<T : BreakoutPayload> : KmeMessage<T>() {
         @SerializedName("company_id") val companyId: Long,
     ) : BreakoutPayload()
 
-    data class BreakoutRoomStatusPayload(
-        @SerializedName("status") val status: KmeBreakoutRoomStatusType?,
-        @SerializedName("breakout_rooms") val breakoutRooms: List<BreakoutRoom>?,
-        @SerializedName("assignments") val assignments: List<BreakoutRoomAssignment>?,
-        @SerializedName("failed_assignments") val failedAssignments: List<BreakoutRoomAssignment>?,
-        @SerializedName("removed_assignments") val removedAssignments: List<BreakoutRoomAssignment>?,
-        @SerializedName("start_time") val startTime: Long?,
-        @SerializedName("end_time") val endTime: Long?,
+    data class BreakoutRoomState(
+        @SerializedName("status") var status: KmeBreakoutRoomStatusType?,
+        @SerializedName("breakout_rooms") var breakoutRooms: MutableList<BreakoutRoom> = mutableListOf(),
+        @SerializedName("assignments") var assignments: MutableList<BreakoutRoomAssignment> = mutableListOf(),
+        @SerializedName("failed_assignments") var failedAssignments: MutableList<BreakoutRoomAssignment> = mutableListOf(),
+        @SerializedName("removed_assignments") var removedAssignments: MutableList<BreakoutRoomAssignment> = mutableListOf(),
+        @SerializedName("start_time") var startTime: Long?,
+        @SerializedName("end_time") var endTime: Long?,
     ) : BreakoutPayload()
 
     data class BreakoutAddRoomPayload(
@@ -47,45 +47,50 @@ class KmeBreakoutModuleMessage<T : BreakoutPayload> : KmeMessage<T>() {
         @SerializedName("senderId") val senderId: Long?,
         @SerializedName("senderName") val senderName: String?,
         @SerializedName("name") val name: String?,
-    )
+    ) : BreakoutPayload()
 
     data class BreakoutRoom(
         @SerializedName("room_id") val id: Long?,
         @SerializedName("room_alias") val alias: String?,
         @SerializedName("index_id") val index: Long?,
         @SerializedName("name") var name: String?,
-        @SerializedName("raised_hand_user_id") val raisedHandUserId: Long?,
-        @SerializedName("participants_count") val participantsCount: Long?,
+        @SerializedName("raised_hand_user_id") var raisedHandUserId: Long?,
+        @SerializedName("participants_count") var participantsCount: Int,
     ) : BreakoutPayload()
 
     data class BreakoutRoomAssignment(
         @SerializedName("user_id") val userId: Long?,
-        @SerializedName("breakout_room_id") val breakoutRoomId: Long?,
-        @SerializedName("status") val status: KmeBreakoutAssignmentStatusType? = null,
-    ) : BreakoutPayload()
-
-
-    data class BreakoutUserJoinedData(
-        @SerializedName("user_id") val userId: String?,
-        @SerializedName("breakout_room_id") val breakoutRoomId: String?,
+        @SerializedName("breakout_room_id") var breakoutRoomId: Long?,
+        @SerializedName("status") var status: KmeBreakoutAssignmentStatusType? = null,
     ) : BreakoutPayload()
 
     data class BreakoutUserJoinedPayload(
-        @SerializedName("eventName") val eventName: KmeMessageEvent?,
-        @SerializedName("data") val data: BreakoutUserJoinedData?,
-        @SerializedName("room_id") val roomId: Long?,
-        @SerializedName("company_id") val companyId: Long?,
-    ) : BreakoutPayload()
+        val eventName_: KmeMessageEvent?,
+        val roomId_: Long? = null,
+        val companyId_: Long? = null,
+        @SerializedName("data") val data: BreakoutEventBaseData?,
+    ) : BreakoutEventBasePayload(eventName_, roomId_, companyId_)
 
     data class BreakoutAssignUserPayload(
-        @SerializedName("eventName") val eventName: KmeMessageEvent?,
+        val eventName_: KmeMessageEvent?,
+        val roomId_: Long? = null,
+        val companyId_: Long? = null,
         @SerializedName("data") val data: BreakoutAssignmentsData?,
-        @SerializedName("room_id") val roomId: Long?,
-        @SerializedName("company_id") val companyId: Long?,
-    ) : BreakoutPayload()
+    ) : BreakoutEventBasePayload(eventName_, roomId_, companyId_)
 
     data class BreakoutAssignmentsData(
         @SerializedName("assignments") val assignments: List<BreakoutRoomAssignment>?
+    ) : BreakoutPayload()
+
+    open class BreakoutEventBasePayload(
+        @SerializedName("eventName") val eventName: KmeMessageEvent? = null,
+        @SerializedName("room_id") val roomId: Long? = null,
+        @SerializedName("company_id") val companyId: Long? = null,
+    ) : BreakoutPayload()
+
+    open class BreakoutEventBaseData(
+        @SerializedName("user_id") val userId: String? = null,
+        @SerializedName("breakout_room_id") val breakoutRoomId: String? = null,
     ) : BreakoutPayload()
 
     open class BreakoutPayload : KmeMessage.Payload()

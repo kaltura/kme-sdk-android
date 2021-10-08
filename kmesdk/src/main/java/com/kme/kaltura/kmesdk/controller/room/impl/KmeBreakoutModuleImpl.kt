@@ -39,8 +39,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
 
     private val currentUserId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
 
-    private var breakoutRooms: MutableList<BreakoutRoom> = mutableListOf()
-    private var borState: BreakoutRoomStatusPayload? = null
+    private var borState: BreakoutRoomState? = null
     private var eventListener: IKmeBreakoutEvents? = null
 
     /**
@@ -122,7 +121,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
     /**
      * Getting list of breakout rooms
      */
-    override fun getBreakoutRooms() = breakoutRooms
+    override fun getBreakoutState() = borState
 
     /**
      * Listen for subscribed events
@@ -131,94 +130,117 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
                 KmeMessageEvent.MODULE_STATE -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
+                    val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
                     borState = msg?.payload
-                    borState?.breakoutRooms?.let {
-                        breakoutRooms.addAll(it)
-                    }
-
                     if (msg?.payload?.status == KmeBreakoutRoomStatusType.ACTIVE) {
-                        handleJoinRoom(msg)
+                        handleJoinRoom(msg.payload)
                     }
                 }
                 KmeMessageEvent.BREAKOUT_START_SUCCESS -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    borState = msg?.payload
-
-                    handleJoinRoom(msg)
+                    val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
+                    borState?.status = KmeBreakoutRoomStatusType.ACTIVE
+                    msg?.payload?.assignments?.let {
+                        borState?.assignments = it
+                    }
+                    msg?.payload?.breakoutRooms?.forEach { room ->
+                        borState?.breakoutRooms?.find { localRoom ->
+                            localRoom.id == room.id
+                        }?.let {
+                            it.participantsCount = room.participantsCount
+                        }
+                    }
+                    borState?.startTime = msg?.payload?.startTime
+                    borState?.endTime = msg?.payload?.endTime
+                    handleJoinRoom(msg?.payload)
                 }
                 KmeMessageEvent.BREAKOUT_STOP_SUCCESS -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    // TODO: handle removed assignments for moderator
-                    borState = null
+                    val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
+                    borState?.status = KmeBreakoutRoomStatusType.NON_ACTIVE
                     handleLeaveRoom()
                 }
                 KmeMessageEvent.BREAKOUT_ADD_ROOM_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutAddRoomPayload>? = message.toType()
                     msg?.payload?.room?.let {
-                        breakoutRooms.add(it)
+                        borState?.breakoutRooms?.add(it)
                     }
+                    eventListener?.onBreakoutRoomStateChanged()
                 }
                 KmeMessageEvent.BREAKOUT_DELETE_ROOM_SUCCESS -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
+                    val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
                     msg?.payload?.breakoutRooms?.let {
-                        breakoutRooms.clear()
-                        breakoutRooms.addAll(it)
+                        borState?.breakoutRooms?.clear()
+                        borState?.breakoutRooms?.addAll(it)
                     }
-                    msg?.payload?.removedAssignments?.let { assignments ->
-                        if (assignments.isNullOrEmpty()) return
-                        // TODO: handle removed assignments for moderator
+                    msg?.payload?.removedAssignments?.forEach { removedAssignment ->
+                        borState?.assignments?.removeAll { assignment ->
+                            assignment.userId == removedAssignment.userId
+                        }
                     }
+                    eventListener?.onBreakoutRoomStateChanged()
                 }
                 KmeMessageEvent.BREAKOUT_CHANGE_ROOM_NAME_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutChangeNamePayload>? = message.toType()
-                    breakoutRooms.find { room ->
+                    borState?.breakoutRooms?.find { room ->
                         room.id == msg?.payload?.room?.id
                     }?.let {
                         it.name = msg?.payload?.room?.name
                     }
+                    eventListener?.onBreakoutRoomStateChanged()
                 }
-                KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    if (borState?.status == KmeBreakoutRoomStatusType.ACTIVE) {
-                        msg?.payload?.removedAssignments?.find { assignment ->
-                            assignment.userId == currentUserId
-                        }?.let {
-                            handleLeaveRoom()
-                        } ?: run {
-                            handleJoinRoom(msg)
-                        }
-                    }
-                }
+                KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS,
                 KmeMessageEvent.BREAKOUT_MOVE_TO_NEXT_ROOM,
                 KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS_SUCCESS -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    if (borState?.status == KmeBreakoutRoomStatusType.ACTIVE) {
-                        msg?.payload?.assignments?.find { assignment ->
-                            assignment.userId == currentUserId
-                        }?.let {
-                            handleJoinRoom(msg)
-                        }
-                    }
+                    val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
+                    handleAssignments(msg?.payload)
                 }
                 KmeMessageEvent.BREAKOUT_CLEAR_ASSIGNMENTS_SUCCESS -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                    // TODO: handle removed assignments for moderator
+                    val msg: KmeBreakoutModuleMessage<BreakoutPayload>? = message.toType()
+                    borState?.assignments?.clear()
+                    borState?.breakoutRooms?.forEach { room ->
+                        room.participantsCount = 0
+                    }
+                    eventListener?.onBreakoutRoomStateChanged()
                 }
-                KmeMessageEvent.BREAKOUT_MODERATOR_JOINED_SUCCESS -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
-                }
+                KmeMessageEvent.BREAKOUT_MODERATOR_JOINED_SUCCESS,
                 KmeMessageEvent.BREAKOUT_USER_JOINED_SUCCESS -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
+                    val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
+                    msg?.payload?.assignments?.forEach { assignment ->
+                        borState?.assignments?.find { localAssignment ->
+                            localAssignment.userId == assignment.userId
+                        }?.let {
+                            it.status = assignment.status
+                        }
+                    }
+                    eventListener?.onBreakoutRoomStateChanged()
                 }
                 KmeMessageEvent.BREAKOUT_EXTEND_TIME_LIMIT_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutExtendTimePayload>? = message.toType()
+                    borState?.startTime = msg?.payload?.start
+                    borState?.endTime = msg?.payload?.end
+                    eventListener?.onBreakoutTimeExtended()
                 }
                 KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR_SUCCESS -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
+                    val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
+                    ifNonNull(
+                        msg?.payload?.breakoutRooms?.get(0)?.id,
+                        msg?.payload?.breakoutRooms?.get(0)?.raisedHandUserId
+                    ) { callRoomId, callUserId ->
+                        borState?.breakoutRooms?.find { room ->
+                            room.id == callRoomId
+                        }?.let { breakoutRoom ->
+                            breakoutRoom.raisedHandUserId = callUserId
+                            eventListener?.onBreakoutCallInstructor(callRoomId, callUserId)
+                        }
+                    }
                 }
                 KmeMessageEvent.BREAKOUT_INSTRUCTOR_MESSAGE -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>? = message.toType()
+                    val msg: KmeBreakoutModuleMessage<BreakoutMessagePayload>? = message.toType()
+                    ifNonNull(
+                        msg?.payload?.messageMetadata?.senderId,
+                        msg?.payload?.messageMetadata?.messageText
+                    ) { userId, text ->
+                        eventListener?.onBreakoutInstructorMessage(userId, text)
+                    }
                 }
                 else -> {
                 }
@@ -226,9 +248,9 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
         }
     }
 
-    private fun handleJoinRoom(msg: KmeBreakoutModuleMessage<BreakoutRoomStatusPayload>?) {
-        breakoutRooms.find { room ->
-            room.id == msg?.payload?.assignments?.find { assignment ->
+    private fun handleJoinRoom(payload: BreakoutRoomState?) {
+        borState?.breakoutRooms?.find { room ->
+            room.id == payload?.assignments?.find { assignment ->
                 assignment.userId == currentUserId
             }?.breakoutRoomId
         }?.let { breakoutRoom ->
@@ -244,6 +266,51 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
         if (borSocketModule.isConnected())
             borSocketModule.disconnect()
         eventListener?.onBreakoutRoomStop()
+    }
+
+    private fun handleAssignments(payload: BreakoutRoomState?) {
+        payload?.assignments?.forEach { assignment ->
+            borState?.assignments?.find { localAssignment ->
+                localAssignment.userId == assignment.userId
+            }?.let {
+                it.breakoutRoomId = assignment.breakoutRoomId
+                it.status = assignment.status
+            } ?: run {
+                borState?.assignments?.add(assignment)
+            }
+            payload.breakoutRooms.forEach { room ->
+                borState?.breakoutRooms?.find { localRoom ->
+                    localRoom.id == room.id
+                }?.let {
+                    it.participantsCount = room.participantsCount
+                }
+            }
+            if (assignment.userId == currentUserId &&
+                borState?.status == KmeBreakoutRoomStatusType.ACTIVE
+            ) {
+                handleJoinRoom(payload)
+            }
+        }
+
+        payload?.removedAssignments?.forEach { assignment ->
+            borState?.assignments?.removeAll { localAssignment ->
+                localAssignment.userId == assignment.userId
+            }
+            payload.breakoutRooms.forEach { room ->
+                borState?.breakoutRooms?.find { localRoom ->
+                    localRoom.id == room.id
+                }?.let {
+                    it.participantsCount = room.participantsCount
+                }
+            }
+            if (assignment.userId == currentUserId &&
+                borState?.status == KmeBreakoutRoomStatusType.ACTIVE
+            ) {
+                handleLeaveRoom()
+            }
+        }
+
+        eventListener?.onBreakoutRoomStateChanged()
     }
 
 }

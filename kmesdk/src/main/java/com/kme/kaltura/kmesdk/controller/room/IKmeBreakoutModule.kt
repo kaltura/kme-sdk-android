@@ -44,7 +44,7 @@ interface IKmeBreakoutModule : IKmeModule {
     /**
      * Getting list of breakout rooms
      */
-    fun getBreakoutRooms(): List<KmeBreakoutModuleMessage.BreakoutRoom>
+    fun getBreakoutState(): KmeBreakoutModuleMessage.BreakoutRoomState?
 
     /**
      * Subscribing for the room events related breakout rooms
@@ -52,7 +52,7 @@ interface IKmeBreakoutModule : IKmeModule {
     interface IKmeBreakoutEvents {
 
         /**
-         * Events triggers when current participant going to be moved to another room
+         * Event triggers when current participant going to be moved to another room
          */
         fun onBreakoutRoomStart(
             roomId: Long,
@@ -60,9 +60,35 @@ interface IKmeBreakoutModule : IKmeModule {
         )
 
         /**
-         * Events triggers when administrator closes the breakout rooms
+         * Event triggers when administrator closes the breakout rooms
          */
         fun onBreakoutRoomStop()
+
+        /**
+         * Event triggers when participant calls instructor
+         */
+        fun onBreakoutCallInstructor(
+            roomId: Long,
+            userId: Long
+        )
+
+        /**
+         * Event triggers when instructor send an announcement
+         */
+        fun onBreakoutInstructorMessage(
+            userId: Long,
+            text: String,
+        )
+
+        /**
+         * Event triggers when instructor send an increases a time for breakout room
+         */
+        fun onBreakoutTimeExtended()
+
+        /**
+         * Event triggers when instructor send an increases a time for breakout room
+         */
+        fun onBreakoutRoomStateChanged()
 
     }
 
