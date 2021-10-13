@@ -18,7 +18,7 @@ interface IKmeRoomController : IKmeWebSocketModule {
     val noteModule: IKmeNoteModule
     val recordingModule: IKmeRecordingModule
     val audioModule: IKmeAudioModule
-    val terms: IKmeTermsModule
+    val termsModule: IKmeTermsModule
 
     /**
      * Getting WebRTC server data

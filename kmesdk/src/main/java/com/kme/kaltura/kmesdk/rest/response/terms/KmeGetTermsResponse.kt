@@ -11,8 +11,4 @@ import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
      data class KmeTermsData(
          @SerializedName("tnc_text") val terms: String?
      ) : KmeResponseData()
-
-     data class KmeTerm(
-         @SerializedName("tnc_text") val terms: String?
-    )
 }
