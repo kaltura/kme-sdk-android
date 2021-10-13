@@ -25,6 +25,8 @@ class KmeChangeableBaseUrlInterceptor(
     private var apiUrlPattern = "https://%s/backend/"
     private var stagingHost = context.getString(R.string.staging_api_url)
     private var productionHost = context.getString(R.string.production_api_url)
+    private val frpHost = context.getString(R.string.frp_api_url)
+    private val capHost = context.getString(R.string.cap_api_url)
 
     init {
         val lastUsedUrl = prefs.getString(KmePrefsKeys.BASE_SERVER_URL)
@@ -45,6 +47,8 @@ class KmeChangeableBaseUrlInterceptor(
         val url = when (configuration) {
             ServerConfiguration.STAGING -> String.format(apiUrlPattern, stagingHost)
             ServerConfiguration.PRODUCTION -> String.format(apiUrlPattern, productionHost)
+            ServerConfiguration.FRP -> String.format(apiUrlPattern, frpHost)
+            ServerConfiguration.CAP -> String.format(apiUrlPattern, capHost)
         }
 
         if (baseUrl != url) {
@@ -79,6 +83,8 @@ class KmeChangeableBaseUrlInterceptor(
         val newConfiguration = when (url.host) {
             stagingHost -> ServerConfiguration.STAGING
             productionHost -> ServerConfiguration.PRODUCTION
+            frpHost -> ServerConfiguration.FRP
+            capHost -> ServerConfiguration.CAP
             else -> return null
         }
 
@@ -89,6 +95,8 @@ class KmeChangeableBaseUrlInterceptor(
         return when (httpUrl?.host) {
             stagingHost -> ServerConfiguration.STAGING
             productionHost -> ServerConfiguration.PRODUCTION
+            frpHost -> ServerConfiguration.FRP
+            capHost -> ServerConfiguration.CAP
             else -> null
         }
     }
