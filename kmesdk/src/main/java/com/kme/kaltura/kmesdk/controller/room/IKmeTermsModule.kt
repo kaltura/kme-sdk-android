@@ -21,9 +21,13 @@ interface IKmeTermsModule : IKmeModule {
      * Set terms condition  agreed or rejected
      *
      * @param agree  parameter for agreed or rejected
+     * @param roomId id of a room
+     * @param companyId id of a company
      */
     fun setTermsCondition(
         agree: Boolean,
+        roomId: Long,
+        companyId: Long
     )
 
     /**

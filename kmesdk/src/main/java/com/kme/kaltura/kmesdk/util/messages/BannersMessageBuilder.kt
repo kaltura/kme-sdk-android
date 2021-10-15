@@ -21,12 +21,15 @@ internal fun buildRoomPasswordMessage(
 }
 
 internal fun buildTermsAgreementMessage(
-    agree: Boolean?
+    agree: Boolean,
+    roomId: Long,
+    companyId: Long,
 ): KmeBannersModuleMessage<TermsAgreementPayload> {
     return KmeBannersModuleMessage<TermsAgreementPayload>().apply {
         module = KmeMessageModule.BANNERS
         name = KmeMessageEvent.SET_TERMS_AGREEMENT
         type = KmeMessageEventType.CALLBACK
-        payload = TermsAgreementPayload(agree)
+        payload = TermsAgreementPayload(agree, roomId, companyId)
+        constraint = emptyList()
     }
 }

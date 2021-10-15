@@ -18,6 +18,8 @@ class KmeBannersModuleMessage<T : KmeBannersModuleMessage.BannersPayload> : KmeM
 
     data class TermsAgreementPayload(
         @SerializedName("agreed") val agreed: Boolean? = null,
+        @SerializedName("room_id") val roomId: Long? = null,
+        @SerializedName("company_id") val companyId: Long? = null,
     ) : BannersPayload()
 
     data class TermsAgreedPayload(

@@ -54,8 +54,8 @@ class KmeTermsModuleImpl : KmeController(), IKmeTermsModule {
     /**
      * Set terms condition  agreed or rejected
      */
-    override fun setTermsCondition(agree: Boolean) {
-        webSocketModule.send(buildTermsAgreementMessage(agree))
+    override fun setTermsCondition(agree: Boolean, roomId: Long, companyId: Long) {
+        webSocketModule.send(buildTermsAgreementMessage(agree, roomId, companyId))
     }
 
     /**
