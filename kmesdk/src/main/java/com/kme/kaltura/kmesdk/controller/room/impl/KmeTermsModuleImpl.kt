@@ -9,13 +9,10 @@ import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.terms.KmeGetTermsResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeTermsApiService
-import com.kme.kaltura.kmesdk.toType
-import com.kme.kaltura.kmesdk.util.messages.*
+import com.kme.kaltura.kmesdk.util.messages.buildTermsAgreementMessage
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
-import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,8 +35,7 @@ class KmeTermsModuleImpl : KmeController(), IKmeTermsModule {
     /**
      * Subscribing for the room events related to terms & conditions
      */
-    override fun subscribe(listener: IKmeTermsModule.KmeTermsListener){
-
+    override fun subscribe(listener: IKmeTermsModule.KmeTermsListener) {
         this.listener = listener
 
         roomController.listen(
@@ -98,4 +94,5 @@ class KmeTermsModuleImpl : KmeController(), IKmeTermsModule {
             }
         }
     }
+
 }

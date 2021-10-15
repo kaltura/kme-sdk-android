@@ -2,10 +2,6 @@ package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.terms.KmeGetTermsResponse
-import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
-import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
-import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 
 /**
  * An interface for actions with notes
@@ -44,7 +40,6 @@ interface IKmeTermsModule : IKmeModule {
         error: (exception: KmeApiException) -> Unit
     )
 
-
     /**
      *  Terms listener
      */
@@ -66,4 +61,5 @@ interface IKmeTermsModule : IKmeModule {
         fun onTermsRejected()
 
     }
+
 }
