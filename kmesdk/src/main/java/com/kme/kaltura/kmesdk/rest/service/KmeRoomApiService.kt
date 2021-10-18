@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk.rest.service
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
+import com.kme.kaltura.kmesdk.rest.response.room.KmeJoinRoomResponse
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlatformType
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -26,6 +27,19 @@ interface KmeRoomApiService {
         @Query("page_number") pages: Long,
         @Query("limit") limit: Long
     ): KmeGetRoomsResponse
+
+    /**
+     * Handling cookies for login via deep linking
+     *
+     * @param hash identifier for a user
+     * @param mobile platform indicator
+     * @return [KmeJoinRoomResponse] object in success case
+     */
+    @GET("room/join")
+    suspend fun join(
+        @Query("hash") hash: String,
+        @Query("for_mobile_app") mobile: Int
+    ): KmeJoinRoomResponse
 
     /**
      * Getting room info by alias
