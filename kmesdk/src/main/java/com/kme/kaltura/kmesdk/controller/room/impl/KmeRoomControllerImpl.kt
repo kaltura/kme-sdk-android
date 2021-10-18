@@ -64,6 +64,7 @@ class KmeRoomControllerImpl(
     override val noteModule: IKmeNoteModule by scopedInject()
     override val recordingModule: IKmeRecordingModule by scopedInject()
     override val audioModule: IKmeAudioModule by scopedInject()
+    override val termsModule: IKmeTermsModule by scopedInject()
     override val breakoutModule: IKmeBreakoutModule by scopedInject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
@@ -213,6 +214,7 @@ class KmeRoomControllerImpl(
                 messageManager.listen(
                     roomStateHandler,
                     KmeMessageEvent.ROOM_STATE,
+                    KmeMessageEvent.CLOSE_WEB_SOCKET,
                     KmeMessageEvent.GET_MODULE_STATE
                 )
 
@@ -268,6 +270,11 @@ class KmeRoomControllerImpl(
                     currentParticipant?.userPermissions = webRTCServer?.roomInfo?.settingsV2
 
                     userController.updateParticipant(currentParticipant)
+                }
+                KmeMessageEvent.CLOSE_WEB_SOCKET -> {
+//                    val msg: KmeRoomInitModuleMessage<KmeRoomInitModuleMessage.CloseWebSocketPayload>? =
+//                        message.toType()
+                    disconnect()
                 }
                 else -> {
                 }

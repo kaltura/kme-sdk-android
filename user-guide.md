@@ -42,6 +42,7 @@ The app should make sure that internet connection is available before calling:
 
 # Sign In
 ```
+//with email and password
  kmeSDK.signInController.login(
     email,
     password,
@@ -54,6 +55,21 @@ The app should make sure that internet connection is available before calling:
         loginError.value = it.message
     }
  )
+ 
+ //or
+ //with token
+ kmeSDK.signInController.login(
+    token,
+    success = {
+        isLoading.value = false
+        loginResponse.value = it.data
+    },
+    error = {
+        isLoading.value = false
+        loginError.value = it.message
+    }
+ )
+ 
 ```
 
 # Get user information

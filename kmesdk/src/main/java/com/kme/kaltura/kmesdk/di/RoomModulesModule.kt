@@ -28,6 +28,7 @@ val roomModules = module {
         scoped<IKmeSettingsModule> { KmeSettingsModuleImpl() }
         scoped<IKmeAudioModule> { KmeAudioModuleImpl() }
         scoped<IKmeContentModule> { KmeContentModuleImpl() }
+        scoped<IKmeTermsModule> { KmeTermsModuleImpl() }
         scoped<IKmeBreakoutModule> { KmeBreakoutModuleImpl() }
     }
 

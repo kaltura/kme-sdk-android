@@ -9,6 +9,7 @@ import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
+import com.kme.kaltura.kmesdk.rest.response.room.KmeJoinRoomResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.toType
@@ -107,6 +108,23 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         uiScope.launch {
             safeApiCall(
                 { roomApiService.getRooms(companyId, pages, limit) },
+                success,
+                error
+            )
+        }
+    }
+
+    /**
+     * Handling cookies for login via deep linking
+     */
+    override fun join(
+        hash: String,
+        success: (response: KmeJoinRoomResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        uiScope.launch {
+            safeApiCall(
+                { roomApiService.join(hash, 1) },
                 success,
                 error
             )

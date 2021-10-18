@@ -8,6 +8,7 @@ import com.kme.kaltura.kmesdk.rest.response.user.KmeGetUserInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.user.KmeUserInfoData
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeUserApiService
+import com.kme.kaltura.kmesdk.util.extensions.isModerator
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
 import kotlinx.coroutines.CoroutineScope
@@ -52,13 +53,7 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
      * Checks is actual user has moderator permissions
      */
     override fun isModerator(): Boolean {
-        getCurrentParticipant()?.let {
-            return it.userRole == KmeUserRole.INSTRUCTOR ||
-                    it.userRole == KmeUserRole.ADMIN ||
-                    it.userRole == KmeUserRole.OWNER ||
-                    it.isModerator == true
-        }
-        return false
+        return getCurrentParticipant()?.isModerator() == true
     }
 
     /**

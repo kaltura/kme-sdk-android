@@ -726,11 +726,13 @@ class KmeWhiteboardView @JvmOverloads constructor(
     private fun invalidatePaint(path: KmeWhiteboardPath?) {
         path?.let {
             paint.color = it.getPaintColor()
-            paint.strokeWidth = it.strokeWidth.toFloat()
+            paint.strokeWidth = it.strokeWidth.toFloat() * imageHeight /
+                    (originalImageSize?.height?.toFloat() ?: imageHeight)
             paint.strokeCap = path.strokeCap.getPaintCap()
             paint.alpha = path.opacity.getPaintAlpha()
             paint.style = path.getPaintStyle()
-            paint.textSize = path.childrenPath?.fontSize?.toFloat() ?: 25f
+            paint.textSize = (path.childrenPath?.fontSize?.toFloat() ?: 25f) * imageHeight /
+                    (originalImageSize?.height?.toFloat() ?: imageHeight)
 
             val isEraseMode = path.blendMode.isEraseMode()
             if (isEraseMode) {
