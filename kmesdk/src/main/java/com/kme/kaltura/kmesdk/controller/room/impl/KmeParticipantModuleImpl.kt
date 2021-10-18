@@ -5,8 +5,6 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeParticipantModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.toType
@@ -28,7 +26,6 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
-import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 import org.koin.core.inject
@@ -36,7 +33,6 @@ import org.koin.core.inject
 class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
 
     private val roomController: IKmeRoomController by scopedInject()
-    private val webSocketModule: IKmeWebSocketModule by scopedInject()
     private val userController: IKmeUserController by inject()
 
     private val publisherId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
