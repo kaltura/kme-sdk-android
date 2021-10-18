@@ -164,6 +164,9 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                 KmeMessageEvent.BREAKOUT_STOP_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
                     borState?.status = KmeBreakoutRoomStatusType.NON_ACTIVE
+                    msg?.payload?.breakoutRooms?.forEach { room ->
+                        room.raisedHandUserId = null
+                    }
                     handleLeaveRoom()
                 }
                 KmeMessageEvent.BREAKOUT_ADD_ROOM_SUCCESS -> {
