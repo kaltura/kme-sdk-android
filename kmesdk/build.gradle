@@ -15,7 +15,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 31
         versionCode 29
-        versionName "1.0.34"
+        versionName "1.2.0"
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -24,11 +24,15 @@ android {
         debug {
             resValue "string", "staging_api_url", 'stagingsmart.newrow.com'
             resValue "string", "production_api_url", 'smart.newrow.com'
+            resValue "string", "frp_api_url", 'frp-smart.newrow.com'
+            resValue "string", "cap_api_url", 'cap1-smart.newrow.com'
             minifyEnabled false
         }
         release {
             resValue "string", "staging_api_url", 'stagingsmart.newrow.com'
             resValue "string", "production_api_url", 'smart.newrow.com'
+            resValue "string", "frp_api_url", 'frp-smart.newrow.com'
+            resValue "string", "cap_api_url", 'cap1-smart.newrow.com'
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -50,7 +54,7 @@ android {
                     from components.release
                     groupId = "com.kaltura.kme"
                     artifactId = "kmesdk"
-                    version = '1.0.34'
+                    version = '1.2.0'
                 }
             }
         }

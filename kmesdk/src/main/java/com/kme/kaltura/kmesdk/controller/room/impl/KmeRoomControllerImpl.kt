@@ -51,6 +51,7 @@ class KmeRoomControllerImpl(
     override val noteModule: IKmeNoteModule by scopedInject()
     override val recordingModule: IKmeRecordingModule by scopedInject()
     override val audioModule: IKmeAudioModule by scopedInject()
+    override val termsModule: IKmeTermsModule by scopedInject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -184,7 +185,8 @@ class KmeRoomControllerImpl(
             override fun onOpen() {
                 messageManager.listen(
                     roomStateHandler,
-                    KmeMessageEvent.ROOM_STATE
+                    KmeMessageEvent.ROOM_STATE,
+                    KmeMessageEvent.CLOSE_WEB_SOCKET
                 )
 
                 settingsModule.subscribe()
@@ -226,18 +228,27 @@ class KmeRoomControllerImpl(
      */
     private val roomStateHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-            if (KmeMessageEvent.ROOM_STATE == message.name) {
-                val msg: KmeRoomInitModuleMessage<RoomStatePayload>? = message.toType()
+            when (message.name) {
+                KmeMessageEvent.ROOM_STATE -> {
+                    val msg: KmeRoomInitModuleMessage<RoomStatePayload>? = message.toType()
 
-                roomMetadata = msg?.payload?.metaData
+                    roomMetadata = msg?.payload?.metaData
 
-                val participantsList = msg?.payload?.participants?.values?.toMutableList()
-                val currentUserId = userController.getCurrentUserInfo()?.getUserId()
-                val currentParticipant =
-                    participantsList?.find { kmeParticipant -> kmeParticipant.userId == currentUserId }
-                currentParticipant?.userPermissions = roomSettings?.roomInfo?.settingsV2
+                    val participantsList = msg?.payload?.participants?.values?.toMutableList()
+                    val currentUserId = userController.getCurrentUserInfo()?.getUserId()
+                    val currentParticipant =
+                        participantsList?.find { kmeParticipant -> kmeParticipant.userId == currentUserId }
+                    currentParticipant?.userPermissions = roomSettings?.roomInfo?.settingsV2
 
-                userController.updateParticipant(currentParticipant)
+                    userController.updateParticipant(currentParticipant)
+                }
+                KmeMessageEvent.CLOSE_WEB_SOCKET -> {
+//                    val msg: KmeRoomInitModuleMessage<KmeRoomInitModuleMessage.CloseWebSocketPayload>? =
+//                        message.toType()
+                    disconnect()
+                }
+                else -> {
+                }
             }
         }
     }

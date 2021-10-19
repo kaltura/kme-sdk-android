@@ -13,6 +13,7 @@ val apiServicesModule = module {
     single { get<Retrofit>().create(KmeRoomRecordingApiService::class.java) }
     single { get<Retrofit>().create(KmeChatApiService::class.java) }
     single { get<Retrofit>().create(KmeMetadataApiService::class.java) }
+    single { get<Retrofit>().create(KmeTermsApiService::class.java) }
 
     single { get<Retrofit>(named("Downloader")).create(KmeFileLoaderApiService::class.java) }
 }

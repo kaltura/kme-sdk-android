@@ -1,5 +1,5 @@
 package com.kme.kaltura.kmesdk.util
 
 enum class ServerConfiguration {
-    STAGING, PRODUCTION
+    STAGING, PRODUCTION, FRP, CAP
 }
