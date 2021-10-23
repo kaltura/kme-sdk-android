@@ -40,6 +40,13 @@ interface IKmeMediaPlaybackListener {
     fun pause()
 
     /**
+     * Mute/Un-mute audio
+     *
+     * @param isMute
+     */
+    fun mute(isMute: Boolean)
+
+    /**
      * Seek to position
      *
      * @param seekTo

@@ -67,6 +67,13 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
         }
     }
 
+    /**
+     * Mute/Un-mute presented audio
+     */
+    override fun muteActiveContent(isMute: Boolean) {
+        (contentView as? KmeMediaContentFragment)?.mute(isMute)
+    }
+
     private val activeContentHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {

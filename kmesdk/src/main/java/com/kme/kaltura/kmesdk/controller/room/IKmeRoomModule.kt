@@ -105,6 +105,20 @@ interface IKmeRoomModule : IKmeModule {
      * @param view content type to set
      */
     fun setActiveContent(view: KmeContentType)
+
+    /**
+     * Subscribes to the shared content in the room
+     *
+     * @param listener content share listener
+     */
+    fun subscribeForContent(listener: IKmeContentModule.KmeContentListener)
+
+    /**
+     * Mute/Un-mute presented audio
+     *
+     * @param isMute
+     */
+    fun muteActiveContent(isMute: Boolean)
     
     /**
      * Ends active room session

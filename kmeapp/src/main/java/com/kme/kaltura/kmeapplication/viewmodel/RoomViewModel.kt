@@ -100,7 +100,7 @@ class RoomViewModel(
 
         isLoading.value = true
         kmeSdk.roomController.connect(roomId, roomAlias, companyId, true, this)
-        kmeSdk.roomController.subscribeForContent(object : IKmeContentModule.KmeContentListener {
+        kmeSdk.roomController.roomModule.subscribeForContent(object : IKmeContentModule.KmeContentListener {
             override fun onContentAvailable(view: KmeContentView) {
                 sharedContent.value = view
             }

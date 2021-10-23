@@ -24,6 +24,13 @@ interface IKmeContentModule : IKmeModule {
     fun onScreenSharePermission(approved: Boolean)
 
     /**
+     * Mute/Un-mute presented audio
+     *
+     * @param isMute
+     */
+    fun muteActiveContent(isMute: Boolean)
+
+    /**
      * Content share listener
      */
     interface KmeContentListener {
