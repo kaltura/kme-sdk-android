@@ -58,13 +58,6 @@ interface IKmeRoomController : IKmeWebSocketModule {
     )
 
     /**
-     * Subscribes to the shared content in the room
-     *
-     * @param listener content share listener
-     */
-    fun subscribeForContent(listener: IKmeContentModule.KmeContentListener)
-
-    /**
      * Add listeners for socket messages
      *
      * @param listener listener for messages

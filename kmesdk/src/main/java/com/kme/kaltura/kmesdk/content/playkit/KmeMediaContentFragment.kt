@@ -159,10 +159,10 @@ class KmeMediaContentFragment : KmeContentView() {
         }
     }
 
-    private fun setupKeyEventListener(){
+    private fun setupKeyEventListener() {
         view?.isFocusableInTouchMode = true
         view?.requestFocus()
-        view?.setOnKeyListener{ _, keyCode, _ ->
+        view?.setOnKeyListener { _, keyCode, _ ->
             when (keyCode) {
                 KeyEvent.KEYCODE_VOLUME_UP -> {
                     mediaContentViewModel.videoVolumeIncrease()
@@ -177,6 +177,10 @@ class KmeMediaContentFragment : KmeContentView() {
         }
     }
 
+    fun mute(isMute: Boolean) = with(binding) {
+        mediaView.mute(isMute)
+    }
+
     override fun onPause() {
         super.onPause()
         handlePlayerState(PAUSE)
@@ -186,7 +190,7 @@ class KmeMediaContentFragment : KmeContentView() {
         super.onResume()
         handlePlayerState(PLAY)
     }
-    
+
     override fun onDestroyView() {
         with(binding) {
             mediaView.removeListeners(this)

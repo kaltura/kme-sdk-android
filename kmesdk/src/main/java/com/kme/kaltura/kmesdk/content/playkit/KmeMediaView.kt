@@ -355,6 +355,16 @@ class KmeMediaView @JvmOverloads constructor(
     }
 
     /**
+     * Mute/Un-mute audio
+     */
+    override fun mute(isMute: Boolean) {
+        when (isYoutube()) {
+            true -> if (isMute) youtubePlayer?.mute() else youtubePlayer?.unMute()
+            false -> if (isMute) kalturaPlayer?.setVolume(0f) else kalturaPlayer?.setVolume(1f)
+        }
+    }
+
+    /**
      * Seek to position
      */
     override fun seekTo(seekTo: Long) {

@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.controller.room.impl
 
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
+import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.scopedInject
@@ -29,6 +30,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
     private val roomApiService: KmeRoomApiService by inject()
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
+    private val contentModule: IKmeContentModule by scopedInject()
     private val webSocketModule: IKmeWebSocketModule by scopedInject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
@@ -127,6 +129,17 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
             publisherId
         }
         webSocketModule.send(buildSetActiveContentMessage(userId, view))
+    }
+
+    /**
+     * Subscribes to the shared content in the room
+     */
+    override fun subscribeForContent(listener: IKmeContentModule.KmeContentListener) {
+        contentModule.subscribe(listener)
+    }
+
+    override fun muteActiveContent(isMute: Boolean) {
+        contentModule.muteActiveContent(isMute)
     }
 
     /**

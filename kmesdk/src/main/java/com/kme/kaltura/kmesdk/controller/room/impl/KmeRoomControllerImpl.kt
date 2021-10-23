@@ -42,7 +42,6 @@ class KmeRoomControllerImpl(
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
     private val settingsModule: IKmeSettingsModule by scopedInject()
-    private val contentModule: IKmeContentModule by scopedInject()
 
     override val roomModule: IKmeRoomModule by scopedInject()
     override val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
@@ -153,13 +152,6 @@ class KmeRoomControllerImpl(
                 }
             )
         }
-    }
-
-    /**
-     * Subscribes to the shared content in the room
-     */
-    override fun subscribeForContent(listener: IKmeContentModule.KmeContentListener) {
-        contentModule.subscribe(listener)
     }
 
     /**
