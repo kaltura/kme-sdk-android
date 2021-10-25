@@ -49,14 +49,52 @@ class KmeBreakoutModuleMessage<T : BreakoutPayload> : KmeMessage<T>() {
         @SerializedName("name") val name: String?,
     ) : BreakoutPayload()
 
-    data class BreakoutRoom(
-        @SerializedName("room_id") val id: Long?,
-        @SerializedName("room_alias") val alias: String?,
-        @SerializedName("index_id") val index: Long?,
-        @SerializedName("name") var name: String?,
-        @SerializedName("raised_hand_user_id") var raisedHandUserId: Long?,
-        @SerializedName("participants_count") var participantsCount: Int,
-    ) : BreakoutPayload()
+    open class BreakoutRoom : BreakoutPayload() {
+        @SerializedName("room_id")
+        var id: Long? = null
+
+        @SerializedName("room_alias")
+        var alias: String? = null
+
+        @SerializedName("index_id")
+        var index: Long? = null
+
+        @SerializedName("name")
+        var name: String? = null
+
+        @SerializedName("raised_hand_user_id")
+        var raisedHandUserId: Long? = null
+
+        @SerializedName("participants_count")
+        var participantsCount: Int = 0
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as BreakoutRoom
+
+            if (id != other.id) return false
+            if (alias != other.alias) return false
+            if (index != other.index) return false
+            if (name != other.name) return false
+            if (raisedHandUserId != other.raisedHandUserId) return false
+            if (participantsCount != other.participantsCount) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = id?.hashCode() ?: 0
+            result = 31 * result + (alias?.hashCode() ?: 0)
+            result = 31 * result + (index?.hashCode() ?: 0)
+            result = 31 * result + (name?.hashCode() ?: 0)
+            result = 31 * result + (raisedHandUserId?.hashCode() ?: 0)
+            result = 31 * result + participantsCount
+            return result
+        }
+
+    }
 
     data class BreakoutRoomAssignment(
         @SerializedName("user_id") val userId: Long?,
@@ -65,28 +103,34 @@ class KmeBreakoutModuleMessage<T : BreakoutPayload> : KmeMessage<T>() {
     ) : BreakoutPayload()
 
     data class BreakoutUserJoinedPayload(
-        val eventName_: KmeMessageEvent?,
-        val roomId_: Long? = null,
-        val companyId_: Long? = null,
+        @SerializedName("eventName")
+        override val eventName: KmeMessageEvent?,
+        @SerializedName("room_id")
+        override val roomId: Long? = null,
+        @SerializedName("company_id")
+        override val companyId: Long? = null,
         @SerializedName("data") val data: BreakoutEventBaseData?,
-    ) : BreakoutEventBasePayload(eventName_, roomId_, companyId_)
+    ) : BreakoutEventBasePayload()
 
     data class BreakoutAssignUserPayload(
-        val eventName_: KmeMessageEvent?,
-        val roomId_: Long? = null,
-        val companyId_: Long? = null,
+        @SerializedName("eventName")
+        override val eventName: KmeMessageEvent?,
+        @SerializedName("room_id")
+        override val roomId: Long? = null,
+        @SerializedName("company_id")
+        override val companyId: Long? = null,
         @SerializedName("data") val data: BreakoutAssignmentsData?,
-    ) : BreakoutEventBasePayload(eventName_, roomId_, companyId_)
+    ) : BreakoutEventBasePayload()
 
     data class BreakoutAssignmentsData(
         @SerializedName("assignments") val assignments: List<BreakoutRoomAssignment>?
     ) : BreakoutPayload()
 
-    open class BreakoutEventBasePayload(
-        @SerializedName("eventName") val eventName: KmeMessageEvent? = null,
-        @SerializedName("room_id") val roomId: Long? = null,
-        @SerializedName("company_id") val companyId: Long? = null,
-    ) : BreakoutPayload()
+    abstract class BreakoutEventBasePayload : BreakoutPayload() {
+        abstract val eventName: KmeMessageEvent?
+        abstract val roomId: Long?
+        abstract val companyId: Long?
+    }
 
     open class BreakoutEventBaseData(
         @SerializedName("user_id") val userId: String? = null,

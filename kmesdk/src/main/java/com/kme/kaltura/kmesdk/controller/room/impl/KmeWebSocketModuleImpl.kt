@@ -54,7 +54,7 @@ internal class KmeWebSocketModuleImpl(
         token: String,
         listener: IKmeWSConnectionListener
     ) {
-        Log.e(TAG,"${hashCode()} connect()")
+        Log.e(TAG, "${hashCode()} connect()")
         if (isConnected()) {
             disconnect()
         }
@@ -81,9 +81,9 @@ internal class KmeWebSocketModuleImpl(
      * Trying to connect socket again if need
      */
     private fun reconnect() {
-        Log.e(TAG,"${hashCode()} reconnect()")
+        Log.e(TAG, "${hashCode()} reconnect()")
         if (allowReconnection && reconnectionAttempts < RECONNECTION_ATTEMPTS) {
-            Log.e(TAG,"${hashCode()} reconnecting...")
+            Log.e(TAG, "${hashCode()} reconnecting...")
             reconnectionJob?.cancel()
             reconnectionJob = reconnectionScope.launch {
                 delay(5000)
@@ -104,7 +104,7 @@ internal class KmeWebSocketModuleImpl(
      * messages.
      */
     override fun onOpen(response: Response) {
-        Log.e(TAG,"${hashCode()} onOpen() Response: $response")
+        Log.e(TAG, "${hashCode()} onOpen() Response: $response")
         isSocketConnected = true
         reconnectionJob?.cancel()
         reconnectionAttempts = 0
@@ -119,7 +119,7 @@ internal class KmeWebSocketModuleImpl(
      * listener will be made.
      */
     override fun onFailure(throwable: Throwable, response: Response?) {
-        Log.e(TAG,"${hashCode()} onFailure() Throwable: $throwable, Response: $response")
+        Log.e(TAG, "${hashCode()} onFailure() Throwable: $throwable, Response: $response")
         isSocketConnected = false
         reconnect()
         uiScope.launch {
@@ -136,7 +136,7 @@ internal class KmeWebSocketModuleImpl(
      * Invoked when the remote peer has indicated that no more incoming messages will be transmitted.
      */
     override fun onClosing(code: Int, reason: String) {
-        Log.e(TAG,"${hashCode()} onClosing() Code: $code, Reason: $reason")
+        Log.e(TAG, "${hashCode()} onClosing() Code: $code, Reason: $reason")
         isSocketConnected = false
         //Status code == 1000 - normal closure, the connection successfully completed
         if (code != 1000) {
@@ -152,7 +152,7 @@ internal class KmeWebSocketModuleImpl(
      * connection has been successfully released. No further calls to this listener will be made.
      */
     override fun onClosed(code: Int, reason: String) {
-        Log.e(TAG,"${hashCode()} onClosed() Code: $code, Reason: $reason")
+        Log.e(TAG, "${hashCode()} onClosed() Code: $code, Reason: $reason")
         isSocketConnected = false
         reconnectionJob?.cancel()
         uiScope.launch {
@@ -164,16 +164,20 @@ internal class KmeWebSocketModuleImpl(
      * Send message via socket
      */
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
-        val strMessage = gson.toJson(message)
-        Log.e(TAG,"${hashCode()} send: $strMessage")
-        webSocket?.send(strMessage)
+        try {
+            val strMessage = gson.toJson(message)
+            Log.e(TAG, "${hashCode()} send: $strMessage")
+            webSocket?.send(strMessage)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     /**
      * Disconnect socket connection
      */
     override fun disconnect() {
-        Log.e(TAG,"${hashCode()} disconnect()")
+        Log.e(TAG, "${hashCode()} disconnect()")
         allowReconnection = false
         reconnectionJob?.cancel()
         reconnectionJob = null

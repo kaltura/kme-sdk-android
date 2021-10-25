@@ -41,6 +41,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
 
     private var borState: BreakoutRoomState? = null
     private var eventListener: IKmeBreakoutEvents? = null
+    private var selfAssignedBorId: Long? = null
 
     /**
      * Subscribing for the room events related breakout rooms
@@ -84,6 +85,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
      * Assign self to specific breakout room
      */
     override fun assignSelfToBor(breakoutRoomId: Long) {
+        selfAssignedBorId = breakoutRoomId
         assignUserToBor(currentUserId, breakoutRoomId)
     }
 
@@ -94,12 +96,19 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
         userId: Long,
         breakoutRoomId: Long
     ) {
+        var validBreakoutRoomId = breakoutRoomId
+
+        if (internalDataModule.mainRoomId == breakoutRoomId) {
+            validBreakoutRoomId = 0
+            internalDataModule.breakoutRoomId = 0
+        }
+
         mainRoomSocketModule.send(
             buildAssignUserBorMessage(
                 internalDataModule.mainRoomId,
                 internalDataModule.companyId,
                 userId,
-                breakoutRoomId
+                validBreakoutRoomId
             )
         )
     }
@@ -130,6 +139,22 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
      * Getting list of breakout rooms
      */
     override fun getBreakoutState() = borState
+
+    /**
+     * Checking is breakout rooms currently active
+     */
+    override fun isActive() = borState?.status == KmeBreakoutRoomStatusType.ACTIVE
+
+    /**
+     * Getting breakout room in case that user assigned to any bor
+     */
+    override fun getAssignedBreakoutRoom(): BreakoutRoom? {
+        val breakoutRoomId = borState?.assignments?.find { assignment ->
+            assignment.userId == currentUserId
+        }?.breakoutRoomId
+
+        return borState?.breakoutRooms?.find { room -> breakoutRoomId == room.id }
+    }
 
     /**
      * Listen for subscribed events
@@ -220,7 +245,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                         }?.let {
                             it.status = assignment.status
                         }
-                        borState?.breakoutRooms?.find { room->
+                        borState?.breakoutRooms?.find { room ->
                             room.id == assignment.breakoutRoomId
                         }?.let {
                             it.raisedHandUserId = null
@@ -281,7 +306,8 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
             ifNonNull(breakoutRoom.id, breakoutRoom.alias) { id, alias ->
                 if (borSocketModule.isConnected())
                     borSocketModule.disconnect()
-                eventListener?.onBreakoutRoomStart(id, alias)
+                eventListener?.onBreakoutRoomStart(id, alias, selfAssignedBorId == id)
+                selfAssignedBorId = null
             }
         }
     }
