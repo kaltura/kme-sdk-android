@@ -13,7 +13,6 @@ import com.kaltura.tvplayer.OVPMediaOptions
 import com.kaltura.tvplayer.PlayerInitOptions
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
-import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
@@ -275,8 +274,8 @@ class KmeMediaView @JvmOverloads constructor(
     private fun syncPlayerState() {
         if (canPlay) {
             syncPlayerState?.let {
-                handlePlayerState(it)
                 seekTo(syncPlayerPosition.toLong())
+                handlePlayerState(it)
             }
         }
     }
@@ -398,12 +397,10 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
-    private val syncPlayerStateObserver = Observer<ConsumableValue<Pair<KmePlayerState?, Float>>> {
-        it.consume { state ->
-            syncPlayerState = state.first
-            syncPlayerPosition = state.second
-            syncPlayerState()
-        }
+    private val syncPlayerStateObserver = Observer<Pair<KmePlayerState?, Float>> { state ->
+        syncPlayerState = state.first
+        syncPlayerPosition = if (state.second < 0f) 0f else state.second
+        syncPlayerState()
     }
 
     /**
