@@ -14,8 +14,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 29
-        versionName "1.2.2"
+        versionCode 30
+        versionName "1.2.3"
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -58,7 +58,7 @@ android {
                     from components.release
                     groupId = "com.kaltura.kme"
                     artifactId = "kmesdk"
-                    version = '1.2.2'
+                    version = '1.2.3'
                 }
             }
         }
