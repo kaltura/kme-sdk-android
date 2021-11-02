@@ -28,11 +28,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="@string/staging_api_url"
-                    android:scheme="http" />
-
-                <data
-                    android:host="@string/production_api_url"
+                    android:host="@string/deeplink_api_url"
                     android:scheme="https" />
 
             </intent-filter>
