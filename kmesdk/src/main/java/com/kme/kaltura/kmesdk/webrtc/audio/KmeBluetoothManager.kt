@@ -144,17 +144,23 @@ class KmeBluetoothManager(
      * Update available bluetooth devices
      */
     fun updateDevice() {
-        if (bluetoothState == State.UNINITIALIZED || bluetoothHeadset == null) {
+        if (bluetoothState == State.UNINITIALIZED) {
             return
         }
 
-        val devices = bluetoothHeadset!!.connectedDevices
-        if (devices.isEmpty()) {
+        try {
+            bluetoothHeadset?.connectedDevices?.let { devices ->
+                if (devices.isEmpty()) {
+                    bluetoothDevice = null
+                    bluetoothState = State.HEADSET_UNAVAILABLE
+                } else {
+                    bluetoothDevice = devices[0]
+                    bluetoothState = State.HEADSET_AVAILABLE
+                }
+            }
+        } catch (e: Exception) {
             bluetoothDevice = null
             bluetoothState = State.HEADSET_UNAVAILABLE
-        } else {
-            bluetoothDevice = devices[0]
-            bluetoothState = State.HEADSET_AVAILABLE
         }
     }
 
