@@ -293,6 +293,12 @@ class KmeOverlapLayout @JvmOverloads constructor(
         saveHeight = layoutParams.height
     }
 
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        preMeasure()
+        postDragging()
+    }
+
     override fun onFloatingRectChanged(rect: Rect) {
 //        with(binding.root) {
 //            if (left != rect.left || top != rect.top || right != rect.right || bottom != rect.bottom) {

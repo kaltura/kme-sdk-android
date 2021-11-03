@@ -165,6 +165,9 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                 KmeMessageEvent.MODULE_STATE -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
                     borState = msg?.payload
+
+                    eventListener?.onBreakoutRoomStateChanged()
+
                     if (msg?.payload?.status == KmeBreakoutRoomStatusType.ACTIVE) {
                         handleJoinRoom(msg.payload)
                     }
@@ -184,6 +187,9 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                     }
                     borState?.startTime = msg?.payload?.startTime
                     borState?.endTime = msg?.payload?.endTime
+
+//                    eventListener?.onBreakoutRoomStateChanged()
+
                     handleJoinRoom(msg?.payload)
                 }
                 KmeMessageEvent.BREAKOUT_STOP_SUCCESS -> {
