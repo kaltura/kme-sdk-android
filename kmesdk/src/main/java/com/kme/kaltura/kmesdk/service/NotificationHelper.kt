@@ -25,7 +25,16 @@ fun createRoomNotification(
         ?.setPackage(null)
         ?.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
 
-    val pendingIntent = PendingIntent.getActivity(context, System.currentTimeMillis().toInt(), intent, 0)
+    val pendingIntent = PendingIntent.getActivity(
+        context,
+        System.currentTimeMillis().toInt(),
+        intent,
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_IMMUTABLE
+        } else {
+            0
+        }
+    )
 
     val builder = NotificationCompat.Builder(context, CHANNEL_ID)
         .setPriority(NotificationCompat.PRIORITY_LOW)
