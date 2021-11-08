@@ -188,7 +188,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                     borState?.startTime = msg?.payload?.startTime
                     borState?.endTime = msg?.payload?.endTime
 
-//                    eventListener?.onBreakoutRoomStateChanged()
+                    eventListener?.onBreakoutRoomStateChanged()
 
                     handleJoinRoom(msg?.payload)
                 }
@@ -278,11 +278,11 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                 }
                 KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR_SUCCESS -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
-                    msg?.payload?.breakoutRooms?.get(0)?.id?.let { callRoomId ->
+                    msg?.payload?.breakoutRooms?.firstOrNull()?.id?.let { callRoomId ->
                         borState?.breakoutRooms?.find { room ->
                             room.id == callRoomId
                         }?.let { breakoutRoom ->
-                            val callUserId = msg.payload?.breakoutRooms?.get(0)?.raisedHandUserId
+                            val callUserId = msg.payload?.breakoutRooms?.firstOrNull()?.raisedHandUserId
                             breakoutRoom.raisedHandUserId = callUserId
                             eventListener?.onBreakoutCallInstructor(callRoomId, callUserId)
                         }
