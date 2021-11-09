@@ -67,16 +67,18 @@ class KME : KmeKoinComponent {
         success: () -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
-        metadataController.fetchMetadata(success = {
-            if (roomController.isConnected()) {
-                roomController.disconnect()
-            }
+        removeCookies {
+            metadataController.fetchMetadata(success = {
+                if (roomController.isConnected()) {
+                    roomController.disconnect()
+                }
 
-            csrfUpdater.start()
-            success()
-        }, error = {
-            error(it)
-        })
+                csrfUpdater.start()
+                success()
+            }, error = {
+                error(it)
+            })
+        }
     }
 
     /**

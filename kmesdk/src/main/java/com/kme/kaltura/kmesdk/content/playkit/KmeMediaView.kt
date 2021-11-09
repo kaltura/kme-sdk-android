@@ -50,6 +50,7 @@ class KmeMediaView @JvmOverloads constructor(
     private var syncPlayerPosition: Float = 0f
     private var canPlay: Boolean = false
     private var isFirstYoutubeSync = true
+    private var isMuted = false
 
     /**
      * Init media view
@@ -85,9 +86,19 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    fun onPause() {
+        if (config.useDefaultHandler) {
+            pause()
+        }
+    }
+
     private fun setupDefaultPlayerEventHandler() {
-        syncPlayerPosition = config.metadata.progress ?: 0f
-        syncPlayerState = config.metadata.playState
+        if (config.useDefaultHandler) {
+            defaultPlayerEventHandler.setState(
+                Pair(config.metadata.playState, config.metadata.progress ?: 0f)
+            )
+        }
 
         addListener(this, PlayerEvent.canPlay) {
             if (!canPlay) {
@@ -151,6 +162,7 @@ class KmeMediaView @JvmOverloads constructor(
         } else {
             KalturaPlayer.createBasicPlayer(context, playerInitOptions)
         }
+        updateMute()
     }
 
     private fun setupKalturaPlayerView() {
@@ -174,6 +186,7 @@ class KmeMediaView @JvmOverloads constructor(
             override fun onReady(youTubePlayer: YouTubePlayer) {
                 super.onReady(youTubePlayer)
                 youtubePlayer = youTubePlayer
+                updateMute()
 
                 youtubeTracker = YouTubePlayerTracker().also {
                     youtubePlayer?.addListener(it)
@@ -357,11 +370,14 @@ class KmeMediaView @JvmOverloads constructor(
      * Mute/Un-mute audio
      */
     override fun mute(isMute: Boolean) {
+        isMuted = isMute
         when (isYoutube()) {
             true -> if (isMute) youtubePlayer?.mute() else youtubePlayer?.unMute()
             false -> if (isMute) kalturaPlayer?.setVolume(0f) else kalturaPlayer?.setVolume(1f)
         }
     }
+
+    private fun updateMute() = mute(isMuted)
 
     /**
      * Seek to position
