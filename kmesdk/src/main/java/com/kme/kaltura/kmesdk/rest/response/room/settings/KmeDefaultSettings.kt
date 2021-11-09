@@ -38,6 +38,10 @@ data class KmeDefaultSettings(
 
     @SerializedName("terms")
     @Expose
-    var terms: KmePermissionValue? = null
+    var terms: KmePermissionValue? = null,
+
+    @SerializedName("self_assign")
+    @Expose
+    var selfAssign: KmePermissionValue? = null
 
 ) : Parcelable

@@ -9,6 +9,7 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeInternalDataModule
 class KmeInternalDataModuleImpl : KmeController(), IKmeInternalDataModule {
 
     override var mainRoomId: Long = 0
+    override var mainRoomAlias: String = ""
     override var breakoutRoomId: Long = 0
     override var companyId: Long = 0
 

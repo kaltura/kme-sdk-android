@@ -40,7 +40,7 @@ import org.koin.core.inject
  * An implementation for room data
  */
 class KmeRoomControllerImpl(
-    private val context: Context,
+    private val context: Context
 ) : KmeController(), IKmeRoomController {
 
     private val roomApiService: KmeRoomApiService by inject()
@@ -119,15 +119,22 @@ class KmeRoomControllerImpl(
         exitListener: IKmeRoomModule.ExitRoomListener,
         listener: IKmeWSConnectionListener,
     ) {
+        internalDataModule.companyId = companyId
+        internalDataModule.mainRoomId = roomId
+//        if (breakoutModule.isActive()) {
+//            internalDataModule.breakoutRoomId = roomId
+//        } else {
+//            internalDataModule.breakoutRoomId = 0
+//        }
+        internalDataModule.mainRoomAlias = roomAlias
+
         roomModule.setExitListener(exitListener)
 
         userController.getUserInformation(
             roomAlias,
             success = {
                 fetchWebRTCLiveServer(
-                    roomId,
                     roomAlias,
-                    companyId,
                     isReconnect,
                     listener
                 )
@@ -138,9 +145,7 @@ class KmeRoomControllerImpl(
     }
 
     private fun fetchWebRTCLiveServer(
-        roomId: Long,
         roomAlias: String,
-        companyId: Long,
         isReconnect: Boolean,
         listener: IKmeWSConnectionListener,
     ) {
@@ -156,7 +161,7 @@ class KmeRoomControllerImpl(
                         val wssUrl = it.data?.wssUrl
                         val token = it.data?.token
                         if (wssUrl != null && token != null) {
-                            startService(wssUrl, companyId, roomId, isReconnect, token, listener)
+                            startService(wssUrl, isReconnect, token, listener)
                         }
                     }
                 },
@@ -180,15 +185,11 @@ class KmeRoomControllerImpl(
      */
     private fun startService(
         url: String,
-        companyId: Long,
-        roomId: Long,
         isReconnect: Boolean,
         token: String,
         listener: IKmeWSConnectionListener,
     ) {
         this.url = url
-        internalDataModule.companyId = companyId
-        internalDataModule.mainRoomId = roomId
         this.isReconnect = isReconnect
         this.token = token
 
@@ -351,13 +352,13 @@ class KmeRoomControllerImpl(
                                 override fun onClosing(code: Int, reason: String) {
                                     listener.onClosing(code, reason)
                                     releaseScope(getScope(KmeKoinScope.BOR_MODULES))
-                                    internalDataModule.breakoutRoomId = 0
+//                                    internalDataModule.breakoutRoomId = 0
                                 }
 
                                 override fun onClosed(code: Int, reason: String) {
                                     listener.onClosed(code, reason)
                                     releaseScope(getScope(KmeKoinScope.BOR_MODULES))
-                                    internalDataModule.breakoutRoomId = 0
+//                                    internalDataModule.breakoutRoomId = 0
                                 }
                             }
                         )

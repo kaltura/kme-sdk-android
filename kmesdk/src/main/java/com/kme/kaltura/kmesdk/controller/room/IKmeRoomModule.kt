@@ -92,6 +92,16 @@ interface IKmeRoomModule : IKmeModule {
         password: String
     )
 
+    /*
+    * Getting main room id
+    * */
+    fun getMainRoomId() : Long
+
+    /*
+    * Getting main room alias
+    * */
+    fun getMainRoomAlias() : String
+
     /**
      * Changing setting value for room
      *

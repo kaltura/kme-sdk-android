@@ -47,6 +47,16 @@ interface IKmeBreakoutModule : IKmeModule {
     fun getBreakoutState(): KmeBreakoutModuleMessage.BreakoutRoomState?
 
     /**
+     * Checking is breakout rooms currently active
+     */
+    fun isActive(): Boolean
+
+    /**
+     * Getting breakout room in case that user assigned to any bor
+     */
+    fun getAssignedBreakoutRoom(): KmeBreakoutModuleMessage.BreakoutRoom?
+
+    /**
      * Subscribing for the room events related breakout rooms
      */
     interface IKmeBreakoutEvents {
@@ -56,7 +66,8 @@ interface IKmeBreakoutModule : IKmeModule {
          */
         fun onBreakoutRoomStart(
             roomId: Long,
-            roomAlias: String
+            roomAlias: String,
+            selfAssigned: Boolean
         )
 
         /**

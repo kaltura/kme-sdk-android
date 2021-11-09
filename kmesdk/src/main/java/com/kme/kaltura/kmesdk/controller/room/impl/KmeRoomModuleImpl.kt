@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.controller.room.impl
 
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
+import com.kme.kaltura.kmesdk.controller.room.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule.ExitRoomListener
@@ -37,6 +38,7 @@ import org.koin.core.inject
 class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
 
     private val roomController: IKmeRoomController by scopedInject()
+    private val internalDataModule: IKmeInternalDataModule by scopedInject()
     private val roomApiService: KmeRoomApiService by inject()
     private val userController: IKmeUserController by inject()
 
@@ -76,7 +78,8 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                     }
                 }
                 KmeMessageEvent.USER_REMOVED -> {
-                    val msg: KmeParticipantsModuleMessage<ParticipantRemovedPayload>? = message.toType()
+                    val msg: KmeParticipantsModuleMessage<ParticipantRemovedPayload>? =
+                        message.toType()
                     msg?.payload?.targetUserId?.let { userId ->
                         if (userId == publisherId) {
                             exitListener?.onRoomExit(KmeRoomExitReason.REMOVED_USER)
@@ -156,7 +159,9 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
     override fun joinRoom(roomId: Long, companyId: Long) {
         roomController.send(buildJoinRoomMessage(roomId, companyId))
         roomController.send(buildGetQuickPollStateMessage(roomId, companyId))
-        roomController.send(buildGetBreakoutStateMessage(roomId, companyId))
+        if (internalDataModule.breakoutRoomId == 0L) {
+            roomController.send(buildGetBreakoutStateMessage(roomId, companyId))
+        }
     }
 
     /**
@@ -164,6 +169,14 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
      */
     override fun joinRoom(roomId: Long, companyId: Long, password: String) {
         roomController.send(buildRoomPasswordMessage(roomId, companyId, password))
+    }
+
+    override fun getMainRoomId(): Long {
+        return internalDataModule.mainRoomId
+    }
+
+    override fun getMainRoomAlias(): String {
+        return internalDataModule.mainRoomAlias
     }
 
     /**
