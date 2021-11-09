@@ -20,6 +20,8 @@ class KmeMediaContentViewModel : ViewModel(), KmeKoinViewModel {
     private val audioManager: IKmeAudioManager by inject()
     private val roomController:  IKmeRoomController by scopedInject()
 
+    var isMute = false
+
     fun getCookie(): String = prefs.getString(KmePrefsKeys.COOKIE).toNonNull()
 
     fun userType(): KmeUserType? = userController.getCurrentParticipant()?.userType
