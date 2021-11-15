@@ -10,8 +10,6 @@ import android.util.AttributeSet
 import android.view.*
 import android.widget.FrameLayout
 import androidx.core.view.doOnLayout
-import androidx.core.view.marginBottom
-import androidx.core.view.marginRight
 import com.kme.kaltura.kmesdk.databinding.LayoutOverlapViewBinding
 import com.kme.kaltura.kmesdk.getDisplayMetrics
 import com.kme.kaltura.kmesdk.isLandscape
@@ -67,7 +65,7 @@ class KmeOverlapLayout @JvmOverloads constructor(
         LayoutInflater.from(context),
         this
     )
-    
+
     private var scaleFactor = 1f
     private var maxZoom = 2f
 
@@ -186,12 +184,10 @@ class KmeOverlapLayout @JvmOverloads constructor(
         preWidth = binding.resizableLayout.width
         preHeight = binding.resizableLayout.height
 
-        val left = binding.root.paddingLeft + horizontalOffset
-        val top = binding.root.paddingTop + verticalOffset
-        val right =
-            binding.root.right - binding.root.paddingRight - binding.root.marginRight - horizontalOffset
-        val bottom =
-            binding.root.bottom - binding.root.paddingBottom - binding.root.marginBottom - verticalOffset
+        val left = horizontalOffset
+        val top = verticalOffset
+        val right = binding.root.width - binding.root.paddingRight - horizontalOffset
+        val bottom = binding.root.height - binding.root.paddingBottom - verticalOffset
 
         cornerPoint1.set(left, top)
         cornerPoint2.set(right, top)

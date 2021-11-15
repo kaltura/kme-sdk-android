@@ -158,10 +158,6 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
      */
     override fun joinRoom(roomId: Long, companyId: Long) {
         roomController.send(buildJoinRoomMessage(roomId, companyId))
-        roomController.send(buildGetQuickPollStateMessage(roomId, companyId))
-        if (internalDataModule.breakoutRoomId == 0L) {
-            roomController.send(buildGetBreakoutStateMessage(roomId, companyId))
-        }
     }
 
     /**

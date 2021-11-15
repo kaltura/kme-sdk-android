@@ -19,6 +19,8 @@ import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.service.KmeRoomService
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.buildChangeMediaStateMessage
+import com.kme.kaltura.kmesdk.util.messages.buildGetBreakoutStateMessage
+import com.kme.kaltura.kmesdk.util.messages.buildGetQuickPollStateMessage
 import com.kme.kaltura.kmesdk.util.messages.buildJoinBorMessage
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
@@ -121,11 +123,6 @@ class KmeRoomControllerImpl(
     ) {
         internalDataModule.companyId = companyId
         internalDataModule.mainRoomId = roomId
-//        if (breakoutModule.isActive()) {
-//            internalDataModule.breakoutRoomId = roomId
-//        } else {
-//            internalDataModule.breakoutRoomId = 0
-//        }
         internalDataModule.mainRoomAlias = roomAlias
 
         roomModule.setExitListener(exitListener)
@@ -271,6 +268,17 @@ class KmeRoomControllerImpl(
                     currentParticipant?.userPermissions = webRTCServer?.roomInfo?.settingsV2
 
                     userController.updateParticipant(currentParticipant)
+
+                    val roomId = if (internalDataModule.breakoutRoomId != 0L) {
+                        internalDataModule.breakoutRoomId
+                    } else {
+                        internalDataModule.mainRoomId
+                    }
+
+                    send(buildGetQuickPollStateMessage(roomId, internalDataModule.companyId))
+                    if (internalDataModule.mainRoomId == roomId) {
+                        send(buildGetBreakoutStateMessage(roomId, internalDataModule.companyId))
+                    }
                 }
                 KmeMessageEvent.CLOSE_WEB_SOCKET -> {
 //                    val msg: KmeRoomInitModuleMessage<KmeRoomInitModuleMessage.CloseWebSocketPayload>? =
@@ -337,7 +345,7 @@ class KmeRoomControllerImpl(
 
                                     mainRoomSocketModule.send(
                                         buildJoinBorMessage(
-                                            roomId,
+                                            internalDataModule.mainRoomId,
                                             internalDataModule.companyId,
                                             userController.getCurrentUserInfo()?.getUserId(),
                                             internalDataModule.breakoutRoomId
@@ -351,14 +359,11 @@ class KmeRoomControllerImpl(
 
                                 override fun onClosing(code: Int, reason: String) {
                                     listener.onClosing(code, reason)
-                                    releaseScope(getScope(KmeKoinScope.BOR_MODULES))
-//                                    internalDataModule.breakoutRoomId = 0
                                 }
 
                                 override fun onClosed(code: Int, reason: String) {
                                     listener.onClosed(code, reason)
                                     releaseScope(getScope(KmeKoinScope.BOR_MODULES))
-//                                    internalDataModule.breakoutRoomId = 0
                                 }
                             }
                         )
