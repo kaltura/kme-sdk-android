@@ -100,7 +100,6 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
 
         if (internalDataModule.mainRoomId == breakoutRoomId) {
             validBreakoutRoomId = 0
-            internalDataModule.breakoutRoomId = 0
         }
 
         mainRoomSocketModule.send(
@@ -118,20 +117,17 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
      */
     override fun callToInstructor() {
         borState?.breakoutRooms?.find {
-            it.id == internalDataModule.breakoutRoomId
+            it.id == internalDataModule.breakoutRoomId &&
+                    (it.raisedHandUserId == null || it.raisedHandUserId == currentUserId)
         }?.let { room ->
-            if (room.raisedHandUserId != null ||
-                room.raisedHandUserId == currentUserId
-            ) {
-                mainRoomSocketModule.send(
-                    buildCallToInstructorMessage(
-                        internalDataModule.mainRoomId,
-                        internalDataModule.companyId,
-                        currentUserId,
-                        internalDataModule.breakoutRoomId
-                    )
+            mainRoomSocketModule.send(
+                buildCallToInstructorMessage(
+                    internalDataModule.mainRoomId,
+                    internalDataModule.companyId,
+                    currentUserId,
+                    internalDataModule.breakoutRoomId
                 )
-            }
+            )
         }
     }
 
@@ -282,7 +278,8 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                         borState?.breakoutRooms?.find { room ->
                             room.id == callRoomId
                         }?.let { breakoutRoom ->
-                            val callUserId = msg.payload?.breakoutRooms?.firstOrNull()?.raisedHandUserId
+                            val callUserId =
+                                msg.payload?.breakoutRooms?.firstOrNull()?.raisedHandUserId
                             breakoutRoom.raisedHandUserId = callUserId
                             eventListener?.onBreakoutCallInstructor(callRoomId, callUserId)
                         }
@@ -312,6 +309,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
             ifNonNull(breakoutRoom.id, breakoutRoom.alias) { id, alias ->
                 if (borSocketModule.isConnected())
                     borSocketModule.disconnect()
+                internalDataModule.breakoutRoomId = 0
                 eventListener?.onBreakoutRoomStart(id, alias, selfAssignedBorId == id)
                 selfAssignedBorId = null
             }
@@ -319,6 +317,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
     }
 
     private fun handleLeaveRoom() {
+        internalDataModule.breakoutRoomId = 0
         if (borSocketModule.isConnected())
             borSocketModule.disconnect()
         eventListener?.onBreakoutRoomStop()
