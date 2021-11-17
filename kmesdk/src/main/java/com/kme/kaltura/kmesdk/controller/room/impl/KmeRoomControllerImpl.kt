@@ -245,7 +245,11 @@ class KmeRoomControllerImpl(
      */
     private fun stopService() {
         val intent = Intent(context, KmeRoomService::class.java)
-        context.unbindService(serviceConnection)
+        try {
+            context.unbindService(serviceConnection)
+        } catch (ex: IllegalStateException) {
+            //Service is not bound
+        }
         context.stopService(intent)
         roomService = null
     }
