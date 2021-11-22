@@ -16,6 +16,7 @@ import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.load.model.LazyHeaders
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.google.android.exoplayer2.C
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 
 internal fun removeCookies(callback: () -> Unit) {
@@ -65,6 +66,12 @@ fun String?.toNonNull(default: String = "") = this ?: default
 inline fun <A, B, R> ifNonNull(a: A?, b: B?, block: (a: A, b: B) -> R): R? {
     return if (a != null && b != null) {
         block(a, b)
+    } else null
+}
+
+inline fun <A, B, C, R> ifNonNull(a: A?, b: B?, c: C?, block: (a: A, b: B, c: C) -> R): R? {
+    return if (a != null && b != null && c != null) {
+        block(a, b, c)
     } else null
 }
 
