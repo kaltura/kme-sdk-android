@@ -1,8 +1,10 @@
 package com.kme.kaltura.kmesdk.ws.message.module
 
+import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason
+import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmeModuleVisibilityValue
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionModule
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
@@ -10,13 +12,20 @@ import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 class KmeRoomSettingsModuleMessage<T : KmeRoomSettingsModuleMessage.SettingsPayload> :
     KmeMessage<T>() {
 
-    data class RoomDefaultSettingsChangedPayload(
+    open class RoomDefaultSettingsChangedPayload(
         @SerializedName("user_id") var userId: Long? = null,
         @SerializedName("room_id") var roomId: Long? = null,
-        @SerializedName("permissionsValue") var permissionsValue: KmePermissionValue? = null,
         @SerializedName("moduleName") var moduleName: KmePermissionModule? = null,
         @SerializedName("permissionsKey") var permissionsKey: KmePermissionKey? = null
     ) : SettingsPayload()
+
+    data class RoomChatSettingsChangedPayload(
+        @SerializedName("permissionsValue") var permissionsValue: KmePermissionValue? = null,
+    ) : RoomDefaultSettingsChangedPayload()
+
+    data class RoomParticipantSettingsChangedPayload(
+        @SerializedName("permissionsValue") var permissionsValue: KmeModuleVisibilityValue? = null,
+    ) : RoomDefaultSettingsChangedPayload()
 
     data class UserLeaveSessionPayload(
         @SerializedName("room_id") var roomId: Long? = null,

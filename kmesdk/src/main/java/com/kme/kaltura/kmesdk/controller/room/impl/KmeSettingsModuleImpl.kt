@@ -10,6 +10,7 @@ import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeChatModule
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeDefaultSettings
+import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeParticipantsModule
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -20,6 +21,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.SetParticipantModerator
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmeModuleVisibilityValue
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionModule
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
@@ -66,9 +68,19 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
                     val settingsPayload = settingsMessage?.payload
                     when (settingsPayload?.moduleName) {
                         KmePermissionModule.CHAT_MODULE -> {
+                            val chatSettingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomChatSettingsChangedPayload>? = message.toType()
+                            val chatSettingsPayload = chatSettingsMessage?.payload
                             handleChatSetting(
-                                settingsPayload.permissionsKey,
-                                settingsPayload.permissionsValue
+                                chatSettingsPayload?.permissionsKey,
+                                chatSettingsPayload?.permissionsValue
+                            )
+                        }
+                        KmePermissionModule.PARTICIPANTS_MODULE -> {
+                            val participantSettingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomParticipantSettingsChangedPayload>? = message.toType()
+                            val participantSettingsPayload = participantSettingsMessage?.payload
+                            handleParticipantSetting(
+                                participantSettingsPayload?.permissionsKey,
+                                participantSettingsPayload?.permissionsValue
                             )
                         }
                         else -> {
@@ -150,6 +162,25 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
 
             chatModule.defaultSettings = chatSettings
             userPermissions.chatModule = chatModule
+            currentParticipant.userPermissions = userPermissions
+        }
+    }
+
+    private fun handleParticipantSetting(
+        key: KmePermissionKey?,
+        value: KmeModuleVisibilityValue?
+    ) {
+        val currentParticipant = userController.getCurrentParticipant()
+        if (currentParticipant != null) {
+            val userPermissions = currentParticipant.userPermissions ?: KmeSettingsV2()
+            val participantModule = userPermissions.participantsModule ?: KmeParticipantsModule()
+            when (key) {
+                KmePermissionKey.VISIBILITY -> {
+                    participantModule.visibility = value
+                }
+            }
+
+            userPermissions.participantsModule = participantModule
             currentParticipant.userPermissions = userPermissions
         }
     }

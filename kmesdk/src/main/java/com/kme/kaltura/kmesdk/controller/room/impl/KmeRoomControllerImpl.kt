@@ -145,6 +145,8 @@ class KmeRoomControllerImpl(
                             startService(wssUrl, companyId, roomId, isReconnect, token, listener)
                         }
                     }
+
+
                 },
                 error = {
                     roomSettings = null
