@@ -56,6 +56,13 @@ interface IKmeBasePeerConnection {
     fun removeRenderer()
 
     /**
+     * Toggle audio from SDK
+     *
+     * @param enable flag to enable/disable audio
+     */
+    fun setAudioEnabledInternal(enable: Boolean)
+
+    /**
      * Toggle audio
      *
      * @param enable flag to enable/disable audio

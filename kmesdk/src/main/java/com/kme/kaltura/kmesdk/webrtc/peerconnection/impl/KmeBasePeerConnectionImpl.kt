@@ -232,6 +232,13 @@ open class KmeBasePeerConnectionImpl(
     val videoStreamId = listOf("ARDAMS")
 
     /**
+     * Toggle audio from SDK
+     */
+    override fun setAudioEnabledInternal(enable: Boolean) {
+        throw Exception("Wrong state.")
+    }
+
+    /**
      * Toggle audio
      */
     override fun setAudioEnabled(enable: Boolean) {

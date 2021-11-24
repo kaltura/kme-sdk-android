@@ -14,4 +14,5 @@ enum class KmePlatformType(
 
     override fun toString(): String {
         return userRole
-    }}
+    }
+}
