@@ -85,6 +85,19 @@ class KmePublisherPeerConnectionImpl(
         }
     }
 
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    override fun setAudioEnabledInternal(enable: Boolean) {
+        if (enable) {
+            if (preferredMicEnabled) {
+                soundAmplitudeMeter?.startMeasure()
+                localAudioTrack?.setEnabled(true)
+            }
+        } else {
+            soundAmplitudeMeter?.stopMeasure()
+            localAudioTrack?.setEnabled(false)
+        }
+    }
+
     /**
      * Toggle audio
      */
