@@ -91,8 +91,10 @@ internal class KmeWebSocketModuleImpl : KmeController(),
                 delay(5000)
                 webSocket?.cancel()
                 webSocket = newWebSocket()
-                reconnectionAttempts.inc()
+                reconnectionAttempts++
             }
+        } else {
+            disconnect()
         }
     }
 
