@@ -16,7 +16,6 @@ import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.load.model.LazyHeaders
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
-import com.google.android.exoplayer2.C
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 
 internal fun removeCookies(callback: () -> Unit) {
