@@ -34,6 +34,9 @@ enum class KmePermissionKey(value: String) {
     @SerializedName("mute_mode")
     MUTE_MODE("mute_mode"),
 
+    @SerializedName("mute_on_play")
+    MUTE_ON_PLAY("mute_on_play"),
+
     @SerializedName("browser_focus_video_overlay")
     BROWSER_FOCUS_VIDEO_OVERLAY("browser_focus_video_overlay"),
 

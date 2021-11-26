@@ -181,6 +181,19 @@ internal class KmePeerConnectionImpl(
     }
 
     /**
+     * Toggle audio from SDK
+     */
+    override fun enableAudioInternal(isEnable: Boolean) {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            peerConnection?.setAudioEnabledInternal(isEnable)
+        }
+    }
+
+    /**
      * Toggle audio
      */
     override fun enableAudio(isEnable: Boolean) {

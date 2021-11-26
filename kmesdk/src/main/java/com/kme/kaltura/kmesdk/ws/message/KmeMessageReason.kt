@@ -22,6 +22,9 @@ enum class KmeMessageReason(
     INSTRUCTOR_ENDED_SESSION("instructor_ended_session"),
 
     @SerializedName("host_ended_session")
-    HOST_ENDED_SESSION("host_ended_session")
+    HOST_ENDED_SESSION("host_ended_session"),
+
+    @SerializedName("else")
+    ELSE("else")
 
 }
