@@ -36,16 +36,16 @@ class KmeCookieJar(
      */
     override fun loadForRequest(url: HttpUrl): List<Cookie> {
         val cookieManager = CookieManager.getInstance()
-        val cookies: MutableList<Cookie> = ArrayList()
-        if (cookieManager.getCookie(url.toString()) != null) {
-            val splitCookies =
-                cookieManager.getCookie(url.toString()).split("[,;]".toRegex()).toTypedArray()
+        val cookieList: MutableList<Cookie> = ArrayList()
+        val cookies = cookieManager.getCookie(url.toString())
+        if (!cookies.isNullOrEmpty()) {
+            val splitCookies = cookies.split("[,;]".toRegex()).toTypedArray()
             for (i in splitCookies.indices) {
                 Cookie.parse(url, splitCookies[i].trim { it <= ' ' })?.let {
-                    cookies.add(it)
+                    cookieList.add(it)
                 }
             }
         }
-        return cookies
+        return cookieList
     }
 }
