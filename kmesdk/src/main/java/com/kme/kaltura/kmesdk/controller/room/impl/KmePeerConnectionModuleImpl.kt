@@ -628,8 +628,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
     }
 
     override fun enableViewersAudioInternal(isEnable: Boolean) {
+        if (!isInitialized) return
         if (viewersAudioEnabledByApp) {
-            checkData()
             viewersAudioEnabledBySdk = isEnable
             viewers.forEach { (_, connection) -> connection.enableAudio(isEnable) }
             publisher?.enableAudioInternal(isEnable)
