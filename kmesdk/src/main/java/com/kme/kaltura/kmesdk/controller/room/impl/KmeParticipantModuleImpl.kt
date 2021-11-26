@@ -27,7 +27,6 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
-import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 import org.koin.core.inject
@@ -444,7 +443,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     }
 
     /**
-     *    Remove user from list with an userId
+     * Remove user from list with an userId
      */
     private fun remove(userId: Long) {
         val isRemoved = participants.removeAll { tmp ->
