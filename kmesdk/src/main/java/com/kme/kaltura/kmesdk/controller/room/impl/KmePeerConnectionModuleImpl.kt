@@ -4,10 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
-import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
-import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.controller.room.*
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmePeerConnectionInternalModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.*
@@ -33,7 +31,8 @@ import kotlin.properties.Delegates
 /**
  * An implementation for wrap actions with [IKmePeerConnection]
  */
-class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
+class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
+    IKmePeerConnectionInternalModule {
 
     private val userController: IKmeUserController by inject()
     private val roomController: IKmeRoomController by scopedInject()
@@ -58,6 +57,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     private lateinit var listener: IKmePeerConnectionModule.KmePeerConnectionEvents
     private var screenShareEvents: IKmePeerConnectionModule.KmeScreenShareEvents? = null
 
+    private var viewersAudioEnabledByApp = true
+    private var viewersAudioEnabledBySdk = true
     private var isInitialized: Boolean = false
     private var blockMediaStateEvents: Boolean = false
 
@@ -352,7 +353,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
     override fun enableViewersAudio(isEnable: Boolean) {
         if (!isInitialized) return
-        viewers.forEach { (_, connection) -> connection.enableAudio(isEnable) }
+        if (viewersAudioEnabledBySdk) {
+            viewersAudioEnabledByApp = isEnable
+            viewers.forEach { (_, connection) -> connection.enableAudio(isEnable) }
+        }
     }
 
     /**
@@ -460,7 +464,9 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                     val userId = msg?.payload?.userId
                     val volumeData = msg?.payload?.volumeData?.split(",")
                     if (userId != null && volumeData != null) {
-                        listener.onUserSpeaking(userId.toString(), volumeData[0].toInt() == 1)
+                        val isSpeaking = volumeData[0].toInt() == 1
+                        if (!viewersAudioEnabledBySdk && isSpeaking) return
+                        listener.onUserSpeaking(userId.toString(), isSpeaking)
                     }
                 }
                 KmeMessageEvent.USER_MEDIA_STATE_CHANGED -> {
@@ -590,6 +596,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         if (bringToFront == bringToFrontPrev) return
         bringToFrontPrev = bringToFront
 
+        if (!viewersAudioEnabledBySdk && bringToFront == 1) return
+
         if (publisherId.toString() == requestedUserIdStream) {
             webSocketModule.send(
                 buildUserSpeakingMessage(
@@ -617,6 +625,15 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
     override fun onPeerConnectionError(requestedUserIdStream: String, description: String) {
         listener.onPeerConnectionError(requestedUserIdStream, description)
+    }
+
+    override fun enableViewersAudioInternal(isEnable: Boolean) {
+        if (viewersAudioEnabledByApp) {
+            checkData()
+            viewersAudioEnabledBySdk = isEnable
+            viewers.forEach { (_, connection) -> connection.enableAudio(isEnable) }
+            publisher?.enableAudioInternal(isEnable)
+        }
     }
 
     companion object {
