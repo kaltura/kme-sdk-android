@@ -52,7 +52,7 @@ class KmeRoomNotesMessage<T : KmeRoomNotesMessage.NotesPayload> : KmeMessage<T>(
     data class NoteEditBlock(
         @SerializedName("key") var key: String,
         @SerializedName("text") var text: String,
-        @SerializedName("type") var type: KmeNoteBlockType,
+        @SerializedName("type") var type: KmeNoteBlockType = KmeNoteBlockType.UNSTYLED,
         @SerializedName("depth") val depth: Long,
         @SerializedName("inlineStyleRanges") var inlineStyleRanges: List<NoteInlineStyle>,
         @SerializedName("entityRanges") var entityRanges: List<NoteInlineStyle> = arrayListOf(),
