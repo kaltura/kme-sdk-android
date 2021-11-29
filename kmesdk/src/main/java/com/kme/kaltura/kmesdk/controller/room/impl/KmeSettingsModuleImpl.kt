@@ -42,6 +42,9 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
     private val settingsChanged = MutableLiveData<Boolean>()
     override val settingsChangedLiveData get() = settingsChanged as LiveData<Boolean>
 
+    private val userSettingsChanged = MutableLiveData<KmeSettingsV2>()
+    override val userSettingsChangedLiveData get() = userSettingsChanged as LiveData<KmeSettingsV2>
+
     /**
      * Subscribing for the room events related to change settings
      * for the users and for the room itself
@@ -55,6 +58,13 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
         )
     }
 
+    /**
+     * UpdateSettings for the room events related to change settings
+     * for the users and for the room itself
+     */
+    override fun updateSettings(settings: KmeSettingsV2?) {
+        userSettingsChanged.value = settings
+    }
     /**
      * Listen for subscribed events
      */
@@ -74,6 +84,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
                                 chatSettingsPayload?.permissionsKey,
                                 chatSettingsPayload?.permissionsValue
                             )
+                            updateSettings(userController.getCurrentParticipant()?.userPermissions)
                         }
                         KmePermissionModule.PARTICIPANTS_MODULE -> {
                             val participantSettingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomParticipantSettingsChangedPayload>? = message.toType()
@@ -82,6 +93,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
                                 participantSettingsPayload?.permissionsKey,
                                 participantSettingsPayload?.permissionsValue
                             )
+                            updateSettings(userController.getCurrentParticipant()?.userPermissions)
                         }
                         else -> {
                         }

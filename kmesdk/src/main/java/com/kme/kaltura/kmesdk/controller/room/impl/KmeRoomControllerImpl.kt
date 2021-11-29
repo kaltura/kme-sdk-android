@@ -41,8 +41,8 @@ class KmeRoomControllerImpl(
 
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
-    private val settingsModule: IKmeSettingsModule by scopedInject()
 
+    override val settingsModule: IKmeSettingsModule by scopedInject()
     override val roomModule: IKmeRoomModule by scopedInject()
     override val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
     override val participantModule: IKmeParticipantModule by scopedInject()
@@ -145,8 +145,7 @@ class KmeRoomControllerImpl(
                             startService(wssUrl, companyId, roomId, isReconnect, token, listener)
                         }
                     }
-
-
+                    settingsModule.updateSettings(roomSettings?.roomInfo?.settingsV2)
                 },
                 error = {
                     roomSettings = null
@@ -184,7 +183,6 @@ class KmeRoomControllerImpl(
                 )
 
                 settingsModule.subscribe()
-
                 listener.onOpen()
             }
 

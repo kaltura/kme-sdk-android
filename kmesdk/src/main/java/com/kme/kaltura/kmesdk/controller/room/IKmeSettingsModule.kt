@@ -10,7 +10,7 @@ interface IKmeSettingsModule : IKmeModule {
 
     val moderatorStateLiveData: LiveData<Boolean>
     val settingsChangedLiveData: LiveData<Boolean>
-//    val userSettingsChangedLiveData: LiveData<KmeSettingsV2>
+    val userSettingsChangedLiveData: LiveData<KmeSettingsV2>
 
     /**
      * Subscribing for the room events related to change settings
@@ -19,5 +19,11 @@ interface IKmeSettingsModule : IKmeModule {
     fun subscribe()
 
 
-
+    /**
+     * UpdateSettings for the room events related to change settings
+     * for the users and for the room itself
+     *
+     * @param settings
+     */
+    fun updateSettings(settings: KmeSettingsV2?)
 }
