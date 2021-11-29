@@ -26,7 +26,8 @@ android {
             resValue "string", "staging_api_url", 'stagingsmart.newrow.com'
             resValue "string", "production_api_url", 'smart.newrow.com'
             resValue "string", "frp_api_url", 'frp-smart.newrow.com'
-            resValue "string", "cap_api_url", 'cap1-smart.newrow.com'
+            resValue "string", "cap_api_url", 'cap-smart.newrow.com'
+            resValue "string", "cap1_api_url", 'cap1-smart.newrow.com'
             resValue "string", "deeplink_api_url", 'kme.page.link'
             minifyEnabled false
         }
@@ -35,7 +36,8 @@ android {
             resValue "string", "staging_api_url", 'stagingsmart.newrow.com'
             resValue "string", "production_api_url", 'smart.newrow.com'
             resValue "string", "frp_api_url", 'frp-smart.newrow.com'
-            resValue "string", "cap_api_url", 'cap1-smart.newrow.com'
+            resValue "string", "cap_api_url", 'cap-smart.newrow.com'
+            resValue "string", "cap1_api_url", 'cap1-smart.newrow.com'
             resValue "string", "deeplink_api_url", 'kme.page.link'
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
