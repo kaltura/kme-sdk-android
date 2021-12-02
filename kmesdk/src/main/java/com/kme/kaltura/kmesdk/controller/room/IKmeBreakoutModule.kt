@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomModuleSettingsChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.type.KmeBreakoutRoomMessageType
 
 /**
  * An interface for actions with breakout rooms
@@ -87,8 +88,8 @@ interface IKmeBreakoutModule : IKmeModule {
          * Event triggers when instructor send an announcement
          */
         fun onBreakoutInstructorMessage(
-            userId: Long,
-            text: String,
+            messageType: KmeBreakoutRoomMessageType,
+            messageMetadata: KmeBreakoutModuleMessage.BreakoutMessageMetadata,
         )
 
         /**

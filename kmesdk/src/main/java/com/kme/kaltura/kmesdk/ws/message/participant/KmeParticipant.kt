@@ -41,8 +41,6 @@ data class KmeParticipant(
 //    Local
     var isSpeaking: Boolean = false
 
-) : Parcelable {
+) : Parcelable
 
-    fun isDynamicAvatar() = avatar?.startsWith("Users/d/userAvatars") ?: false
-
-}
+fun KmeParticipant.isDynamicAvatar() = avatar?.startsWith("Users/d/userAvatars") ?: false

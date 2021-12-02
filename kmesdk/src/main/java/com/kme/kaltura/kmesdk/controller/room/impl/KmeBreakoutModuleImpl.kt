@@ -288,10 +288,17 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                 KmeMessageEvent.BREAKOUT_INSTRUCTOR_MESSAGE -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutMessagePayload>? = message.toType()
                     ifNonNull(
-                        msg?.payload?.messageMetadata?.senderId,
-                        msg?.payload?.messageMetadata?.messageText
-                    ) { userId, text ->
-                        eventListener?.onBreakoutInstructorMessage(userId, text)
+                        msg?.payload?.messageType,
+                        msg?.payload?.messageMetadata
+                    ) { messageType, messageMetadata ->
+
+                        messageMetadata.apply {
+                            senderAvatar = roomController.participantModule.participants().find {
+                                messageMetadata.senderId == it.userId
+                            }?.avatar
+                        }
+
+                        eventListener?.onBreakoutInstructorMessage(messageType, messageMetadata)
                     }
                 }
                 else -> {

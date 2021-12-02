@@ -5,6 +5,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.BreakoutPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeBreakoutAssignmentStatusType
+import com.kme.kaltura.kmesdk.ws.message.type.KmeBreakoutRoomMessageType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeBreakoutRoomStatusType
 
 class KmeBreakoutModuleMessage<T : BreakoutPayload> : KmeMessage<T>() {
@@ -38,7 +39,7 @@ class KmeBreakoutModuleMessage<T : BreakoutPayload> : KmeMessage<T>() {
     ) : BreakoutPayload()
 
     data class BreakoutMessagePayload(
-        @SerializedName("messageType") val messageType: String?,
+        @SerializedName("messageType") val messageType: KmeBreakoutRoomMessageType?,
         @SerializedName("messageMetadata") val messageMetadata: BreakoutMessageMetadata?,
     ) : BreakoutPayload()
 
@@ -47,7 +48,32 @@ class KmeBreakoutModuleMessage<T : BreakoutPayload> : KmeMessage<T>() {
         @SerializedName("senderId") val senderId: Long?,
         @SerializedName("senderName") val senderName: String?,
         @SerializedName("name") val name: String?,
-    ) : BreakoutPayload()
+    ) : BreakoutPayload() {
+        //local
+        var senderAvatar: String? = null
+
+        override fun equals(other: Any?): Boolean {
+            if (javaClass != other?.javaClass) return false
+
+            other as BreakoutMessageMetadata
+
+            if (messageText != other.messageText) return false
+            if (senderId != other.senderId) return false
+            if (senderName != other.senderName) return false
+            if (name != other.name) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = messageText?.hashCode() ?: 0
+            result = 31 * result + (senderId?.hashCode() ?: 0)
+            result = 31 * result + (senderName?.hashCode() ?: 0)
+            result = 31 * result + (name?.hashCode() ?: 0)
+            return result
+        }
+
+    }
 
     open class BreakoutRoom : BreakoutPayload() {
         @SerializedName("room_id")
