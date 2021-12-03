@@ -255,7 +255,7 @@ class RoomViewModel(
                     roomParticipantLimitReached.value = message.toType()
                 }
                 KmeMessageEvent.CLOSE_WEB_SOCKET -> {
-
+                    closeConnection.value = message.toType()
                 }
                 else -> {
                 }

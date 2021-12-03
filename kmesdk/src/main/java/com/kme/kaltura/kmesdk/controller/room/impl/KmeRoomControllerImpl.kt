@@ -171,13 +171,6 @@ class KmeRoomControllerImpl(
     }
 
     /**
-     * Subscribes to the shared content in the room
-     */
-    override fun subscribeForContent(listener: IKmeContentModule.KmeContentListener) {
-        contentModule.subscribe(listener)
-    }
-
-    /**
      * Start service
      */
     private fun startService(

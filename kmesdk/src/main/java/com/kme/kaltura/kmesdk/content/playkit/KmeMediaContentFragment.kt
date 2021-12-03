@@ -27,7 +27,7 @@ class KmeMediaContentFragment : KmeContentView() {
     private val mediaContentViewModel: KmeMediaContentViewModel by scopedInject()
 
     private var _binding: FragmentMediaContentBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding
 
     private val payload: SetActiveContentPayload? by lazy { arguments?.getParcelable(CONTENT_PAYLOAD) }
 
@@ -35,9 +35,9 @@ class KmeMediaContentFragment : KmeContentView() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         _binding = FragmentMediaContentBinding.inflate(inflater, container, false)
-        return binding.root
+        return binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -50,92 +50,85 @@ class KmeMediaContentFragment : KmeContentView() {
         setupKeyEventListener()
     }
 
-
-    private fun setupUI() {
-        with(binding) {
-            controlsView.setProgressBarVisibility(true)
-            controlsView.setControlsVisibility(false)
-            controlsView.isClickable = false
-            controlsView.setControlsMode(mediaContentViewModel.enabledControls())
-            controlsView.controlsEventListener = object : BaseControlsView.OnControlsEventListener {
-                override fun onEvent(event: PlayerControlsEvent) {
-                    handlePlayerState(event)
-                }
+    private fun setupUI() = binding?.apply {
+        controlsView.setProgressBarVisibility(true)
+        controlsView.setControlsVisibility(false)
+        controlsView.isClickable = false
+        controlsView.setControlsMode(mediaContentViewModel.enabledControls())
+        controlsView.controlsEventListener = object : BaseControlsView.OnControlsEventListener {
+            override fun onEvent(event: PlayerControlsEvent) {
+                handlePlayerState(event)
             }
         }
     }
 
-    private fun handlePlayerState(event: PlayerControlsEvent) {
+    private fun handlePlayerState(event: PlayerControlsEvent) = binding?.apply {
         when (event) {
             PLAY -> {
-                with(binding) {
-                    if (mediaView.isEnded()) {
-                        mediaView.replay()
-                    } else {
-                        mediaView.play()
-                    }
+                if (mediaView.isEnded()) {
+                    mediaView.replay()
+                } else {
+                    mediaView.play()
                 }
             }
             PAUSE -> {
-                binding.mediaView.pause()
+                mediaView.pause()
             }
             else -> {
             }
         }
     }
 
-    private fun subscribePlayerEvents() {
-        with(binding) {
-            mediaView.kalturaErrorListener = object : OnLoadKalturaErrorListener {
-                override fun onLoadKalturaMediaError(error: ErrorElement) {
-                    controlsView.setProgressBarVisibility(false)
-                    Snackbar.make(mediaView, R.string.error_cant_load_media, Snackbar.LENGTH_SHORT)
-                        .show()
-                }
-            }
-            mediaView.addListener(this, PlayerEvent.canPlay) {
-                controlsView.setProgressBarVisibility(false)
-                //TODO uncomment for moderators
-//                controlsView.setControlsVisibility(true)
-            }
-            mediaView.addListener(this, PlayerEvent.error) {
+    private fun subscribePlayerEvents() = binding?.apply {
+        mediaView.kalturaErrorListener = object : OnLoadKalturaErrorListener {
+            override fun onLoadKalturaMediaError(error: ErrorElement) {
                 controlsView.setProgressBarVisibility(false)
                 Snackbar.make(mediaView, R.string.error_cant_load_media, Snackbar.LENGTH_SHORT)
                     .show()
             }
-            mediaView.addListener(this, PlayerEvent.seeking) {
-                controlsView.setTimePosition(
-                    TimeUnit.MILLISECONDS.toSeconds(it.targetPosition),
-                    mediaView.duration
-                )
+        }
+        mediaView.addListener(this, PlayerEvent.canPlay) {
+            controlsView.setProgressBarVisibility(false)
+            // TODO uncomment for moderators
+//            controlsView.setControlsVisibility(true)
+        }
+        mediaView.addListener(this, PlayerEvent.error) {
+            controlsView.setProgressBarVisibility(false)
+            Snackbar.make(mediaView, R.string.error_cant_load_media, Snackbar.LENGTH_SHORT)
+                .show()
+        }
+        mediaView.addListener(this, PlayerEvent.seeking) {
+            controlsView.setTimePosition(
+                TimeUnit.MILLISECONDS.toSeconds(it.targetPosition),
+                mediaView.duration
+            )
+        }
+        mediaView.addListener(this, PlayerEvent.play) {
+            controlsView.setSeekBarVisibility(true)
+            controlsView.setTimeVisibility(true)
+            controlsView.updateUI(PLAY)
+        }
+        mediaView.addListener(this, PlayerEvent.playing) {
+            controlsView.updateUI(PLAYING)
+        }
+        mediaView.addListener(this, PlayerEvent.pause) {
+            if (mediaView.isYoutube()) {
+                controlsView.setSeekBarVisibility(false)
+                controlsView.setTimeVisibility(false)
             }
-            mediaView.addListener(this, PlayerEvent.play) {
-                controlsView.setSeekBarVisibility(true)
-                controlsView.setTimeVisibility(true)
-                controlsView.updateUI(PLAY)
-            }
-            mediaView.addListener(this, PlayerEvent.playing) {
-                controlsView.updateUI(PLAYING)
-            }
-            mediaView.addListener(this, PlayerEvent.pause) {
-                if (mediaView.isYoutube()) {
-                    controlsView.setSeekBarVisibility(false)
-                    controlsView.setTimeVisibility(false)
-                }
-                controlsView.updateUI(PAUSE)
-            }
-            mediaView.addListener(this, PlayerEvent.stopped) {
-                controlsView.updateUI(STOPPED)
-            }
-            mediaView.addListener(this, PlayerEvent.ended) {
-                controlsView.updateUI(STOPPED)
-            }
-            mediaView.addListener(this, PlayerEvent.playheadUpdated) {
-                controlsView.setTimePosition(
-                    TimeUnit.MILLISECONDS.toSeconds(it.position),
-                    TimeUnit.MILLISECONDS.toSeconds(it.duration)
-                )
-            }
+            controlsView.updateUI(PAUSE)
+        }
+        mediaView.addListener(this, PlayerEvent.stopped) {
+            controlsView.updateUI(STOPPED)
+        }
+        mediaView.addListener(this, PlayerEvent.ended) {
+            controlsView.updateUI(STOPPED)
+        }
+        mediaView.addListener(this, PlayerEvent.playheadUpdated) {
+            controlsView.setTimePosition(
+                TimeUnit.MILLISECONDS.toSeconds(it.position),
+                TimeUnit.MILLISECONDS.toSeconds(it.duration)
+            )
         }
     }
 
@@ -152,17 +145,20 @@ class KmeMediaContentFragment : KmeContentView() {
                     partnerId = mediaContentViewModel.getKalturaPartnerId()
                     autoPlay = false
                 }
-                binding.mediaView.lifecycleOwner = viewLifecycleOwner
-                binding.mediaView.init(config)
+                binding?.apply {
+                    mediaView.lifecycleOwner = viewLifecycleOwner
+                    mediaView.init(config)
+                    mediaView.mute(mediaContentViewModel.isMute)
+                }
                 subscribePlayerEvents()
             }
         }
     }
 
-    private fun setupKeyEventListener(){
+    private fun setupKeyEventListener() {
         view?.isFocusableInTouchMode = true
         view?.requestFocus()
-        view?.setOnKeyListener{ _, keyCode, _ ->
+        view?.setOnKeyListener { _, keyCode, _ ->
             when (keyCode) {
                 KeyEvent.KEYCODE_VOLUME_UP -> {
                     mediaContentViewModel.videoVolumeIncrease()
@@ -177,18 +173,13 @@ class KmeMediaContentFragment : KmeContentView() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        handlePlayerState(PAUSE)
+    fun mute(isMute: Boolean) {
+        mediaContentViewModel.isMute = isMute
+        binding?.mediaView?.mute(isMute)
     }
 
-    override fun onResume() {
-        super.onResume()
-        handlePlayerState(PLAY)
-    }
-    
     override fun onDestroyView() {
-        with(binding) {
+        binding?.apply {
             mediaView.removeListeners(this)
             mediaView.release()
         }

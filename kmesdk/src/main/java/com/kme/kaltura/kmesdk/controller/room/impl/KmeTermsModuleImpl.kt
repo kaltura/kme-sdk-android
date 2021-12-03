@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import org.koin.core.inject
 
 /**
- * An implementation actions related to chat
+ * An implementation actions related to terms & conditions
  */
 class KmeTermsModuleImpl : KmeController(), IKmeTermsModule {
 

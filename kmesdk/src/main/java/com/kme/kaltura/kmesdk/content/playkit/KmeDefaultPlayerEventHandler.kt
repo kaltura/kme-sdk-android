@@ -1,25 +1,27 @@
 package com.kme.kaltura.kmesdk.content.playkit
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmePeerConnectionInternalModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
-import com.kme.kaltura.kmesdk.util.livedata.ConsumableValue
+import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.SyncPlayerStatePayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
+import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 
 class KmeDefaultPlayerEventHandler : KmeKoinComponent {
 
     private val roomController: IKmeRoomController by scopedInject()
+    private val peerConnectionModule: IKmePeerConnectionInternalModule by scopedInject()
 
-    private val syncPlayerState = MutableLiveData<ConsumableValue<Pair<KmePlayerState?, Float>>>()
-    val syncPlayerStateLiveData
-        get() = syncPlayerState as LiveData<ConsumableValue<Pair<KmePlayerState?, Float>>>
+    private val syncPlayerState = LiveEvent<Pair<KmePlayerState?, Float>>()
+    val syncPlayerStateLiveData get() = syncPlayerState
 
     fun subscribe() {
         roomController.listen(
@@ -35,50 +37,51 @@ class KmeDefaultPlayerEventHandler : KmeKoinComponent {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
                 KmeMessageEvent.SYNC_PLAYER_STATE -> {
-                    val contentMessage: KmeVideoModuleMessage<KmeVideoModuleMessage.SyncPlayerStatePayload>? =
-                        message.toType()
-
-                    contentMessage?.payload?.let {
-                        syncPlayerState.value =
-                            ConsumableValue(Pair(it.playerState, it.time?.toFloat() ?: 0f))
+                    val msg: KmeVideoModuleMessage<SyncPlayerStatePayload>? = message.toType()
+                    msg?.payload?.let {
+                        syncPlayerState.value = Pair(it.playerState, it.time?.toFloat() ?: 0f)
+                        when (it.playerState) {
+                            KmePlayerState.STOP,
+                            KmePlayerState.PAUSE,
+                            KmePlayerState.ENDED,
+                            KmePlayerState.PAUSED -> enableViewersAudio(true)
+                            else -> enableViewersAudio(false)
+                        }
                     }
                 }
                 KmeMessageEvent.PLAYER_PLAYING -> {
-                    val contentMessage: KmeVideoModuleMessage<KmeVideoModuleMessage.VideoPayload>? =
-                        message.toType()
-                    contentMessage?.payload?.let {
-                        syncPlayerState.value =
-                            ConsumableValue(Pair(KmePlayerState.PLAY, it.time?.toFloat() ?: 0f))
+                    val msg: KmeVideoModuleMessage<VideoPayload>? = message.toType()
+                    msg?.payload?.let {
+                        syncPlayerState.value = Pair(KmePlayerState.PLAY, it.time?.toFloat() ?: 0f)
+                        enableViewersAudio(false)
                     }
                 }
                 KmeMessageEvent.PLAYER_PAUSED -> {
-                    val contentMessage: KmeVideoModuleMessage<KmeVideoModuleMessage.VideoPayload>? =
-                        message.toType()
-                    contentMessage?.payload?.let {
-                        syncPlayerState.value =
-                            ConsumableValue(Pair(KmePlayerState.PAUSE, it.time?.toFloat() ?: 0f))
+                    val msg: KmeVideoModuleMessage<VideoPayload>? = message.toType()
+                    msg?.payload?.let {
+                        syncPlayerState.value = Pair(KmePlayerState.PAUSE, it.time?.toFloat() ?: 0f)
+                        enableViewersAudio(true)
                     }
                 }
                 KmeMessageEvent.PLAYER_SEEK_TO -> {
-                    val contentMessage: KmeVideoModuleMessage<KmeVideoModuleMessage.VideoPayload>? =
-                        message.toType()
-                    contentMessage?.payload?.let {
+                    val msg: KmeVideoModuleMessage<VideoPayload>? = message.toType()
+                    msg?.payload?.let {
                         syncPlayerState.value =
-                            ConsumableValue(Pair(KmePlayerState.SEEK_TO, it.time?.toFloat() ?: 0f))
+                            Pair(KmePlayerState.SEEK_TO, it.time?.toFloat() ?: 0f)
                     }
                 }
             }
         }
     }
 
+    private fun enableViewersAudio(isEnable: Boolean) =
+        roomController.roomSettings?.roomInfo?.settingsV2?.general?.muteOnPlay?.let {
+            val enabled = if (it == KmePermissionValue.ON) isEnable else true
+            peerConnectionModule.enableViewersAudioInternal(enabled)
+        }
+
     fun setState(state: Pair<KmePlayerState?, Float>) {
-        syncPlayerState.value =
-            ConsumableValue(
-                Pair(
-                    state.first,
-                    state.second
-                )
-            )
+        syncPlayerState.value = Pair(state.first, state.second)
     }
 
     fun release() {

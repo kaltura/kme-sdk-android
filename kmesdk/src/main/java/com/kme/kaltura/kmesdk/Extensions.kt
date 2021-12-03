@@ -68,6 +68,12 @@ inline fun <A, B, R> ifNonNull(a: A?, b: B?, block: (a: A, b: B) -> R): R? {
     } else null
 }
 
+inline fun <A, B, C, R> ifNonNull(a: A?, b: B?, c: C?, block: (a: A, b: B, c: C) -> R): R? {
+    return if (a != null && b != null && c != null) {
+        block(a, b, c)
+    } else null
+}
+
 inline fun <reified T> KmeMessage<*>.toType(): T? =
     if (this is T)
         @Suppress("UNCHECKED_CAST")

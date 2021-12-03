@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
+import com.kme.kaltura.kmesdk.controller.room.*
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmePeerConnectionInternalModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
 import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
@@ -32,7 +34,8 @@ import kotlin.properties.Delegates
 /**
  * An implementation for wrap actions with [IKmePeerConnection]
  */
-class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
+class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
+    IKmePeerConnectionInternalModule {
 
     private val userController: IKmeUserController by inject()
     private val roomController: IKmeRoomController by scopedInject()
@@ -56,6 +59,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     private lateinit var listener: IKmePeerConnectionModule.KmePeerConnectionEvents
     private var screenShareEvents: IKmePeerConnectionModule.KmeScreenShareEvents? = null
 
+    private var viewersAudioEnabledByApp = true
+    private var viewersAudioEnabledBySdk = true
     private var isInitialized: Boolean = false
     private var blockMediaStateEvents: Boolean = false
 
@@ -156,7 +161,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         camState: KmeMediaDeviceState,
         frontCamEnabled: Boolean,
     ) {
-        checkData()
+        if (!isInitialized) return
 
         publisher?.let { return }
 
@@ -192,7 +197,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      * Creates a viewer connection
      */
     override fun addViewerConnection(requestedUserIdStream: String) {
-        checkData()
+        if (!isInitialized) return
 
         viewers[requestedUserIdStream]?.let { return }
 
@@ -219,6 +224,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     }
 
     override fun setPublisherRenderer(renderer: KmeSurfaceRendererView) {
+        if (!isInitialized) return
         publisher?.setRenderer(renderer)
     }
 
@@ -226,16 +232,17 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView,
     ) {
+        if (!isInitialized) return
         viewers[requestedUserIdStream]?.setRenderer(renderer)
     }
 
     override fun removePublisherRenderer() {
-        checkData()
+        if (!isInitialized) return
         publisher?.removeRenderer()
     }
 
     override fun removeViewerRenderer(requestedUserIdStream: String) {
-        checkData()
+        if (!isInitialized) return
         viewers[requestedUserIdStream]?.removeRenderer()
     }
 
@@ -248,6 +255,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      * Asking for screen permission from MediaProjectionManager
      */
     override fun askForScreenSharePermission() {
+        if (!isInitialized) return
         screenShareEvents?.onAskForScreenSharePermission()
     }
 
@@ -258,6 +266,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         resultCode: Int,
         screenCaptureIntent: Intent,
     ) {
+        if (!isInitialized) return
+
         val approved = resultCode == Activity.RESULT_OK
         contentModule.onScreenSharePermission(approved)
 
@@ -287,7 +297,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
      * Stops screen share publishing
      */
     override fun stopScreenShare() {
-        checkData()
+        if (!isInitialized) return
         screenSharer?.let {
             roomController.send(
                 buildUpdateDesktopShareStateMessage(
@@ -304,7 +314,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     }
 
     override fun setScreenShareRenderer(renderer: KmeSurfaceRendererView) {
-        checkData()
+        if (!isInitialized) return
         screenSharer?.let {
             it.setRenderer(renderer)
         }
@@ -335,6 +345,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         isEnable: Boolean,
         silent: Boolean
     ) {
+        if (!isInitialized) return
         if (blockMediaStateEvents) return
         if (!silent) {
             sendChangeMediaStateMessage(isEnable, KmeMediaStateType.MIC)
@@ -343,8 +354,11 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     }
 
     override fun enableViewersAudio(isEnable: Boolean) {
-        checkData()
-        viewers.forEach { (_, connection) -> connection.enableAudio(isEnable) }
+        if (!isInitialized) return
+        if (viewersAudioEnabledBySdk) {
+            viewersAudioEnabledByApp = isEnable
+            viewers.forEach { (_, connection) -> connection.enableAudio(isEnable) }
+        }
     }
 
     /**
@@ -392,7 +406,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
     }
 
     private fun sendChangeMediaStateMessage(enabled: Boolean, device: KmeMediaStateType) {
-        checkData()
+        if (!isInitialized) return
 
         blockMediaStateEvents = true
         roomController.send(
@@ -404,12 +418,6 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                 if (enabled) KmeMediaDeviceState.LIVE else KmeMediaDeviceState.DISABLED_LIVE
             )
         )
-    }
-
-    private fun checkData() {
-        if (!isInitialized) {
-            throw Exception("Module is not initialized")
-        }
     }
 
     private val peerConnectionModuleHandler = object : IKmeMessageListener {
@@ -458,7 +466,9 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
                     val userId = msg?.payload?.userId
                     val volumeData = msg?.payload?.volumeData?.split(",")
                     if (userId != null && volumeData != null) {
-                        listener.onUserSpeaking(userId.toString(), volumeData[0].toInt() == 1)
+                        val isSpeaking = volumeData[0].toInt() == 1
+                        if (!viewersAudioEnabledBySdk && isSpeaking) return
+                        listener.onUserSpeaking(userId.toString(), isSpeaking)
                     }
                 }
                 KmeMessageEvent.USER_MEDIA_STATE_CHANGED -> {
@@ -588,6 +598,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
         if (bringToFront == bringToFrontPrev) return
         bringToFrontPrev = bringToFront
 
+        if (!viewersAudioEnabledBySdk && bringToFront == 1) return
+
         if (publisherId.toString() == requestedUserIdStream) {
             roomController.send(
                 buildUserSpeakingMessage(
@@ -615,6 +627,15 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule {
 
     override fun onPeerConnectionError(requestedUserIdStream: String, description: String) {
         listener.onPeerConnectionError(requestedUserIdStream, description)
+    }
+
+    override fun enableViewersAudioInternal(isEnable: Boolean) {
+        if (!isInitialized) return
+        if (viewersAudioEnabledByApp) {
+            viewersAudioEnabledBySdk = isEnable
+            viewers.forEach { (_, connection) -> connection.enableAudio(isEnable) }
+            publisher?.enableAudioInternal(isEnable)
+        }
     }
 
     companion object {

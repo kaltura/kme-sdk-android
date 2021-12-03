@@ -108,6 +108,13 @@ internal interface IKmePeerConnection {
     fun enableCamera(isEnable: Boolean)
 
     /**
+     * Toggle audio from SDK
+     *
+     * @param isEnable flag to enable/disable audio
+     */
+    fun enableAudioInternal(isEnable: Boolean)
+
+    /**
      * Toggle audio
      *
      * @param isEnable flag to enable/disable audio

@@ -90,6 +90,10 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
                                 roomController.webRTCServer?.roomInfo?.settingsV2?.general?.classMode =
                                     value
                             }
+                            KmePermissionKey.MUTE_ON_PLAY -> {
+                                roomController.roomSettings?.roomInfo?.settingsV2?.general?.muteOnPlay =
+                                    value
+                            }
                             KmePermissionKey.MUTE_MODE -> {
                                 roomController.webRTCServer?.roomInfo?.settingsV2?.general?.muteMode =
                                     value

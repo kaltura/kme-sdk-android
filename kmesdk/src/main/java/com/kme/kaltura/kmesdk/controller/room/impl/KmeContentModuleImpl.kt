@@ -33,6 +33,7 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
 
     private var contentView: KmeContentView? = null
     private var listener: IKmeContentModule.KmeContentListener? = null
+    private var isMuted = false
 
     /**
      * Subscribing for the room events related to content sharing
@@ -67,6 +68,14 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
         }
     }
 
+    /**KmeCookieJar
+     * Mute/Un-mute presented audio
+     */
+    override fun muteActiveContent(isMute: Boolean) {
+        isMuted = isMute
+        (contentView as? KmeMediaContentFragment)?.mute(isMute)
+    }
+
     private val activeContentHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
@@ -88,11 +97,11 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
      * Setting actual shared content
      */
     fun setActiveContent(payload: SetActiveContentPayload) {
-        val contentType = payload.contentType
-        if (contentType != null) {
-            when (contentType) {
+        payload.contentType?.let { type ->
+            when (type) {
                 VIDEO, AUDIO, YOUTUBE, KALTURA -> {
                     contentView = KmeMediaContentFragment.newInstance(payload)
+                    (contentView as? KmeMediaContentFragment)?.mute(isMuted)
                 }
                 IMAGE, SLIDES -> {
                     contentView = KmeSlidesContentFragment.newInstance(payload)
@@ -113,8 +122,8 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
                     contentView = null
                 }
             }
-            contentView?.let {
-                listener?.onContentAvailable(it)
+            contentView?.let { view ->
+                listener?.onContentAvailable(view)
             } ?: run {
                 listener?.onContentNotAvailable()
             }

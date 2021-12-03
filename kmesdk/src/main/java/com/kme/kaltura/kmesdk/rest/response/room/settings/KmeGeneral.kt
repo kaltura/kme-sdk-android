@@ -126,6 +126,9 @@ data class KmeGeneral(
     val userTimeout: String? = null,
 
     @SerializedName("m_app")
-    val appAccess: KmeAppAccessValue? = null
+    val appAccess: KmeAppAccessValue? = null,
+
+    @SerializedName("mute_on_play")
+    var muteOnPlay: KmePermissionValue? = null
 
 ) : Parcelable

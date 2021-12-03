@@ -438,7 +438,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     }
 
     /**
-     *    Remove user from list with an userId
+     * Remove user from list with an userId
      */
     private fun remove(userId: Long) {
         val isRemoved = participants.removeAll { tmp ->
