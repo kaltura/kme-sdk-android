@@ -7,9 +7,10 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
-import com.kme.kaltura.kmesdk.rest.response.room.KmeJoinRoomResponse
+import com.kme.kaltura.kmesdk.rest.request.xlroom.XlRoomLaunchRequest
+import com.kme.kaltura.kmesdk.rest.request.xlroom.XlRoomPrepareRequest
+import com.kme.kaltura.kmesdk.rest.request.xlroom.XlRoomStopRequest
+import com.kme.kaltura.kmesdk.rest.response.room.*
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.util.messages.*
@@ -97,6 +98,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
      */
     override fun joinRoom(roomId: Long, companyId: Long) {
         webSocketModule.send(buildJoinRoomMessage(roomId, companyId))
+        getXlRoomState(roomId, companyId)
     }
 
     /**
@@ -104,6 +106,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
      */
     override fun joinRoom(roomId: Long, companyId: Long, password: String) {
         webSocketModule.send(buildRoomPasswordMessage(roomId, companyId, password))
+        getXlRoomState(roomId, companyId)
     }
 
     /**
@@ -115,6 +118,9 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         key: KmePermissionKey,
         value: KmePermissionValue
     ) {
+        if (!userController.isModerator())
+            return
+
         webSocketModule.send(buildRoomSettingsChangedMessage(roomId, userId, key, value))
     }
 
@@ -122,7 +128,9 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
      * Change current room content view
      */
     override fun setActiveContent(view: KmeContentType) {
-        // Server side issue
+        if (!userController.isModerator())
+            return
+
         val userId = if (view == KmeContentType.CONFERENCE_VIEW) {
             null
         } else {
@@ -154,8 +162,94 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
      * Ends active room session
      */
     override fun endSessionForEveryone(roomId: Long, companyId: Long) {
+        if (!userController.isModerator())
+            return
+
         webSocketModule.send(buildEndSessionForEveryoneMessage(roomId, companyId))
         messageManager.removeListeners()
+    }
+
+    override fun getXlRoomState(roomId: Long, companyId: Long) {
+        if (userController.isModerator()) {
+            webSocketModule.send(buildXlRoomGetStateMessage(roomId, companyId))
+        }
+    }
+
+    /**
+     * Start initiating xl room
+     */
+    override fun prepareXlRoom(
+        roomId: Long,
+        userId: Long,
+        participants: Int,
+        presenters: Int,
+        regionId: String,
+        global: Boolean,
+        success: (response: KmeXlRoomPrepareResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        if (!userController.isModerator())
+            return
+
+        uiScope.launch {
+            safeApiCall(
+                {
+                    roomApiService.prepareXlRoom(
+                        XlRoomPrepareRequest(
+                            roomId,
+                            userId,
+                            participants,
+                            presenters,
+                            regionId,
+                            global
+                        )
+                    )
+                },
+                success,
+                error
+            )
+        }
+    }
+
+    /**
+     * Launch xl room
+     */
+    override fun launchXlRoom(
+        roomId: Long,
+        success: (response: KmeXlRoomLaunchResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        if (!userController.isModerator())
+            return
+
+        uiScope.launch {
+            safeApiCall(
+                { roomApiService.launchXlRoom(XlRoomLaunchRequest(roomId)) },
+                success,
+                error
+            )
+        }
+    }
+
+    /**
+     * Stop xl room initiation
+     */
+    override fun stopXlRoom(
+        roomId: Long,
+        companyId: Long,
+        success: (response: KmeXlRoomStopResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        if (!userController.isModerator())
+            return
+
+        uiScope.launch {
+            safeApiCall(
+                { roomApiService.stopXlRoom(XlRoomStopRequest(roomId, companyId)) },
+                success,
+                error
+            )
+        }
     }
 
 }

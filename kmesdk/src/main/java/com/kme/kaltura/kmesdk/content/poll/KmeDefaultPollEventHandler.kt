@@ -10,6 +10,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeXLRoomModuleMessage
 
 class KmeDefaultPollEventHandler : KmeKoinComponent {
 
@@ -30,10 +31,10 @@ class KmeDefaultPollEventHandler : KmeKoinComponent {
     fun subscribe() {
         roomController.listen(
             quickPollHandler,
+            KmeMessageEvent.MODULE_STATE,
             KmeMessageEvent.QUICK_POLL_STARTED,
             KmeMessageEvent.QUICK_POLL_ENDED,
             KmeMessageEvent.QUICK_POLL_ANSWERS,
-            KmeMessageEvent.QUICK_POLL_STATE,
             KmeMessageEvent.QUICK_POLL_USER_ANSWERED
         )
     }
@@ -41,6 +42,13 @@ class KmeDefaultPollEventHandler : KmeKoinComponent {
     private val quickPollHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
+                KmeMessageEvent.MODULE_STATE -> {
+                    try {
+                        val msg: KmeQuickPollModuleMessage<QuickPollGetStatePayload>? = message.toType()
+                    } catch (exception: Exception) {
+
+                    }
+                }
                 KmeMessageEvent.QUICK_POLL_STARTED -> {
                     val msg: KmeQuickPollModuleMessage<QuickPollStartedPayload>? = message.toType()
                     msg?.payload?.let {
@@ -55,8 +63,6 @@ class KmeDefaultPollEventHandler : KmeKoinComponent {
                     }
                 }
                 KmeMessageEvent.QUICK_POLL_ANSWERS -> {
-                }
-                KmeMessageEvent.QUICK_POLL_STATE -> {
                 }
                 KmeMessageEvent.QUICK_POLL_USER_ANSWERED -> {
                     val msg: KmeQuickPollModuleMessage<QuickPollUserAnsweredPayload>? =
