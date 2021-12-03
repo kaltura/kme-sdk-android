@@ -5,7 +5,6 @@ import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule.ExitRoomListener
 import com.kme.kaltura.kmesdk.di.scopedInject

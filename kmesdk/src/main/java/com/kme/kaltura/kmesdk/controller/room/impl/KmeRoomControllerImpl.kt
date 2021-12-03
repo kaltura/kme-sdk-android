@@ -374,6 +374,10 @@ class KmeRoomControllerImpl(
 
     }
 
+    override fun subscribeForContent(listener: IKmeContentModule.KmeContentListener) {
+        contentModule.subscribe(listener)
+    }
+
     /**
      * Check is socket connected
      */

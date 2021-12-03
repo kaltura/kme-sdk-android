@@ -75,7 +75,7 @@ class KmeDefaultPlayerEventHandler : KmeKoinComponent {
     }
 
     private fun enableViewersAudio(isEnable: Boolean) =
-        roomController.roomSettings?.roomInfo?.settingsV2?.general?.muteOnPlay?.let {
+        roomController.webRTCServer?.roomInfo?.settingsV2?.general?.muteOnPlay?.let {
             val enabled = if (it == KmePermissionValue.ON) isEnable else true
             peerConnectionModule.enableViewersAudioInternal(enabled)
         }
