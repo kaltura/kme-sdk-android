@@ -10,7 +10,6 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeXLRoomModuleMessage
 
 class KmeDefaultPollEventHandler : KmeKoinComponent {
 
@@ -43,11 +42,7 @@ class KmeDefaultPollEventHandler : KmeKoinComponent {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
                 KmeMessageEvent.MODULE_STATE -> {
-                    try {
-                        val msg: KmeQuickPollModuleMessage<QuickPollGetStatePayload>? = message.toType()
-                    } catch (exception: Exception) {
-
-                    }
+                    val msg: KmeQuickPollModuleMessage<QuickPollGetStatePayload>? = message.toType()
                 }
                 KmeMessageEvent.QUICK_POLL_STARTED -> {
                     val msg: KmeQuickPollModuleMessage<QuickPollStartedPayload>? = message.toType()

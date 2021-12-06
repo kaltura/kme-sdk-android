@@ -1,11 +1,13 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
+import com.kme.kaltura.kmesdk.controller.IKmeMetadataController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.scopedInject
+import com.kme.kaltura.kmesdk.removeCookies
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.request.xlroom.XlRoomLaunchRequest
 import com.kme.kaltura.kmesdk.rest.request.xlroom.XlRoomPrepareRequest
@@ -31,6 +33,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
     private val roomApiService: KmeRoomApiService by inject()
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
+    private val metadataController: IKmeMetadataController by inject()
     private val contentModule: IKmeContentModule by scopedInject()
     private val webSocketModule: IKmeWebSocketModule by scopedInject()
 
@@ -65,12 +68,21 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         success: (response: KmeJoinRoomResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
-        uiScope.launch {
-            safeApiCall(
-                { roomApiService.join(hash, 1) },
-                success,
-                error
-            )
+        removeCookies {
+            uiScope.launch {
+                safeApiCall(
+                    { roomApiService.join(hash, 1) },
+                    { joinResponse ->
+                        metadataController.fetchMetadata(
+                            success = {
+                                success.invoke(joinResponse)
+                            },
+                            error = { error(it) }
+                        )
+                    },
+                    error
+                )
+            }
         }
     }
 
