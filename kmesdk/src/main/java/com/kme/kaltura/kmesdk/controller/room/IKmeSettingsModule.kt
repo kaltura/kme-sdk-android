@@ -10,7 +10,13 @@ interface IKmeSettingsModule : IKmeModule {
 
     val moderatorStateLiveData: LiveData<Boolean>
     val settingsChangedLiveData: LiveData<Boolean>
-    val userSettingsChangedLiveData: LiveData<KmeSettingsV2>
+
+    /**
+     * Setup Settings listener
+     *
+     * @param listener callback with [KmeSettingsListener] for indicating main events
+     */
+    fun setup(listener: KmeSettingsListener)
 
     /**
      * UpdateSettings for the room events related to change settings
@@ -19,4 +25,17 @@ interface IKmeSettingsModule : IKmeModule {
      * @param settings
      */
     fun updateSettings(settings: KmeSettingsV2?)
+
+    /**
+     * Settings listener
+     */
+    interface KmeSettingsListener {
+
+        /**
+         * Callback fired always when settings updated
+         *
+         * @param settings
+         */
+        fun onSettingsUpdated(settings: KmeSettingsV2?)
+    }
 }

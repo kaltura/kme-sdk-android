@@ -43,8 +43,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
     private val settingsChanged = MutableLiveData<Boolean>()
     override val settingsChangedLiveData get() = settingsChanged as LiveData<Boolean>
 
-    private val userSettingsChanged = MutableLiveData<KmeSettingsV2>()
-    override val userSettingsChangedLiveData get() = userSettingsChanged as LiveData<KmeSettingsV2>
+    private var listener: IKmeSettingsModule.KmeSettingsListener? = null
 
     /**
      * Subscribing for the room events related to change settings
@@ -61,12 +60,20 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
     }
 
     /**
+     * Setup setting listener
+     */
+    override fun setup(listener: IKmeSettingsModule.KmeSettingsListener) {
+        this.listener = listener
+    }
+
+    /**
      * UpdateSettings for the room events related to change settings
      * for the users and for the room itself
      */
     override fun updateSettings(settings: KmeSettingsV2?) {
-        userSettingsChanged.value = settings
+        listener?.onSettingsUpdated(settings)
     }
+
     /**
      * Listen for subscribed events
      */
