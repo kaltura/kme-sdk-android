@@ -245,7 +245,7 @@ internal class KmePeerConnectionImpl(
             requestedUserIdStream,
             mediaServerId,
             sdp.description,
-            sdp.type.name.toLowerCase()
+            sdp.type.name.lowercase()
         )
     }
 

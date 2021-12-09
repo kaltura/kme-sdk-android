@@ -49,6 +49,12 @@ enum class KmeMessageEvent(
     @SerializedName("roomParticipantsLimitReached", alternate = ["roomparticipantslimitreached"])
     ROOM_PARTICIPANT_LIMIT_REACHED("roomParticipantsLimitReached"),
 
+    @SerializedName("getModuleState", alternate = ["getmodulestate"])
+    GET_MODULE_STATE("getModuleState"),
+
+    @SerializedName("moduleState", alternate = ["modulestate"])
+    MODULE_STATE("moduleState"),
+
     /*
     * Banners
     * */
@@ -346,12 +352,6 @@ enum class KmeMessageEvent(
     @SerializedName("userAnsweredPoll", alternate = ["useransweredpoll"])
     QUICK_POLL_USER_ANSWERED("userAnsweredPoll"),
 
-    @SerializedName("getModuleState", alternate = ["getmodulestate"])
-    QUICK_POLL_GET_STATE("getModuleState"),
-
-    @SerializedName("moduleState", alternate = ["modulestate"])
-    QUICK_POLL_STATE("moduleState"),
-
     @SerializedName("pollAnswers", alternate = ["pollanswers"])
     QUICK_POLL_ANSWERS("pollAnswers"),
 
@@ -372,11 +372,33 @@ enum class KmeMessageEvent(
     UPDATE_DESKTOP_SHARE_STATE("updateDesktopShareState"),
 
     @SerializedName("stopDesktopShare", alternate = ["stopdesktopshare"])
-    STOP_DESKTOP_SHARE("stopDesktopShare");
+    STOP_DESKTOP_SHARE("stopDesktopShare"),
+
+    /*
+    * Large room
+    * */
+
+    @SerializedName("largeRoomModeInitiating", alternate = ["largeroommodeinitiating"])
+    XL_ROOM_MODE_INIT("largeRoomModeInitiating"),
+
+    @SerializedName("largeRoomModeReady", alternate = ["largeroommodeready"])
+    XL_ROOM_MODE_READY("largeRoomModeReady"),
+
+    @SerializedName("largeRoomModeActive", alternate = ["largeroommodeactive"])
+    XL_ROOM_MODE_ACTIVE("largeRoomModeActive"),
+
+    @SerializedName("largeRoomModeFinished", alternate = ["largeroommodefinished"])
+    XL_ROOM_MODE_FINISHED("largeRoomModeFinished"),
+
+    @SerializedName("largeRoomModeFailed", alternate = ["largeroommodefailed"])
+    XL_ROOM_MODE_FAILED("largeRoomModeFailed"),
+
+    @SerializedName("largeRoomModeNotActive", alternate = ["largeroommodenotactive"])
+    XL_ROOM_MODE_NOT_ACTIVE("largeRoomModeNotActive");
 
     @SuppressLint("DefaultLocale")
     override fun toString(): String {
-        return moduleName.toLowerCase()
+        return moduleName.lowercase()
     }
 
 }

@@ -47,11 +47,14 @@ enum class KmeMessageModule(
     QUICK_POLL("quickPoll"),
 
     @SerializedName("DesktopShare", alternate = ["desktopshare"])
-    DESKTOP_SHARE("DesktopShare");
+    DESKTOP_SHARE("DesktopShare"),
+
+    @SerializedName("xl-room", alternate = ["xl-room"])
+    XL_ROOM("xl-room");
 
     @SuppressLint("DefaultLocale")
     override fun toString(): String {
-        return moduleName.toLowerCase()
+        return moduleName.lowercase()
     }
 
 }
