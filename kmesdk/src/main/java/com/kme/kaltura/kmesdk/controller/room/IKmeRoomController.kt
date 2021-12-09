@@ -12,7 +12,6 @@ import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 interface IKmeRoomController : IKmeWebSocketModule {
 
     val roomModule: IKmeRoomModule
-    val settingsModule: IKmeSettingsModule
     val peerConnectionModule: IKmePeerConnectionModule
     val participantModule: IKmeParticipantModule
     val chatModule: IKmeChatModule
