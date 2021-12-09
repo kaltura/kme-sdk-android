@@ -13,13 +13,6 @@ interface IKmeSettingsModule : IKmeModule {
     val userSettingsChangedLiveData: LiveData<KmeSettingsV2>
 
     /**
-     * Subscribing for the room events related to change settings
-     * for the users and for the room itself
-     */
-    fun subscribe()
-
-
-    /**
      * UpdateSettings for the room events related to change settings
      * for the users and for the room itself
      *

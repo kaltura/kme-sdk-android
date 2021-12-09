@@ -184,9 +184,7 @@ class KmeRoomControllerImpl(
                     KmeMessageEvent.CLOSE_WEB_SOCKET
                 )
 
-                settingsModule.subscribe()
                 settingsInternalModule.subscribe()
-
                 listener.onOpen()
             }
 
