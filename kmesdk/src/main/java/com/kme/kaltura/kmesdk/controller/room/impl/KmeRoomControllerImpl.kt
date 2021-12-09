@@ -9,6 +9,7 @@ import android.os.IBinder
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeSettingsInternalModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
@@ -41,9 +42,10 @@ class KmeRoomControllerImpl(
 
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
-    private val settingsModule: IKmeSettingsModule by scopedInject()
+    private val settingsInternalModule: IKmeSettingsInternalModule by scopedInject()
 
     override val roomModule: IKmeRoomModule by scopedInject()
+    override val settingsModule: IKmeSettingsModule by scopedInject()
     override val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
     override val participantModule: IKmeParticipantModule by scopedInject()
     override val chatModule: IKmeChatModule by scopedInject()
@@ -181,7 +183,7 @@ class KmeRoomControllerImpl(
                     KmeMessageEvent.CLOSE_WEB_SOCKET
                 )
 
-                settingsModule.subscribe()
+                settingsInternalModule.subscribe()
 
                 listener.onOpen()
             }

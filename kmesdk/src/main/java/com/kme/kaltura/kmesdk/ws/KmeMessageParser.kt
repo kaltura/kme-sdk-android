@@ -5,6 +5,7 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.KmeMessageModule
 import com.kme.kaltura.kmesdk.ws.message.chat.KmeChatMessage
 import com.kme.kaltura.kmesdk.ws.message.module.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
@@ -27,8 +28,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.SyncPlayerStatePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.*
-
-private const val KEY_NAME = "name"
+import com.kme.kaltura.kmesdk.ws.message.module.KmeXLRoomModuleMessage.*
 
 /**
  * An implementation for parsing incoming messages
@@ -49,7 +49,7 @@ internal class KmeMessageParser(
         try {
             val jsonObject = jsonParser.parse(messageText).asJsonObject
             if (jsonObject.has(KEY_NAME)) {
-                val name = jsonObject.get(KEY_NAME).asString.toLowerCase()
+                val name = jsonObject.get(KEY_NAME).asString.lowercase()
                 parsedMessage = parseMessage(name, messageText)
             }
         } catch (e: Exception) {
@@ -91,6 +91,24 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.ROOM_PARTICIPANT_LIMIT_REACHED.toString() -> {
                 text.jsonToObject<KmeRoomInitModuleMessage<RoomParticipantLimitReachedPayload>>()
+            }
+            KmeMessageEvent.MODULE_STATE.toString() -> {
+                val jsonObject = jsonParser.parse(text).asJsonObject
+                if (jsonObject.has(KEY_MODULE)) {
+                    when (jsonObject.get(KEY_MODULE).asString.lowercase()) {
+                        KmeMessageModule.QUICK_POLL.moduleName.lowercase() -> {
+                            text.jsonToObject<KmeQuickPollModuleMessage<QuickPollGetStatePayload>>()
+                        }
+                        KmeMessageModule.XL_ROOM.moduleName.lowercase() -> {
+                            text.jsonToObject<KmeXLRoomModuleMessage<XLRoomStatePayload>>()
+                        }
+                        else -> {
+                            null
+                        }
+                    }
+                } else {
+                    null
+                }
             }
             KmeMessageEvent.AWAIT_INSTRUCTOR_APPROVAL.toString(),
             KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR.toString(),
@@ -328,9 +346,6 @@ internal class KmeMessageParser(
             KmeMessageEvent.WHITEBOARD_PAGE_CREATED.toString() -> {
                 text.jsonToObject<KmeWhiteboardModuleMessage<PageCreatedPayload>>()
             }
-            KmeMessageEvent.QUICK_POLL_STATE.toString() -> {
-                text.jsonToObject<KmeQuickPollModuleMessage<GetQuickPollStatePayload>>()
-            }
             KmeMessageEvent.QUICK_POLL_STARTED.toString() -> {
                 text.jsonToObject<KmeQuickPollModuleMessage<QuickPollStartedPayload>>()
             }
@@ -342,6 +357,15 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.QUICK_POLL_USER_ANSWERED.toString() -> {
                 text.jsonToObject<KmeQuickPollModuleMessage<QuickPollUserAnsweredPayload>>()
+            }
+            KmeMessageEvent.XL_ROOM_MODE_INIT.toString() -> {
+                text.jsonToObject<KmeXLRoomModuleMessage<XLRoomInitPayload>>()
+            }
+            KmeMessageEvent.XL_ROOM_MODE_READY.toString() -> {
+                text.jsonToObject<KmeXLRoomModuleMessage<XLRoomReadyPayload>>()
+            }
+            KmeMessageEvent.XL_ROOM_MODE_FINISHED.toString() -> {
+                text.jsonToObject<KmeXLRoomModuleMessage<XLRoomFinishedPayload>>()
             }
             else -> null
         }
@@ -355,6 +379,11 @@ internal class KmeMessageParser(
      */
     private inline fun <reified T> String.jsonToObject(): KmeMessage<KmeMessage.Payload>? {
         return gson.fromJson(this, object : TypeToken<T>() {}.type)
+    }
+
+    companion object {
+        private const val KEY_NAME = "name"
+        private const val KEY_MODULE = "module"
     }
 
 }

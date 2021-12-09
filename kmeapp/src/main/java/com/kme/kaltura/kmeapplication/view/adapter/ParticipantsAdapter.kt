@@ -165,9 +165,9 @@ class ParticipantsAdapter : RecyclerView.Adapter<ParticipantsAdapter.Participant
                 if (constraint.isNullOrBlank()) {
                     searchableList.addAll(participantsList)
                 } else {
-                    val filterPattern = constraint.toString().toLowerCase().trim { it <= ' ' }
+                    val filterPattern = constraint.toString().lowercase().trim { it <= ' ' }
                     for (item in 0..participantsList.size) {
-                        if (participantsList[item].fullName?.toLowerCase()
+                        if (participantsList[item].fullName?.lowercase()
                                 ?.contains(filterPattern) == true
                         ) {
                             searchableList.add(participantsList[item])

@@ -6,6 +6,7 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeSettingsModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeSettingsInternalModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeChatModule
@@ -28,7 +29,7 @@ import org.koin.core.inject
 /**
  * An implementation for room settings handling
  */
-internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
+internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModule {
 
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
@@ -47,6 +48,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
     override fun subscribe() {
         messageManager.listen(
             roomSettingsHandler,
+            KmeMessageEvent.ROOM_STATE,
             KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED,
             KmeMessageEvent.ROOM_SETTINGS_CHANGED,
             KmeMessageEvent.SET_PARTICIPANT_MODERATOR
@@ -59,6 +61,9 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
     private val roomSettingsHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
+                KmeMessageEvent.ROOM_STATE -> {
+                    moderatorState.value = userController.isModerator()
+                }
                 KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED -> {
                     val settingsMessage: KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload>? =
                         message.toType()
