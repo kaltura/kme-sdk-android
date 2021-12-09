@@ -63,7 +63,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
     /**
      * Handling cookies for login via deep linking
      */
-    override fun join(
+    override fun joinWithHash(
         hash: String,
         success: (response: KmeJoinRoomResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit

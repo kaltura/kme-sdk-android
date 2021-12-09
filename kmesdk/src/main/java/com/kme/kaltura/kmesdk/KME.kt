@@ -67,7 +67,7 @@ class KME : KmeKoinComponent {
         success: () -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
-        removeCookies {
+//        removeCookies {
             metadataController.fetchMetadata(success = {
                 if (roomController.isConnected()) {
                     roomController.disconnect()
@@ -78,7 +78,7 @@ class KME : KmeKoinComponent {
             }, error = {
                 error(it)
             })
-        }
+//        }
     }
 
     /**

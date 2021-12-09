@@ -35,7 +35,7 @@ interface IKmeRoomModule : IKmeModule {
      * @param success function to handle success result. Contains [KmeJoinRoomResponse] object
      * @param error function to handle error result. Contains [KmeApiException] object
      */
-    fun join(
+    fun joinWithHash(
         hash: String,
         success: (response: KmeJoinRoomResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit

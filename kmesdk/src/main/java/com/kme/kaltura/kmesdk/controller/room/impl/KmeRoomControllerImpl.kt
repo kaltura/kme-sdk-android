@@ -119,8 +119,8 @@ class KmeRoomControllerImpl(
                     isReconnect,
                     listener
                 )
-            }, error = {
-                listener.onFailure(Throwable(it))
+            }, error = { error->
+                listener.onClosed(0, error.cause.toString())
             }
         )
     }
