@@ -6,6 +6,7 @@ import android.content.Context.BIND_ADJUST_WITH_ACTIVITY
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
@@ -186,8 +187,7 @@ class KmeRoomControllerImpl(
         if (mainRoomSocketModule.isConnected()) {
             messageManager.listen(
                 roomStateHandler,
-                KmeMessageEvent.ROOM_STATE,
-                KmeMessageEvent.GET_MODULE_STATE
+                KmeMessageEvent.ROOM_STATE
             )
 
             peerConnectionModule.disconnectAll()
@@ -205,8 +205,7 @@ class KmeRoomControllerImpl(
                 messageManager.listen(
                     roomStateHandler,
                     KmeMessageEvent.ROOM_STATE,
-                    KmeMessageEvent.CLOSE_WEB_SOCKET,
-                    KmeMessageEvent.GET_MODULE_STATE
+                    KmeMessageEvent.CLOSE_WEB_SOCKET
                 )
 
                 subscribeInternalModules()
@@ -394,8 +393,14 @@ class KmeRoomControllerImpl(
      * Disconnect from the room
      */
     override fun disconnect() {
+        Log.e("KmeRoomController", "disconnect main: ${mainRoomSocketModule.hashCode()}", )
+        Log.e("KmeRoomController", "disconnect bor: ${borSocketModule.hashCode()}", )
+
         if (mainRoomSocketModule.isConnected())
             mainRoomSocketModule.disconnect()
+
+        if (borSocketModule.isConnected())
+            borSocketModule.disconnect()
 
         peerConnectionModule.disconnectAll()
         audioModule.stop()
