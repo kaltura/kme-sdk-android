@@ -53,19 +53,19 @@ internal fun buildPublicChatStateChangedMessage(
     userId: Long,
     key: KmePermissionKey,
     value: KmePermissionValue
-): KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload> {
-    return KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload>().apply {
+): KmeRoomSettingsModuleMessage<RoomChatSettingsChangedPayload> {
+    return KmeRoomSettingsModuleMessage<RoomChatSettingsChangedPayload>().apply {
         constraint = listOf(KmeConstraint.INCLUDE_SELF)
         module = KmeMessageModule.ROOM_SETTINGS
         name = KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED
         type = KmeMessageEventType.VOID
-        payload = RoomDefaultSettingsChangedPayload(
-            userId,
-            roomId,
-            value,
-            KmePermissionModule.CHAT_MODULE,
-            key
-        )
+        payload = RoomChatSettingsChangedPayload().apply {
+            this.userId = userId
+            this.roomId = roomId
+            this.permissionsValue = value
+            this.moduleName = KmePermissionModule.CHAT_MODULE
+            this.permissionsKey = key
+        }
     }
 }
 

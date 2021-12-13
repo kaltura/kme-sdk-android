@@ -147,6 +147,7 @@ class KmeRoomControllerImpl(
                             startService(wssUrl, companyId, roomId, isReconnect, token, listener)
                         }
                     }
+                    settingsModule.updateSettings(roomSettings?.roomInfo?.settingsV2)
                 },
                 error = {
                     roomSettings = null
@@ -184,7 +185,6 @@ class KmeRoomControllerImpl(
                 )
 
                 settingsInternalModule.subscribe()
-
                 listener.onOpen()
             }
 

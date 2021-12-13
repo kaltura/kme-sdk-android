@@ -11,6 +11,7 @@ import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeChatModule
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeDefaultSettings
+import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeParticipantsModule
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -20,7 +21,8 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.SetParticipantModerator
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmeModuleVisibilityValue
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionModule
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
@@ -38,8 +40,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
     private val moderatorState = MutableLiveData<Boolean>()
     override val moderatorStateLiveData get() = moderatorState as LiveData<Boolean>
 
-    private val settingsChanged = MutableLiveData<Boolean>()
-    override val settingsChangedLiveData get() = settingsChanged as LiveData<Boolean>
+    private var listener: IKmeSettingsModule.KmeSettingsListener? = null
 
     /**
      * Subscribing for the room events related to change settings
@@ -53,6 +54,21 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
             KmeMessageEvent.ROOM_SETTINGS_CHANGED,
             KmeMessageEvent.SET_PARTICIPANT_MODERATOR
         )
+    }
+
+    /**
+     * Setup setting listener
+     */
+    override fun subscribe(listener: IKmeSettingsModule.KmeSettingsListener) {
+        this.listener = listener
+    }
+
+    /**
+     * UpdateSettings for the room events related to change settings
+     * for the users and for the room itself
+     */
+    override fun updateSettings(settings: KmeSettingsV2?) {
+        listener?.onSettingsUpdated(settings)
     }
 
     /**
@@ -71,17 +87,29 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
                     val settingsPayload = settingsMessage?.payload
                     when (settingsPayload?.moduleName) {
                         KmePermissionModule.CHAT_MODULE -> {
+                            val chatSettingsMessage: KmeRoomSettingsModuleMessage<RoomChatSettingsChangedPayload>? = message.toType()
+                            val chatSettingsPayload = chatSettingsMessage?.payload
                             handleChatSetting(
-                                settingsPayload.permissionsKey,
-                                settingsPayload.permissionsValue
+                                chatSettingsPayload?.permissionsKey,
+                                chatSettingsPayload?.permissionsValue
                             )
+                            updateSettings(userController.getCurrentParticipant()?.userPermissions)
+                        }
+                        KmePermissionModule.PARTICIPANTS_MODULE -> {
+                            val participantSettingsMessage: KmeRoomSettingsModuleMessage<RoomParticipantSettingsChangedPayload>? = message.toType()
+                            val participantSettingsPayload = participantSettingsMessage?.payload
+                            handleParticipantSetting(
+                                participantSettingsPayload?.permissionsKey,
+                                participantSettingsPayload?.permissionsValue
+                            )
+                            updateSettings(userController.getCurrentParticipant()?.userPermissions)
                         }
                         else -> {
                         }
                     }
                 }
                 KmeMessageEvent.ROOM_SETTINGS_CHANGED -> {
-                    val settingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload>? =
+                    val settingsMessage: KmeRoomSettingsModuleMessage<RoomSettingsChangedPayload>? =
                         message.toType()
                     ifNonNull(
                         settingsMessage?.payload?.changedRoomSetting,
@@ -111,7 +139,6 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
                             else -> {
                             }
                         }
-                        settingsChanged.value = true
                     }
                 }
                 KmeMessageEvent.SET_PARTICIPANT_MODERATOR -> {
@@ -159,6 +186,25 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
 
             chatModule.defaultSettings = chatSettings
             userPermissions.chatModule = chatModule
+            currentParticipant.userPermissions = userPermissions
+        }
+    }
+
+    private fun handleParticipantSetting(
+        key: KmePermissionKey?,
+        value: KmeModuleVisibilityValue?
+    ) {
+        val currentParticipant = userController.getCurrentParticipant()
+        if (currentParticipant != null) {
+            val userPermissions = currentParticipant.userPermissions ?: KmeSettingsV2()
+            val participantModule = userPermissions.participantsModule ?: KmeParticipantsModule()
+            when (key) {
+                KmePermissionKey.VISIBILITY -> {
+                    participantModule.visibility = value
+                }
+            }
+
+            userPermissions.participantsModule = participantModule
             currentParticipant.userPermissions = userPermissions
         }
     }
