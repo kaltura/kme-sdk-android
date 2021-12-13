@@ -9,14 +9,13 @@ import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 interface IKmeSettingsModule : IKmeModule {
 
     val moderatorStateLiveData: LiveData<Boolean>
-    val settingsChangedLiveData: LiveData<Boolean>
 
     /**
-     * Setup Settings listener
+     * Subscribing for the room settings changes
      *
      * @param listener callback with [KmeSettingsListener] for indicating main events
      */
-    fun setup(listener: KmeSettingsListener)
+    fun subscribe(listener: KmeSettingsListener)
 
     /**
      * UpdateSettings for the room events related to change settings

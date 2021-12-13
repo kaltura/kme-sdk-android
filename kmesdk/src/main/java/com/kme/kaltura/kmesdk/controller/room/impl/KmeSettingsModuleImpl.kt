@@ -21,7 +21,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.SetParticipantModerator
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmeModuleVisibilityValue
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionModule
@@ -39,9 +39,6 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
 
     private val moderatorState = MutableLiveData<Boolean>()
     override val moderatorStateLiveData get() = moderatorState as LiveData<Boolean>
-
-    private val settingsChanged = MutableLiveData<Boolean>()
-    override val settingsChangedLiveData get() = settingsChanged as LiveData<Boolean>
 
     private var listener: IKmeSettingsModule.KmeSettingsListener? = null
 
@@ -62,7 +59,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
     /**
      * Setup setting listener
      */
-    override fun setup(listener: IKmeSettingsModule.KmeSettingsListener) {
+    override fun subscribe(listener: IKmeSettingsModule.KmeSettingsListener) {
         this.listener = listener
     }
 
@@ -90,7 +87,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
                     val settingsPayload = settingsMessage?.payload
                     when (settingsPayload?.moduleName) {
                         KmePermissionModule.CHAT_MODULE -> {
-                            val chatSettingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomChatSettingsChangedPayload>? = message.toType()
+                            val chatSettingsMessage: KmeRoomSettingsModuleMessage<RoomChatSettingsChangedPayload>? = message.toType()
                             val chatSettingsPayload = chatSettingsMessage?.payload
                             handleChatSetting(
                                 chatSettingsPayload?.permissionsKey,
@@ -99,7 +96,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
                             updateSettings(userController.getCurrentParticipant()?.userPermissions)
                         }
                         KmePermissionModule.PARTICIPANTS_MODULE -> {
-                            val participantSettingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomParticipantSettingsChangedPayload>? = message.toType()
+                            val participantSettingsMessage: KmeRoomSettingsModuleMessage<RoomParticipantSettingsChangedPayload>? = message.toType()
                             val participantSettingsPayload = participantSettingsMessage?.payload
                             handleParticipantSetting(
                                 participantSettingsPayload?.permissionsKey,
@@ -112,7 +109,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
                     }
                 }
                 KmeMessageEvent.ROOM_SETTINGS_CHANGED -> {
-                    val settingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload>? =
+                    val settingsMessage: KmeRoomSettingsModuleMessage<RoomSettingsChangedPayload>? =
                         message.toType()
                     ifNonNull(
                         settingsMessage?.payload?.changedRoomSetting,
@@ -142,7 +139,6 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
                             else -> {
                             }
                         }
-                        settingsChanged.value = true
                     }
                 }
                 KmeMessageEvent.SET_PARTICIPANT_MODERATOR -> {
