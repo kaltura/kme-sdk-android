@@ -31,19 +31,6 @@ interface KmeRoomApiService {
     ): KmeGetRoomsResponse
 
     /**
-     * Handling cookies for login via deep linking
-     *
-     * @param hash identifier for a user
-     * @param mobile platform indicator
-     * @return [KmeJoinRoomResponse] object in success case
-     */
-    @GET("room/join")
-    suspend fun join(
-        @Query("hash") hash: String,
-        @Query("for_mobile_app") mobile: Int
-    ): KmeJoinRoomResponse
-
-    /**
      * Getting room info by alias
      *
      * @param alias alias of a room

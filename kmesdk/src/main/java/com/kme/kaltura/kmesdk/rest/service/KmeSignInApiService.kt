@@ -1,9 +1,8 @@
 package com.kme.kaltura.kmesdk.rest.service
 
+import com.kme.kaltura.kmesdk.rest.response.room.KmeJoinRoomResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.*
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.POST
+import retrofit2.http.*
 
 /**
  * An interface for signIn/signUp API calls
@@ -43,6 +42,19 @@ interface KmeSignInApiService {
         @Field("LoginForm[email]") email: String,
         @Field("LoginForm[password]") password: String
     ): KmeLoginResponse
+
+    /**
+     * Handling cookies for login via deep linking
+     *
+     * @param hash identifier for a user
+     * @param mobile platform indicator
+     * @return [KmeJoinRoomResponse] object in success case
+     */
+    @GET("room/join")
+    suspend fun login(
+        @Query("hash") hash: String,
+        @Query("for_mobile_app") mobile: Int
+    ): KmeJoinRoomResponse
 
     /**
      * Reset password for existed user

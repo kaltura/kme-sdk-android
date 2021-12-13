@@ -29,19 +29,6 @@ interface IKmeRoomModule : IKmeModule {
     )
 
     /**
-     * Handling cookies for login via deep linking
-     *
-     * @param hash identifier for a user
-     * @param success function to handle success result. Contains [KmeJoinRoomResponse] object
-     * @param error function to handle error result. Contains [KmeApiException] object
-     */
-    fun joinWithHash(
-        hash: String,
-        success: (response: KmeJoinRoomResponse) -> Unit,
-        error: (exception: KmeApiException) -> Unit
-    )
-
-    /**
      * Getting room info by alias
      *
      * @param alias alias of a room
