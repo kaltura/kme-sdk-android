@@ -1,14 +1,11 @@
 package com.kme.kaltura.kmesdk.controller.room
 
-import androidx.lifecycle.LiveData
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 
 /**
  * An interface for room settings
  */
 interface IKmeSettingsModule : IKmeModule {
-
-    val moderatorStateLiveData: LiveData<Boolean>
 
     /**
      * Subscribing for the room settings changes
@@ -35,6 +32,11 @@ interface IKmeSettingsModule : IKmeModule {
          *
          * @param settings
          */
-        fun onSettingsUpdated(settings: KmeSettingsV2?)
+        fun onSettingsChanged(settings: KmeSettingsV2?)
+
+        /**
+         * Callback fired on moderator state changes. First time - on room state load
+         */
+        fun onModeratorStateChanged(isModerator: Boolean)
     }
 }

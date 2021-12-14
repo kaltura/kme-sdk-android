@@ -1,7 +1,5 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
@@ -37,10 +35,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
     private val userController: IKmeUserController by inject()
     private val roomController:  IKmeRoomController by scopedInject()
 
-    private val moderatorState = MutableLiveData<Boolean>()
-    override val moderatorStateLiveData get() = moderatorState as LiveData<Boolean>
-
-    private var listener: IKmeSettingsModule.KmeSettingsListener? = null
+    private var listeners: MutableSet<IKmeSettingsModule.KmeSettingsListener> = mutableSetOf()
 
     /**
      * Subscribing for the room events related to change settings
@@ -60,7 +55,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
      * Setup setting listener
      */
     override fun subscribe(listener: IKmeSettingsModule.KmeSettingsListener) {
-        this.listener = listener
+        listeners.add(listener)
     }
 
     /**
@@ -68,7 +63,9 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
      * for the users and for the room itself
      */
     override fun updateSettings(settings: KmeSettingsV2?) {
-        listener?.onSettingsUpdated(settings)
+        for (listener in listeners) {
+            listener.onSettingsChanged(settings)
+        }
     }
 
     /**
@@ -78,7 +75,9 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
                 KmeMessageEvent.ROOM_STATE -> {
-                    moderatorState.value = userController.isModerator()
+                    for (listener in listeners) {
+                        listener.onModeratorStateChanged(userController.isModerator())
+                    }
                 }
                 KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED -> {
                     val settingsMessage: KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload>? =
@@ -219,7 +218,9 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
         val currentParticipant = userController.getCurrentParticipant()
         if (currentParticipant != null && userId == currentParticipant.userId) {
             currentParticipant.isModerator = isModerator
-            moderatorState.value = isModerator
+            for (listener in listeners) {
+                listener.onModeratorStateChanged(isModerator)
+            }
         }
     }
 
