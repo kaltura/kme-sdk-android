@@ -175,6 +175,7 @@ internal class KmeDesktopShareFragment : KmeContentView() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        settingsModule.moderatorStateLiveData.removeObserver(moderatorStateObserver)
         _binding = null
     }
 
