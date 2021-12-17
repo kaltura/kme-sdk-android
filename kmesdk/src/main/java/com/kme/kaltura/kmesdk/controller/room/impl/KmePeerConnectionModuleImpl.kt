@@ -6,9 +6,6 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
 import com.kme.kaltura.kmesdk.controller.room.internal.IKmePeerConnectionInternalModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
-import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.*
@@ -34,8 +31,7 @@ import kotlin.properties.Delegates
 /**
  * An implementation for wrap actions with [IKmePeerConnection]
  */
-class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
-    IKmePeerConnectionInternalModule {
+class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionInternalModule {
 
     private val userController: IKmeUserController by inject()
     private val roomController: IKmeRoomController by scopedInject()

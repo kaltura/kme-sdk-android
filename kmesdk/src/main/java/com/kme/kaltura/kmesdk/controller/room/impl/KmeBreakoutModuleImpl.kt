@@ -160,12 +160,14 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
             when (message.name) {
                 KmeMessageEvent.MODULE_STATE -> {
                     val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
-                    borState = msg?.payload
+                    msg?.let {
+                        borState = it.payload
 
-                    eventListener?.onBreakoutRoomStateChanged()
+                        eventListener?.onBreakoutRoomStateChanged()
 
-                    if (msg?.payload?.status == KmeBreakoutRoomStatusType.ACTIVE) {
-                        handleJoinRoom(msg.payload)
+                        if (it.payload?.status == KmeBreakoutRoomStatusType.ACTIVE) {
+                            handleJoinRoom(it.payload)
+                        }
                     }
                 }
                 KmeMessageEvent.BREAKOUT_START_SUCCESS -> {
@@ -293,7 +295,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                     ) { messageType, messageMetadata ->
 
                         messageMetadata.apply {
-                            senderAvatar = roomController.participantModule.participants().find {
+                            senderAvatar = roomController.participantModule.getParticipants().find {
                                 messageMetadata.senderId == it.userId
                             }?.avatar
                         }

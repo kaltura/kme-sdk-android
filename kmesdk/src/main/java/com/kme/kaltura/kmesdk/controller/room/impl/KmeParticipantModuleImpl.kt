@@ -1,10 +1,13 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
+import android.util.Log
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
+import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeParticipantModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeParticipantInternalModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.toType
@@ -17,6 +20,8 @@ import com.kme.kaltura.kmesdk.util.messages.buildRemoveParticipantMessage
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
@@ -30,10 +35,12 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 import org.koin.core.inject
 
-class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
+class KmeParticipantModuleImpl : KmeController(), IKmeParticipantInternalModule {
 
     private val roomController: IKmeRoomController by scopedInject()
     private val userController: IKmeUserController by inject()
+
+    private val breakoutModule: IKmeBreakoutModule by scopedInject()
 
     private val publisherId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
     private var listener: IKmeParticipantModule.KmeParticipantListener? = null
@@ -42,19 +49,28 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     /**
      * subscribe roomStateHandler to get participants list
      */
-    override fun init(listener: IKmeParticipantModule.KmeParticipantListener) {
+    override fun setListener(listener: IKmeParticipantModule.KmeParticipantListener) {
         this.listener = listener
-
-        roomController.listen(
-            roomStateHandler,
-            KmeMessageEvent.ROOM_STATE
-        )
     }
 
     /**
      * Subscribing for the room events related to participants
      */
     override fun subscribe() {
+        roomController.listen(
+            roomStateHandler,
+            KmeMessageEvent.ROOM_STATE,
+            KmeMessageEvent.MODULE_STATE,
+            KmeMessageEvent.BREAKOUT_START_SUCCESS,
+            KmeMessageEvent.BREAKOUT_STOP_SUCCESS,
+            KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS,
+            KmeMessageEvent.BREAKOUT_MOVE_TO_NEXT_ROOM,
+            KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS_SUCCESS,
+            KmeMessageEvent.BREAKOUT_CLEAR_ASSIGNMENTS_SUCCESS,
+            KmeMessageEvent.BREAKOUT_MODERATOR_JOINED_SUCCESS,
+            KmeMessageEvent.BREAKOUT_USER_JOINED_SUCCESS
+        )
+
         roomController.listen(
             participantsHandler,
             KmeMessageEvent.USER_MEDIA_STATE_INIT,
@@ -75,7 +91,15 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
     /**
      * Get participants list
      */
-    override fun participants() = participants
+    override fun getParticipants(breakoutRoomId: Long?): List<KmeParticipant> {
+        val list = if (breakoutRoomId != null) {
+            participants.filter { participant -> participant.breakoutRoomId == breakoutRoomId }
+        } else {
+            participants
+        }
+        Log.e("TAG", "getParticipants: breakoutRoomId = $breakoutRoomId, list = ${list.size}", )
+        return list
+    }
 
     private val roomStateHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
@@ -91,7 +115,38 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                         participants.remove(it)
                     }
 
+                    updateParticipantsRoomId(false)
+
                     listener?.onParticipantsLoaded(participants)
+                }
+                KmeMessageEvent.MODULE_STATE -> {
+                    val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
+                    msg?.let {
+                        updateParticipantsRoomId()
+                    }
+                }
+                KmeMessageEvent.BREAKOUT_START_SUCCESS,
+                KmeMessageEvent.BREAKOUT_STOP_SUCCESS,
+                KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS,
+                KmeMessageEvent.BREAKOUT_MOVE_TO_NEXT_ROOM,
+                KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS_SUCCESS,
+                KmeMessageEvent.BREAKOUT_CLEAR_ASSIGNMENTS_SUCCESS,
+                KmeMessageEvent.BREAKOUT_MODERATOR_JOINED_SUCCESS,
+                KmeMessageEvent.BREAKOUT_USER_JOINED_SUCCESS -> {
+                    updateParticipantsRoomId()
+                }
+            }
+        }
+    }
+
+    private fun updateParticipantsRoomId(notify: Boolean = true) {
+        breakoutModule.getBreakoutState()?.assignments?.forEach { assignment ->
+            participants.find { participant ->
+                assignment.userId == participant.userId
+            }?.let {
+                it.breakoutRoomId = assignment.breakoutRoomId
+                if (notify) {
+                    listener?.onParticipantChanged(it)
                 }
             }
         }

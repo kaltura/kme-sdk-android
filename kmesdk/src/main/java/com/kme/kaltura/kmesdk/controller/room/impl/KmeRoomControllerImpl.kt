@@ -10,6 +10,7 @@ import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeParticipantInternalModule
 import com.kme.kaltura.kmesdk.di.KmeKoinScope
 import com.kme.kaltura.kmesdk.di.getScope
 import com.kme.kaltura.kmesdk.di.scopedInject
@@ -55,6 +56,9 @@ class KmeRoomControllerImpl(
             val module: IKmeWebSocketModule by scopedInject(KmeKoinScope.BOR_MODULES)
             return module
         }
+
+    private val internalParticipantModule: IKmeParticipantInternalModule by scopedInject()
+
     private val mainRoomSocketModule: IKmeWebSocketModule by scopedInject()
     private val settingsModule: IKmeSettingsModule by scopedInject()
     private val contentModule: IKmeContentModule by scopedInject()
@@ -62,7 +66,7 @@ class KmeRoomControllerImpl(
 
     override val roomModule: IKmeRoomModule by scopedInject()
     override val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
-    override val participantModule: IKmeParticipantModule by scopedInject()
+    override val participantModule = internalParticipantModule as IKmeParticipantModule
     override val chatModule: IKmeChatModule by scopedInject()
     override val noteModule: IKmeNoteModule by scopedInject()
     override val recordingModule: IKmeRecordingModule by scopedInject()
@@ -462,6 +466,7 @@ class KmeRoomControllerImpl(
 
     private fun subscribeInternalModules() {
         roomModule.subscribe()
+        internalParticipantModule.subscribe()
         settingsModule.subscribe()
         breakoutModule.subscribe()
     }

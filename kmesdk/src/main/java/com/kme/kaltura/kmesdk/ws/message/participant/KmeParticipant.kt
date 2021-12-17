@@ -39,7 +39,8 @@ data class KmeParticipant(
     @SerializedName("long") var long: Double? = null,
 
 //    Local
-    var isSpeaking: Boolean = false
+    var isSpeaking: Boolean = false,
+    var breakoutRoomId: Long? = null
 
 ) : Parcelable
 

@@ -16,17 +16,16 @@ interface IKmeParticipantModule : IKmeModule {
      *
      * @param listener callback with [KmeParticipantListener] for indicating main events
      */
-    fun init(listener: KmeParticipantListener)
-
-    /**
-     * Subscribing for the room events related to participants
-     */
-    fun subscribe()
+    fun setListener(listener: KmeParticipantListener)
 
     /**
      * Get participants list
+     *
+     * @param breakoutRoomId id of a breakout room
+     *
+     * @return list of all participants in case [breakoutRoomId] = null
      */
-    fun participants(): List<KmeParticipant>
+    fun getParticipants(breakoutRoomId: Long? = null): List<KmeParticipant>
 
     /**
      * Get participant with userId from the list
