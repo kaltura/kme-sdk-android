@@ -26,13 +26,13 @@ data class KmeIntegrations(
 
         data class UserCompany(
             @SerializedName("tokens") val tokens: String? = null,
-            @SerializedName("settings") val settings: List<Any>? = null,
+//            @SerializedName("settings") val settings: List<Any>? = null,
             @SerializedName("id") val id: String? = null
         )
 
         data class Company(
             @SerializedName("tokens") val tokens: String? = null,
-            @SerializedName("settings") val settings: List<Any>? = null,
+//            @SerializedName("settings") val settings: List<Any>? = null,
             @SerializedName("id") val id: String? = null
         )
 
