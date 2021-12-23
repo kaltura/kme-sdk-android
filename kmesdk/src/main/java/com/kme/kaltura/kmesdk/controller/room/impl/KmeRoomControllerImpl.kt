@@ -10,7 +10,8 @@ import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
-import com.kme.kaltura.kmesdk.controller.room.internal.IKmeParticipantInternalModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalDataModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalParticipantModule
 import com.kme.kaltura.kmesdk.di.KmeKoinScope
 import com.kme.kaltura.kmesdk.di.getScope
 import com.kme.kaltura.kmesdk.di.scopedInject
@@ -20,7 +21,6 @@ import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.service.KmeRoomService
 import com.kme.kaltura.kmesdk.toType
-import com.kme.kaltura.kmesdk.util.messages.buildChangeMediaStateMessage
 import com.kme.kaltura.kmesdk.util.messages.buildGetBreakoutStateMessage
 import com.kme.kaltura.kmesdk.util.messages.buildGetQuickPollStateMessage
 import com.kme.kaltura.kmesdk.util.messages.buildJoinBorMessage
@@ -57,12 +57,12 @@ class KmeRoomControllerImpl(
             return module
         }
 
-    private val internalParticipantModule: IKmeParticipantInternalModule by scopedInject()
+    private val internalParticipantModule: IKmeInternalParticipantModule by scopedInject()
 
     private val mainRoomSocketModule: IKmeWebSocketModule by scopedInject()
     private val settingsModule: IKmeSettingsModule by scopedInject()
     private val contentModule: IKmeContentModule by scopedInject()
-    private val internalDataModule: IKmeInternalDataModule by scopedInject()
+    private val internalDataModule: IKmeInternalDataModule by inject()
 
     override val roomModule: IKmeRoomModule by scopedInject()
     override val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
@@ -126,6 +126,7 @@ class KmeRoomControllerImpl(
         exitListener: IKmeRoomModule.ExitRoomListener,
         listener: IKmeWSConnectionListener,
     ) {
+        Log.e("TAG", "connect: $roomId")
         internalDataModule.companyId = companyId
         internalDataModule.mainRoomId = roomId
         internalDataModule.mainRoomAlias = roomAlias
@@ -316,17 +317,26 @@ class KmeRoomControllerImpl(
                     val wssUrl = it.data?.wssUrl
                     val token = it.data?.token
                     if (wssUrl != null && token != null) {
-                        internalDataModule.breakoutRoomId = roomId
 
-                        mainRoomSocketModule.send(
-                            buildChangeMediaStateMessage(
-                                roomId,
-                                internalDataModule.companyId,
-                                publisherId,
-                                KmeMediaStateType.LIVE_MEDIA,
-                                KmeMediaDeviceState.DISABLED
-                            )
+//                        mainRoomSocketModule.send(
+//                            buildChangeMediaStateMessage(
+//                                roomId,
+//                                internalDataModule.companyId,
+//                                publisherId,
+//                                KmeMediaStateType.LIVE_MEDIA,
+//                                KmeMediaDeviceState.DISABLED
+//                            )
+//                        )
+
+                        participantModule.changeMediaState(
+                            roomId,
+                            internalDataModule.companyId,
+                            publisherId!!,
+                            KmeMediaStateType.LIVE_MEDIA,
+                            KmeMediaDeviceState.DISABLED
                         )
+//
+                        internalDataModule.breakoutRoomId = roomId
 
                         getActiveSocket().connect(
                             wssUrl,
@@ -397,8 +407,8 @@ class KmeRoomControllerImpl(
      * Disconnect from the room
      */
     override fun disconnect() {
-        Log.e("KmeRoomController", "disconnect main: ${mainRoomSocketModule.hashCode()}", )
-        Log.e("KmeRoomController", "disconnect bor: ${borSocketModule.hashCode()}", )
+        Log.e("KmeRoomController", "disconnect main: ${mainRoomSocketModule.hashCode()}")
+        Log.e("KmeRoomController", "disconnect bor: ${borSocketModule.hashCode()}")
 
         if (mainRoomSocketModule.isConnected())
             mainRoomSocketModule.disconnect()

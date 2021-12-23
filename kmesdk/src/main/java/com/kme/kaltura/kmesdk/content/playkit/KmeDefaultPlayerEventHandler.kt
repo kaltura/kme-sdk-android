@@ -1,7 +1,7 @@
 package com.kme.kaltura.kmesdk.content.playkit
 
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.room.internal.IKmePeerConnectionInternalModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalPeerConnectionModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
@@ -18,7 +18,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 class KmeDefaultPlayerEventHandler : KmeKoinComponent {
 
     private val roomController: IKmeRoomController by scopedInject()
-    private val peerConnectionModule: IKmePeerConnectionInternalModule by scopedInject()
+    private val peerConnectionModule: IKmeInternalPeerConnectionModule by scopedInject()
 
     private val syncPlayerState = LiveEvent<Pair<KmePlayerState?, Float>>()
     val syncPlayerStateLiveData get() = syncPlayerState

@@ -1,7 +1,7 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
-import com.kme.kaltura.kmesdk.controller.room.IKmeInternalDataModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalDataModule
 
 /**
  * An implementation for room actions

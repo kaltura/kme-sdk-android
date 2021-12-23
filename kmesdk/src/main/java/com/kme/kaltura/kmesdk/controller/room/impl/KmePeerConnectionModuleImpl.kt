@@ -2,10 +2,13 @@ package com.kme.kaltura.kmesdk.controller.room.impl
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
-import com.kme.kaltura.kmesdk.controller.room.internal.IKmePeerConnectionInternalModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalDataModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalParticipantModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalPeerConnectionModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.*
@@ -31,9 +34,11 @@ import kotlin.properties.Delegates
 /**
  * An implementation for wrap actions with [IKmePeerConnection]
  */
-class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionInternalModule {
+class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionModule {
 
     private val userController: IKmeUserController by inject()
+    private val internalDataModule: IKmeInternalDataModule by inject()
+    private val participantModule: IKmeInternalParticipantModule by scopedInject()
     private val roomController: IKmeRoomController by scopedInject()
     private val contentModule: IKmeContentModule by scopedInject()
 
@@ -195,7 +200,13 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionInternalM
     override fun addViewerConnection(requestedUserIdStream: String) {
         if (!isInitialized) return
 
-        viewers[requestedUserIdStream]?.let { return }
+        if (participantModule.getParticipant(requestedUserIdStream.toLongOrNull())?.breakoutRoomId != roomController.breakoutModule.getAssignedBreakoutRoom()?.id) return
+
+        Log.e("TAG", "addViewerConnection: $requestedUserIdStream", )
+
+        viewers[requestedUserIdStream]?.let {
+            disconnect(requestedUserIdStream)
+        }
 
         roomController.send(
             buildStartViewingMessage(
@@ -369,6 +380,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionInternalM
      * Disconnect publisher/viewer connection by id
      */
     override fun disconnect(requestedUserIdStream: String) {
+        Log.e("TAG", "disconnect peerconnection: $requestedUserIdStream", )
+
         if (publisherId.toString() == requestedUserIdStream) {
             preview?.disconnectPeerConnection()
             preview = null

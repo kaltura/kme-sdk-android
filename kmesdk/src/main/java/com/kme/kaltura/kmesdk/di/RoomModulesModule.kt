@@ -2,8 +2,9 @@ package com.kme.kaltura.kmesdk.di
 
 import com.kme.kaltura.kmesdk.controller.room.*
 import com.kme.kaltura.kmesdk.controller.room.impl.*
-import com.kme.kaltura.kmesdk.controller.room.internal.IKmeParticipantInternalModule
-import com.kme.kaltura.kmesdk.controller.room.internal.IKmePeerConnectionInternalModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalDataModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalParticipantModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalPeerConnectionModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
@@ -14,8 +15,9 @@ import org.koin.dsl.module
  */
 val roomModules = module {
 
+    single<IKmeInternalDataModule> { KmeInternalDataModuleImpl() }
+
     scope(named(KmeKoinScope.MODULES)) {
-        scoped<IKmeInternalDataModule> { KmeInternalDataModuleImpl() }
         scoped<IKmeRoomModule> { KmeRoomModuleImpl() }
         scoped<IKmeWebSocketModule> {
             KmeWebSocketModuleImpl(
@@ -25,10 +27,10 @@ val roomModules = module {
         }
         scoped<IKmePeerConnectionModule> {
             KmePeerConnectionModuleImpl()
-        } bind IKmePeerConnectionInternalModule::class
+        } bind IKmeInternalPeerConnectionModule::class
         scoped<IKmeParticipantModule> {
             KmeParticipantModuleImpl()
-        } bind IKmeParticipantInternalModule::class
+        } bind IKmeInternalParticipantModule::class
         scoped<IKmeChatModule> { KmeChatModuleImpl() }
         scoped<IKmeNoteModule> { KmeNoteModuleImpl(androidContext()) }
         scoped<IKmeRecordingModule> { KmeRecordingModuleImpl() }

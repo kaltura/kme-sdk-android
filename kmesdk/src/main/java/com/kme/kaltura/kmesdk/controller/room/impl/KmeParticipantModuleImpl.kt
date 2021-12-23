@@ -7,7 +7,8 @@ import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeParticipantModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.room.internal.IKmeParticipantInternalModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalDataModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalParticipantModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.toType
@@ -35,11 +36,12 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 import org.koin.core.inject
 
-class KmeParticipantModuleImpl : KmeController(), IKmeParticipantInternalModule {
+class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule {
 
     private val roomController: IKmeRoomController by scopedInject()
     private val userController: IKmeUserController by inject()
 
+    private val internalModule: IKmeInternalDataModule by inject()
     private val breakoutModule: IKmeBreakoutModule by scopedInject()
 
     private val publisherId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
@@ -97,7 +99,12 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantInternalModule 
         } else {
             participants
         }
-        Log.e("TAG", "getParticipants: breakoutRoomId = $breakoutRoomId, list = ${list.size}", )
+
+        Log.e(
+            "TAG",
+            "getParticipants for roomId = $breakoutRoomId: ${list.joinToString { item -> "${item.userId.toString()}, state: ${item.liveMediaState?.mediaDeviceState};" }}",
+        )
+
         return list
     }
 
@@ -106,14 +113,33 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantInternalModule 
             when (message.name) {
                 KmeMessageEvent.ROOM_STATE -> {
                     val msg: KmeRoomInitModuleMessage<RoomStatePayload>? = message.toType()
-                    participants =
-                        msg?.payload?.participants?.values?.toMutableList() ?: mutableListOf()
+                    Log.e(
+                        "TAG",
+                        "room_state: mainId = ${internalModule.mainRoomId}, payloadId = ${msg?.payload?.metaData?.roomId}"
+                    )
+                    if (internalModule.mainRoomId == msg?.payload?.metaData?.roomId) {
+                        participants =
+                            msg.payload?.participants?.values?.toMutableList() ?: mutableListOf()
 
-                    participants.filter { participant ->
-                        participant.userId ?: 0 < 0
-                    }.forEach {
-                        participants.remove(it)
+                        participants.filter { participant ->
+                            participant.userId ?: 0 < 0
+                        }.forEach {
+                            participants.remove(it)
+                        }
+                    } else {
+                        msg?.payload?.participants?.values?.forEach { participant ->
+                            getParticipant(participant.userId)?.let {
+                                it.liveMediaState = participant.liveMediaState
+                                it.webcamState = participant.webcamState
+                                it.micState = participant.micState
+                            }
+                        }
                     }
+
+                    Log.e(
+                        "TAG",
+                        "room_state: participants = ${participants.joinToString { par -> par.userId.toString() }}"
+                    )
 
                     updateParticipantsRoomId(false)
 
@@ -140,14 +166,27 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantInternalModule 
     }
 
     private fun updateParticipantsRoomId(notify: Boolean = true) {
+        Log.e(
+            "TAG",
+            "updateParticipantsRoomId: list = ${participants.joinToString { part -> "${part.userId.toString()}, state: ${part.liveMediaState?.mediaDeviceState}" }}",
+        )
+        Log.e(
+            "TAG",
+            "updateParticipantsRoomId: assignments = ${breakoutModule.getBreakoutState()?.assignments?.joinToString { part -> part.userId.toString() }}",
+        )
+
         breakoutModule.getBreakoutState()?.assignments?.forEach { assignment ->
             participants.find { participant ->
                 assignment.userId == participant.userId
             }?.let {
+                Log.e("TAG", "updateParticipantsRoomId: name = ${it.userId}")
+
                 it.breakoutRoomId = assignment.breakoutRoomId
                 if (notify) {
                     listener?.onParticipantChanged(it)
                 }
+            } ?: run {
+                Log.e("TAG", "updateParticipantsRoomId: !contains userID = ${assignment.userId}")
             }
         }
     }
@@ -266,6 +305,24 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantInternalModule 
         it.userId == userId
     }
 
+    /*
+    * Clear participants list
+    * */
+    override fun clearParticipants() {
+//        participants.clear()
+
+//        participants.find { participant -> participant.userId == publisherId }?.let {
+//            it.liveMediaState = KmeMediaDeviceState.DISABLED_LIVE
+//        }
+
+//        participants.forEach { participant ->
+//            participant.liveMediaState = KmeMediaDeviceState.DISABLED_UNLIVE
+//        }
+
+        updateParticipantsRoomId(true)
+    }
+
+
     /**
      * User live media state
      */
@@ -314,6 +371,17 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantInternalModule 
         mediaStateType: KmeMediaStateType,
         stateValue: KmeMediaDeviceState
     ) {
+        participants.find { participant ->
+            participant.userId == userId
+        }?.let {
+            when (mediaStateType) {
+                KmeMediaStateType.LIVE_MEDIA -> it.liveMediaState = stateValue
+                KmeMediaStateType.MIC -> it.micState = stateValue
+                KmeMediaStateType.WEBCAM -> it.webcamState = stateValue
+            }
+            listener?.onParticipantChanged(it)
+        }
+
         roomController.send(
             buildChangeMediaStateMessage(
                 roomId,
@@ -382,6 +450,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantInternalModule 
             listener?.onDialAdded(participant)
         }
 
+        Log.e("TAG", "addOrUpdateParticipant: ${participant.userId}")
         participants.add(participant)
         listener?.onParticipantChanged(participant)
     }

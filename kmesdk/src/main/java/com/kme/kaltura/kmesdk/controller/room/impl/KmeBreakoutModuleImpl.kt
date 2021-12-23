@@ -4,9 +4,10 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeBreakoutModule.IKmeBreakoutEvents
-import com.kme.kaltura.kmesdk.controller.room.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalDataModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalParticipantModule
 import com.kme.kaltura.kmesdk.di.KmeKoinScope
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
@@ -34,7 +35,8 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
             return module
         }
     private val mainRoomSocketModule: IKmeWebSocketModule by scopedInject()
-    private val internalDataModule: IKmeInternalDataModule by scopedInject()
+    private val internalDataModule: IKmeInternalDataModule by inject()
+    private val participantModule: IKmeInternalParticipantModule by scopedInject()
     private val userController: IKmeUserController by inject()
 
     private val currentUserId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
@@ -319,6 +321,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                 if (borSocketModule.isConnected())
                     borSocketModule.disconnect()
                 internalDataModule.breakoutRoomId = 0
+                participantModule.clearParticipants()
                 eventListener?.onBreakoutRoomStart(id, alias, selfAssignedBorId == id)
                 selfAssignedBorId = null
             }
@@ -329,6 +332,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
         internalDataModule.breakoutRoomId = 0
         if (borSocketModule.isConnected())
             borSocketModule.disconnect()
+        participantModule.clearParticipants()
         eventListener?.onBreakoutRoomStop()
     }
 

@@ -1,4 +1,6 @@
-package com.kme.kaltura.kmesdk.controller.room
+package com.kme.kaltura.kmesdk.controller.room.internal
+
+import com.kme.kaltura.kmesdk.controller.room.IKmeModule
 
 interface IKmeInternalDataModule: IKmeModule {
 
