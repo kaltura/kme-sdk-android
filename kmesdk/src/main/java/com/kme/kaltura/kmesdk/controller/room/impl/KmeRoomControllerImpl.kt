@@ -106,6 +106,7 @@ class KmeRoomControllerImpl(
         roomId: Long,
         roomAlias: String,
         companyId: Long,
+        appVersion: String,
         isReconnect: Boolean,
         listener: IKmeWSConnectionListener,
     ) {
@@ -116,6 +117,7 @@ class KmeRoomControllerImpl(
                     roomId,
                     roomAlias,
                     companyId,
+                    appVersion,
                     isReconnect,
                     listener
                 )
@@ -129,12 +131,13 @@ class KmeRoomControllerImpl(
         roomId: Long,
         roomAlias: String,
         companyId: Long,
+        appVersion: String,
         isReconnect: Boolean,
         listener: IKmeWSConnectionListener
     ) {
         uiScope.launch {
             safeApiCall(
-                { roomApiService.getWebRTCLiveServer(roomAlias) },
+                { roomApiService.getWebRTCLiveServer(roomAlias, appVersion) },
                 success = {
                     roomSettings = it.data
                     if (roomSettings?.roomInfo?.settingsV2?.general?.appAccess == KmeAppAccessValue.OFF) {
@@ -151,7 +154,15 @@ class KmeRoomControllerImpl(
                 },
                 error = {
                     roomSettings = null
-                    listener.onFailure(Throwable(it))
+                    if (it.code == 400) {
+                        listener.onFailure(Throwable(
+                            KmeApiException.AppVersionException(
+                                message = it.message
+                            )
+                        ))
+                    } else {
+                        listener.onFailure(Throwable(it))
+                    }
                 }
             )
         }

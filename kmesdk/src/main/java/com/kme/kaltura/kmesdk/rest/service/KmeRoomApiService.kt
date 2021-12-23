@@ -55,7 +55,9 @@ interface KmeRoomApiService {
     @GET("room/getWebrtcLiveServer")
     suspend fun getWebRTCLiveServer(
         @Query("room_alias") roomAlias: String,
-        @Query("device_type") deviceType: KmePlatformType = KmePlatformType.MOBILE
+        @Query("mobile_app_version") appVersion: String,
+        @Query("mobile_app_type") appType: String = "android",
+        @Query("device_type") deviceType: KmePlatformType = KmePlatformType.MOBILE,
     ): KmeGetWebRTCServerResponse
 
     /**
