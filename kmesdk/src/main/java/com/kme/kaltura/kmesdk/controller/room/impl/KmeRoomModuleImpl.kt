@@ -5,7 +5,7 @@ import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule.ExitRoomListener
+import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule.IKmeRoomStateListener
 import com.kme.kaltura.kmesdk.controller.room.internal.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
@@ -20,11 +20,13 @@ import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.ParticipantRemovedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.ApprovalPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.CloseWebSocketPayload
+import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
@@ -47,35 +49,105 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     private val publisherId by lazy { userController.getCurrentUserInfo()?.getUserId() ?: 0 }
-    private var exitListener: ExitRoomListener? = null
+    private var stateListener: IKmeRoomStateListener? = null
+    private var roomData: KmeRoomMetaData? = null
 
     /**
      * Subscribing for the room events
      */
     override fun subscribe() {
         roomController.listen(
-            roomEventsHandler,
+            roomStateHandler,
+            KmeMessageEvent.ROOM_STATE,
+            KmeMessageEvent.MODULE_STATE
+        )
+
+        roomController.listen(
+            roomExitHandler,
             KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR,
             KmeMessageEvent.USER_REMOVED,
             KmeMessageEvent.CLOSE_WEB_SOCKET
         )
     }
 
-    override fun setExitListener(listener: ExitRoomListener) {
-        exitListener = listener
+    /**
+     * Setting listener for basic room states
+     */
+    override fun setRoomStateListener(stateListener: IKmeRoomStateListener) {
+        this.stateListener = stateListener
     }
 
     /**
-     * Listen for subscribed events
+     * Listen for room state event
      */
-    private val roomEventsHandler = object : IKmeMessageListener {
+    private val roomStateHandler = object : IKmeMessageListener {
+        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
+            when (message.name) {
+                KmeMessageEvent.ROOM_STATE -> {
+                    val stateMessage: KmeRoomInitModuleMessage<KmeRoomInitModuleMessage.RoomStatePayload>? =
+                        message.toType()
+                    stateMessage?.let { msg ->
+                        roomData = msg.payload?.metaData
+
+                        val participantsList = msg.payload?.participants?.values?.toMutableList()
+                        val currentParticipant = participantsList?.find { participant ->
+                            participant.userId == publisherId
+                        }
+                        currentParticipant?.userPermissions =
+                            roomController.webRTCServer?.roomInfo?.settingsV2
+
+                        userController.updateParticipant(currentParticipant)
+
+                        val roomId = if (internalDataModule.breakoutRoomId != 0L) {
+                            internalDataModule.breakoutRoomId
+                        } else {
+                            internalDataModule.mainRoomId
+                        }
+
+                        roomController.send(
+                            buildGetQuickPollStateMessage(
+                                roomId,
+                                internalDataModule.companyId
+                            )
+                        )
+
+                        // TODO: TC ?
+
+                        if (internalDataModule.mainRoomId == roomId) {
+                            roomController.send(
+                                buildGetBreakoutStateMessage(
+                                    roomId,
+                                    internalDataModule.companyId
+                                )
+                            )
+                        }
+                    }
+                }
+                KmeMessageEvent.MODULE_STATE -> {
+                    val msg: KmeBreakoutModuleMessage<KmeBreakoutModuleMessage.BreakoutRoomState>? =
+                        message.toType()
+                    msg?.let {
+                        // TODO: implement prioritized set
+                        roomData?.let { stateListener?.onRoomAvailable(it) }
+                    }
+                }
+                else -> {
+                }
+            }
+        }
+    }
+
+    /**
+     * Listen for exit events
+     */
+    private val roomExitHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
                 KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR -> {
                     val msg: KmeRoomInitModuleMessage<ApprovalPayload>? = message.toType()
                     msg?.payload?.userId?.let { userId ->
                         if (userId == publisherId) {
-                            exitListener?.onRoomExit(KmeRoomExitReason.REMOVED_USER)
+                            stateListener?.onRoomExit(KmeRoomExitReason.REMOVED_USER)
                         }
                     }
                 }
@@ -84,14 +156,14 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                         message.toType()
                     msg?.payload?.targetUserId?.let { userId ->
                         if (userId == publisherId) {
-                            exitListener?.onRoomExit(KmeRoomExitReason.REMOVED_USER)
+                            stateListener?.onRoomExit(KmeRoomExitReason.REMOVED_USER)
                         }
                     }
                 }
                 KmeMessageEvent.CLOSE_WEB_SOCKET -> {
                     val msg: KmeRoomInitModuleMessage<CloseWebSocketPayload>? = message.toType()
                     msg?.payload?.reason?.let { reason ->
-                        exitListener?.onRoomExit(reason)
+                        stateListener?.onRoomExit(reason)
                     }
                 }
                 else -> {
@@ -153,13 +225,6 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                 error
             )
         }
-    }
-
-    /**
-     * Joining the room
-     */
-    override fun joinRoom(roomId: Long, companyId: Long) {
-        roomController.send(buildJoinRoomMessage(roomId, companyId))
     }
 
     /**

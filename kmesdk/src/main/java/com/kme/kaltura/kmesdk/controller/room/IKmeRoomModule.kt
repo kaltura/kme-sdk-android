@@ -4,7 +4,9 @@ import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
 import com.kme.kaltura.kmesdk.rest.response.room.KmeJoinRoomResponse
+import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
+import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
@@ -19,7 +21,10 @@ interface IKmeRoomModule : IKmeModule {
      */
     fun subscribe()
 
-    fun setExitListener(listener: ExitRoomListener)
+    /**
+     * Setting listener for basic room states
+     */
+    fun setRoomStateListener(stateListener: IKmeRoomStateListener)
 
     /**
      * Getting all rooms for specific company
@@ -66,17 +71,6 @@ interface IKmeRoomModule : IKmeModule {
         withFiles: Int,
         success: (response: KmeGetRoomInfoResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
-    )
-
-    /**
-     * Joining the room
-     *
-     * @param roomId alias of a room
-     * @param companyId id of a company
-     */
-    fun joinRoom(
-        roomId: Long,
-        companyId: Long
     )
 
     /**
@@ -160,9 +154,20 @@ interface IKmeRoomModule : IKmeModule {
         companyId: Long
     )
 
-    interface ExitRoomListener {
+    interface IKmeRoomStateListener {
+
+        fun onRoomAvailable(room: KmeRoomMetaData)
+
+        fun onRoomBanner(
+            event: KmeMessageEvent,
+//            payload: KmeRoomInitModuleMessage.RoomInitPayload
+        )
+
+        fun onRoomTermsNeeded()
 
         fun onRoomExit(reason: KmeRoomExitReason)
+
+        fun onRoomUnavailable()
 
     }
 

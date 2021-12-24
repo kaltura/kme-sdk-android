@@ -10,7 +10,6 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
-import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
@@ -19,10 +18,11 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersP
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 
-class RoomViewModel(
+class RoomStateViewModel(
     private val kmeSdk: KME
-) : ViewModel(), IKmeRoomModule.ExitRoomListener, IKmeWSConnectionListener {
+) : ViewModel(), IKmeRoomModule.IKmeRoomStateListener {
 
     private val isLoading = MutableLiveData<Boolean>()
     val isLoadingLiveData get() = isLoading as LiveData<Boolean>
@@ -100,7 +100,7 @@ class RoomViewModel(
         this.roomAlias = roomAlias
 
         isLoading.value = true
-        kmeSdk.roomController.connect(roomId, roomAlias, companyId, true, this, this)
+        kmeSdk.roomController.connect(roomId, roomAlias, companyId, true, this)
         kmeSdk.roomController.subscribeForContent(object : IKmeContentModule.KmeContentListener {
             override fun onContentAvailable(view: KmeContentView) {
                 sharedContent.value = view
@@ -112,52 +112,52 @@ class RoomViewModel(
         })
     }
 
-    override fun onOpen() {
-        youModerator.value = (isAdmin() || isModerator())
+//    override fun onOpen() {
+//        youModerator.value = (isAdmin() || isModerator())
+//
+//        isLoading.value = false
+//        isConnected.value = true
+//
+//        if (!isAdmin() || isModerator()) {
+//            handRaised.value = false
+//        }
+//
+//        kmeSdk.roomController.listen(
+//            roomStateHandler,
+//            KmeMessageEvent.ROOM_STATE
+//        )
+//
+//        kmeSdk.roomController.listen(
+//            bannersHandler,
+//            KmeMessageEvent.ANY_INSTRUCTORS_IS_CONNECTED_TO_ROOM,
+//            KmeMessageEvent.ROOM_HAS_PASSWORD,
+//            KmeMessageEvent.ROOM_PARTICIPANT_LIMIT_REACHED,
+//            KmeMessageEvent.AWAIT_INSTRUCTOR_APPROVAL,
+//            KmeMessageEvent.USER_APPROVED_BY_INSTRUCTOR,
+//            KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR,
+//            KmeMessageEvent.JOINED_ROOM,
+//            KmeMessageEvent.ROOM_PASSWORD_STATUS_RECEIVED,
+//            KmeMessageEvent.INSTRUCTOR_IS_OFFLINE,
+//            KmeMessageEvent.CLOSE_WEB_SOCKET
+//        )
+//        kmeSdk.roomController.roomModule.joinRoom(roomId, companyId)
+//    }
 
-        isLoading.value = false
-        isConnected.value = true
+//    override fun onFailure(throwable: Throwable) {
+//        error.value = throwable.localizedMessage
+//        isConnected.value = false
+//        isLoading.value = false
+//    }
 
-        if (!isAdmin() || isModerator()) {
-            handRaised.value = false
-        }
+//    override fun onClosing(code: Int, reason: String) {
+//        isConnected.value = false
+//        isLoading.value = false
+//    }
 
-        kmeSdk.roomController.listen(
-            roomStateHandler,
-            KmeMessageEvent.ROOM_STATE
-        )
-
-        kmeSdk.roomController.listen(
-            bannersHandler,
-            KmeMessageEvent.ANY_INSTRUCTORS_IS_CONNECTED_TO_ROOM,
-            KmeMessageEvent.ROOM_HAS_PASSWORD,
-            KmeMessageEvent.ROOM_PARTICIPANT_LIMIT_REACHED,
-            KmeMessageEvent.AWAIT_INSTRUCTOR_APPROVAL,
-            KmeMessageEvent.USER_APPROVED_BY_INSTRUCTOR,
-            KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR,
-            KmeMessageEvent.JOINED_ROOM,
-            KmeMessageEvent.ROOM_PASSWORD_STATUS_RECEIVED,
-            KmeMessageEvent.INSTRUCTOR_IS_OFFLINE,
-            KmeMessageEvent.CLOSE_WEB_SOCKET
-        )
-        kmeSdk.roomController.roomModule.joinRoom(roomId, companyId)
-    }
-
-    override fun onFailure(throwable: Throwable) {
-        error.value = throwable.localizedMessage
-        isConnected.value = false
-        isLoading.value = false
-    }
-
-    override fun onClosing(code: Int, reason: String) {
-        isConnected.value = false
-        isLoading.value = false
-    }
-
-    override fun onClosed(code: Int, reason: String) {
-        isConnected.value = false
-        isLoading.value = false
-    }
+//    override fun onClosed(code: Int, reason: String) {
+//        isConnected.value = false
+//        isLoading.value = false
+//    }
 
     fun submitPassword(password: String) {
         if (password.length in 8..24) {
@@ -263,8 +263,27 @@ class RoomViewModel(
         }
     }
 
+    override fun onRoomAvailable(room: KmeRoomMetaData) {
+
+    }
+
+    override fun onRoomBanner(
+        event: KmeMessageEvent,
+//        payload: KmeRoomInitModuleMessage.RoomInitPayload
+    ) {
+
+    }
+
+    override fun onRoomTermsNeeded() {
+
+    }
+
     override fun onRoomExit(reason: KmeRoomExitReason) {
         closeConnection.value = reason
+    }
+
+    override fun onRoomUnavailable() {
+
     }
 
     private fun disconnect() {

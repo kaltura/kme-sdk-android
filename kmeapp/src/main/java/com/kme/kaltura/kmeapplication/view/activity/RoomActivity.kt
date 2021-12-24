@@ -48,7 +48,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RoomActivity : KmeActivity(), PreviewListener {
 
-    private val viewModel: RoomViewModel by viewModel()
+    private val viewModel: RoomStateViewModel by viewModel()
     private val recordingViewModel: RoomRecordingViewModel by viewModel()
     private val participantsViewModel: ParticipantsViewModel by viewModel()
     private val chatViewModel: ChatViewModel by viewModel()

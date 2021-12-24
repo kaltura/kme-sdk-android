@@ -16,7 +16,7 @@ import com.kme.kaltura.kmeapplication.util.extensions.*
 import com.kme.kaltura.kmeapplication.view.adapter.ParticipantsAdapter
 import com.kme.kaltura.kmeapplication.viewmodel.ParticipantsViewModel
 import com.kme.kaltura.kmeapplication.viewmodel.RoomSettingsViewModel
-import com.kme.kaltura.kmeapplication.viewmodel.RoomViewModel
+import com.kme.kaltura.kmeapplication.viewmodel.RoomStateViewModel
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
@@ -29,7 +29,7 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 class ParticipantsFragment : Fragment() {
 
     private val viewModel: ParticipantsViewModel by sharedViewModel()
-    private val roomViewModel: RoomViewModel by sharedViewModel()
+    private val roomViewModel: RoomStateViewModel by sharedViewModel()
     private val roomSettingsViewModel: RoomSettingsViewModel by sharedViewModel()
 
     private lateinit var adapter: ParticipantsAdapter
