@@ -14,6 +14,7 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
@@ -47,7 +48,8 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
         roomController.listen(
             activeContentHandler,
             KmeMessageEvent.INIT_ACTIVE_CONTENT,
-            KmeMessageEvent.SET_ACTIVE_CONTENT
+            KmeMessageEvent.SET_ACTIVE_CONTENT,
+            priority = KmeMessagePriority.NORMAL
         )
     }
 

@@ -11,6 +11,7 @@ import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeTermsApiService
 import com.kme.kaltura.kmesdk.util.messages.buildTermsAgreementMessage
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import kotlinx.coroutines.CoroutineScope
@@ -44,6 +45,7 @@ class KmeTermsModuleImpl : KmeController(), IKmeTermsModule {
             KmeMessageEvent.TERMS_AGREED,
             KmeMessageEvent.TERMS_REJECTED,
             KmeMessageEvent.SET_TERMS_AGREEMENT,
+            priority = KmeMessagePriority.NORMAL
         )
     }
 

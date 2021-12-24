@@ -15,6 +15,7 @@ import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.buildAssignUserBorMessage
 import com.kme.kaltura.kmesdk.util.messages.buildCallToInstructorMessage
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage
@@ -65,7 +66,8 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
             KmeMessageEvent.BREAKOUT_USER_JOINED_SUCCESS,
             KmeMessageEvent.BREAKOUT_EXTEND_TIME_LIMIT_SUCCESS,
             KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR_SUCCESS,
-            KmeMessageEvent.BREAKOUT_INSTRUCTOR_MESSAGE
+            KmeMessageEvent.BREAKOUT_INSTRUCTOR_MESSAGE,
+            priority = KmeMessagePriority.HIGH
         )
     }
 
@@ -332,7 +334,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
         internalDataModule.breakoutRoomId = 0
         if (borSocketModule.isConnected())
             borSocketModule.disconnect()
-        participantModule.clearParticipants()
+//        participantModule.clearParticipants()
         eventListener?.onBreakoutRoomStop()
     }
 

@@ -17,6 +17,7 @@ import com.kme.kaltura.kmesdk.rest.service.KmeRoomApiService
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.*
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
@@ -59,14 +60,16 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         roomController.listen(
             roomStateHandler,
             KmeMessageEvent.ROOM_STATE,
-            KmeMessageEvent.MODULE_STATE
+            KmeMessageEvent.MODULE_STATE,
+            priority = KmeMessagePriority.NORMAL
         )
 
         roomController.listen(
             roomExitHandler,
             KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR,
             KmeMessageEvent.USER_REMOVED,
-            KmeMessageEvent.CLOSE_WEB_SOCKET
+            KmeMessageEvent.CLOSE_WEB_SOCKET,
+            priority = KmeMessagePriority.NORMAL
         )
     }
 
@@ -120,6 +123,8 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                                     internalDataModule.companyId
                                 )
                             )
+                        } else {
+                            roomData?.let { stateListener?.onRoomAvailable(it) }
                         }
                     }
                 }

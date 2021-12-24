@@ -115,22 +115,27 @@ internal class KmeWebSocketHandler(
         }
     }
 
-    override fun addListener(listener: IKmeMessageListener) {
-        messageManager.addListener(listener)
+    override fun addListener(
+        listener: IKmeMessageListener,
+        priority: KmeMessagePriority
+    ) {
+        messageManager.addListener(listener, priority)
     }
 
     override fun addListener(
         event: KmeMessageEvent,
-        listener: IKmeMessageListener
+        listener: IKmeMessageListener,
+        priority: KmeMessagePriority
     ) {
-        messageManager.addListener(event, listener)
+        messageManager.addListener(event, listener, priority)
     }
 
     override fun listen(
         listener: IKmeMessageListener,
         vararg events: KmeMessageEvent,
+        priority: KmeMessagePriority
     ): IKmeMessageListener {
-        return messageManager.listen(listener, *events)
+        return messageManager.listen(listener, *events, priority = priority)
     }
 
     override fun remove(

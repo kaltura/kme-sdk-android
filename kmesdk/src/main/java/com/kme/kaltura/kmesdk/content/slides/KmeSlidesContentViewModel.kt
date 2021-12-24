@@ -13,6 +13,7 @@ import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.toNonNull
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
@@ -43,7 +44,8 @@ class KmeSlidesContentViewModel : ViewModel(), KmeKoinViewModel {
             slidePlayerHandler,
             KmeMessageEvent.SLIDE_CHANGED,
             KmeMessageEvent.ANNOTATIONS_STATE_CHANGED,
-            KmeMessageEvent.SET_PARTICIPANT_MODERATOR
+            KmeMessageEvent.SET_PARTICIPANT_MODERATOR,
+            priority = KmeMessagePriority.NORMAL
         )
     }
 

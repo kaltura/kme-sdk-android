@@ -1,7 +1,6 @@
 package com.kme.kaltura.kmesdk.content.whiteboard
 
 import android.graphics.PointF
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,6 +10,7 @@ import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage
@@ -70,7 +70,8 @@ class KmeWhiteboardContentViewModel : ViewModel(), KmeKoinViewModel {
             KmeMessageEvent.WHITEBOARD_SET_ACTIVE_PAGE,
             KmeMessageEvent.WHITEBOARD_PAGE_CREATED,
             KmeMessageEvent.WHITEBOARD_BACKGROUND_TYPE_CHANGED,
-            KmeMessageEvent.DELETE_DRAWING
+            KmeMessageEvent.DELETE_DRAWING,
+            priority = KmeMessagePriority.NORMAL
         )
     }
 

@@ -13,6 +13,7 @@ import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage
@@ -58,7 +59,8 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
             KmeMessageEvent.DESKTOP_SHARE_STATE_UPDATED,
             KmeMessageEvent.USER_STARTED_TO_PUBLISH,
             KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
-            KmeMessageEvent.DESKTOP_SHARE_QUALITY_UPDATED
+            KmeMessageEvent.DESKTOP_SHARE_QUALITY_UPDATED,
+            priority = KmeMessagePriority.NORMAL
         )
         roomController.send(buildDesktopShareInitOnRoomInitMessage())
     }

@@ -14,6 +14,7 @@ import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeDefaultSettings
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
@@ -49,7 +50,8 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsModule {
             roomSettingsHandler,
             KmeMessageEvent.ROOM_MODULE_SETTINGS_CHANGED,
             KmeMessageEvent.ROOM_SETTINGS_CHANGED,
-            KmeMessageEvent.SET_PARTICIPANT_MODERATOR
+            KmeMessageEvent.SET_PARTICIPANT_MODERATOR,
+            priority = KmeMessagePriority.NORMAL
         )
     }
 

@@ -26,6 +26,7 @@ import com.kme.kaltura.kmesdk.util.messages.buildJoinRoomMessage
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.KmeMessageManager
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
@@ -195,7 +196,8 @@ class KmeRoomControllerImpl(
         if (mainRoomSocketModule.isConnected()) {
             messageManager.listen(
                 roomStateHandler,
-                KmeMessageEvent.ROOM_STATE
+                KmeMessageEvent.ROOM_STATE,
+                priority = KmeMessagePriority.NORMAL
             )
 
             peerConnectionModule.disconnectAll()
@@ -435,8 +437,11 @@ class KmeRoomControllerImpl(
     /**
      * Add listeners for socket messages
      */
-    override fun addListener(listener: IKmeMessageListener) {
-        messageManager.addListener(listener)
+    override fun addListener(
+        listener: IKmeMessageListener,
+        priority: KmeMessagePriority
+    ) {
+        messageManager.addListener(listener, priority)
     }
 
     /**
@@ -445,8 +450,9 @@ class KmeRoomControllerImpl(
     override fun addListener(
         event: KmeMessageEvent,
         listener: IKmeMessageListener,
+        priority: KmeMessagePriority
     ) {
-        messageManager.addListener(event, listener)
+        messageManager.addListener(event, listener, priority)
     }
 
     /**
@@ -455,8 +461,9 @@ class KmeRoomControllerImpl(
     override fun listen(
         listener: IKmeMessageListener,
         vararg events: KmeMessageEvent,
+        priority: KmeMessagePriority
     ): IKmeMessageListener {
-        return messageManager.listen(listener, *events)
+        return messageManager.listen(listener, *events, priority = priority)
     }
 
     /**

@@ -15,6 +15,7 @@ import com.kme.kaltura.kmesdk.util.messages.*
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnection
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
@@ -95,7 +96,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
                 KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
                 KmeMessageEvent.USER_DISCONNECTED,
                 KmeMessageEvent.USER_MEDIA_STATE_CHANGED,
-                KmeMessageEvent.USER_SPEAKING
+                KmeMessageEvent.USER_SPEAKING,
+                priority = KmeMessagePriority.NORMAL
             )
             blockMediaStateEvents = false
             isInitialized = true
