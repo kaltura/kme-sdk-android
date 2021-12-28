@@ -16,6 +16,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersP
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 
 class RoomViewModel(
     private val kmeSdk: KME
@@ -99,13 +100,13 @@ class RoomViewModel(
         this.roomAlias = roomAlias
 
         isLoading.value = true
-        kmeSdk.roomController.connect(roomId, roomAlias, companyId, true, this)
+        kmeSdk.roomController.connect(roomId, roomAlias, companyId, "1.5", true, this)
         kmeSdk.roomController.roomModule.subscribeForContent(object : IKmeContentModule.KmeContentListener {
             override fun onContentAvailable(view: KmeContentView) {
                 sharedContent.value = view
             }
 
-            override fun onContentNotAvailable() {
+            override fun onContentNotAvailable(type: KmeContentType) {
                 sharedContent.value = null
             }
         })
