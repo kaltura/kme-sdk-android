@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.content.KmeContentView
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 
 /**
  * An interface for content sharing
@@ -43,8 +44,9 @@ interface IKmeContentModule : IKmeModule {
 
         /**
          * Fired once content is not available
+         * @param type for content
          */
-        fun onContentNotAvailable()
+        fun onContentNotAvailable(type: KmeContentType)
     }
 
 }
