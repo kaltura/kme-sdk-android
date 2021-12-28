@@ -123,8 +123,7 @@ class KmeRoomControllerImpl(
         roomAlias: String,
         companyId: Long,
         isReconnect: Boolean,
-        roomStateListener: IKmeRoomModule.IKmeRoomStateListener,
-//        listener: IKmeWSConnectionListener,
+        roomStateListener: IKmeRoomModule.IKmeRoomStateListener
     ) {
         Log.e("TAG", "connect: $roomId")
         internalDataModule.companyId = companyId
@@ -204,7 +203,7 @@ class KmeRoomControllerImpl(
 
             subscribeInternalModules()
 
-            roomStateListener.onRoomUnavailable()
+//            roomStateListener.onRoomUnavailable()
 //            listener.onOpen()
             return
         }
@@ -213,21 +212,12 @@ class KmeRoomControllerImpl(
 
         roomWSListener = object : IKmeWSConnectionListener {
             override fun onOpen() {
-//                messageManager.listen(
-//                    roomStateHandler,
-//                    KmeMessageEvent.ROOM_STATE,
-//                    KmeMessageEvent.CLOSE_WEB_SOCKET
-//                )
-
                 send(buildJoinRoomMessage(
                     internalDataModule.mainRoomId,
                     internalDataModule.companyId
                 ))
 
                 subscribeInternalModules()
-
-                roomStateListener.onRoomUnavailable()
-//                listener.onOpen()
             }
 
             override fun onFailure(throwable: Throwable) {
@@ -275,31 +265,7 @@ class KmeRoomControllerImpl(
                 KmeMessageEvent.ROOM_STATE -> {
                     val msg: KmeRoomInitModuleMessage<RoomStatePayload>? = message.toType()
                     roomMetadata = msg?.payload?.metaData
-
-//                    val participantsList = msg?.payload?.participants?.values?.toMutableList()
-//                    val currentParticipant = participantsList?.find { participant ->
-//                        participant.userId == publisherId
-//                    }
-//                    currentParticipant?.userPermissions = webRTCServer?.roomInfo?.settingsV2
-//
-//                    userController.updateParticipant(currentParticipant)
-//
-//                    val roomId = if (internalDataModule.breakoutRoomId != 0L) {
-//                        internalDataModule.breakoutRoomId
-//                    } else {
-//                        internalDataModule.mainRoomId
-//                    }
-//
-//                    send(buildGetQuickPollStateMessage(roomId, internalDataModule.companyId))
-//                    if (internalDataModule.mainRoomId == roomId) {
-//                        send(buildGetBreakoutStateMessage(roomId, internalDataModule.companyId))
-//                    }
                 }
-//                KmeMessageEvent.CLOSE_WEB_SOCKET -> {
-//                    val msg: KmeRoomInitModuleMessage<KmeRoomInitModuleMessage.CloseWebSocketPayload>? =
-//                        message.toType()
-//                    disconnect()
-//                }
                 else -> {
                 }
             }
@@ -359,9 +325,6 @@ class KmeRoomControllerImpl(
                                     subscribeInternalModules()
 
                                     peerConnectionModule.disconnectAll()
-
-                                    roomStateListener.onRoomUnavailable()
-//                                    listener.onOpen()
 
                                     mainRoomSocketModule.send(
                                         buildJoinBorMessage(

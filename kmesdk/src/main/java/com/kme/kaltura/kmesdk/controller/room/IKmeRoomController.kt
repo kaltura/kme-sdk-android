@@ -37,15 +37,13 @@ interface IKmeRoomController : IKmeWebSocketModule, IKmeMessageManager {
      * @param companyId alias of a company
      * @param isReconnect reconnection flag
      * @param roomStateListener exit room listener
-//     * @param listener connection listener
      */
     fun connect(
         roomId: Long,
         roomAlias: String,
         companyId: Long,
         isReconnect: Boolean = true,
-        roomStateListener: IKmeRoomModule.IKmeRoomStateListener,
-//        listener: IKmeWSConnectionListener
+        roomStateListener: IKmeRoomModule.IKmeRoomStateListener
     )
 
     fun connectToBreakout(
