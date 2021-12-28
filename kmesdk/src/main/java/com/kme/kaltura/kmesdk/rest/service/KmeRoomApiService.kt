@@ -1,11 +1,13 @@
 package com.kme.kaltura.kmesdk.rest.service
 
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetWebRTCServerResponse
-import com.kme.kaltura.kmesdk.rest.response.room.KmeJoinRoomResponse
+import com.kme.kaltura.kmesdk.rest.request.xlroom.XlRoomLaunchRequest
+import com.kme.kaltura.kmesdk.rest.request.xlroom.XlRoomPrepareRequest
+import com.kme.kaltura.kmesdk.rest.request.xlroom.XlRoomStopRequest
+import com.kme.kaltura.kmesdk.rest.response.room.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlatformType
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 /**
@@ -27,19 +29,6 @@ interface KmeRoomApiService {
         @Query("page_number") pages: Long,
         @Query("limit") limit: Long
     ): KmeGetRoomsResponse
-
-    /**
-     * Handling cookies for login via deep linking
-     *
-     * @param hash identifier for a user
-     * @param mobile platform indicator
-     * @return [KmeJoinRoomResponse] object in success case
-     */
-    @GET("room/join")
-    suspend fun join(
-        @Query("hash") hash: String,
-        @Query("for_mobile_app") mobile: Int
-    ): KmeJoinRoomResponse
 
     /**
      * Getting room info by alias
@@ -66,7 +55,33 @@ interface KmeRoomApiService {
     @GET("room/getWebrtcLiveServer")
     suspend fun getWebRTCLiveServer(
         @Query("room_alias") roomAlias: String,
-        @Query("device_type") deviceType: KmePlatformType = KmePlatformType.MOBILE
+        @Query("mobile_app_version") appVersion: String,
+        @Query("mobile_app_type") appType: String = "android",
+        @Query("device_type") deviceType: KmePlatformType = KmePlatformType.MOBILE,
     ): KmeGetWebRTCServerResponse
+
+    /**
+     * Start initiating xl room
+     *
+     * @return [KmeXlRoomPrepareResponse] object in success case
+     */
+    @POST("room/prepareLargeRoom")
+    suspend fun prepareXlRoom(@Body request: XlRoomPrepareRequest): KmeXlRoomPrepareResponse
+
+    /**
+     * Launch to the xl room
+     *
+     * @return [KmeXlRoomLaunchResponse] object in success case
+     */
+    @POST("room/launchLargeRoom")
+    suspend fun launchXlRoom(@Body request: XlRoomLaunchRequest): KmeXlRoomLaunchResponse
+
+    /**
+     * Stop initiation of xl room
+     *
+     * @return [KmeXlRoomStopResponse] object in success case
+     */
+    @POST("room/stopLargeRoom")
+    suspend fun stopXlRoom(@Body request: XlRoomStopRequest): KmeXlRoomStopResponse
 
 }

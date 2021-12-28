@@ -5,9 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.room.IKmeSettingsModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
 import com.kme.kaltura.kmesdk.di.scopedInject
+import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
@@ -18,14 +20,15 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
-import kotlin.properties.Delegates
 import org.koin.core.inject
 
-internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
+internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel,
+    IKmeSettingsModule.KmeSettingsListener {
 
     private val userController: IKmeUserController by inject()
     private val roomController: IKmeRoomController by scopedInject()
     private val webSocketModule: IKmeWebSocketModule by scopedInject()
+    private val settingsModule: IKmeSettingsModule by scopedInject()
 
     private val isAdmin = LiveEvent<Boolean>()
     val isAdminLiveData get() = isAdmin
@@ -48,6 +51,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
     init {
         isAdmin.value = userController.isModerator()
                 || userController.isAdminFor(roomController.getCompanyId())
+        settingsModule.subscribe(this)
     }
 
     /**
@@ -155,12 +159,22 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
         roomController.peerConnectionModule.stopScreenShare()
     }
 
-    fun updateModeratorState(isModerator: Boolean): Boolean {
+    private fun updateModeratorState(isModerator: Boolean): Boolean {
         if (isAdmin.value != isModerator) {
             isAdmin.value = isModerator
             return true
         }
         return false
+    }
+
+    override fun onSettingsChanged(settings: KmeSettingsV2?) {
+
+    }
+
+    override fun onModeratorStateChanged(isModerator: Boolean) {
+        if (updateModeratorState(isModerator) && !isModerator) {
+            stopScreenShare()
+        }
     }
 
     override fun onCleared() {

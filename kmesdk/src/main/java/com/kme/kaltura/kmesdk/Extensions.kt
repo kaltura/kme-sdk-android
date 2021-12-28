@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.load.model.LazyHeaders
+import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
@@ -149,8 +150,17 @@ internal fun ImageView?.glide(
                 resource: Drawable,
                 transition: Transition<in Drawable>?,
             ) {
-                val scaledBitmap = (resource as BitmapDrawable).bitmap.resize(1280)
-                this@glide.setImageBitmap(scaledBitmap)
+                when(resource){
+                    is GifDrawable ->{
+                        this@glide.setImageDrawable(resource.apply {
+                            start()
+                        })
+                    }
+                    else -> {
+                        val scaledBitmap = (resource as BitmapDrawable).bitmap.resize(1280)
+                        this@glide.setImageBitmap(scaledBitmap)
+                    }
+                }
                 onSizeReady?.invoke(Size(resource.intrinsicWidth, resource.intrinsicHeight))
             }
 

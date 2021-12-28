@@ -18,7 +18,7 @@ enum class KmeMessageEventType(
 
     @SuppressLint("DefaultLocale")
     override fun toString(): String {
-        return type.toLowerCase()
+        return type.lowercase()
     }
 
 }

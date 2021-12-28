@@ -57,10 +57,15 @@ class RoomSettingsViewModel(
 
                     when (settingsPayload?.moduleName) {
                         KmePermissionModule.CHAT_MODULE -> {
-                            chatSettingsChanged.value = Pair(
-                                settingsPayload.permissionsKey,
-                                settingsPayload.permissionsValue
+                            val chatSettingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomChatSettingsChangedPayload>? =
+                                message.toType()
+                            val chatSettingsPayload = chatSettingsMessage?.payload
+
+                            val pair = Pair(
+                                chatSettingsPayload?.permissionsKey,
+                                chatSettingsPayload?.permissionsValue
                             )
+                            chatSettingsChanged.value = pair
                         }
                         else -> {
                         }

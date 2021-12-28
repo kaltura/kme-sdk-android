@@ -1,9 +1,7 @@
 package com.kme.kaltura.kmesdk.controller.room
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomInfoResponse
-import com.kme.kaltura.kmesdk.rest.response.room.KmeGetRoomsResponse
-import com.kme.kaltura.kmesdk.rest.response.room.KmeJoinRoomResponse
+import com.kme.kaltura.kmesdk.rest.response.room.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
@@ -27,19 +25,6 @@ interface IKmeRoomModule : IKmeModule {
         pages: Long,
         limit: Long,
         success: (response: KmeGetRoomsResponse) -> Unit,
-        error: (exception: KmeApiException) -> Unit
-    )
-
-    /**
-     * Handling cookies for login via deep linking
-     *
-     * @param hash identifier for a user
-     * @param success function to handle success result. Contains [KmeJoinRoomResponse] object
-     * @param error function to handle error result. Contains [KmeApiException] object
-     */
-    fun join(
-        hash: String,
-        success: (response: KmeJoinRoomResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )
 
@@ -140,6 +125,50 @@ interface IKmeRoomModule : IKmeModule {
     fun endSessionForEveryone(
         roomId: Long,
         companyId: Long
+    )
+
+    /**
+     * Getting actual state for xl room
+     *
+     * @param roomId id of a room
+     * @param companyId id of a company
+     */
+    fun getXlRoomState(
+        roomId: Long,
+        companyId: Long
+    )
+
+    /**
+     * Start initiating xl room
+     */
+    fun prepareXlRoom(
+        roomId: Long,
+        userId: Long,
+        participants: Int,
+        presenters: Int,
+        regionId: String,
+        global: Boolean = false,
+        success: (response: KmeXlRoomPrepareResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
+    /**
+     * Launch xl room
+     */
+    fun launchXlRoom(
+        roomId: Long,
+        success: (response: KmeXlRoomLaunchResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
+    /**
+     * Stop xl room initiation
+     */
+    fun stopXlRoom(
+        roomId: Long,
+        companyId: Long,
+        success: (response: KmeXlRoomStopResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
     )
 
 }

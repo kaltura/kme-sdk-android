@@ -2,7 +2,7 @@ package com.kme.kaltura.kmesdk.ws.message.type.permissions
 
 import com.google.gson.annotations.SerializedName
 
-enum class KmePermissionModule(value: String) {
+enum class KmePermissionModule(val value: String) {
 
     @SerializedName("close_captioning_module", alternate = ["CLOSE_CAPTIONING_MODULE"])
     CLOSE_CAPTIONING_MODULE("close_captioning_module"),

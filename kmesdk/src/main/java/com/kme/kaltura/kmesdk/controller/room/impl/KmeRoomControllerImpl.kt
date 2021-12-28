@@ -9,6 +9,7 @@ import android.os.IBinder
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeSettingsInternalModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
@@ -41,9 +42,10 @@ class KmeRoomControllerImpl(
 
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
-    private val settingsModule: IKmeSettingsModule by scopedInject()
+    private val settingsInternalModule: IKmeSettingsInternalModule by scopedInject()
 
     override val roomModule: IKmeRoomModule by scopedInject()
+    override val settingsModule: IKmeSettingsModule by scopedInject()
     override val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
     override val participantModule: IKmeParticipantModule by scopedInject()
     override val chatModule: IKmeChatModule by scopedInject()
@@ -104,6 +106,7 @@ class KmeRoomControllerImpl(
         roomId: Long,
         roomAlias: String,
         companyId: Long,
+        appVersion: String,
         isReconnect: Boolean,
         listener: IKmeWSConnectionListener,
     ) {
@@ -114,11 +117,12 @@ class KmeRoomControllerImpl(
                     roomId,
                     roomAlias,
                     companyId,
+                    appVersion,
                     isReconnect,
                     listener
                 )
-            }, error = {
-                listener.onFailure(Throwable(it))
+            }, error = { error->
+                listener.onClosed(0, error.cause.toString())
             }
         )
     }
@@ -127,12 +131,13 @@ class KmeRoomControllerImpl(
         roomId: Long,
         roomAlias: String,
         companyId: Long,
+        appVersion: String,
         isReconnect: Boolean,
         listener: IKmeWSConnectionListener
     ) {
         uiScope.launch {
             safeApiCall(
-                { roomApiService.getWebRTCLiveServer(roomAlias) },
+                { roomApiService.getWebRTCLiveServer(roomAlias, appVersion) },
                 success = {
                     roomSettings = it.data
                     if (roomSettings?.roomInfo?.settingsV2?.general?.appAccess == KmeAppAccessValue.OFF) {
@@ -145,10 +150,19 @@ class KmeRoomControllerImpl(
                             startService(wssUrl, companyId, roomId, isReconnect, token, listener)
                         }
                     }
+                    settingsModule.updateSettings(roomSettings?.roomInfo?.settingsV2)
                 },
                 error = {
                     roomSettings = null
-                    listener.onFailure(Throwable(it))
+                    if (it.code == 400) {
+                        listener.onFailure(Throwable(
+                            KmeApiException.AppVersionException(
+                                message = it.message
+                            )
+                        ))
+                    } else {
+                        listener.onFailure(Throwable(it))
+                    }
                 }
             )
         }
@@ -181,8 +195,7 @@ class KmeRoomControllerImpl(
                     KmeMessageEvent.CLOSE_WEB_SOCKET
                 )
 
-                settingsModule.subscribe()
-
+                settingsInternalModule.subscribe()
                 listener.onOpen()
             }
 
