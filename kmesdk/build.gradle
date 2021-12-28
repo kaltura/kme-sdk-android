@@ -28,6 +28,7 @@ android {
             resValue "string", "frp_api_url", 'frp-smart.newrow.com'
             resValue "string", "cap_api_url", 'cap-smart.newrow.com'
             resValue "string", "cap1_api_url", 'cap1-smart.newrow.com'
+            resValue "string", "vrsqa_api_url", 'vrsqa-smart.newrow.com'
             resValue "string", "deeplink_api_url", 'kme.page.link'
             minifyEnabled false
         }
@@ -38,6 +39,7 @@ android {
             resValue "string", "frp_api_url", 'frp-smart.newrow.com'
             resValue "string", "cap_api_url", 'cap-smart.newrow.com'
             resValue "string", "cap1_api_url", 'cap1-smart.newrow.com'
+            resValue "string", "vrsqa_api_url", 'vrsqa-smart.newrow.com'
             resValue "string", "deeplink_api_url", 'kme.page.link'
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
