@@ -57,4 +57,10 @@ sealed class KmeApiException(
         message: String? = null,
         cause: Throwable? = null,
     ) : KmeApiException(message, 0, cause)
+
+    class AppVersionException(
+        message: String? = null,
+        cause: Throwable? = null,
+    ) : KmeApiException(message, 0, cause)
+
 }

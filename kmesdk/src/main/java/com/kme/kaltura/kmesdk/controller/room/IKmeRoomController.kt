@@ -53,6 +53,7 @@ interface IKmeRoomController : IKmeWebSocketModule {
         roomId: Long,
         roomAlias: String,
         companyId: Long,
+        appVersion: String,
         isReconnect: Boolean = true,
         listener: IKmeWSConnectionListener
     )
