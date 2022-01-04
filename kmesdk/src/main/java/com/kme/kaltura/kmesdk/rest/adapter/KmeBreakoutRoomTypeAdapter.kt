@@ -20,15 +20,16 @@ class KmeBreakoutRoomTypeAdapter : JsonDeserializer<BreakoutRoomState> {
     }
 
     private fun mapRooms(json: JsonElement?) {
-        val breakoutRooms = (json as JsonObject).get("breakout_rooms")
-        val breakoutRoomsEntries = (breakoutRooms as JsonObject).entrySet()
-
         val breakoutRoomsArray = JsonArray()
-        breakoutRoomsEntries.forEach {
-            (it.value as JsonObject).addProperty("room_id", it.key)
-            breakoutRoomsArray.add(it.value as JsonObject)
+        (json as JsonObject).get("breakout_rooms")?.let { breakoutRooms ->
+            val entries = (breakoutRooms as JsonObject).entrySet()
+            if (!entries.isNullOrEmpty()) {
+                entries.forEach {
+                    (it.value as JsonObject).addProperty("room_id", it.key)
+                    breakoutRoomsArray.add(it.value as JsonObject)
+                }
+            }
         }
-
         json.remove("breakout_rooms")
         json.add("breakout_rooms", breakoutRoomsArray)
     }
