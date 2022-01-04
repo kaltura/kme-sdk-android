@@ -4,7 +4,7 @@ import android.graphics.PointF
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
@@ -20,7 +20,7 @@ import okhttp3.internal.toImmutableList
 
 class KmeWhiteboardContentViewModel : ViewModel(), KmeKoinViewModel {
 
-    private val roomController:  IKmeRoomController by scopedInject()
+    private val roomController: IKmeRoomController by scopedInject()
 
     private val setActivePage = MutableLiveData<String>()
     val setActivePageLiveData get() = setActivePage as LiveData<String>

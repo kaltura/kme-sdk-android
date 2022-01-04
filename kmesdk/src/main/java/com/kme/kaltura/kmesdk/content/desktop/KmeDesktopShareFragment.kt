@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import com.kme.kaltura.kmesdk.content.KmeContentView
-import com.kme.kaltura.kmesdk.controller.room.IKmeSettingsModule
+import com.kme.kaltura.kmesdk.module.IKmeSettingsModule
 import com.kme.kaltura.kmesdk.databinding.FragmentDesktopShareContentBinding
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.gone

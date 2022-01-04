@@ -2,7 +2,7 @@ package com.kme.kaltura.kmesdk.content.playkit
 
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.prefs.IKmePreferences
@@ -18,7 +18,7 @@ class KmeMediaContentViewModel : ViewModel(), KmeKoinViewModel {
     private val userController: IKmeUserController by inject()
     private val prefs: IKmePreferences by inject()
     private val audioManager: IKmeAudioManager by inject()
-    private val roomController:  IKmeRoomController by scopedInject()
+    private val roomController: IKmeRoomController by scopedInject()
 
     var isMute = false
 

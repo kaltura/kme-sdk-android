@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmeapplication.util.LiveEvent
 import com.kme.kaltura.kmesdk.KME
 import com.kme.kaltura.kmesdk.content.KmeContentView
-import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
+import com.kme.kaltura.kmesdk.module.IKmeContentModule
+import com.kme.kaltura.kmesdk.module.IKmeRoomModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage

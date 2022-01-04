@@ -28,6 +28,7 @@ internal class KmeMessageManager : IKmeMessageManager {
         event: KmeMessageEvent,
         message: KmeMessage<KmeMessage.Payload>
     ) {
+        Log.e("KmeMessageManager", "post event: ${event.moduleName}", )
         val postListeners = PriorityQueue<Entry>()
         val eventListeners = listeners[event]
         val allEventListeners = listeners[null]
@@ -38,7 +39,7 @@ internal class KmeMessageManager : IKmeMessageManager {
         if (postListeners.isNotEmpty()) {
             uiScope.launch {
                 for (postListener in postListeners) {
-                    Log.e("TAG2", "post: ${postListener.listener}", )
+                    Log.e("KmeMessageManager", "post: ${postListener?.listener}", )
                     postListener?.listener?.onMessageReceived(message)
                 }
             }
@@ -105,6 +106,10 @@ internal class KmeMessageManager : IKmeMessageManager {
         listener: IKmeMessageListener,
         priority: KmeMessagePriority
     ) {
+///FIXME remove duplicates
+        Log.e("KmeMessageManager", "addToMap: ${key?.moduleName}", )
+        Log.e("KmeMessageManager", "addToMap: $listener", )
+
         var priorityQueue = listeners[key]
 
         if (priorityQueue == null) {
@@ -114,7 +119,9 @@ internal class KmeMessageManager : IKmeMessageManager {
             listeners[key] = priorityQueue
         } else {
             val entry = Entry(listener, priority)
-            priorityQueue.offer(entry)
+            if (!priorityQueue.contains(entry)) {
+                priorityQueue.offer(entry)
+            }
         }
     }
 
@@ -126,6 +133,24 @@ internal class KmeMessageManager : IKmeMessageManager {
         override fun compareTo(other: Entry): Int {
             return this.priority.value.compareTo(other.priority.value)
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (javaClass != other?.javaClass) return false
+
+            other as Entry
+
+            if (listener != other.listener) return false
+            if (priority != other.priority) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = listener.hashCode()
+            result = 31 * result + priority.hashCode()
+            return result
+        }
+
 
     }
 

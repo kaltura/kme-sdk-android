@@ -16,7 +16,7 @@ interface IKmeMessageManager {
      */
     fun addListener(
         listener: IKmeMessageListener,
-        priority: KmeMessagePriority = KmeMessagePriority.LOW
+        priority: KmeMessagePriority = KmeMessagePriority.APPLICATION
     )
 
     /**
@@ -30,7 +30,7 @@ interface IKmeMessageManager {
     fun addListener(
         event: KmeMessageEvent,
         listener: IKmeMessageListener,
-        priority: KmeMessagePriority = KmeMessagePriority.LOW
+        priority: KmeMessagePriority = KmeMessagePriority.APPLICATION
     )
 
     /**
@@ -44,7 +44,7 @@ interface IKmeMessageManager {
     fun listen(
         listener: IKmeMessageListener,
         vararg events: KmeMessageEvent,
-        priority: KmeMessagePriority = KmeMessagePriority.LOW
+        priority: KmeMessagePriority = KmeMessagePriority.APPLICATION
     ): IKmeMessageListener
 
     /**

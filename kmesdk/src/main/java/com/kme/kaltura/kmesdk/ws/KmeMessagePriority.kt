@@ -7,5 +7,6 @@ package com.kme.kaltura.kmesdk.ws
 enum class KmeMessagePriority(val value: Int) {
     HIGH(0),
     NORMAL(1),
-    LOW(2)
+    LOW(2),
+    APPLICATION(3)
 }
