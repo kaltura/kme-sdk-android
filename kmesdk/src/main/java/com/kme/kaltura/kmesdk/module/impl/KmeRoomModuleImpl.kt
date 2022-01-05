@@ -86,6 +86,9 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         this.stateListener = stateListener
     }
 
+    override fun getCurrentRoomId() = roomController.breakoutModule.getAssignedBreakoutRoom()?.id
+        ?: roomController.roomModule.getMainRoomId()
+
     /**
      * Listen for room state event
      */
@@ -112,8 +115,6 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                         )
 
                         // TODO: TC ?
-
-                        Log.e("TAG", "roomModule room_state: stateListener = $stateListener", )
 
                         if (internalDataModule.mainRoomId == roomId) {
                             roomController.send(

@@ -101,9 +101,9 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
     /**
      * Get participants list
      */
-    override fun getParticipants(breakoutRoomId: Long?): List<KmeParticipant> {
-        val list = if (breakoutRoomId != null) {
-            participants.filter { participant -> participant.breakoutRoomId == breakoutRoomId }
+    override fun getParticipants(roomId: Long?): List<KmeParticipant> {
+        val list = if (roomId != null) {
+            participants.filter { participant -> participant.breakoutRoomId == roomId }
         } else {
             participants
         }
@@ -170,17 +170,20 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
                 }
                 KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS -> {
                     updateParticipantsRoomId()
-                    participants.filter { participant ->
-                        participant.breakoutRoomId != breakoutModule.getAssignedBreakoutRoom()?.id || (participant.breakoutRoomId == null && participant.userId == publisherId)
-                    }.forEach {
-                        it.liveMediaState = KmeMediaDeviceState.DISABLED
-                        Log.e("TAG", "liveMediaState: DISABLED, userId = ${it.userId}")
-                        listener?.onParticipantMediaStateChanged(
-                            it.userId ?: 0,
-                            KmeMediaStateType.LIVE_MEDIA,
-                            KmeMediaDeviceState.DISABLED
-                        )
-                    }
+
+                    //TODO ???
+//                    participants.filter { participant ->
+//                        participant.breakoutRoomId != breakoutModule.getAssignedBreakoutRoom()?.id
+//                                || (participant.breakoutRoomId == null && participant.userId == publisherId)
+//                    }.forEach {
+//                        it.liveMediaState = KmeMediaDeviceState.DISABLED
+//                        Log.e("TAG", "liveMediaState: DISABLED, userId = ${it.userId}")
+//                        listener?.onParticipantMediaStateChanged(
+//                            it.userId ?: 0,
+//                            KmeMediaStateType.LIVE_MEDIA,
+//                            KmeMediaDeviceState.DISABLED
+//                        )
+//                    }
                 }
                 KmeMessageEvent.BREAKOUT_START_SUCCESS,
                 KmeMessageEvent.BREAKOUT_STOP_SUCCESS,
@@ -200,11 +203,14 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
 
         if (assignments.isNullOrEmpty()) {
             participants.forEach {
-                it.breakoutRoomId = null
+                it.breakoutRoomId = internalModule.mainRoomId
                 Log.e(
                     "TAG",
                     "updateParticipantsRoomId: userId = ${it.userId} to main room",
                 )
+                if (notify) {
+                    listener?.onParticipantChanged(it)
+                }
             }
         } else {
             assignments.forEach { assignment ->

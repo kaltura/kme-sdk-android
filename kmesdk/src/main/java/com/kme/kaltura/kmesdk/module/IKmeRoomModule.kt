@@ -27,6 +27,13 @@ interface IKmeRoomModule : IKmeModule {
     fun setRoomStateListener(stateListener: IKmeRoomStateListener?)
 
     /**
+     * Getting current room id
+     *
+     * @return the current room id
+     * */
+    fun getCurrentRoomId() : Long
+
+    /**
      * Getting all rooms for specific company
      *
      * @param companyId id of a company

@@ -205,7 +205,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
 
         if (!isInitialized) return
 
-        if (participantModule.getParticipant(requestedUserIdStream.toLongOrNull())?.breakoutRoomId != roomController.breakoutModule.getAssignedBreakoutRoom()?.id) return
+//        if (participantModule.getParticipant(requestedUserIdStream.toLongOrNull())?.breakoutRoomId != roomController.breakoutModule.getAssignedBreakoutRoom()?.id) return
 
         Log.e("TAG", "addViewerConnection: $requestedUserIdStream", )
 

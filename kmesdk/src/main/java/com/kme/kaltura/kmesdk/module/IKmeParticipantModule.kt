@@ -20,11 +20,11 @@ interface IKmeParticipantModule : IKmeModule {
     /**
      * Get participants list
      *
-     * @param breakoutRoomId id of a breakout room
+     * @param roomId id of a room
      *
-     * @return list of all participants in case [breakoutRoomId] = null
+     * @return list of all participants in case [roomId] = null
      */
-    fun getParticipants(breakoutRoomId: Long? = null): List<KmeParticipant>
+    fun getParticipants(roomId: Long? = null): List<KmeParticipant>
 
     /**
      * Get participant with userId from the list
