@@ -152,8 +152,8 @@ class KmeQuickPollView @JvmOverloads constructor(
             removeAllViews()
             pollView = null
             startPollPayload = null
+            endPollPayload = null
         }
-//        defaultEventHandler.destroyEndedValue()
     }
 
     private fun onUserAnsweredPoll(payload: QuickPollUserAnsweredPayload) {
@@ -255,8 +255,6 @@ class KmeQuickPollView @JvmOverloads constructor(
 
         hideResultsViewJob?.cancel()
         hideResultsViewJob = null
-
-//        defaultEventHandler.destroyValues()
 
         super.onDetachedFromWindow()
     }
