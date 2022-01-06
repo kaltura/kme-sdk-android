@@ -249,10 +249,10 @@ internal class KmeMessageParser(
             KmeMessageEvent.RECORDING_INITIATED.toString() -> {
                 text.jsonToObject<KmeRoomRecordingMessage<RecordingInitiatedPayload>>()
             }
-            KmeMessageEvent.RECORDING_STARTING.toString() -> {
+            KmeMessageEvent.RECORDING_RECEIVED_START.toString() -> {
                 text.jsonToObject<KmeRoomRecordingMessage<RecordingStartedPayload>>()
             }
-            KmeMessageEvent.RECORDING_STOPPED.toString() -> {
+            KmeMessageEvent.RECORDING_RECEIVED_STOP.toString() -> {
                 text.jsonToObject<KmeRoomRecordingMessage<RecordingStoppedPayload>>()
             }
             KmeMessageEvent.RECORDING_COMPLETED.toString() -> {

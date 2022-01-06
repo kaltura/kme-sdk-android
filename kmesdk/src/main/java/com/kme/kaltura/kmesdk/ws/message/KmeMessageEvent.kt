@@ -267,22 +267,22 @@ enum class KmeMessageEvent(
     * */
 
     @SerializedName("startRecording", alternate = ["startrecording"])
-    START_RECORDING("startRecording"),
+    RECORDING_ACTION_START("startRecording"),
+
+    @SerializedName("stopRecording", alternate = ["stoprecording"])
+    RECORDING_ACTION_STOP("stopRecording"),
 
     @SerializedName("initiated", alternate = ["initiated"])
     RECORDING_INITIATED("initiated"),
 
     @SerializedName("receivedStartRecording", alternate = ["receivedstartrecording"])
-    RECORDING_STARTING("receivedStartRecording"),
-
-    @SerializedName("stopRecording", alternate = ["stoprecording"])
-    STOP_RECORDING("stopRecording"),
+    RECORDING_RECEIVED_START("receivedStartRecording"),
 
     @SerializedName("recording", alternate = ["recording"])
     RECORDING_STARTED("recording"),
 
     @SerializedName("receivedStopRecording", alternate = ["receivedstoprecording"])
-    RECORDING_STOPPED("receivedStopRecording"),
+    RECORDING_RECEIVED_STOP("receivedStopRecording"),
 
     @SerializedName("recordingCompleted", alternate = ["recordingcompleted"])
     RECORDING_COMPLETED("recordingCompleted"),
