@@ -3,7 +3,6 @@ package com.kme.kaltura.kmeapplication.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.kme.kaltura.kmeapplication.util.extensions.ifNonNull
 import com.kme.kaltura.kmesdk.KME
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -12,7 +11,6 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomRecordingMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomRecordingMessage.RecordingFailurePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomRecordingMessage.RecordingStatusPayload
-import com.kme.kaltura.kmesdk.ws.message.type.KmeRecordStatus
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
@@ -77,8 +75,8 @@ class RoomRecordingViewModel(
             recordingHandler,
             KmeMessageEvent.RECORDING_STARTED,
             KmeMessageEvent.RECORDING_INITIATED,
-            KmeMessageEvent.RECORDING_STARTING,
-            KmeMessageEvent.RECORDING_STOPPED,
+//            KmeMessageEvent.RECORDING_STARTING,
+//            KmeMessageEvent.RECORDING_STOPPED,
             KmeMessageEvent.RECORDING_COMPLETED,
             KmeMessageEvent.RECORDING_CONVERSION_COMPLETED,
             KmeMessageEvent.RECORDING_UPLOAD_COMPLETED,
@@ -161,10 +159,10 @@ class RoomRecordingViewModel(
     private val recordingHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
-                KmeMessageEvent.RECORDING_STARTING -> {
-                    blockActionsForInit = true
-                    recordStarting.value = null
-                }
+//                KmeMessageEvent.RECORDING_STARTING -> {
+//                    blockActionsForInit = true
+//                    recordStarting.value = null
+//                }
                 KmeMessageEvent.RECORDING_INITIATED -> {
                     recordInitiated.value = null
                 }
@@ -174,10 +172,10 @@ class RoomRecordingViewModel(
                     recordDuration.value = 0
                     startTimer()
                 }
-                KmeMessageEvent.RECORDING_STOPPED -> {
-                    record.value = false
-                    stopTimer()
-                }
+//                KmeMessageEvent.RECORDING_STOPPED -> {
+//                    record.value = false
+//                    stopTimer()
+//                }
                 KmeMessageEvent.RECORDING_COMPLETED -> {
                     recordCompleted.value = null
                     record.value = false
@@ -191,17 +189,17 @@ class RoomRecordingViewModel(
                 }
                 KmeMessageEvent.RECORDING_STATUS -> {
                     val msg: KmeRoomRecordingMessage<RecordingStatusPayload>? = message.toType()
-                    if (msg?.payload?.status != KmeRecordStatus.RECORDING) {
-                        return
-                    }
-                    ifNonNull(
-                        msg.payload?.timestamp,
-                        msg.payload?.userJoinTimestamp
-                    ) { startedAt, joinedAt ->
-                        record.value = true
-                        recordDuration.value = joinedAt - startedAt
-                        startTimer()
-                    }
+//                    if (msg?.payload?.status != KmeRecordStatus.RECORDING) {
+//                        return
+//                    }
+//                    ifNonNull(
+//                        msg.payload?.timestamp,
+//                        msg.payload?.userJoinTimestamp
+//                    ) { startedAt, joinedAt ->
+//                        record.value = true
+//                        recordDuration.value = joinedAt - startedAt
+//                        startTimer()
+//                    }
                 }
                 KmeMessageEvent.RECORDING_FAILED -> {
                     val msg: KmeRoomRecordingMessage<RecordingFailurePayload>? = message.toType()

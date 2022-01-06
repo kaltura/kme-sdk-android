@@ -5,7 +5,7 @@ import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmeModuleVisibilityValue
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class KmeChatModule(

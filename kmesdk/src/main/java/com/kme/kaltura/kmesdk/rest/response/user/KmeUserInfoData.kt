@@ -3,7 +3,7 @@ package com.kme.kaltura.kmesdk.rest.response.user
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class KmeUserInfoData(

@@ -7,7 +7,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlatformType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class KmeParticipant(
