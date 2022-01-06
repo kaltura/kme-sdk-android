@@ -4,7 +4,7 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.rest.response.room.settings.FeatureFlags
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class KmeUserCompany(
