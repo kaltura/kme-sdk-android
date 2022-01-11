@@ -390,6 +390,9 @@ enum class KmeMessageEvent(
     @SerializedName("largeRoomModeFinished", alternate = ["largeroommodefinished"])
     XL_ROOM_MODE_FINISHED("largeRoomModeFinished"),
 
+    @SerializedName("largeRoomModeAborted", alternate = ["largeroommodeaborted"])
+    XL_ROOM_MODE_ABORTED("largeRoomModeAborted"),
+
     @SerializedName("largeRoomModeFailed", alternate = ["largeroommodefailed"])
     XL_ROOM_MODE_FAILED("largeRoomModeFailed"),
 
