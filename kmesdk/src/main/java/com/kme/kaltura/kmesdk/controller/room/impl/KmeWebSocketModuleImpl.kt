@@ -4,10 +4,7 @@ import android.util.Log
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
-import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
-import com.kme.kaltura.kmesdk.ws.IKmeWSListener
-import com.kme.kaltura.kmesdk.ws.KmeMessageManager
-import com.kme.kaltura.kmesdk.ws.KmeWebSocketHandler
+import com.kme.kaltura.kmesdk.ws.*
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
@@ -37,7 +34,7 @@ internal class KmeWebSocketModuleImpl : KmeController(),
 
     private lateinit var request: Request
 
-    private lateinit var listener: IKmeWSConnectionListener
+    private var listener: IKmeWSConnectionListener? = null
     private var roomId: Long = 0
 
     private var companyId: Long = 0
@@ -112,7 +109,7 @@ internal class KmeWebSocketModuleImpl : KmeController(),
         reconnectionJob?.cancel()
         reconnectionAttempts = 0
         uiScope.launch {
-            listener.onOpen()
+            listener?.onOpen()
         }
     }
 
@@ -125,10 +122,12 @@ internal class KmeWebSocketModuleImpl : KmeController(),
         isSocketConnected = false
         reconnect()
         uiScope.launch {
-            listener.onFailure(throwable)
+            if (allowReconnection) {
+                listener?.onFailure(throwable)
+            }
         }
         if (!allowReconnection) {
-            onClosed(1000, "")
+            onClosed(KmeWebSocketCode.CLOSE_NORMAL.code, "")
         }
     }
 
@@ -138,11 +137,11 @@ internal class KmeWebSocketModuleImpl : KmeController(),
     override fun onClosing(code: Int, reason: String) {
         isSocketConnected = false
         //Status code == 1000 - normal closure, the connection successfully completed
-        if (code != 1000) {
+        if (code != KmeWebSocketCode.CLOSE_NORMAL.code) {
             reconnect()
         }
         uiScope.launch {
-            listener.onClosing(code, reason)
+            listener?.onClosing(code, reason)
         }
     }
 
@@ -154,7 +153,7 @@ internal class KmeWebSocketModuleImpl : KmeController(),
         isSocketConnected = false
         reconnectionJob?.cancel()
         uiScope.launch {
-            listener.onClosed(code, reason)
+            listener?.onClosed(code, reason)
         }
     }
 
@@ -162,21 +161,30 @@ internal class KmeWebSocketModuleImpl : KmeController(),
      * Send message via socket
      */
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
-        val strMessage = gson.toJson(message)
-        Log.e(TAG, "send: $strMessage")
-        webSocket?.send(strMessage)
+        try {
+            val strMessage = gson.toJson(message)
+            Log.e(TAG, "send ==> $strMessage")
+            webSocket?.send(strMessage)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     /**
      * Disconnect socket connection
      */
     override fun disconnect() {
-        allowReconnection = false
-        reconnectionJob?.cancel()
-        reconnectionJob = null
-        webSocket?.cancel()
-        webSocket = null
-        messageManager.removeListeners()
+        Log.e(TAG, "disconnect module: isConnected = $isSocketConnected, ${this.hashCode()}",)
+
+        if (isSocketConnected) {
+            isSocketConnected = false
+            allowReconnection = false
+            reconnectionJob?.cancel()
+            reconnectionJob = null
+            webSocket?.cancel()
+            webSocket = null
+            messageManager.removeListeners()
+        }
     }
 
     /**

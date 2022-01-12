@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.util.Log
 import android.widget.FrameLayout
 import androidx.lifecycle.*
 import com.kaltura.playkit.*
@@ -285,10 +286,15 @@ class KmeMediaView @JvmOverloads constructor(
     }
 
     private fun syncPlayerState() {
+        Log.e("TAG", "syncPlayerState: canPlay = $canPlay, syncPlayerState = ${syncPlayerState?.name}, syncPlayerPosition = $syncPlayerPosition", )
         if (canPlay) {
             syncPlayerState?.let {
                 seekTo(syncPlayerPosition.toLong())
                 handlePlayerState(it)
+            } ?: run {
+                /*seekTo(syncPlayerPosition.toLong())
+                play()
+                pause()*/
             }
         }
     }
@@ -358,6 +364,7 @@ class KmeMediaView @JvmOverloads constructor(
      * Pause playback
      */
     override fun pause() {
+        Log.e("TAG", "pause: ", )
         if (isYoutube()) {
             youtubePlayer?.pause()
             messageBus?.post(PlayerEvent.Generic(PlayerEvent.Type.PAUSE))
@@ -384,6 +391,7 @@ class KmeMediaView @JvmOverloads constructor(
      */
     override fun seekTo(seekTo: Long) {
         val seekToMillis = TimeUnit.SECONDS.toMillis(seekTo)
+        Log.e("TAG", "seekTo: $seekToMillis", )
         if (isYoutube()) {
             if (currentPosition != seekTo) {
                 youtubePlayer?.seekTo(seekTo.toFloat())
@@ -414,6 +422,7 @@ class KmeMediaView @JvmOverloads constructor(
     }
 
     private val syncPlayerStateObserver = Observer<Pair<KmePlayerState?, Float>> { state ->
+        Log.e("TAG", "sync: ${state.first?.name}, ${state.second}", )
         syncPlayerState = state.first
         syncPlayerPosition = if (state.second < 0f) 0f else state.second
         syncPlayerState()
