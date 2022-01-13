@@ -464,7 +464,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
                     val userId = msg?.payload?.userId
                     val volumeData = msg?.payload?.volumeData?.split(",")
                     if (userId != null && volumeData != null) {
-                        val isSpeaking = volumeData[0].toInt() == 1
+                        val isSpeaking = volumeData[0].toDouble().toInt() == 1
                         if (!viewersAudioEnabledBySdk && isSpeaking) return
                         listener.onUserSpeaking(userId.toString(), isSpeaking)
                     }
