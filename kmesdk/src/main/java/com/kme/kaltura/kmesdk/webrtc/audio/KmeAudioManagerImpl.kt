@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.AudioManager.OnAudioFocusChangeListener
+import android.util.Log
 import java.util.*
 
 /**
@@ -61,16 +62,18 @@ class KmeAudioManagerImpl(
         }
         hasWiredHeadset = hasWiredHeadset()
 
+        Log.e("TAG", "start: savedAudioMode = $savedAudioMode, hasWiredHeadset = $hasWiredHeadset")
+
 //        audioManager.requestAudioFocus(
 //            audioFocusChangeListener,
 //            AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
 //        )
 
-        audioManager.requestAudioFocus(
-            audioFocusChangeListener,
-            AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
-        )
-
+//        val result = audioManager.requestAudioFocus(
+//            audioFocusChangeListener,
+//            AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+//        )
+//        Log.e("TAG", "start: requestAudioFocus = $result", )
 
         audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
 
@@ -100,7 +103,7 @@ class KmeAudioManagerImpl(
         setSpeakerphoneOn(savedIsSpeakerPhoneOn)
         audioManager.mode = savedAudioMode
 
-        audioManager.abandonAudioFocus(audioFocusChangeListener)
+//        audioManager.abandonAudioFocus(audioFocusChangeListener)
         audioFocusChangeListener = null
         removeListener()
     }
