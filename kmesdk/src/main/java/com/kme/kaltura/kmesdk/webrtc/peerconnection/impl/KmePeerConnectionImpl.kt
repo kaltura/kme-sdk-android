@@ -333,7 +333,7 @@ internal class KmePeerConnectionImpl(
 
         // Front facing camera not found, try something else
         for (deviceName in deviceNames) {
-            if (!enumerator.isFrontFacing(deviceName)) {
+            if (enumerator.isBackFacing(deviceName)) {
                 // Creating other camera capturer."
                 val videoCapturer: VideoCapturer? = enumerator.createCapturer(deviceName, null)
                 if (videoCapturer != null) {
