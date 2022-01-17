@@ -108,14 +108,9 @@ interface IKmeBasePeerConnection {
     fun removeRemoteIceCandidates(candidates: Array<IceCandidate>)
 
     /**
-     * Disable outgoing video stream
+     * Enable/Disable outgoing video stream
      */
-    fun stopVideoSource()
-
-    /**
-     * Enable outgoing video stream
-     */
-    fun startVideoSource()
+    fun enableVideoSource(enable: Boolean)
 
     /**
      * Switch between existing cameras

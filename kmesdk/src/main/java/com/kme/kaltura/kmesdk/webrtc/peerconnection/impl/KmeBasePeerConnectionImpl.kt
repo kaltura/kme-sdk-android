@@ -37,7 +37,7 @@ open class KmeBasePeerConnectionImpl(
     internal var isScreenShare = false
     internal var useDataChannel = false
 
-    internal var videoCapturerStopped = false
+    internal var videoCapturerEnabled = false
     internal var preferredMicEnabled = true
     internal var preferredCamEnabled = true
 
@@ -292,16 +292,9 @@ open class KmeBasePeerConnectionImpl(
     }
 
     /**
-     * Disable outgoing video stream
+     * Enable/Disable outgoing video stream
      */
-    override fun stopVideoSource() {
-        throw Exception("Wrong state.")
-    }
-
-    /**
-     * Enable outgoing video stream
-     */
-    override fun startVideoSource() {
+    override fun enableVideoSource(enable: Boolean) {
         throw Exception("Wrong state.")
     }
 
@@ -385,7 +378,7 @@ open class KmeBasePeerConnectionImpl(
         } catch (e: InterruptedException) {
             throw RuntimeException(e)
         }
-        videoCapturerStopped = true
+        videoCapturerEnabled = false
         videoCapturer?.dispose()
         videoCapturer = null
 

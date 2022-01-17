@@ -117,34 +117,29 @@ class KmePublisherPeerConnectionImpl(
      */
     @RequiresPermission(Manifest.permission.CAMERA)
     override fun setVideoEnabled(enable: Boolean) {
-        localVideoTrack?.setEnabled(enable)
+        enableVideoSource(enable)
+//        localVideoTrack?.setEnabled(enable)
     }
 
     /**
-     * Disable outgoing video stream
+     * Enable/Disable outgoing video stream
      */
-    override fun stopVideoSource() {
-        if (!videoCapturerStopped) {
+    override fun enableVideoSource(enable: Boolean) {
+        if (enable) {
+            if (!videoCapturerEnabled) {
+                videoCapturer?.startCapture(
+                    VIDEO_WIDTH,
+                    VIDEO_HEIGHT,
+                    VIDEO_FPS
+                )
+                videoCapturerEnabled = true
+            }
+        } else if (videoCapturerEnabled) {
             try {
                 videoCapturer?.stopCapture()
             } catch (e: InterruptedException) {
-
             }
-            videoCapturerStopped = true
-        }
-    }
-
-    /**
-     * Enable outgoing video stream
-     */
-    override fun startVideoSource() {
-        if (videoCapturerStopped) {
-            videoCapturer?.startCapture(
-                VIDEO_WIDTH,
-                VIDEO_HEIGHT,
-                VIDEO_FPS
-            )
-            videoCapturerStopped = false
+            videoCapturerEnabled = false
         }
     }
 
