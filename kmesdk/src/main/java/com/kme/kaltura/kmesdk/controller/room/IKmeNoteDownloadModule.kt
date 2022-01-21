@@ -19,7 +19,7 @@ interface IKmeNoteDownloadModule : IKmeModule {
     fun downloadRoomNote(
         name: String,
         url: String,
-        success: () -> Unit,
+        success: (String?) -> Unit,
         error: (exception: Exception) -> Unit
     )
 
