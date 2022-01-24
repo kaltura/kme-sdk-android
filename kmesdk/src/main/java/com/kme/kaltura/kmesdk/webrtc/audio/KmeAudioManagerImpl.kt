@@ -7,7 +7,6 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.AudioManager.OnAudioFocusChangeListener
-import android.util.Log
 import java.util.*
 
 /**
@@ -61,8 +60,6 @@ class KmeAudioManagerImpl(
             savedIsSpeakerPhoneOn = it.isSpeakerphoneOn
         }
         hasWiredHeadset = hasWiredHeadset()
-
-        Log.e("TAG", "start: savedAudioMode = $savedAudioMode, hasWiredHeadset = $hasWiredHeadset")
 
 //        audioManager.requestAudioFocus(
 //            audioFocusChangeListener,
