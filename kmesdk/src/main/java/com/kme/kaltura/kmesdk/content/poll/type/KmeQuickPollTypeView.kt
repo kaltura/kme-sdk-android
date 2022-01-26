@@ -19,6 +19,7 @@ import com.kme.kaltura.kmesdk.databinding.LayoutPollMultipleChoiceBinding
 import com.kme.kaltura.kmesdk.databinding.LayoutPollRatingBinding
 import com.kme.kaltura.kmesdk.databinding.LayoutPollReactionsBinding
 import com.kme.kaltura.kmesdk.databinding.LayoutPollYesNoBinding
+import com.kme.kaltura.kmesdk.ui.widget.KmeRatingBar
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
 
 /**
@@ -34,12 +35,16 @@ abstract class KmeQuickPollTypeView<B : ViewBinding> @JvmOverloads constructor(
 
     var isAnonymousPoll = true
 
+    var savedAnswerType: Int? = null
+
     abstract val type: KmeQuickPollType
 
     protected var layoutInflater: LayoutInflater = LayoutInflater.from(context)
 
     protected var binding: B? = null
         private set
+
+    protected abstract fun getAnswerView(type: Int): View?
 
     protected abstract fun getViewBinding(): B
 
@@ -50,7 +55,9 @@ abstract class KmeQuickPollTypeView<B : ViewBinding> @JvmOverloads constructor(
 
     private var isTimeoutAnimationCanceled = false
     private var prevAnimatedView: View? = null
-    private var prevAnswerType: Int? = null
+
+    var prevAnswerType: Int? = null
+        private set
 
     private val timeoutAnswerAnimation by lazy {
         ValueAnimator.ofInt(0, 100).apply {
@@ -73,6 +80,7 @@ abstract class KmeQuickPollTypeView<B : ViewBinding> @JvmOverloads constructor(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         getAnonymousLabel()?.visibility = if (isAnonymousPoll) VISIBLE else GONE
+        restoreState()
     }
 
     protected fun View.performAnswerJob(answer: Int) {
@@ -124,6 +132,7 @@ abstract class KmeQuickPollTypeView<B : ViewBinding> @JvmOverloads constructor(
             }
 
             doOnCancel {
+                prevAnswerType = null
                 isTimeoutAnimationCanceled = true
                 val params = prevAnimatedView?.layoutParams
                 params?.width = inactiveButtonSize
@@ -132,6 +141,8 @@ abstract class KmeQuickPollTypeView<B : ViewBinding> @JvmOverloads constructor(
             }
 
             doOnEnd {
+                prevAnswerType = null
+                savedAnswerType = null
                 if (!isTimeoutAnimationCanceled) {
                     listener?.onAnswered(type, answer)
                 }
@@ -159,6 +170,19 @@ abstract class KmeQuickPollTypeView<B : ViewBinding> @JvmOverloads constructor(
             is LayoutPollMultipleChoiceBinding -> (binding as LayoutPollMultipleChoiceBinding).tvAnonymousPoll.root
             is LayoutPollReactionsBinding -> (binding as LayoutPollReactionsBinding).tvAnonymousPoll.root
             else -> null
+        }
+    }
+
+    private fun restoreState() {
+        savedAnswerType?.let {
+            if (it > -1) {
+                val answerView = getAnswerView(it)
+                if (answerView is KmeRatingBar) {
+                    answerView.setRating(it + 1)
+                } else {
+                    answerView?.performAnswerJob(it)
+                }
+            }
         }
     }
 
