@@ -98,34 +98,52 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
     fun isPublishing(): Boolean
 
     /**
-     * Add renderer for publisher connection
+     * Add renderer for publisher's peer connection
      *
-     * @param renderer view for video rendering
+     * @param rendererView video renderer
      */
-    fun setPublisherRenderer(renderer: KmeSurfaceRendererView)
+    fun addPublisherRenderer(renderer: KmeSurfaceRendererView)
 
     /**
-     * Add renderer for viewer connection
+     * Remove specific renderer for publisher's peer connection
+     *
+     * @param rendererView video renderer
+     */
+    fun removePublisherRenderer(renderer: KmeSurfaceRendererView)
+
+    /**
+     * Remove all renderers for publisher's connection
+     */
+    fun removePublisherRenderers()
+
+    /**
+     * Add renderer for viewer's connection
      *
      * @param requestedUserIdStream id of a user (stream)
-     * @param renderer view for video rendering
+     * @param rendererView video renderer
      */
-    fun setViewerRenderer(
+    fun addViewerRenderer(
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView
     )
 
     /**
-     * Remove renderer for publisher connection
+     * Remove specific renderer for viewer's peer connection
+     *
+     * @param requestedUserIdStream id of a user (stream)
+     * @param renderer video renderer
      */
-    fun removePublisherRenderer()
+    fun removeViewerRenderer(
+        requestedUserIdStream: String,
+        renderer: KmeSurfaceRendererView
+    )
 
     /**
-     * Remove renderer for viewer connection
+     * Remove all renderers for viewer's connection
      *
      * @param requestedUserIdStream id of a user (stream)
      */
-    fun removeViewerRenderer(
+    fun removeViewerRenderers(
         requestedUserIdStream: String
     )
 
@@ -155,7 +173,7 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
      *
      * @param renderer view for video rendering
      */
-    fun setScreenShareRenderer(renderer: KmeSurfaceRendererView)
+    fun addScreenShareRenderer(renderer: KmeSurfaceRendererView)
 
     /**
      * Toggle publisher's camera
@@ -224,9 +242,8 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
          * Callback fired to indicate current talking user
          *
          * @param id id of a user (stream)
-         * @param isSpeaking indicates is user currently speaking
          */
-        fun onUserSpeaking(id: String, isSpeaking: Boolean)
+        fun onUserSpeaking(id: Long)
 
         /**
          * Callback fired once peer connection removed

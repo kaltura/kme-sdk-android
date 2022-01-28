@@ -5,6 +5,7 @@ import android.content.Intent
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeParticipantsInternalModule
 import com.kme.kaltura.kmesdk.controller.room.internal.IKmePeerConnectionInternalModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
@@ -35,6 +36,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
     IKmePeerConnectionInternalModule {
 
     private val userController: IKmeUserController by inject()
+    private val participantsInternalModule: IKmeParticipantsInternalModule by scopedInject()
     private val roomController: IKmeRoomController by scopedInject()
     private val webSocketModule: IKmeWebSocketModule by scopedInject()
     private val contentModule: IKmeContentModule by scopedInject()
@@ -221,27 +223,71 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
         viewers[requestedUserIdStream] = viewer
     }
 
-    override fun setPublisherRenderer(renderer: KmeSurfaceRendererView) {
+    /**
+     * Add renderer for publisher's peer connection
+     */
+    override fun addPublisherRenderer(renderer: KmeSurfaceRendererView) {
         if (!isInitialized) return
-        publisher?.setRenderer(renderer)
+
+        removeRendererIfAttachedBefore(renderer)
+        publisher?.addRenderer(renderer)
     }
 
-    override fun setViewerRenderer(
+    /**
+     * Remove specific renderer for publisher's peer connection
+     */
+    override fun removePublisherRenderer(renderer: KmeSurfaceRendererView) {
+        if (!isInitialized) return
+        publisher?.removeRenderer(renderer)
+    }
+
+    /**
+     * Remove all renderers for publisher's connection
+     */
+    override fun removePublisherRenderers() {
+        if (!isInitialized) return
+        publisher?.removeRenderers()
+    }
+
+    /**
+     * Add renderer for viewer's connection
+     */
+    override fun addViewerRenderer(
         requestedUserIdStream: String,
-        renderer: KmeSurfaceRendererView,
+        renderer: KmeSurfaceRendererView
     ) {
         if (!isInitialized) return
-        viewers[requestedUserIdStream]?.setRenderer(renderer)
+
+        removeRendererIfAttachedBefore(renderer)
+        viewers[requestedUserIdStream]?.addRenderer(renderer)
     }
 
-    override fun removePublisherRenderer() {
+    /**
+     * Remove specific renderer for viewer's peer connection
+     */
+    override fun removeViewerRenderer(
+        requestedUserIdStream: String,
+        renderer: KmeSurfaceRendererView
+    ) {
         if (!isInitialized) return
-        publisher?.removeRenderer()
+        viewers[requestedUserIdStream]?.removeRenderer(renderer)
     }
 
-    override fun removeViewerRenderer(requestedUserIdStream: String) {
+    /**
+     * Remove all renderers for viewer's connection
+     */
+    override fun removeViewerRenderers(requestedUserIdStream: String) {
         if (!isInitialized) return
-        viewers[requestedUserIdStream]?.removeRenderer()
+        viewers[requestedUserIdStream]?.removeRenderers()
+    }
+
+    private fun removeRendererIfAttachedBefore(renderer: KmeSurfaceRendererView) {
+        preview?.removeRenderer(renderer)
+        publisher?.removeRenderer(renderer)
+        screenSharer?.removeRenderer(renderer)
+        viewers.forEach { (_, connection) ->
+            connection.removeRenderer(renderer)
+        }
     }
 
     /**
@@ -311,11 +357,14 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
         }
     }
 
-    override fun setScreenShareRenderer(renderer: KmeSurfaceRendererView) {
+    /**
+     * Add renderer for screen sharer connection
+     */
+    override fun addScreenShareRenderer(renderer: KmeSurfaceRendererView) {
         if (!isInitialized) return
-        screenSharer?.let {
-            it.setRenderer(renderer)
-        }
+
+        removeRendererIfAttachedBefore(renderer)
+        screenSharer?.addRenderer(renderer)
     }
 
     /**
@@ -456,7 +505,9 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
                 KmeMessageEvent.USER_DISCONNECTED -> {
                     val msg: KmeStreamingModuleMessage<UserDisconnectedPayload>? = message.toType()
 
-                    msg?.payload?.userId?.toString()?.let { disconnect(it) }
+                    msg?.payload?.userId?.let {
+                        disconnect(if (it < 0) "${roomId}_dialin" else it.toString())
+                    }
                 }
                 KmeMessageEvent.USER_SPEAKING -> {
                     val msg: KmeStreamingModuleMessage<UserSpeakingPayload>? = message.toType()
@@ -466,7 +517,9 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
                     if (userId != null && volumeData != null) {
                         val isSpeaking = volumeData[0].toDouble().toInt() == 1
                         if (!viewersAudioEnabledBySdk && isSpeaking) return
-                        listener.onUserSpeaking(userId.toString(), isSpeaking)
+
+                        participantsInternalModule.participantSpeaking(userId, isSpeaking)
+                        listener.onUserSpeaking(userId)
                     }
                 }
                 KmeMessageEvent.USER_MEDIA_STATE_CHANGED -> {
@@ -608,7 +661,11 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
                 )
             )
         }
-        listener.onUserSpeaking(requestedUserIdStream, bringToFront == 1)
+
+        requestedUserIdStream.toLongOrNull()?.let { id ->
+            participantsInternalModule.participantSpeaking(id, bringToFront == 1)
+            listener.onUserSpeaking(id)
+        }
     }
 
     override fun onIceDisconnected() {

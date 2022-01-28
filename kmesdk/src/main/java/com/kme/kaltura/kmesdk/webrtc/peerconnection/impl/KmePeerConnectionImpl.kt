@@ -58,14 +58,24 @@ internal class KmePeerConnectionImpl(
     }
 
     /**
-     * Setting view for stream rendering
+     * Remove all renderers for viewer connection
      */
-    override fun setRenderer(rendererView: KmeSurfaceRendererView) {
-        peerConnection?.setRenderer(rendererView)
+    override fun removeRenderers() {
+        peerConnection?.removeRenderers()
     }
 
-    override fun removeRenderer() {
-        peerConnection?.removeRenderer()
+    /**
+     * Add renderer for peer connection
+     */
+    override fun addRenderer(rendererView: KmeSurfaceRendererView) {
+        peerConnection?.addRenderer(rendererView)
+    }
+
+    /**
+     * Remove specific renderer for peer connection
+     */
+    override fun removeRenderer(rendererView: KmeSurfaceRendererView) {
+        peerConnection?.removeRenderer(rendererView)
     }
 
     /**
