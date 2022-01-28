@@ -5,6 +5,7 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.KmeMessageModule
 import com.kme.kaltura.kmesdk.ws.message.chat.KmeChatMessage
 import com.kme.kaltura.kmesdk.ws.message.module.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
@@ -30,6 +31,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPaylo
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.*
 
 private const val KEY_NAME = "name"
+private const val KEY_MODULE = "module"
 
 /**
  * An implementation for parsing incoming messages
@@ -50,8 +52,9 @@ internal class KmeMessageParser(
         try {
             val jsonObject = jsonParser.parse(messageText).asJsonObject
             if (jsonObject.has(KEY_NAME)) {
-                val name = jsonObject.get(KEY_NAME).asString.toLowerCase()
-                parsedMessage = parseMessage(name, messageText)
+                val name = jsonObject.get(KEY_NAME).asString.lowercase()
+                val module = jsonObject.get(KEY_MODULE).asString.lowercase()
+                parsedMessage = parseMessage(name, module, messageText)
             }
         } catch (e: Exception) {
             parsedMessage = null
@@ -70,7 +73,7 @@ internal class KmeMessageParser(
      * @return [KmeMessage] object in case parsed correctly
      */
     @Suppress("UNCHECKED_CAST")
-    private fun parseMessage(name: String, text: String): KmeMessage<KmeMessage.Payload>? {
+    private fun parseMessage(name: String, module: String?, text: String): KmeMessage<KmeMessage.Payload>? {
         return when (name) {
             KmeMessageEvent.COMBINED_EVENT.toString() -> {
                 text.jsonToObject<KmeMessage<KmeMessage.Payload>>()
@@ -342,7 +345,13 @@ internal class KmeMessageParser(
                 text.jsonToObject<KmeQuickPollModuleMessage<QuickPollUserAnsweredPayload>>()
             }
             KmeMessageEvent.MODULE_STATE.toString() -> {
-                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
+                return when (module) {
+                    KmeMessageModule.BREAKOUT.moduleName ->
+                        text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
+                    KmeMessageModule.QUICK_POLL.moduleName ->
+                        text.jsonToObject<KmeQuickPollModuleMessage<GetQuickPollStatePayload>>()
+                    else -> null
+                }
             }
             KmeMessageEvent.BREAKOUT_START_SUCCESS.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()

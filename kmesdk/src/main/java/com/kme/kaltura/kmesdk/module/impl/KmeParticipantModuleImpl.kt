@@ -22,14 +22,17 @@ import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.KmeMessageModule
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.BreakoutRoomState
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.NewUserJoinedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.RoomStatePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.StartedPublishPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.UserDisconnectedPayload
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
@@ -163,9 +166,11 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
                 KmeMessageEvent.MODULE_STATE -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
-                    msg?.let {
+                    if (KmeMessageModule.BREAKOUT == message.module) {
+                        val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
+                        msg?.let {
 //                        updateParticipantsRoomId()
+                        }
                     }
                 }
                 KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS -> {

@@ -1,16 +1,16 @@
 package com.kme.kaltura.kmesdk.module.impl
 
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
-import com.kme.kaltura.kmesdk.module.IKmeBreakoutModule
-import com.kme.kaltura.kmesdk.module.IKmeBreakoutModule.IKmeBreakoutEvents
-import com.kme.kaltura.kmesdk.controller.IKmeRoomController
-import com.kme.kaltura.kmesdk.module.IKmeWebSocketModule
-import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
-import com.kme.kaltura.kmesdk.module.internal.IKmeInternalParticipantModule
 import com.kme.kaltura.kmesdk.di.KmeKoinScope
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
+import com.kme.kaltura.kmesdk.module.IKmeBreakoutModule
+import com.kme.kaltura.kmesdk.module.IKmeBreakoutModule.IKmeBreakoutEvents
+import com.kme.kaltura.kmesdk.module.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalParticipantModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.buildAssignUserBorMessage
 import com.kme.kaltura.kmesdk.util.messages.buildCallToInstructorMessage
@@ -18,6 +18,7 @@ import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.KmeMessageModule
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomModuleSettingsChangedPayload
@@ -163,14 +164,16 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
                 KmeMessageEvent.MODULE_STATE -> {
-                    val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
-                    msg?.let {
-                        borState = it.payload
+                    if (KmeMessageModule.BREAKOUT == message.module) {
+                        val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
+                        msg?.let {
+                            borState = it.payload
 
-                        eventListener?.onBreakoutRoomStateChanged()
+                            eventListener?.onBreakoutRoomStateChanged()
 
-                        if (it.payload?.status == KmeBreakoutRoomStatusType.ACTIVE) {
-                            handleJoinRoom(it.payload)
+                            if (it.payload?.status == KmeBreakoutRoomStatusType.ACTIVE) {
+                                handleJoinRoom(it.payload)
+                            }
                         }
                     }
                 }

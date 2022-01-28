@@ -7,7 +7,8 @@ import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.di.scopedInject
-import com.kme.kaltura.kmesdk.module.*
+import com.kme.kaltura.kmesdk.module.IKmeContentModule
+import com.kme.kaltura.kmesdk.module.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalParticipantModule
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalPeerConnectionModule
@@ -201,15 +202,12 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
      * Creates a viewer connection
      */
     override fun addViewerConnection(requestedUserIdStream: String) {
-        Log.e("TAG", "validate addViewerConnection: $requestedUserIdStream", )
-
         if (!isInitialized) return
-
-//        if (participantModule.getParticipant(requestedUserIdStream.toLongOrNull())?.breakoutRoomId != roomController.breakoutModule.getAssignedBreakoutRoom()?.id) return
 
         Log.e("TAG", "addViewerConnection: $requestedUserIdStream", )
 
         viewers[requestedUserIdStream]?.let {
+            Log.e("TAG", "addViewerConnection contains: $requestedUserIdStream", )
             disconnect(requestedUserIdStream)
         }
 

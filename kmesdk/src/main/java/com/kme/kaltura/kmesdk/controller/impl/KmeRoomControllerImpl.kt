@@ -203,6 +203,7 @@ class KmeRoomControllerImpl(
                 priority = KmeMessagePriority.NORMAL
             )
 
+            //TODO ???
             peerConnectionModule.disconnectAll()
 
             subscribeInternalModules()
@@ -328,7 +329,6 @@ class KmeRoomControllerImpl(
                                         internalDataModule.breakoutRoomId,
                                         internalDataModule.companyId
                                     ))
-
 
                                     peerConnectionModule.disconnectAll()
 

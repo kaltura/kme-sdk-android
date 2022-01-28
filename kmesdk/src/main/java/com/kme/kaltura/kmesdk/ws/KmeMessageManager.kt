@@ -107,8 +107,8 @@ internal class KmeMessageManager : IKmeMessageManager {
         priority: KmeMessagePriority
     ) {
 ///FIXME remove duplicates
-        Log.e("KmeMessageManager", "addToMap: ${key?.moduleName}", )
-        Log.e("KmeMessageManager", "addToMap: $listener", )
+//        Log.e("KmeMessageManager", "addToMap: ${key?.moduleName}", )
+//        Log.e("KmeMessageManager", "addToMap: $listener", )
 
         var priorityQueue = listeners[key]
 

@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.module.impl
 
-import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
@@ -21,6 +20,7 @@ import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.KmeMessageModule
 import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
@@ -136,16 +136,17 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
 
     private val breakoutRoomStateHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-            when (message.name) {
-                KmeMessageEvent.MODULE_STATE -> {
-                    Log.e("TAG", "roomModule bor_state: stateListener = $stateListener", )
-                    val msg: KmeBreakoutModuleMessage<KmeBreakoutModuleMessage.BreakoutRoomState>? =
-                        message.toType()
-                    msg?.let {
-                        roomData?.let { stateListener?.onRoomAvailable(it) }
+            if (KmeMessageModule.BREAKOUT == message.module) {
+                when (message.name) {
+                    KmeMessageEvent.MODULE_STATE -> {
+                        val msg: KmeBreakoutModuleMessage<KmeBreakoutModuleMessage.BreakoutRoomState>? =
+                            message.toType()
+                        msg?.let {
+                            roomData?.let { stateListener?.onRoomAvailable(it) }
+                        }
                     }
-                }
-                else -> {
+                    else -> {
+                    }
                 }
             }
         }
