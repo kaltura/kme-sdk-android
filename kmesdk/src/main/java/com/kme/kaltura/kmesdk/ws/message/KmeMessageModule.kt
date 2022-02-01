@@ -31,6 +31,9 @@ enum class KmeMessageModule(
     @SerializedName("Video", alternate = ["video"])
     VIDEO("Video"),
 
+    @SerializedName("Audio", alternate = ["audio"])
+    AUDIO("Audio"),
+
     @SerializedName("SlidesPlayer", alternate = ["slidesplayer"])
     SLIDES_PLAYER("SlidesPlayer"),
 
