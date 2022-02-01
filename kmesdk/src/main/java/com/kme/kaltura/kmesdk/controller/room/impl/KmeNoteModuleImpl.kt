@@ -201,20 +201,19 @@ class KmeNoteModuleImpl(
     /**
      * Download specific note as pdf file
      */
+
     override fun downloadRoomNote(
         name: String,
         url: String,
-        success: () -> Unit,
+        success: (String?) -> Unit,
         error: (exception: Exception) -> Unit
     ) {
         uiScope.launch {
-            val outputFile = File(
-                context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "/$name.pdf"
-            )
 
             downloadFile(
                 { fileLoaderApiService.downloadFile(url) },
-                FileOutputStream(outputFile),
+                "$name.pdf",
+                context,
                 success,
                 error
             )
@@ -246,5 +245,4 @@ class KmeNoteModuleImpl(
             )
         }
     }
-
 }
