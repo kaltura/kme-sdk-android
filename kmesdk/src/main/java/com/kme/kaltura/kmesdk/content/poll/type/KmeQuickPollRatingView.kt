@@ -3,6 +3,7 @@ package com.kme.kaltura.kmesdk.content.poll.type
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.databinding.LayoutPollBtnRatingBinding
 import com.kme.kaltura.kmesdk.databinding.LayoutPollRatingBinding
@@ -28,6 +29,10 @@ class KmeQuickPollRatingView @JvmOverloads constructor(
                 }
             })
         }
+    }
+
+    override fun getAnswerView(type: Int): View? {
+        return binding?.ratingBar
     }
 
     override fun getViewBinding() = LayoutPollRatingBinding.inflate(layoutInflater, this, true)
