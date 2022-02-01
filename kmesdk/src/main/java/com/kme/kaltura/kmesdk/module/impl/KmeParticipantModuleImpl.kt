@@ -206,32 +206,25 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
     private fun updateParticipantsRoomId(notify: Boolean = true) {
         val assignments = breakoutModule.getBreakoutState()?.assignments
 
-        if (assignments.isNullOrEmpty()) {
-            participants.forEach {
-                it.breakoutRoomId = internalModule.mainRoomId
+        participants.forEach { participant ->
+            assignments?.find { assignment ->
+                assignment.userId == participant.userId
+            }?.let {
+                participant.breakoutRoomId = it.breakoutRoomId
+
                 Log.e(
                     "TAG",
-                    "updateParticipantsRoomId: userId = ${it.userId} to main room",
+                    "update: userId = ${participant.userId} to roomId = ${it.breakoutRoomId}"
                 )
                 if (notify) {
-                    listener?.onParticipantChanged(it)
+                    listener?.onParticipantChanged(participant)
                 }
-            }
-        } else {
-            assignments.forEach { assignment ->
-                participants.find { participant ->
-                    assignment.userId == participant.userId
-                }?.let {
-                    it.breakoutRoomId = assignment.breakoutRoomId
+            } ?: run {
+                participant.breakoutRoomId = internalModule.mainRoomId
 
-                    Log.e(
-                        "TAG",
-                        "updateParticipantsRoomId: userId = ${it.userId} to roomId = ${it.breakoutRoomId}",
-                    )
-
-                    if (notify) {
-                        listener?.onParticipantChanged(it)
-                    }
+                Log.e("TAG", "update: userId = ${participant.userId} to main room")
+                if (notify) {
+                    listener?.onParticipantChanged(participant)
                 }
             }
         }
