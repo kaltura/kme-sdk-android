@@ -152,9 +152,7 @@ internal fun ImageView?.glide(
             ) {
                 when(resource){
                     is GifDrawable ->{
-                        this@glide.setImageDrawable(resource.apply {
-                            start()
-                        })
+                        this@glide.setImageBitmap(resource.firstFrame)
                     }
                     else -> {
                         val scaledBitmap = (resource as BitmapDrawable).bitmap.resize(1280)
