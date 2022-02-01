@@ -126,7 +126,6 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
                     contentView = null
                 }
             }
-            Log.e("TAG", "setActiveContent: $contentView, listener = $listener", )
             contentView?.let { view ->
                 listener?.onContentAvailable(view)
             } ?: run {
