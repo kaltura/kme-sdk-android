@@ -6,6 +6,7 @@ import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeParticipantModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeParticipantsInternalModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.toType
@@ -31,7 +32,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 import org.koin.core.inject
 
-class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
+class KmeParticipantsModuleImpl : KmeController(), IKmeParticipantsInternalModule {
 
     private val roomController: IKmeRoomController by scopedInject()
     private val webSocketModule: IKmeWebSocketModule by scopedInject()
@@ -318,6 +319,16 @@ class KmeParticipantModuleImpl : KmeController(), IKmeParticipantModule {
                 targetId
             )
         )
+    }
+
+    override fun participantSpeaking(
+        id: Long,
+        isSpeaking: Boolean
+    ) {
+        getParticipant(id)?.let {
+            it.isSpeaking = isSpeaking
+            it.lastSpeakingTime = System.currentTimeMillis()
+        }
     }
 
     /**

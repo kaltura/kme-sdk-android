@@ -1,7 +1,6 @@
 package com.kme.kaltura.kmesdk.ws
 
 import android.util.Log
-import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
@@ -38,7 +37,9 @@ internal class KmeWebSocketHandler(
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
         Log.e(TAG, "onMessage: $text")
-        handleMessage(webSocket, text)
+        if (text.isNotEmpty()) {
+            handleMessage(webSocket, text)
+        }
     }
 
     /**

@@ -130,7 +130,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel,
 
     fun setViewerRenderer(renderer: KmeSurfaceRendererView) {
         requestedUserIdStream?.let {
-            roomController.peerConnectionModule.setViewerRenderer(it, renderer)
+            roomController.peerConnectionModule.addViewerRenderer(it, renderer)
         }
     }
 
@@ -152,7 +152,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel,
     }
 
     fun setScreenShareRenderer(renderer: KmeSurfaceRendererView) {
-        roomController.peerConnectionModule.setScreenShareRenderer(renderer)
+        roomController.peerConnectionModule.addScreenShareRenderer(renderer)
     }
 
     fun stopScreenShare() {
