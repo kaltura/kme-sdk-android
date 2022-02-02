@@ -292,6 +292,9 @@ internal class KmeMessageParser(
                     }
                 }
             }
+            KmeMessageEvent.CHANGE_PARTICIPANT_PERMISSIONS.toString() -> {
+                text.jsonToObject<KmeParticipantSettingsModuleMessage<KmeParticipantSettingsModuleMessage.ParticipantSettingsChangedPayload>>()
+            }
             KmeMessageEvent.ROOM_SETTINGS_CHANGED.toString() -> {
                 text.jsonToObject<KmeRoomSettingsModuleMessage<RoomSettingsChangedPayload>>()
             }

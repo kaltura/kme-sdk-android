@@ -150,7 +150,7 @@ class KmeRoomControllerImpl(
                             startService(wssUrl, companyId, roomId, isReconnect, token, listener)
                         }
                     }
-                    settingsModule.updateSettings(roomSettings?.roomInfo?.settingsV2)
+                    settingsModule.updateSettings(roomSettings?.roomInfo?.settingsV2, userController.getCurrentUserSetting())
                 },
                 error = {
                     roomSettings = null

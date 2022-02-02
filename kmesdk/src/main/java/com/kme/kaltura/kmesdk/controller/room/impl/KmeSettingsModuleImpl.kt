@@ -11,11 +11,13 @@ import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeChatModule
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeDefaultSettings
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeParticipantsModule
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
+import com.kme.kaltura.kmesdk.rest.response.user.KmeUserSetting
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantSettingsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.SetParticipantModerator
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage
@@ -33,7 +35,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
 
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
-    private val roomController:  IKmeRoomController by scopedInject()
+    private val roomController: IKmeRoomController by scopedInject()
 
     private var listeners: MutableSet<IKmeSettingsModule.KmeSettingsListener> = mutableSetOf()
 
@@ -46,6 +48,7 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
             roomSettingsHandler,
             KmeMessageEvent.ROOM_STATE,
             KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED,
+            KmeMessageEvent.CHANGE_PARTICIPANT_PERMISSIONS,
             KmeMessageEvent.ROOM_SETTINGS_CHANGED,
             KmeMessageEvent.SET_PARTICIPANT_MODERATOR
         )
@@ -62,9 +65,9 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
      * UpdateSettings for the room events related to change settings
      * for the users and for the room itself
      */
-    override fun updateSettings(settings: KmeSettingsV2?) {
+    override fun updateSettings(roomSetting: KmeSettingsV2?, userSetting: KmeUserSetting) {
         for (listener in listeners) {
-            listener.onSettingsChanged(settings)
+            listener.onSettingsChanged(roomSetting, userSetting)
         }
     }
 
@@ -86,24 +89,53 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModu
                     val settingsPayload = settingsMessage?.payload
                     when (settingsPayload?.moduleName) {
                         KmePermissionModule.CHAT_MODULE -> {
-                            val chatSettingsMessage: KmeRoomSettingsModuleMessage<RoomChatSettingsChangedPayload>? = message.toType()
+                            val chatSettingsMessage: KmeRoomSettingsModuleMessage<RoomChatSettingsChangedPayload>? =
+                                message.toType()
                             val chatSettingsPayload = chatSettingsMessage?.payload
                             handleChatSetting(
                                 chatSettingsPayload?.permissionsKey,
                                 chatSettingsPayload?.permissionsValue
                             )
-                            updateSettings(userController.getCurrentParticipant()?.userPermissions)
+                            updateSettings(userController.getCurrentParticipant()?.userPermissions, userController.getCurrentUserSetting())
                         }
                         KmePermissionModule.PARTICIPANTS_MODULE -> {
-                            val participantSettingsMessage: KmeRoomSettingsModuleMessage<RoomParticipantSettingsChangedPayload>? = message.toType()
+                            val participantSettingsMessage: KmeRoomSettingsModuleMessage<RoomParticipantSettingsChangedPayload>? =
+                                message.toType()
                             val participantSettingsPayload = participantSettingsMessage?.payload
                             handleParticipantSetting(
                                 participantSettingsPayload?.permissionsKey,
                                 participantSettingsPayload?.permissionsValue
                             )
-                            updateSettings(userController.getCurrentParticipant()?.userPermissions)
+                            updateSettings(userController.getCurrentParticipant()?.userPermissions, userController.getCurrentUserSetting())
                         }
                         else -> {
+                        }
+                    }
+                }
+                KmeMessageEvent.CHANGE_PARTICIPANT_PERMISSIONS -> {
+                    val settingsMessage: KmeParticipantSettingsModuleMessage<KmeParticipantSettingsModuleMessage.ParticipantSettingsChangedPayload>? =
+                        message.toType()
+                    val payload = settingsMessage?.payload
+
+                    when (payload?.changedPermissionsModule){
+                        KmePermissionModule.PARTICIPANTS_MODULE -> {
+                            userController.getCurrentUserSetting().apply {
+                                participants = payload.changedPermissionValue
+                            }
+                            updateSettings(userController.getCurrentParticipant()?.userPermissions, userController.getCurrentUserSetting())
+                        }
+                        KmePermissionModule.CHAT_MODULE -> {
+                            userController.getCurrentUserSetting().apply {
+                                when(payload.changedPermissionKey){
+                                    KmePermissionKey.QNA_CHAT -> {
+                                        qnaChat = payload.changedPermissionValue
+                                    }
+                                    KmePermissionKey.PUBLIC_CHAT -> {
+                                        publicChat = payload.changedPermissionValue
+                                    }
+                                }
+                            }
+                            updateSettings(userController.getCurrentParticipant()?.userPermissions, userController.getCurrentUserSetting())
                         }
                     }
                 }

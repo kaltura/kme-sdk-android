@@ -10,6 +10,7 @@ import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
+import com.kme.kaltura.kmesdk.rest.response.user.KmeUserSetting
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
@@ -167,7 +168,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel,
         return false
     }
 
-    override fun onSettingsChanged(settings: KmeSettingsV2?) {
+    override fun onSettingsChanged(roomSetting: KmeSettingsV2?, userSetting: KmeUserSetting) {
 
     }
 
