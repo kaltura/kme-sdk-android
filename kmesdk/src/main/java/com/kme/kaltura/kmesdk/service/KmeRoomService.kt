@@ -5,6 +5,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import android.util.Log
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 
@@ -19,6 +20,7 @@ class KmeRoomService : Service(), KmeKoinComponent {
 
     override fun onCreate() {
         super.onCreate()
+        Log.e("TAG", "onCreate: KmeRoomService", )
         val notification: Notification = createRoomNotification(
             context = this,
             title = getString(R.string.app_name),

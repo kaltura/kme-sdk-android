@@ -149,28 +149,32 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
      * Update participants roomId in case breakout assignments
      */
     override fun updateParticipantsRoomId(notify: Boolean) {
+        participants.forEach { participant ->
+            participant.updateRoomId(notify)
+        }
+    }
+
+    private fun KmeParticipant.updateRoomId(notify: Boolean) {
         val assignments = breakoutModule.getBreakoutState()?.assignments
 
-        participants.forEach { participant ->
-            assignments?.find { assignment ->
-                assignment.userId == participant.userId
-            }?.let {
-                participant.breakoutRoomId = it.breakoutRoomId
+        assignments?.find { assignment ->
+            assignment.userId == this.userId
+        }?.let {
+            this.breakoutRoomId = it.breakoutRoomId
 
-                Log.e(
-                    "TAG",
-                    "update: userId = ${participant.userId} to roomId = ${it.breakoutRoomId}"
-                )
-                if (notify) {
-                    listener?.onParticipantChanged(participant)
-                }
-            } ?: run {
-                participant.breakoutRoomId = internalModule.mainRoomId
+            Log.e(
+                "TAG",
+                "update: userId = ${this.userId} to roomId = ${it.breakoutRoomId}"
+            )
+            if (notify) {
+                listener?.onParticipantChanged(this)
+            }
+        } ?: run {
+            this.breakoutRoomId = internalModule.mainRoomId
 
-                Log.e("TAG", "update: userId = ${participant.userId} to main room")
-                if (notify) {
-                    listener?.onParticipantChanged(participant)
-                }
+            Log.e("TAG", "update: userId = ${this.userId} to main room")
+            if (notify) {
+                listener?.onParticipantChanged(this)
             }
         }
     }
@@ -414,8 +418,9 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
      * Add or update participants list
      */
     private fun addOrUpdateParticipant(participant: KmeParticipant) {
-        getParticipant(participant.userId)?.let { foundParticipant ->
-            participants.remove(foundParticipant)
+        if (getParticipant(participant.userId) == null) {
+            participant.updateRoomId(false)
+            participants.add(participant)
         }
 
         if (participant.userType == KmeUserType.DIAL) {
@@ -423,7 +428,6 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
         }
 
         Log.e("TAG", "addOrUpdateParticipant: ${participant.userId}")
-        participants.add(participant)
         listener?.onParticipantChanged(participant)
     }
 

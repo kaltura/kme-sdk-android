@@ -9,4 +9,6 @@ interface IKmeInternalDataModule: IKmeModule {
     var breakoutRoomId: Long
     var companyId: Long
 
+    fun clear()
+
 }

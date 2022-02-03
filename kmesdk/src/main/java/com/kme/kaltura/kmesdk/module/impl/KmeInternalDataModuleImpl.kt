@@ -13,4 +13,10 @@ class KmeInternalDataModuleImpl : KmeController(), IKmeInternalDataModule {
     override var breakoutRoomId: Long = 0
     override var companyId: Long = 0
 
+    override fun clear() {
+        mainRoomId = 0
+        mainRoomAlias = ""
+        breakoutRoomId = 0
+        companyId = 0
+    }
 }

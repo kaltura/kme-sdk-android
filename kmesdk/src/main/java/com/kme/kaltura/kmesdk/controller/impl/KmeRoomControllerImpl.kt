@@ -399,6 +399,8 @@ class KmeRoomControllerImpl(
 
         peerConnectionModule.disconnectAll()
         audioModule.stop()
+
+        internalDataModule.clear()
     }
 
     /**

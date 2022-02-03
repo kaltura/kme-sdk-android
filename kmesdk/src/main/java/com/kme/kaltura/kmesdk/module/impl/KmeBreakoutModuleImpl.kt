@@ -152,6 +152,8 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
      * Getting breakout room in case that user assigned to any bor
      */
     override fun getAssignedBreakoutRoom(): BreakoutRoom? {
+        if (!isActive()) return null
+
         val breakoutRoomId = borState?.assignments?.find { assignment ->
             assignment.userId == currentUserId
         }?.breakoutRoomId
