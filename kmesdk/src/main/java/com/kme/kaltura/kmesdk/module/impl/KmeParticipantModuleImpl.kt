@@ -22,9 +22,6 @@ import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
-import com.kme.kaltura.kmesdk.ws.message.KmeMessageModule
-import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.BreakoutRoomState
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
@@ -70,20 +67,6 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
         )
 
         roomController.listen(
-            breakoutRoomStateHandler,
-            KmeMessageEvent.MODULE_STATE,
-            KmeMessageEvent.BREAKOUT_START_SUCCESS,
-            KmeMessageEvent.BREAKOUT_STOP_SUCCESS,
-            KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS,
-            KmeMessageEvent.BREAKOUT_MOVE_TO_NEXT_ROOM,
-            KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS_SUCCESS,
-            KmeMessageEvent.BREAKOUT_CLEAR_ASSIGNMENTS_SUCCESS,
-            KmeMessageEvent.BREAKOUT_MODERATOR_JOINED_SUCCESS,
-            KmeMessageEvent.BREAKOUT_USER_JOINED_SUCCESS,
-            priority = KmeMessagePriority.NORMAL
-        )
-
-        roomController.listen(
             participantsHandler,
             KmeMessageEvent.USER_MEDIA_STATE_INIT,
             KmeMessageEvent.USER_MEDIA_STATE_CHANGED,
@@ -105,8 +88,8 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
      * Get participants list
      */
     override fun getParticipants(roomId: Long?): List<KmeParticipant> {
-        val list = if (roomId != null) {
-            participants.filter { participant -> participant.breakoutRoomId == roomId }
+        val list = if (roomId != null && roomId != internalModule.mainRoomId) {
+            participants.filter { participant -> participant.breakoutRoomId == roomId  }
         } else {
             participants
         }
@@ -162,48 +145,10 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
         }
     }
 
-    private val breakoutRoomStateHandler = object : IKmeMessageListener {
-        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-            when (message.name) {
-                KmeMessageEvent.MODULE_STATE -> {
-                    if (KmeMessageModule.BREAKOUT == message.module) {
-                        val msg: KmeBreakoutModuleMessage<BreakoutRoomState>? = message.toType()
-                        msg?.let {
-//                        updateParticipantsRoomId()
-                        }
-                    }
-                }
-                KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS -> {
-                    updateParticipantsRoomId()
-
-                    //TODO ???
-//                    participants.filter { participant ->
-//                        participant.breakoutRoomId != breakoutModule.getAssignedBreakoutRoom()?.id
-//                                || (participant.breakoutRoomId == null && participant.userId == publisherId)
-//                    }.forEach {
-//                        it.liveMediaState = KmeMediaDeviceState.DISABLED
-//                        Log.e("TAG", "liveMediaState: DISABLED, userId = ${it.userId}")
-//                        listener?.onParticipantMediaStateChanged(
-//                            it.userId ?: 0,
-//                            KmeMediaStateType.LIVE_MEDIA,
-//                            KmeMediaDeviceState.DISABLED
-//                        )
-//                    }
-                }
-                KmeMessageEvent.BREAKOUT_START_SUCCESS,
-                KmeMessageEvent.BREAKOUT_STOP_SUCCESS,
-                KmeMessageEvent.BREAKOUT_MOVE_TO_NEXT_ROOM,
-                KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS_SUCCESS,
-                KmeMessageEvent.BREAKOUT_CLEAR_ASSIGNMENTS_SUCCESS,
-                KmeMessageEvent.BREAKOUT_MODERATOR_JOINED_SUCCESS,
-                KmeMessageEvent.BREAKOUT_USER_JOINED_SUCCESS -> {
-                    updateParticipantsRoomId()
-                }
-            }
-        }
-    }
-
-    private fun updateParticipantsRoomId(notify: Boolean = true) {
+    /**
+     * Update participants roomId in case breakout assignments
+     */
+    override fun updateParticipantsRoomId(notify: Boolean) {
         val assignments = breakoutModule.getBreakoutState()?.assignments
 
         participants.forEach { participant ->
@@ -347,26 +292,6 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
     override fun getParticipant(userId: Long?) = participants.find {
         it.userId == userId
     }
-
-    /*
-    * Clear participants list
-    * */
-    override fun clearParticipants() {
-//        participants.clear()
-
-//        participants.find { participant -> participant.userId == publisherId }?.let {
-//            it.liveMediaState = KmeMediaDeviceState.DISABLED_LIVE
-//        }
-
-//        participants.forEach { participant ->
-//            participant.liveMediaState = KmeMediaDeviceState.DISABLED_UNLIVE
-//        }
-
-        getParticipant(publisherId)?.liveMediaState = KmeMediaDeviceState.DISABLED
-
-        updateParticipantsRoomId(true)
-    }
-
 
     /**
      * User live media state

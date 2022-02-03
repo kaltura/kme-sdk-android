@@ -32,8 +32,6 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.RoomStatePayload
 import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
-import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
-import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmeAppAccessValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -304,15 +302,15 @@ class KmeRoomControllerImpl(
                     val wssUrl = it.data?.wssUrl
                     val token = it.data?.token
                     if (wssUrl != null && token != null) {
-                        participantModule.changeMediaState(
-                            roomId,
-                            internalDataModule.companyId,
-                            publisherId!!,
-                            KmeMediaStateType.LIVE_MEDIA,
-                            KmeMediaDeviceState.DISABLED
-                        )
+//                        participantModule.changeMediaState(
+//                            roomId,
+//                            internalDataModule.companyId,
+//                            publisherId!!,
+//                            KmeMediaStateType.LIVE_MEDIA,
+//                            KmeMediaDeviceState.DISABLED
+//                        )
 
-                        internalDataModule.breakoutRoomId = roomId
+//                        internalDataModule.breakoutRoomId = roomId
 
                         getActiveSocket().connect(
                             wssUrl,

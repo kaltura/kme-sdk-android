@@ -470,7 +470,9 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
                 KmeMessageEvent.USER_DISCONNECTED -> {
                     val msg: KmeStreamingModuleMessage<UserDisconnectedPayload>? = message.toType()
 
-                    msg?.payload?.userId?.toString()?.let { disconnect(it) }
+                    msg?.payload?.userId?.let {
+                        disconnect(if (it < 0) "${roomId}_dialin" else it.toString())
+                    }
                 }
                 KmeMessageEvent.USER_SPEAKING -> {
                     val msg: KmeStreamingModuleMessage<UserSpeakingPayload>? = message.toType()

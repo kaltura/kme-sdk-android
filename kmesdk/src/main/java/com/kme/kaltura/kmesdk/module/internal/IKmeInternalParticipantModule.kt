@@ -14,9 +14,9 @@ internal interface IKmeInternalParticipantModule : IKmeParticipantModule, IKmeMo
      */
     fun subscribe()
 
-    /*
-    * Clear participants list
-    * */
-    fun clearParticipants()
+    /**
+     * Update participants roomId in case breakout assignments
+     */
+    fun updateParticipantsRoomId(notify: Boolean = true)
 
 }

@@ -23,6 +23,8 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomModuleSettingsChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeBreakoutRoomStatusType
+import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
+import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
 import org.koin.core.inject
 
 /**
@@ -300,12 +302,8 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                         msg?.payload?.messageType,
                         msg?.payload?.messageMetadata
                     ) { messageType, messageMetadata ->
-
-                        messageMetadata.apply {
-                            senderAvatar = roomController.participantModule.getParticipants().find {
-                                messageMetadata.senderId == it.userId
-                            }?.avatar
-                        }
+                        messageMetadata.senderAvatar =
+                            roomController.participantModule.getParticipant(messageMetadata.senderId)?.avatar
 
                         eventListener?.onBreakoutInstructorMessage(messageType, messageMetadata)
                     }
@@ -325,8 +323,17 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
             ifNonNull(breakoutRoom.id, breakoutRoom.alias) { id, alias ->
                 if (borSocketModule.isConnected())
                     borSocketModule.disconnect()
-                internalDataModule.breakoutRoomId = 0
-                participantModule.clearParticipants()
+
+                participantModule.changeMediaState(
+                    internalDataModule.mainRoomId,
+                    internalDataModule.companyId,
+                    currentUserId,
+                    KmeMediaStateType.LIVE_MEDIA,
+                    KmeMediaDeviceState.DISABLED
+                )
+
+                internalDataModule.breakoutRoomId = id
+                participantModule.updateParticipantsRoomId(true)
                 eventListener?.onBreakoutRoomStart(id, alias, selfAssignedBorId == id)
                 selfAssignedBorId = null
             }
@@ -337,7 +344,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
         internalDataModule.breakoutRoomId = 0
         if (borSocketModule.isConnected())
             borSocketModule.disconnect()
-//        participantModule.clearParticipants()
+        participantModule.updateParticipantsRoomId(true)
         eventListener?.onBreakoutRoomStop()
     }
 
@@ -358,10 +365,12 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                     it.participantsCount = room.participantsCount
                 }
             }
-            if (assignment.userId == currentUserId &&
-                borState?.status == KmeBreakoutRoomStatusType.ACTIVE
-            ) {
-                handleJoinRoom(payload)
+
+            if (borState?.status == KmeBreakoutRoomStatusType.ACTIVE) {
+                participantModule.updateParticipantsRoomId()
+                if (assignment.userId == currentUserId) {
+                    handleJoinRoom(payload)
+                }
             }
         }
 
@@ -376,10 +385,12 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                     it.participantsCount = room.participantsCount
                 }
             }
-            if (assignment.userId == currentUserId &&
-                borState?.status == KmeBreakoutRoomStatusType.ACTIVE
-            ) {
-                handleLeaveRoom()
+
+            if (borState?.status == KmeBreakoutRoomStatusType.ACTIVE) {
+                participantModule.updateParticipantsRoomId()
+                if (assignment.userId == currentUserId) {
+                    handleLeaveRoom()
+                }
             }
         }
 

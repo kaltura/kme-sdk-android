@@ -86,6 +86,9 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         this.stateListener = stateListener
     }
 
+    /**
+     * Getting current room id
+     */
     override fun getCurrentRoomId() = roomController.breakoutModule.getAssignedBreakoutRoom()?.id
         ?: roomController.roomModule.getMainRoomId()
 
