@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.ws.message.module
 
-import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason

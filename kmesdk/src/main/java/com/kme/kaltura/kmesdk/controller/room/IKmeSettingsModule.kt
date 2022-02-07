@@ -30,7 +30,7 @@ interface IKmeSettingsModule : IKmeModule {
     interface KmeSettingsListener {
 
         /**
-         * Callback fired always when settings updated
+         * Callback fired always when room and user settings updated
          *
          * @param roomSetting
          * @param userSetting
