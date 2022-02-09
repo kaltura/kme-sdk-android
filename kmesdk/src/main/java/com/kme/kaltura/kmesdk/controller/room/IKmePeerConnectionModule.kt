@@ -4,7 +4,9 @@ import android.content.Intent
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnection
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
+import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
 
 /**
  * An interface for wrap actions with [IKmePeerConnection]
@@ -31,12 +33,14 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
      * @param companyId id of a company
      * @param listener callback with [KmePeerConnectionEvents] for indicating main events
      * @param screenShareEvents callback with [KmeScreenShareEvents] for indicating screen share events
+     * @param audioEvent callback with [KmeAudioEvents] for indicate audio events
      */
     fun initialize(
         roomId: Long,
         companyId: Long,
         listener: KmePeerConnectionEvents,
-        screenShareEvents: KmeScreenShareEvents
+        screenShareEvents: KmeScreenShareEvents,
+        audioEvent: KmePlayerAudioEvents
     )
 
     /**
@@ -205,6 +209,14 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
     fun enableViewersAudio(isEnable: Boolean)
 
     /**
+     * Update audio state
+     *
+     * @param state for audio state
+     * @param type for content
+     */
+    fun playerAudioState(state: KmePlayerState, type: KmeContentType)
+
+    /**
      * Switch between publisher's existing cameras
      */
     fun switchCamera()
@@ -262,6 +274,17 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
     }
 
     /**
+     * Audio event
+     */
+    interface KmePlayerAudioEvents {
+        /**
+         * Callback fired once when player audio state changed
+         * @param state
+         */
+        fun onPlayerAudioStateChanged(state: KmePlayerState, type: KmeContentType)
+    }
+
+        /**
      * Screen share event
      */
     interface KmeScreenShareEvents {

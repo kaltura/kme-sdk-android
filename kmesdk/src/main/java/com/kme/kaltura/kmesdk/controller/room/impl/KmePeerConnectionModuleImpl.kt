@@ -19,9 +19,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.UserMediaStateChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
-import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
-import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
-import com.kme.kaltura.kmesdk.ws.message.type.KmeSdpType
+import com.kme.kaltura.kmesdk.ws.message.type.*
 import org.koin.core.get
 import org.koin.core.inject
 import kotlin.collections.component1
@@ -58,6 +56,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
     private lateinit var turnCred: String
     private lateinit var listener: IKmePeerConnectionModule.KmePeerConnectionEvents
     private var screenShareEvents: IKmePeerConnectionModule.KmeScreenShareEvents? = null
+    private var playerAudioEvent: IKmePeerConnectionModule.KmePlayerAudioEvents? = null
+
 
     private var viewersAudioEnabledByApp = true
     private var viewersAudioEnabledBySdk = true
@@ -109,9 +109,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
         companyId: Long,
         listener: IKmePeerConnectionModule.KmePeerConnectionEvents,
         screenShareEvents: IKmePeerConnectionModule.KmeScreenShareEvents,
+        audioEvent: IKmePeerConnectionModule.KmePlayerAudioEvents
     ) {
         this.screenShareEvents = screenShareEvents
-
+        this.playerAudioEvent = audioEvent
         initialize(roomId, companyId, listener)
     }
 
@@ -406,6 +407,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
             viewersAudioEnabledByApp = isEnable
             viewers.forEach { (_, connection) -> connection.enableAudio(isEnable) }
         }
+    }
+
+    override fun playerAudioState(state: KmePlayerState, type: KmeContentType) {
+        playerAudioEvent?.onPlayerAudioStateChanged(state, type)
     }
 
     /**
