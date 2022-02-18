@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.module.impl
 
+import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
@@ -87,6 +88,11 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
     }
 
     /**
+     * Getting listener for basic room states
+     */
+    override fun getRoomStateListener(): IKmeRoomStateListener? = this.stateListener
+
+    /**
      * Getting current room id
      */
     override fun getCurrentRoomId() = roomController.breakoutModule.getAssignedBreakoutRoom()?.id
@@ -127,6 +133,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                                 )
                             )
                         } else {
+                            Log.e("TAG", "roomStateHandler: onRoomAvailable", )
                             roomData?.let { stateListener?.onRoomAvailable(it) }
                         }
                     }
@@ -145,6 +152,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                         val msg: KmeBreakoutModuleMessage<KmeBreakoutModuleMessage.BreakoutRoomState>? =
                             message.toType()
                         msg?.let {
+                            Log.e("TAG", "breakoutRoomStateHandler: onRoomAvailable", )
                             roomData?.let { stateListener?.onRoomAvailable(it) }
                         }
                     }

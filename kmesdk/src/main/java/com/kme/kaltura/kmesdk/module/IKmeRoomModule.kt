@@ -27,6 +27,11 @@ interface IKmeRoomModule : IKmeModule {
     fun setRoomStateListener(stateListener: IKmeRoomStateListener?)
 
     /**
+     * Getting listener for basic room states
+     */
+    fun getRoomStateListener() : IKmeRoomStateListener?
+
+    /**
      * Getting current room id
      *
      * @return the current room id
@@ -174,7 +179,7 @@ interface IKmeRoomModule : IKmeModule {
 
         fun onRoomExit(reason: KmeRoomExitReason)
 
-        fun onRoomUnavailable()
+        fun onRoomUnavailable(throwable: Throwable?)
 
     }
 

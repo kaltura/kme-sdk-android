@@ -15,13 +15,15 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import org.koin.core.inject
+import java.net.UnknownHostException
 
 /**
  * An implementation for socket actions
  */
 internal class KmeWebSocketModuleImpl(
     private val okHttpClient: OkHttpClient,
-    private val webSocketHandler: KmeWebSocketHandler
+    private val webSocketHandler: KmeWebSocketHandler,
+    private val isMainSocket: Boolean = false
 ) : KmeController(), IKmeWebSocketModule, IKmeWSListener {
 
     private val gson: Gson by inject()
@@ -81,6 +83,7 @@ internal class KmeWebSocketModuleImpl(
      * Trying to connect socket again if need
      */
     private fun reconnect() {
+        Log.e("TAG", "reconnect: allowReconnection = $allowReconnection, reconnectionAttempts = $reconnectionAttempts", )
         if (allowReconnection && reconnectionAttempts < RECONNECTION_ATTEMPTS) {
             reconnectionJob?.cancel()
             reconnectionJob = reconnectionScope.launch {
@@ -91,6 +94,9 @@ internal class KmeWebSocketModuleImpl(
             }
         } else {
             disconnect()
+            uiScope.launch {
+                listener?.onClosed(KmeWebSocketCode.CLOSE_NORMAL.code, "")
+            }
         }
     }
 
@@ -104,6 +110,7 @@ internal class KmeWebSocketModuleImpl(
      * messages.
      */
     override fun onOpen(response: Response) {
+        Log.e("TAG", "onOpen: wsListener = $listener", )
         isSocketConnected = true
         reconnectionJob?.cancel()
         reconnectionAttempts = 0
@@ -120,7 +127,10 @@ internal class KmeWebSocketModuleImpl(
     override fun onFailure(throwable: Throwable, response: Response?) {
         Log.e(TAG, "onFailure: $throwable, $response", )
         isSocketConnected = false
-        reconnect()
+
+        if (throwable !is UnknownHostException || isMainSocket) {
+            reconnect()
+        }
         uiScope.launch {
             if (allowReconnection) {
                 listener?.onFailure(throwable)
@@ -135,7 +145,7 @@ internal class KmeWebSocketModuleImpl(
      * Invoked when the remote peer has indicated that no more incoming messages will be transmitted.
      */
     override fun onClosing(code: Int, reason: String) {
-        Log.e(TAG, "onClosing: code: $code, reason: $reason")
+        Log.e("TAG", "onClosing: code: $code, reason: $reason")
         isSocketConnected = false
         //Status code == 1000 - normal closure, the connection successfully completed
         if (code != KmeWebSocketCode.CLOSE_NORMAL.code) {
@@ -151,7 +161,7 @@ internal class KmeWebSocketModuleImpl(
      * connection has been successfully released. No further calls to this listener will be made.
      */
     override fun onClosed(code: Int, reason: String) {
-        Log.e(TAG, "onClosed: code: $code, reason: $reason")
+        Log.e("TAG", "onClosed: code: $code, reason: $reason")
         isSocketConnected = false
         reconnectionJob?.cancel()
         uiScope.launch {
@@ -165,7 +175,7 @@ internal class KmeWebSocketModuleImpl(
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
         try {
             val strMessage = gson.toJson(message)
-            Log.e(TAG, "send ==> $strMessage")
+            Log.e(TAG, "send ==> ${this.hashCode()}  $strMessage")
             webSocket?.send(strMessage)
         } catch (e: Exception) {
             e.printStackTrace()

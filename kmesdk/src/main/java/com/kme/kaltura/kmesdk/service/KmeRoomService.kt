@@ -30,6 +30,7 @@ class KmeRoomService : Service(), KmeKoinComponent {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.e("TAG", "onStartCommand: KmeRoomService", )
         return START_NOT_STICKY
     }
 
@@ -46,6 +47,7 @@ class KmeRoomService : Service(), KmeKoinComponent {
     override fun onDestroy() {
         releaseScopes()
         stopService()
+        Log.e("TAG", "onDestroy: RoomService", )
         super.onDestroy()
     }
 

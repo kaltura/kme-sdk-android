@@ -22,7 +22,8 @@ val roomModules = module {
         scoped<IKmeWebSocketModule> {
             KmeWebSocketModuleImpl(
                 get(named("wsOkHttpClient")),
-                get(named("main"))
+                get(named("main")),
+                isMainSocket = true
             )
         }
         scoped<IKmePeerConnectionModule> {

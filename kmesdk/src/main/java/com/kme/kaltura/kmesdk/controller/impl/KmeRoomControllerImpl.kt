@@ -123,7 +123,6 @@ class KmeRoomControllerImpl(
         isReconnect: Boolean,
         roomStateListener: IKmeRoomModule.IKmeRoomStateListener
     ) {
-        Log.e("TAG", "connect: $roomId")
         internalDataModule.companyId = companyId
         internalDataModule.mainRoomId = roomId
         internalDataModule.mainRoomAlias = roomAlias
@@ -135,11 +134,10 @@ class KmeRoomControllerImpl(
             success = {
                 fetchWebRTCLiveServer(
                     roomAlias,
-                    isReconnect,
-                    roomStateListener
+                    isReconnect
                 )
             }, error = {
-                roomStateListener.onRoomUnavailable()
+                roomModule.getRoomStateListener()?.onRoomUnavailable(Throwable(it))
 //                listener.onFailure(Throwable(it))
             }
         )
@@ -147,8 +145,7 @@ class KmeRoomControllerImpl(
 
     private fun fetchWebRTCLiveServer(
         roomAlias: String,
-        isReconnect: Boolean,
-        roomStateListener: IKmeRoomModule.IKmeRoomStateListener,
+        isReconnect: Boolean
     ) {
         uiScope.launch {
             safeApiCall(
@@ -159,7 +156,7 @@ class KmeRoomControllerImpl(
                         val appAccessException = KmeApiException.AppAccessException()
                         Log.e("TAG", "fetchWebRTCLiveServer: appAccessException", )
 
-                        roomStateListener.onRoomUnavailable()
+                        roomModule.getRoomStateListener()?.onRoomUnavailable(Throwable(appAccessException))
 //                        listener.onFailure(Throwable(appAccessException))
                     } else {
                         Log.e("TAG", "fetchWebRTCLiveServer: startService", )
@@ -167,14 +164,14 @@ class KmeRoomControllerImpl(
                         val wssUrl = it.data?.wssUrl
                         val token = it.data?.token
                         if (wssUrl != null && token != null) {
-                            startService(wssUrl, isReconnect, token, roomStateListener)
+                            startService(wssUrl, isReconnect, token)
                         }
                     }
                 },
                 error = {
                     webRTCServer = null
                     Log.e("TAG", "fetchWebRTCLiveServer: webRTCServer = null", )
-                    roomStateListener.onRoomUnavailable()
+                    roomModule.getRoomStateListener()?.onRoomUnavailable(Throwable(it))
 //                    listener.onFailure(Throwable(it))
                 }
             )
@@ -187,8 +184,7 @@ class KmeRoomControllerImpl(
     private fun startService(
         url: String,
         isReconnect: Boolean,
-        token: String,
-        roomStateListener: IKmeRoomModule.IKmeRoomStateListener,
+        token: String
     ) {
         this.url = url
         this.isReconnect = isReconnect
@@ -224,22 +220,26 @@ class KmeRoomControllerImpl(
             }
 
             override fun onFailure(throwable: Throwable) {
-                roomStateListener.onRoomUnavailable()
+                roomModule.getRoomStateListener()?.onRoomUnavailable(throwable)
 //                listener.onFailure(throwable)
             }
 
             override fun onClosing(code: Int, reason: String) {
                 stopService()
-                roomStateListener.onRoomUnavailable()
+                roomModule.getRoomStateListener()?.onRoomUnavailable(null)
 //                listener.onClosing(code, reason)
             }
 
             override fun onClosed(code: Int, reason: String) {
+//                internalDataModule.breakoutRoomId = 0L
+                roomModule.getRoomStateListener()?.onRoomUnavailable(null)
                 stopService()
-                roomStateListener.onRoomUnavailable()
+//                roomModule.getRoomStateListener()?.onRoomUnavailable(null)
 //                listener.onClosed(code, reason)
             }
         }
+
+        Log.e("TAG", "startService: new ws listener = $roomWSListener", )
 
         context.startService(intent)
         context.bindService(intent, serviceConnection, BIND_ADJUST_WITH_ACTIVITY)
@@ -312,55 +312,60 @@ class KmeRoomControllerImpl(
 
 //                        internalDataModule.breakoutRoomId = roomId
 
+                       val listener = object : IKmeWSConnectionListener {
+                            override fun onOpen() {
+//                                    messageManager.removeListeners()
+                                subscribeInternalModules()
+
+                                send(buildJoinRoomMessage(
+                                    internalDataModule.breakoutRoomId,
+                                    internalDataModule.companyId
+                                ))
+
+                                peerConnectionModule.disconnectAll()
+
+                                mainRoomSocketModule.send(
+                                    buildJoinBorMessage(
+                                        internalDataModule.mainRoomId,
+                                        internalDataModule.companyId,
+                                        userController.getCurrentUserInfo()?.getUserId(),
+                                        internalDataModule.breakoutRoomId
+                                    )
+                                )
+                            }
+
+                            override fun onFailure(throwable: Throwable) {
+                                roomModule.getRoomStateListener()?.onRoomUnavailable(throwable)
+//                                    listener.onFailure(throwable)
+                            }
+
+                            override fun onClosing(code: Int, reason: String) {
+                                roomModule.getRoomStateListener()?.onRoomUnavailable(null)
+//                                    listener.onClosing(code, reason)
+                            }
+
+                            override fun onClosed(code: Int, reason: String) {
+//                                internalDataModule.breakoutRoomId = 0L
+                                roomModule.getRoomStateListener()?.onRoomUnavailable(null)
+//                                    listener.onClosed(code, reason)
+                                releaseScope(getScope(KmeKoinScope.BOR_MODULES))
+                            }
+                        }
+
+                        Log.e("TAG", "connectToBor: new ws listener = $listener", )
+
                         getActiveSocket().connect(
                             wssUrl,
                             internalDataModule.companyId,
                             roomId,
                             isReconnect,
                             token,
-                            object : IKmeWSConnectionListener {
-                                override fun onOpen() {
-//                                    messageManager.removeListeners()
-                                    subscribeInternalModules()
-
-                                    send(buildJoinRoomMessage(
-                                        internalDataModule.breakoutRoomId,
-                                        internalDataModule.companyId
-                                    ))
-
-                                    peerConnectionModule.disconnectAll()
-
-                                    mainRoomSocketModule.send(
-                                        buildJoinBorMessage(
-                                            internalDataModule.mainRoomId,
-                                            internalDataModule.companyId,
-                                            userController.getCurrentUserInfo()?.getUserId(),
-                                            internalDataModule.breakoutRoomId
-                                        )
-                                    )
-                                }
-
-                                override fun onFailure(throwable: Throwable) {
-                                    roomStateListener.onRoomUnavailable()
-//                                    listener.onFailure(throwable)
-                                }
-
-                                override fun onClosing(code: Int, reason: String) {
-                                    roomStateListener.onRoomUnavailable()
-//                                    listener.onClosing(code, reason)
-                                }
-
-                                override fun onClosed(code: Int, reason: String) {
-                                    roomStateListener.onRoomUnavailable()
-//                                    listener.onClosed(code, reason)
-                                    releaseScope(getScope(KmeKoinScope.BOR_MODULES))
-                                }
-                            }
+                            listener
                         )
                     }
                 },
                 error = {
-                    roomStateListener.onRoomUnavailable()
+                    roomModule.getRoomStateListener()?.onRoomUnavailable(Throwable(it))
 //                    listener.onFailure(Throwable(it))
                 }
             )
@@ -381,6 +386,7 @@ class KmeRoomControllerImpl(
      * Send message via socket
      */
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
+        Log.e("TAG", "send: ${message.module} socket = ${getActiveSocket().hashCode()}", )
         getActiveSocket().send(message)
     }
 
@@ -388,8 +394,8 @@ class KmeRoomControllerImpl(
      * Disconnect from the room
      */
     override fun disconnect() {
-        Log.e("KmeRoomController", "disconnect main: ${mainRoomSocketModule.hashCode()}")
-        Log.e("KmeRoomController", "disconnect bor: ${borSocketModule.hashCode()}")
+        Log.e("TAG", "disconnect main: ${mainRoomSocketModule.hashCode()}")
+        Log.e("TAG", "disconnect bor: ${borSocketModule.hashCode()}")
 
         if (mainRoomSocketModule.isConnected())
             mainRoomSocketModule.disconnect()
@@ -457,8 +463,10 @@ class KmeRoomControllerImpl(
     }
 
     private fun getActiveSocket() = if (internalDataModule.breakoutRoomId != 0L) {
+        Log.e("TAG", "getActiveSocket = ${borSocketModule.hashCode()} bor ${internalDataModule.breakoutRoomId}", )
         borSocketModule
     } else {
+        Log.e("TAG", "getActiveSocket ${mainRoomSocketModule.hashCode()}: main ${internalDataModule.breakoutRoomId}", )
         mainRoomSocketModule
     }
 

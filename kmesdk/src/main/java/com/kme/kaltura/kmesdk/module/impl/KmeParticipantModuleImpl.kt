@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.module.impl
 
-import android.util.Log
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
@@ -88,21 +87,11 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
      * Get participants list
      */
     override fun getParticipants(roomId: Long?): List<KmeParticipant> {
-        val list = if (roomId != null && roomId != internalModule.mainRoomId) {
+        return  if (roomId != null && roomId != internalModule.mainRoomId) {
             participants.filter { participant -> participant.breakoutRoomId == roomId  }
         } else {
             participants
         }
-
-        Log.e(
-            "TAG", "getParticipants: ${
-                list.joinToString { item ->
-                    "{${item.userId ?: 0}, ${item.liveMediaState}}"
-                }
-            }"
-        )
-
-        return list
     }
 
     private val roomStateHandler = object : IKmeMessageListener {
@@ -162,17 +151,12 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
         }?.let {
             this.breakoutRoomId = it.breakoutRoomId
 
-            Log.e(
-                "TAG",
-                "update: userId = ${this.userId} to roomId = ${it.breakoutRoomId}"
-            )
             if (notify) {
                 listener?.onParticipantChanged(this)
             }
         } ?: run {
             this.breakoutRoomId = internalModule.mainRoomId
 
-            Log.e("TAG", "update: userId = ${this.userId} to main room")
             if (notify) {
                 listener?.onParticipantChanged(this)
             }
@@ -427,7 +411,6 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
             listener?.onDialAdded(participant)
         }
 
-        Log.e("TAG", "addOrUpdateParticipant: ${participant.userId}")
         listener?.onParticipantChanged(participant)
     }
 

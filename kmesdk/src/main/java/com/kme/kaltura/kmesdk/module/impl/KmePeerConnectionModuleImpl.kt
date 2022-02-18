@@ -204,10 +204,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
     override fun addViewerConnection(requestedUserIdStream: String) {
         if (!isInitialized) return
 
-        Log.e("TAG", "addViewerConnection: $requestedUserIdStream", )
-
         viewers[requestedUserIdStream]?.let {
-            Log.e("TAG", "addViewerConnection contains: $requestedUserIdStream", )
             disconnect(requestedUserIdStream)
         }
 
@@ -384,6 +381,8 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
      */
     override fun disconnect(requestedUserIdStream: String) {
         Log.e("TAG", "disconnect peerconnection: $requestedUserIdStream", )
+
+        if (!isInitialized) return
 
         if (publisherId.toString() == requestedUserIdStream) {
             preview?.disconnectPeerConnection()
