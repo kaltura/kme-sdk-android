@@ -326,6 +326,8 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
                 if (borSocketModule.isConnected())
                     borSocketModule.disconnect()
 
+                eventListener?.onBreakoutSaveMediaState()
+
                 participantModule.changeMediaState(
                     internalDataModule.mainRoomId,
                     internalDataModule.companyId,

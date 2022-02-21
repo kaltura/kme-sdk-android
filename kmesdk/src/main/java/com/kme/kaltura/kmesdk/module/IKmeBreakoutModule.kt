@@ -102,6 +102,8 @@ interface IKmeBreakoutModule : IKmeModule {
          */
         fun onBreakoutRoomStateChanged()
 
+        fun onBreakoutSaveMediaState()
+
     }
 
 }
