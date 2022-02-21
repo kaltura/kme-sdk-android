@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
-import com.kme.kaltura.kmesdk.controller.room.IKmeInternalDataModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
@@ -13,6 +13,7 @@ import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage
@@ -24,7 +25,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
 
     private val userController: IKmeUserController by inject()
     private val roomController: IKmeRoomController by scopedInject()
-    private val internalDataModule: IKmeInternalDataModule by scopedInject()
+    private val internalDataModule: IKmeInternalDataModule by inject()
 
     private val isAdmin = LiveEvent<Boolean>()
     val isAdminLiveData get() = isAdmin
@@ -58,7 +59,8 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
             KmeMessageEvent.DESKTOP_SHARE_STATE_UPDATED,
             KmeMessageEvent.USER_STARTED_TO_PUBLISH,
             KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
-            KmeMessageEvent.DESKTOP_SHARE_QUALITY_UPDATED
+            KmeMessageEvent.DESKTOP_SHARE_QUALITY_UPDATED,
+            priority = KmeMessagePriority.NORMAL
         )
         roomController.send(buildDesktopShareInitOnRoomInitMessage())
     }

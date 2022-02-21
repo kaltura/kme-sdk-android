@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.ws
 
+import android.util.Log
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import kotlinx.coroutines.CoroutineScope
@@ -12,7 +13,7 @@ import java.util.*
  */
 internal class KmeMessageManager : IKmeMessageManager {
 
-    private val listeners: MutableMap<KmeMessageEvent?, MutableList<IKmeMessageListener>?> =
+    private val listeners: MutableMap<KmeMessageEvent?, PriorityQueue<Entry>?> =
         Collections.synchronizedMap(mutableMapOf())
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
@@ -27,7 +28,8 @@ internal class KmeMessageManager : IKmeMessageManager {
         event: KmeMessageEvent,
         message: KmeMessage<KmeMessage.Payload>
     ) {
-        val postListeners: MutableSet<IKmeMessageListener> = mutableSetOf()
+        Log.e("KmeMessageManager", "post event: ${event.moduleName}", )
+        val postListeners = PriorityQueue<Entry>()
         val eventListeners = listeners[event]
         val allEventListeners = listeners[null]
 
@@ -37,29 +39,35 @@ internal class KmeMessageManager : IKmeMessageManager {
         if (postListeners.isNotEmpty()) {
             uiScope.launch {
                 for (postListener in postListeners) {
-                    postListener.onMessageReceived(message)
+                    Log.e("KmeMessageManager", "post: ${postListener?.listener}", )
+                    postListener?.listener?.onMessageReceived(message)
                 }
             }
         }
     }
 
-    override fun addListener(listener: IKmeMessageListener) {
-        addToMap(null, listener)
+    override fun addListener(
+        listener: IKmeMessageListener,
+        priority: KmeMessagePriority
+    ) {
+        addToMap(null, listener, priority)
     }
 
     override fun addListener(
         event: KmeMessageEvent,
-        listener: IKmeMessageListener
+        listener: IKmeMessageListener,
+        priority: KmeMessagePriority
     ) {
-        addToMap(event, listener)
+        addToMap(event, listener, priority)
     }
 
     override fun listen(
         listener: IKmeMessageListener,
-        vararg events: KmeMessageEvent
+        vararg events: KmeMessageEvent,
+        priority: KmeMessagePriority
     ): IKmeMessageListener {
         for (eventType in events) {
-            addListener(eventType, listener)
+            addListener(eventType, listener, priority)
         }
         return listener
     }
@@ -69,14 +77,14 @@ internal class KmeMessageManager : IKmeMessageManager {
         vararg events: KmeMessageEvent
     ) {
         for (eventType in events) {
-            val listenerSet: MutableList<IKmeMessageListener>? = listeners[eventType]
-            listenerSet?.remove(listener)
+            val priorityQueue: PriorityQueue<Entry>? = listeners[eventType]
+            priorityQueue?.removeAll { entry -> entry.listener == listener }
         }
     }
 
     override fun removeListener(listener: IKmeMessageListener) {
-        for (listenerSet in listeners.values) {
-            listenerSet?.remove(listener)
+        for (priorityQueue in listeners.values) {
+            priorityQueue?.removeAll { entry -> entry.listener == listener }
         }
     }
 
@@ -95,17 +103,55 @@ internal class KmeMessageManager : IKmeMessageManager {
      */
     private fun addToMap(
         key: KmeMessageEvent?,
-        listener: IKmeMessageListener
+        listener: IKmeMessageListener,
+        priority: KmeMessagePriority
     ) {
-        var listenerSet = listeners[key]
+///FIXME remove duplicates
+//        Log.e("KmeMessageManager", "addToMap: ${key?.moduleName}", )
+//        Log.e("KmeMessageManager", "addToMap: $listener", )
 
-        if (listenerSet == null) {
-            listenerSet = mutableListOf()
-            listenerSet.add(listener)
-            listeners[key] = listenerSet
+        var priorityQueue = listeners[key]
+
+        if (priorityQueue == null) {
+            priorityQueue = PriorityQueue()
+            val entry = Entry(listener, priority)
+            priorityQueue.offer(entry)
+            listeners[key] = priorityQueue
         } else {
-            listenerSet.add(listener)
+            val entry = Entry(listener, priority)
+            if (!priorityQueue.contains(entry)) {
+                priorityQueue.offer(entry)
+            }
         }
+    }
+
+    inner class Entry(
+        val listener: IKmeMessageListener,
+        val priority: KmeMessagePriority
+    ) : Comparable<Entry> {
+
+        override fun compareTo(other: Entry): Int {
+            return this.priority.value.compareTo(other.priority.value)
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (javaClass != other?.javaClass) return false
+
+            other as Entry
+
+            if (listener != other.listener) return false
+            if (priority != other.priority) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = listener.hashCode()
+            result = 31 * result + priority.hashCode()
+            return result
+        }
+
+
     }
 
 }

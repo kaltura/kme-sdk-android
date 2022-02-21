@@ -11,18 +11,26 @@ interface IKmeMessageManager {
      * Add listeners for socket messages
      *
      * @param listener listener for messages
+     * @param priority priority for posting events. If more than one listener is queued at a time,
+     * events with the higher priority will be posted first.
      */
-    fun addListener(listener: IKmeMessageListener)
+    fun addListener(
+        listener: IKmeMessageListener,
+        priority: KmeMessagePriority = KmeMessagePriority.APPLICATION
+    )
 
     /**
      * Add event to listener
      *
      * @param event event to listen
      * @param listener listener for messages
+     * @param priority priority for posting events. If more than one listener is queued at a time,
+     * events with the higher priority will be posted first.
      */
     fun addListener(
         event: KmeMessageEvent,
-        listener: IKmeMessageListener
+        listener: IKmeMessageListener,
+        priority: KmeMessagePriority = KmeMessagePriority.APPLICATION
     )
 
     /**
@@ -30,11 +38,14 @@ interface IKmeMessageManager {
      *
      * @param listener listener for messages
      * @param events events to listen
+     * @param priority priority for posting events. If more than one listener is queued at a time,
+     * events with the higher priority will be posted first.
      */
     fun listen(
         listener: IKmeMessageListener,
-        vararg events: KmeMessageEvent
-    ) : IKmeMessageListener
+        vararg events: KmeMessageEvent,
+        priority: KmeMessagePriority = KmeMessagePriority.APPLICATION
+    ): IKmeMessageListener
 
     /**
      * Stop listen events for listener

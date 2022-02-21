@@ -23,7 +23,11 @@ class KmeBreakoutModuleMessage<T : BreakoutPayload> : KmeMessage<T>() {
         @SerializedName("removed_assignments") var removedAssignments: MutableList<BreakoutRoomAssignment> = mutableListOf(),
         @SerializedName("start_time") var startTime: Long?,
         @SerializedName("end_time") var endTime: Long?,
-    ) : BreakoutPayload()
+    ) : BreakoutPayload() {
+        override fun toString(): String {
+            return "BreakoutRoomState(status=$status, breakoutRooms=$breakoutRooms, assignments=$assignments, failedAssignments=$failedAssignments, removedAssignments=$removedAssignments, startTime=$startTime, endTime=$endTime)"
+        }
+    }
 
     data class BreakoutAddRoomPayload(
         @SerializedName("room") val room: BreakoutRoom?,

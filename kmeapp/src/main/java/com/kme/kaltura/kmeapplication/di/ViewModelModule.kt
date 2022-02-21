@@ -11,7 +11,7 @@ val viewModel = module {
     viewModel { UserCompaniesViewModel(get(), get()) }
     viewModel { RoomsListViewModel(get()) }
     viewModel { RoomInfoViewModel(get()) }
-    viewModel { RoomViewModel(get()) }
+    viewModel { RoomStateViewModel(get()) }
     viewModel { RoomRecordingViewModel(get()) }
     viewModel { RoomNoteViewModel(get(), get()) }
     viewModel { RoomSettingsViewModel(get()) }

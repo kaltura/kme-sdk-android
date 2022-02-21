@@ -9,8 +9,8 @@ com.kme.kaltura.kmesdk.content.slides
 com.kme.kaltura.kmesdk.content.whiteboard
 com.kme.kaltura.kmesdk.controller
 com.kme.kaltura.kmesdk.controller.impl
-com.kme.kaltura.kmesdk.controller.room
-com.kme.kaltura.kmesdk.controller.room.impl
+com.kme.kaltura.kmesdk.room
+com.kme.kaltura.kmesdk.room.impl
 com.kme.kaltura.kmesdk.di
 com.kme.kaltura.kmesdk.prefs
 com.kme.kaltura.kmesdk.rest

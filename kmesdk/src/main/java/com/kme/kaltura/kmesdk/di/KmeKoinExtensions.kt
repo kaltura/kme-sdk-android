@@ -2,8 +2,8 @@ package com.kme.kaltura.kmesdk.di
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.kme.kaltura.kmesdk.controller.room.IKmeModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.module.IKmeModule
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinScope.*
 import com.kme.kaltura.kmesdk.util.ResetableLazy
 import org.koin.android.ext.koin.androidContext

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kme.kaltura.kmesdk.KME
-import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
+import com.kme.kaltura.kmesdk.module.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.webrtc.audio.KmeAudioDevice.EARPIECE

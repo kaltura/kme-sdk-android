@@ -27,5 +27,5 @@ data class KmeRoomMetaData(
     @SerializedName("streamsTableRedisKey") val streamsTableRedisKey: String? = null,
     @SerializedName("sessionTimeoutTime") val sessionTimeoutTime: Long? = null,
     @SerializedName("roomSettingsRedisKey") val roomSettingsRedisKey: String? = null,
-    @SerializedName("participants_order") val participantsOrder: String? = null,
+    @SerializedName("participants_order") val participantsOrder: String? = null
 )

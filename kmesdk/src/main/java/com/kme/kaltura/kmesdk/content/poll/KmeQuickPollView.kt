@@ -11,7 +11,7 @@ import androidx.viewbinding.ViewBinding
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollTypeView
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.util.messages.buildSendQuickPollAnswerMessage
