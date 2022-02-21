@@ -217,6 +217,9 @@ enum class KmeMessageEvent(
     @SerializedName("moduleDefaultSettingsChanged", alternate = ["moduledefaultsettingschanged"])
     ROOM_DEFAULT_SETTINGS_CHANGED("moduleDefaultSettingsChanged"),
 
+    @SerializedName("changeParticipantPermissions", alternate = ["changeparticipantpermissions"])
+    CHANGE_PARTICIPANT_PERMISSIONS("changeParticipantPermissions"),
+
     @SerializedName("roomSettingsChanged", alternate = ["roomsettingschanged"])
     ROOM_SETTINGS_CHANGED("roomSettingsChanged"),
 
