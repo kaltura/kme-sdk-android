@@ -72,6 +72,20 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         )
 
         roomController.listen(
+            bannersHandler,
+            KmeMessageEvent.ANY_INSTRUCTORS_IS_CONNECTED_TO_ROOM,
+            KmeMessageEvent.ROOM_HAS_PASSWORD,
+            KmeMessageEvent.ROOM_PARTICIPANT_LIMIT_REACHED,
+            KmeMessageEvent.AWAIT_INSTRUCTOR_APPROVAL,
+            KmeMessageEvent.USER_APPROVED_BY_INSTRUCTOR,
+            KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR,
+            KmeMessageEvent.JOINED_ROOM,
+            KmeMessageEvent.ROOM_PASSWORD_STATUS_RECEIVED,
+            KmeMessageEvent.INSTRUCTOR_IS_OFFLINE,
+            priority = KmeMessagePriority.HIGH
+        )
+
+        roomController.listen(
             roomExitHandler,
             KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR,
             KmeMessageEvent.USER_REMOVED,
@@ -152,12 +166,30 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                         val msg: KmeBreakoutModuleMessage<KmeBreakoutModuleMessage.BreakoutRoomState>? =
                             message.toType()
                         msg?.let {
-                            Log.e("TAG", "breakoutRoomStateHandler: onRoomAvailable", )
                             roomData?.let { stateListener?.onRoomAvailable(it) }
                         }
                     }
                     else -> {
                     }
+                }
+            }
+        }
+    }
+
+    private val bannersHandler = object : IKmeMessageListener {
+        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
+            when (message.name) {
+                KmeMessageEvent.AWAIT_INSTRUCTOR_APPROVAL,
+                KmeMessageEvent.USER_APPROVED_BY_INSTRUCTOR,
+                KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR,
+                KmeMessageEvent.ANY_INSTRUCTORS_IS_CONNECTED_TO_ROOM,
+                KmeMessageEvent.ROOM_HAS_PASSWORD,
+                KmeMessageEvent.ROOM_PASSWORD_STATUS_RECEIVED,
+                KmeMessageEvent.INSTRUCTOR_IS_OFFLINE,
+                KmeMessageEvent.ROOM_PARTICIPANT_LIMIT_REACHED -> {
+                    stateListener?.onRoomBanner(message)
+                }
+                else -> {
                 }
             }
         }
