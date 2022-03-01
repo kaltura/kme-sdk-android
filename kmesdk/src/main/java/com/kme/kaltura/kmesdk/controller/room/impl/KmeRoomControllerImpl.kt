@@ -9,6 +9,7 @@ import android.os.IBinder
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.*
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeRoomInternalModule
 import com.kme.kaltura.kmesdk.controller.room.internal.IKmeSettingsInternalModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
@@ -43,6 +44,7 @@ class KmeRoomControllerImpl(
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()
     private val settingsInternalModule: IKmeSettingsInternalModule by scopedInject()
+    private val roomInternalModule: IKmeRoomInternalModule by scopedInject()
 
     override val roomModule: IKmeRoomModule by scopedInject()
     override val settingsModule: IKmeSettingsModule by scopedInject()
@@ -250,6 +252,7 @@ class KmeRoomControllerImpl(
                 KmeMessageEvent.CLOSE_WEB_SOCKET -> {
 //                    val msg: KmeRoomInitModuleMessage<KmeRoomInitModuleMessage.CloseWebSocketPayload>? =
 //                        message.toType()
+                    roomInternalModule.destroy()
                     disconnect()
                 }
                 else -> {

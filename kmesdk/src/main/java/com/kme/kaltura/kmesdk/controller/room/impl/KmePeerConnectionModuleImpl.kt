@@ -30,8 +30,7 @@ import kotlin.properties.Delegates
 /**
  * An implementation for wrap actions with [IKmePeerConnection]
  */
-class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
-    IKmePeerConnectionInternalModule {
+class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionInternalModule {
 
     private val userController: IKmeUserController by inject()
     private val participantsInternalModule: IKmeParticipantsInternalModule by scopedInject()
@@ -57,7 +56,6 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionModule,
     private lateinit var listener: IKmePeerConnectionModule.KmePeerConnectionEvents
     private var screenShareEvents: IKmePeerConnectionModule.KmeScreenShareEvents? = null
     private var playerAudioEvent: IKmePeerConnectionModule.KmePlayerAudioEvents? = null
-
 
     private var viewersAudioEnabledByApp = true
     private var viewersAudioEnabledBySdk = true

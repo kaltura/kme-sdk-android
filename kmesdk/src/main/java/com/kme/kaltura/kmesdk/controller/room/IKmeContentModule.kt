@@ -32,6 +32,13 @@ interface IKmeContentModule : IKmeModule {
     fun muteActiveContent(isMute: Boolean)
 
     /**
+     * Destroy active content
+     *
+     * @param isMute
+     */
+    fun destroy()
+
+    /**
      * Content share listener
      */
     interface KmeContentListener {
@@ -46,7 +53,7 @@ interface IKmeContentModule : IKmeModule {
          * Fired once content is not available
          * @param type for content
          */
-        fun onContentNotAvailable(type: KmeContentType)
+        fun onContentNotAvailable(type: KmeContentType?)
     }
 
 }
