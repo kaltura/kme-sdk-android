@@ -33,8 +33,6 @@ interface IKmeContentModule : IKmeModule {
 
     /**
      * Destroy active content
-     *
-     * @param isMute
      */
     fun destroy()
 
