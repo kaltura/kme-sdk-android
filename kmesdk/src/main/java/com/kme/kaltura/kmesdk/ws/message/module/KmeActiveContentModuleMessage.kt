@@ -7,7 +7,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeFileType
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveContentPayload> :
     KmeMessage<T>() {

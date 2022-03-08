@@ -32,8 +32,8 @@ class PeerConnectionViewModel(
     private val peerConnectionRemove = MutableLiveData<Long>()
     val participantRemoveLiveData get() = peerConnectionRemove as LiveData<Long>
 
-    private val userSpeaking = MutableLiveData<Pair<Long, Boolean>>()
-    val userSpeakingLiveData get() = userSpeaking as LiveData<Pair<Long, Boolean>>
+    private val userSpeaking = MutableLiveData<Long>()
+    val userSpeakingLiveData get() = userSpeaking as LiveData<Long>
 
     private val speakerEnabled = MutableLiveData<Boolean>()
     val speakerEnabledLiveData get() = speakerEnabled as LiveData<Boolean>
@@ -197,14 +197,14 @@ class PeerConnectionViewModel(
         userId: Long?,
         renderer: KmeSurfaceRendererView
     ) {
-        kmeSdk.roomController.peerConnectionModule.setViewerRenderer(
+        kmeSdk.roomController.peerConnectionModule.addViewerRenderer(
             userId.toString(),
             renderer
         )
     }
 
     fun setPublisherRenderer(renderer: KmeSurfaceRendererView) {
-        kmeSdk.roomController.peerConnectionModule.setPublisherRenderer(renderer)
+        kmeSdk.roomController.peerConnectionModule.addPublisherRenderer(renderer)
     }
 
 //    fun addPeerConnection(userId: Long, rendererView: KmeSurfaceRendererView) {
@@ -265,8 +265,8 @@ class PeerConnectionViewModel(
         }
     }
 
-    override fun onUserSpeaking(id: String, isSpeaking: Boolean) {
-        userSpeaking.postValue(Pair(id.toLong(), isSpeaking))
+    override fun onUserSpeaking(id: Long) {
+        userSpeaking.postValue(id)
     }
 
     override fun onPeerConnectionRemoved(id: String) {

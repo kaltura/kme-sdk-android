@@ -215,7 +215,10 @@ enum class KmeMessageEvent(
     * */
 
     @SerializedName("moduleDefaultSettingsChanged", alternate = ["moduledefaultsettingschanged"])
-    ROOM_MODULE_SETTINGS_CHANGED("moduleDefaultSettingsChanged"),
+    ROOM_DEFAULT_SETTINGS_CHANGED("moduleDefaultSettingsChanged"),
+
+    @SerializedName("changeParticipantPermissions", alternate = ["changeparticipantpermissions"])
+    CHANGE_PARTICIPANT_PERMISSIONS("changeParticipantPermissions"),
 
     @SerializedName("roomSettingsChanged", alternate = ["roomsettingschanged"])
     ROOM_SETTINGS_CHANGED("roomSettingsChanged"),
@@ -267,22 +270,22 @@ enum class KmeMessageEvent(
     * */
 
     @SerializedName("startRecording", alternate = ["startrecording"])
-    START_RECORDING("startRecording"),
+    RECORDING_ACTION_START("startRecording"),
+
+    @SerializedName("stopRecording", alternate = ["stoprecording"])
+    RECORDING_ACTION_STOP("stopRecording"),
 
     @SerializedName("initiated", alternate = ["initiated"])
     RECORDING_INITIATED("initiated"),
 
     @SerializedName("receivedStartRecording", alternate = ["receivedstartrecording"])
-    RECORDING_STARTING("receivedStartRecording"),
-
-    @SerializedName("stopRecording", alternate = ["stoprecording"])
-    STOP_RECORDING("stopRecording"),
+    RECORDING_RECEIVED_START("receivedStartRecording"),
 
     @SerializedName("recording", alternate = ["recording"])
     RECORDING_STARTED("recording"),
 
     @SerializedName("receivedStopRecording", alternate = ["receivedstoprecording"])
-    RECORDING_STOPPED("receivedStopRecording"),
+    RECORDING_RECEIVED_STOP("receivedStopRecording"),
 
     @SerializedName("recordingCompleted", alternate = ["recordingcompleted"])
     RECORDING_COMPLETED("recordingCompleted"),
@@ -430,11 +433,36 @@ enum class KmeMessageEvent(
     BREAKOUT_CALL_TO_INSTRUCTOR_SUCCESS("callToInstructorSucceeded"),
 
     @SerializedName("breakoutMessage", alternate = ["breakoutmessage"])
-    BREAKOUT_INSTRUCTOR_MESSAGE("breakoutMessage");
+    BREAKOUT_INSTRUCTOR_MESSAGE("breakoutMessage"),
+
+    /*
+    * Large room
+    * */
+
+    @SerializedName("largeRoomModeInitiating", alternate = ["largeroommodeinitiating"])
+    XL_ROOM_MODE_INIT("largeRoomModeInitiating"),
+
+    @SerializedName("largeRoomModeReady", alternate = ["largeroommodeready"])
+    XL_ROOM_MODE_READY("largeRoomModeReady"),
+
+    @SerializedName("largeRoomModeActive", alternate = ["largeroommodeactive"])
+    XL_ROOM_MODE_ACTIVE("largeRoomModeActive"),
+
+    @SerializedName("largeRoomModeFinished", alternate = ["largeroommodefinished"])
+    XL_ROOM_MODE_FINISHED("largeRoomModeFinished"),
+
+    @SerializedName("largeRoomModeAborted", alternate = ["largeroommodeaborted"])
+    XL_ROOM_MODE_ABORTED("largeRoomModeAborted"),
+
+    @SerializedName("largeRoomModeFailed", alternate = ["largeroommodefailed"])
+    XL_ROOM_MODE_FAILED("largeRoomModeFailed"),
+
+    @SerializedName("largeRoomModeNotActive", alternate = ["largeroommodenotactive"])
+    XL_ROOM_MODE_NOT_ACTIVE("largeRoomModeNotActive");
 
     @SuppressLint("DefaultLocale")
     override fun toString(): String {
-        return moduleName.toLowerCase()
+        return moduleName.lowercase()
     }
 
 }

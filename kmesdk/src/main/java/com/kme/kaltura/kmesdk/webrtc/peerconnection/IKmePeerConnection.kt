@@ -36,16 +36,21 @@ internal interface IKmePeerConnection {
     )
 
     /**
-     * Setting view for stream rendering
-     *
-     * @param rendererView view to render on
+     * Remove all renderers for viewer connection
      */
-    fun setRenderer(rendererView: KmeSurfaceRendererView)
+    fun removeRenderers()
 
     /**
-     * Remove renderer for viewer connection
+     * Add renderer for peer connection
+     *
+     * @param rendererView video renderer
      */
-    fun removeRenderer()
+    fun addRenderer(rendererView: KmeSurfaceRendererView)
+
+    /**
+     * Remove specific renderer for peer connection
+     */
+    fun removeRenderer(rendererView: KmeSurfaceRendererView)
 
     /**
      * Creates a local video preview

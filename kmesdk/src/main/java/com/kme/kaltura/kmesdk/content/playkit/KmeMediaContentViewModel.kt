@@ -9,6 +9,8 @@ import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.toNonNull
 import com.kme.kaltura.kmesdk.webrtc.audio.IKmeAudioManager
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
+import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 import org.koin.core.inject
@@ -34,6 +36,9 @@ class KmeMediaContentViewModel : ViewModel(), KmeKoinViewModel {
         return partnerId?.toInt() ?: 0
     }
 
+    fun updatePlayerAudioState(state: KmePlayerState, type: KmeContentType){
+        roomController.peerConnectionModule.playerAudioState(state, type)
+    }
     fun videoVolumeIncrease() {
         audioManager.adjustStreamVolumeRise()
     }

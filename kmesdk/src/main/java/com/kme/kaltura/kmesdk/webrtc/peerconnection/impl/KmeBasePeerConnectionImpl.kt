@@ -37,7 +37,7 @@ open class KmeBasePeerConnectionImpl(
     internal var isScreenShare = false
     internal var useDataChannel = false
 
-    internal var videoCapturerStopped = false
+    internal var videoCapturerEnabled = false
     internal var preferredMicEnabled = true
     internal var preferredCamEnabled = true
 
@@ -53,7 +53,7 @@ open class KmeBasePeerConnectionImpl(
 
     internal var remoteVideoTrack: VideoTrack? = null
     internal var remoteAudioTrack: AudioTrack? = null
-    internal var rendererView: KmeSurfaceRendererView? = null
+    internal var renderers: MutableList<KmeSurfaceRendererView> = mutableListOf()
 
     internal var audioConstraints = MediaConstraints()
     internal var sdpMediaConstraints = MediaConstraints()
@@ -133,11 +133,24 @@ open class KmeBasePeerConnectionImpl(
         }
     }
 
-    override fun setRenderer(rendererView: KmeSurfaceRendererView) {
+    /**
+     * Add renderer for peer connection
+     */
+    override fun addRenderer(rendererView: KmeSurfaceRendererView) {
         throw Exception("Wrong state.")
     }
 
-    override fun removeRenderer() {
+    /**
+     * Remove specific renderer for peer connection
+     */
+    override fun removeRenderer(rendererView: KmeSurfaceRendererView) {
+        throw Exception("Wrong state.")
+    }
+
+    /**
+     * Remove all connection renderers
+     */
+    override fun removeRenderers() {
         throw Exception("Wrong state.")
     }
 
@@ -207,7 +220,7 @@ open class KmeBasePeerConnectionImpl(
 
         localVideoTrack = factory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)?.apply {
             setEnabled(preferredCamEnabled)
-            rendererView?.let {
+            renderers.forEach {
                 addSink(it)
             }
         }
@@ -292,16 +305,9 @@ open class KmeBasePeerConnectionImpl(
     }
 
     /**
-     * Disable outgoing video stream
+     * Enable/Disable outgoing video stream
      */
-    override fun stopVideoSource() {
-        throw Exception("Wrong state.")
-    }
-
-    /**
-     * Enable outgoing video stream
-     */
-    override fun startVideoSource() {
+    override fun enableVideoSource(enable: Boolean) {
         throw Exception("Wrong state.")
     }
 
@@ -375,7 +381,7 @@ open class KmeBasePeerConnectionImpl(
         volumeDataChannel?.dispose()
         volumeDataChannel = null
 
-        removeRenderer()
+        removeRenderers()
 
         localAudioSource?.dispose()
         localAudioSource = null
@@ -385,7 +391,7 @@ open class KmeBasePeerConnectionImpl(
         } catch (e: InterruptedException) {
             throw RuntimeException(e)
         }
-        videoCapturerStopped = true
+        videoCapturerEnabled = false
         videoCapturer?.dispose()
         videoCapturer = null
 
@@ -481,7 +487,7 @@ open class KmeBasePeerConnectionImpl(
             if (stream.videoTracks.size == 1) {
                 remoteVideoTrack = stream.videoTracks[0]?.apply {
                     setEnabled(true)
-                    rendererView?.let {
+                    renderers.forEach {
                         addSink(it)
                     }
                 }

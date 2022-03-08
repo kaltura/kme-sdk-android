@@ -178,12 +178,12 @@ class RoomRenderersFragment : KmeFragment() {
         it?.let { adapter.removeRendererFor(it) }
     }
 
-    private val currentlySpeakingObserver = Observer<Pair<Long, Boolean>> {
-        participantsViewModel.participants.find { tmp -> tmp.userId == it.first }
-            ?.let { participant ->
-                participant.isSpeaking = it.second
-                adapter.updateSpeakingStateFor(participant)
-            }
+    private val currentlySpeakingObserver = Observer<Long> {
+        participantsViewModel.participants.find { tmp ->
+            tmp.userId == it
+        }?.let { participant ->
+            adapter.updateSpeakingStateFor(participant)
+        }
     }
 
     // Clear recycler pool to allow create new renderer from scratch

@@ -21,6 +21,9 @@ class KmeViewerPeerConnectionImpl(
         isScreenShare = false
     }
 
+    /**
+     * Creates peer connection
+     */
     override fun createPeerConnection(
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
@@ -44,9 +47,10 @@ class KmeViewerPeerConnectionImpl(
         events?.onPeerConnectionCreated()
     }
 
-    override fun setRenderer(rendererView: KmeSurfaceRendererView) {
-        removeRenderer()
-
+    /**
+     * Add renderer for peer connection
+     */
+    override fun addRenderer(rendererView: KmeSurfaceRendererView) {
         with(rendererView) {
             if (!isInitialized) {
                 init(getRenderContext(), null)
@@ -54,20 +58,38 @@ class KmeViewerPeerConnectionImpl(
                 setEnableHardwareScaler(true)
                 setMirror(false)
             }
+            renderers.add(this)
+            remoteVideoTrack?.addSink(this)
         }
-
-        this.rendererView = rendererView
-        remoteVideoTrack?.addSink(rendererView)
     }
 
-    override fun removeRenderer() {
-        this.rendererView?.let {
+    /**
+     * Remove specific renderer for peer connection
+     */
+    override fun removeRenderer(rendererView: KmeSurfaceRendererView) {
+        renderers.find {
+            it == rendererView
+        }?.let {
             remoteVideoTrack?.removeSink(it)
             it.release()
-            this.rendererView = null
+            renderers.remove(it)
         }
     }
 
+    /**
+     * Remove all connection renderers
+     */
+    override fun removeRenderers() {
+        renderers.forEach {
+            remoteVideoTrack?.removeSink(it)
+            it.release()
+        }
+        renderers.clear()
+    }
+
+    /**
+     * Toggle audio
+     */
     override fun setAudioEnabled(enable: Boolean) {
         remoteAudioTrack?.setEnabled(enable)
     }

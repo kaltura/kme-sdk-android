@@ -10,13 +10,13 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeConstraint
 internal fun buildGetQuickPollStateMessage(
     roomId: Long,
     companyId: Long
-): KmeQuickPollModuleMessage<GetQuickPollStatePayload> {
-    return KmeQuickPollModuleMessage<GetQuickPollStatePayload>().apply {
+): KmeQuickPollModuleMessage<QuickPollGetStatePayload> {
+    return KmeQuickPollModuleMessage<QuickPollGetStatePayload>().apply {
         constraint = listOf(KmeConstraint.INCLUDE_SELF)
         module = KmeMessageModule.QUICK_POLL
         name = KmeMessageEvent.GET_MODULE_STATE
         type = KmeMessageEventType.VOID
-        payload = GetQuickPollStatePayload(roomId, companyId)
+        payload = QuickPollGetStatePayload(roomId, companyId)
     }
 }
 

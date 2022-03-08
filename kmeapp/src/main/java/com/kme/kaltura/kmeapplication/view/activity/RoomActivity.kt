@@ -627,12 +627,13 @@ class RoomActivity : KmeActivity(), PreviewListener {
 //        btnToggleCamera.isEnabled = it
 //    }
 
-    private val currentlySpeakingObserver = Observer<Pair<Long, Boolean>> {
-        participantsViewModel.participants.find { tmp -> tmp.userId == it.first }
-            ?.let { participant ->
-                val speaker = if (it.second) participant.fullName else ""
-                tvSpeaker.text = speaker
-            }
+    private val currentlySpeakingObserver = Observer<Long> {
+        participantsViewModel.participants.find { tmp ->
+            tmp.userId == it
+        }?.let { participant ->
+            val speaker = if (participant.isSpeaking) participant.fullName else ""
+            tvSpeaker.text = speaker
+        }
     }
 
     private val toggleMicByAdminObserver = Observer<Boolean> {

@@ -21,14 +21,15 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.CreateNotePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.NotePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomRecordingMessage.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomModuleSettingsChangedPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.AnnotationStateChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.SyncPlayerStatePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage.VideoPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.module.KmeXLRoomModuleMessage.*
+import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionModule
 
 private const val KEY_NAME = "name"
 private const val KEY_MODULE = "module"
@@ -95,6 +96,24 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.ROOM_PARTICIPANT_LIMIT_REACHED.toString() -> {
                 text.jsonToObject<KmeRoomInitModuleMessage<RoomParticipantLimitReachedPayload>>()
+            }
+            KmeMessageEvent.MODULE_STATE.toString() -> {
+                val jsonObject = jsonParser.parse(text).asJsonObject
+                if (jsonObject.has(KEY_MODULE)) {
+                    when (jsonObject.get(KEY_MODULE).asString.lowercase()) {
+                        KmeMessageModule.QUICK_POLL.moduleName.lowercase() -> {
+                            text.jsonToObject<KmeQuickPollModuleMessage<QuickPollGetStatePayload>>()
+                        }
+                        KmeMessageModule.XL_ROOM.moduleName.lowercase() -> {
+                            text.jsonToObject<KmeXLRoomModuleMessage<XLRoomStatePayload>>()
+                        }
+                        else -> {
+                            null
+                        }
+                    }
+                } else {
+                    null
+                }
             }
             KmeMessageEvent.AWAIT_INSTRUCTOR_APPROVAL.toString(),
             KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR.toString(),
@@ -232,10 +251,10 @@ internal class KmeMessageParser(
             KmeMessageEvent.RECORDING_INITIATED.toString() -> {
                 text.jsonToObject<KmeRoomRecordingMessage<RecordingInitiatedPayload>>()
             }
-            KmeMessageEvent.RECORDING_STARTING.toString() -> {
+            KmeMessageEvent.RECORDING_RECEIVED_START.toString() -> {
                 text.jsonToObject<KmeRoomRecordingMessage<RecordingStartedPayload>>()
             }
-            KmeMessageEvent.RECORDING_STOPPED.toString() -> {
+            KmeMessageEvent.RECORDING_RECEIVED_STOP.toString() -> {
                 text.jsonToObject<KmeRoomRecordingMessage<RecordingStoppedPayload>>()
             }
             KmeMessageEvent.RECORDING_COMPLETED.toString() -> {
@@ -254,8 +273,29 @@ internal class KmeMessageParser(
                 text.jsonToObject<KmeRoomRecordingMessage<RecordingFailurePayload>>()
             }
 
-            KmeMessageEvent.ROOM_MODULE_SETTINGS_CHANGED.toString() -> {
-                text.jsonToObject<KmeRoomSettingsModuleMessage<RoomModuleSettingsChangedPayload>>()
+            KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED.toString() -> {
+                val defaultSettings: KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload> =
+                    gson.fromJson(
+                        text,
+                        genericType<KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload>>()
+                    )
+                when (defaultSettings.payload?.moduleName) {
+                    KmePermissionModule.CHAT_MODULE -> {
+                        text.jsonToObject<KmeRoomSettingsModuleMessage<RoomChatSettingsChangedPayload>>()
+                    }
+                    KmePermissionModule.PARTICIPANTS_MODULE -> {
+                        text.jsonToObject<KmeRoomSettingsModuleMessage<RoomParticipantSettingsChangedPayload>>()
+                    }
+                    KmePermissionModule.NOTES_MODULE -> {
+                        text.jsonToObject<KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload>>()
+                    }
+                    else -> {
+                        text.jsonToObject<KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload>>()
+                    }
+                }
+            }
+            KmeMessageEvent.CHANGE_PARTICIPANT_PERMISSIONS.toString() -> {
+                text.jsonToObject<KmeParticipantSettingsModuleMessage<KmeParticipantSettingsModuleMessage.ParticipantSettingsChangedPayload>>()
             }
             KmeMessageEvent.ROOM_SETTINGS_CHANGED.toString() -> {
                 text.jsonToObject<KmeRoomSettingsModuleMessage<RoomSettingsChangedPayload>>()
@@ -297,12 +337,13 @@ internal class KmeMessageParser(
             KmeMessageEvent.LASER_DEACTIVATED.toString() -> {
                 text.jsonToObject<KmeWhiteboardModuleMessage<LaserDeactivatedPayload>>()
             }
-            KmeMessageEvent.RECEIVE_DRAWING.toString(), KmeMessageEvent.RECEIVE_TRANSFORMATION.toString()-> {
-                val message =  text.jsonToObject<KmeWhiteboardModuleMessage<ReceiveDrawingPayload>>()
-                        as KmeWhiteboardModuleMessage<ReceiveDrawingPayload>?
+            KmeMessageEvent.RECEIVE_DRAWING.toString(), KmeMessageEvent.RECEIVE_TRANSFORMATION.toString() -> {
+                val message =
+                    text.jsonToObject<KmeWhiteboardModuleMessage<ReceiveDrawingPayload>>()
+                            as KmeWhiteboardModuleMessage<ReceiveDrawingPayload>?
 
                 message?.payload?.drawing = WhiteboardPayload.Drawing().apply {
-                    this.layer =  message?.payload?.drawingLayer
+                    this.layer = message?.payload?.drawingLayer
                     this.type = message?.payload?.drawingType
                     this.tool = message?.payload?.drawingTool
                     this.userId = message?.payload?.drawingUserId
@@ -349,7 +390,7 @@ internal class KmeMessageParser(
                     KmeMessageModule.BREAKOUT.moduleName ->
                         text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
                     KmeMessageModule.QUICK_POLL.moduleName ->
-                        text.jsonToObject<KmeQuickPollModuleMessage<GetQuickPollStatePayload>>()
+                        text.jsonToObject<KmeQuickPollModuleMessage<QuickPollGetStatePayload>>()
                     else -> null
                 }
             }
@@ -395,6 +436,15 @@ internal class KmeMessageParser(
             KmeMessageEvent.BREAKOUT_INSTRUCTOR_MESSAGE.toString() -> {
                 text.jsonToObject<KmeBreakoutModuleMessage<BreakoutMessagePayload>>()
             }
+            KmeMessageEvent.XL_ROOM_MODE_INIT.toString() -> {
+                text.jsonToObject<KmeXLRoomModuleMessage<XLRoomInitPayload>>()
+            }
+            KmeMessageEvent.XL_ROOM_MODE_READY.toString() -> {
+                text.jsonToObject<KmeXLRoomModuleMessage<XLRoomReadyPayload>>()
+            }
+            KmeMessageEvent.XL_ROOM_MODE_FINISHED.toString() -> {
+                text.jsonToObject<KmeXLRoomModuleMessage<XLRoomFinishedPayload>>()
+            }
             else -> null
         }
     }
@@ -407,6 +457,13 @@ internal class KmeMessageParser(
      */
     private inline fun <reified T> String.jsonToObject(): KmeMessage<KmeMessage.Payload>? {
         return gson.fromJson(this, object : TypeToken<T>() {}.type)
+    }
+
+    inline fun <reified T> genericType() = object : TypeToken<T>() {}.type
+
+    companion object {
+        private const val KEY_NAME = "name"
+        private const val KEY_MODULE = "module"
     }
 
 }

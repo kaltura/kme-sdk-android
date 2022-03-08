@@ -1,7 +1,7 @@
 package com.kme.kaltura.kmesdk.module
 
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomModuleSettingsChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeBreakoutRoomMessageType
 
 /**
@@ -17,7 +17,7 @@ interface IKmeBreakoutModule : IKmeModule {
     /**
      * Handle breakout room setting changes from main room
      */
-    fun onSettingChanged(payload: RoomModuleSettingsChangedPayload)
+    fun onSettingChanged(payload: KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload)
 
     /**
      * Setting events listener

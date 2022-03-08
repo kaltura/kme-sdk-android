@@ -19,7 +19,7 @@ internal fun buildStartRoomRecordingMessage(
         constraint = listOf(KmeConstraint.INCLUDE_SELF)
         type = KmeMessageEventType.VOID
         module = KmeMessageModule.RECORDING
-        name = KmeMessageEvent.START_RECORDING
+        name = KmeMessageEvent.RECORDING_ACTION_START
         payload = RecordingStartPayload(
             recordingDuration,
             timestamp,
@@ -38,7 +38,7 @@ internal fun buildStopRoomRecordingMessage(
         constraint = listOf(KmeConstraint.INCLUDE_SELF)
         type = KmeMessageEventType.VOID
         module = KmeMessageModule.RECORDING
-        name = KmeMessageEvent.STOP_RECORDING
+        name = KmeMessageEvent.RECORDING_ACTION_STOP
         payload = RecordingStopPayload(roomId, companyId)
     }
 }

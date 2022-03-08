@@ -58,11 +58,10 @@ class KmeRoomControllerImpl(
     private val internalParticipantModule: IKmeInternalParticipantModule by scopedInject()
 
     private val mainRoomSocketModule: IKmeWebSocketModule by scopedInject()
-    private val settingsModule: IKmeSettingsModule by scopedInject()
     private val contentModule: IKmeContentModule by scopedInject()
     private val internalDataModule: IKmeInternalDataModule by inject()
-
     override val roomModule: IKmeRoomModule by scopedInject()
+
     override val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
     override val participantModule = internalParticipantModule as IKmeParticipantModule
     override val chatModule: IKmeChatModule by scopedInject()
@@ -71,6 +70,7 @@ class KmeRoomControllerImpl(
     override val audioModule: IKmeAudioModule by scopedInject()
     override val termsModule: IKmeTermsModule by scopedInject()
     override val breakoutModule: IKmeBreakoutModule by scopedInject()
+    override val settingsModule: IKmeSettingsModule by scopedInject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -120,6 +120,7 @@ class KmeRoomControllerImpl(
         roomId: Long,
         roomAlias: String,
         companyId: Long,
+        appVersion: String,
         isReconnect: Boolean,
         roomStateListener: IKmeRoomModule.IKmeRoomStateListener
     ) {
@@ -134,33 +135,29 @@ class KmeRoomControllerImpl(
             success = {
                 fetchWebRTCLiveServer(
                     roomAlias,
+                    appVersion,
                     isReconnect
                 )
             }, error = {
                 roomModule.getRoomStateListener()?.onRoomUnavailable(Throwable(it))
-//                listener.onFailure(Throwable(it))
             }
         )
     }
 
     private fun fetchWebRTCLiveServer(
         roomAlias: String,
+        appVersion: String,
         isReconnect: Boolean
     ) {
         uiScope.launch {
             safeApiCall(
-                { roomApiService.getWebRTCLiveServer(roomAlias) },
+                { roomApiService.getWebRTCLiveServer(roomAlias, appVersion) },
                 success = {
                     webRTCServer = it.data
                     if (webRTCServer?.roomInfo?.settingsV2?.general?.appAccess == KmeAppAccessValue.OFF) {
                         val appAccessException = KmeApiException.AppAccessException()
-                        Log.e("TAG", "fetchWebRTCLiveServer: appAccessException", )
-
                         roomModule.getRoomStateListener()?.onRoomUnavailable(Throwable(appAccessException))
-//                        listener.onFailure(Throwable(appAccessException))
                     } else {
-                        Log.e("TAG", "fetchWebRTCLiveServer: startService", )
-
                         val wssUrl = it.data?.wssUrl
                         val token = it.data?.token
                         if (wssUrl != null && token != null) {
@@ -170,13 +167,22 @@ class KmeRoomControllerImpl(
                 },
                 error = {
                     webRTCServer = null
-                    Log.e("TAG", "fetchWebRTCLiveServer: webRTCServer = null", )
-                    roomModule.getRoomStateListener()?.onRoomUnavailable(Throwable(it))
-//                    listener.onFailure(Throwable(it))
+                    val throwable = if (it.code == 400) {
+                        Throwable(
+                            KmeApiException.AppVersionException(
+                                message = it.message
+                            )
+                        )
+                    } else {
+                        Throwable(it)
+                    }
+
+                    roomModule.getRoomStateListener()?.onRoomUnavailable(throwable)
                 }
             )
         }
     }
+
 
     /**
      * Start service
@@ -221,20 +227,17 @@ class KmeRoomControllerImpl(
 
             override fun onFailure(throwable: Throwable) {
                 roomModule.getRoomStateListener()?.onRoomUnavailable(throwable)
-//                listener.onFailure(throwable)
             }
 
             override fun onClosing(code: Int, reason: String) {
                 stopService()
                 roomModule.getRoomStateListener()?.onRoomUnavailable(null)
-//                listener.onClosing(code, reason)
             }
 
             override fun onClosed(code: Int, reason: String) {
 //                internalDataModule.breakoutRoomId = 0L
                 roomModule.getRoomStateListener()?.onRoomUnavailable(null)
                 stopService()
-//                roomModule.getRoomStateListener()?.onRoomUnavailable(null)
 //                listener.onClosed(code, reason)
             }
         }
@@ -291,13 +294,14 @@ class KmeRoomControllerImpl(
     override fun connectToBreakout(
         roomId: Long,
         roomAlias: String,
+        appVersion: String,
         roomStateListener: IKmeRoomModule.IKmeRoomStateListener
     ) {
         roomModule.setRoomStateListener(roomStateListener)
 
         uiScope.launch {
             safeApiCall(
-                { roomApiService.getWebRTCLiveServer(roomAlias) },
+                { roomApiService.getWebRTCLiveServer(roomAlias, appVersion) },
                 success = {
                     val wssUrl = it.data?.wssUrl
                     val token = it.data?.token
@@ -336,12 +340,10 @@ class KmeRoomControllerImpl(
 
                             override fun onFailure(throwable: Throwable) {
                                 roomModule.getRoomStateListener()?.onRoomUnavailable(throwable)
-//                                    listener.onFailure(throwable)
                             }
 
                             override fun onClosing(code: Int, reason: String) {
                                 roomModule.getRoomStateListener()?.onRoomUnavailable(null)
-//                                    listener.onClosing(code, reason)
                             }
 
                             override fun onClosed(code: Int, reason: String) {
@@ -366,7 +368,6 @@ class KmeRoomControllerImpl(
                 },
                 error = {
                     roomModule.getRoomStateListener()?.onRoomUnavailable(Throwable(it))
-//                    listener.onFailure(Throwable(it))
                 }
             )
         }

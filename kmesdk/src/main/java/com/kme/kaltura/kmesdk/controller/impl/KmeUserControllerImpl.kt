@@ -6,6 +6,7 @@ import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.user.KmeGetUserInfoResponse
 import com.kme.kaltura.kmesdk.rest.response.user.KmeUserInfoData
+import com.kme.kaltura.kmesdk.rest.response.user.KmeUserSetting
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeUserApiService
 import com.kme.kaltura.kmesdk.util.extensions.isModerator
@@ -27,6 +28,7 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
 
     private var currentUserInfo: KmeUserInfoData? = null
     private var currentParticipant: KmeParticipant? = null
+    private lateinit var currentUserSetting: KmeUserSetting
 
     /**
      * Checks is actual user is logged and access token exist
@@ -68,6 +70,7 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
                 { userApiService.getUserInfo() },
                 success = {
                     currentUserInfo = it.data
+                    currentUserSetting = KmeUserSetting()
                     success(it)
                 },
                 error = {
@@ -91,6 +94,7 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
                 { userApiService.getUserInfo(roomAlias) },
                 success = {
                     currentUserInfo = it.data
+                    currentUserSetting = KmeUserSetting()
                     success(it)
                 },
                 error = {
@@ -105,6 +109,11 @@ class KmeUserControllerImpl : KmeController(), IKmeUserController {
      * Getting stored user information
      */
     override fun getCurrentUserInfo() = currentUserInfo
+
+    /**
+     * Getting stored user permission
+     */
+    override fun getCurrentUserSetting() = currentUserSetting
 
     /**
      * Getting stored user information in the room

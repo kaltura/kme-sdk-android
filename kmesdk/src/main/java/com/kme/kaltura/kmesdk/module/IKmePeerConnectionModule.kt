@@ -1,9 +1,12 @@
 package com.kme.kaltura.kmesdk.module
 
 import android.content.Intent
+import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnection
 import com.kme.kaltura.kmesdk.webrtc.peerconnection.IKmePeerConnectionClientEvents
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
+import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
 
 /**
  * An interface for wrap actions with [IKmePeerConnection]
@@ -30,12 +33,14 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
      * @param companyId id of a company
      * @param listener callback with [KmePeerConnectionEvents] for indicating main events
      * @param screenShareEvents callback with [KmeScreenShareEvents] for indicating screen share events
+     * @param audioEvent callback with [KmeAudioEvents] for indicate audio events
      */
     fun initialize(
         roomId: Long,
         companyId: Long,
         listener: KmePeerConnectionEvents,
-        screenShareEvents: KmeScreenShareEvents
+        screenShareEvents: KmeScreenShareEvents,
+        audioEvent: KmePlayerAudioEvents
     )
 
     /**
@@ -97,34 +102,52 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
     fun isPublishing(): Boolean
 
     /**
-     * Add renderer for publisher connection
+     * Add renderer for publisher's peer connection
      *
-     * @param renderer view for video rendering
+     * @param rendererView video renderer
      */
-    fun setPublisherRenderer(renderer: KmeSurfaceRendererView)
+    fun addPublisherRenderer(renderer: KmeSurfaceRendererView)
 
     /**
-     * Add renderer for viewer connection
+     * Remove specific renderer for publisher's peer connection
+     *
+     * @param rendererView video renderer
+     */
+    fun removePublisherRenderer(renderer: KmeSurfaceRendererView)
+
+    /**
+     * Remove all renderers for publisher's connection
+     */
+    fun removePublisherRenderers()
+
+    /**
+     * Add renderer for viewer's connection
      *
      * @param requestedUserIdStream id of a user (stream)
-     * @param renderer view for video rendering
+     * @param rendererView video renderer
      */
-    fun setViewerRenderer(
+    fun addViewerRenderer(
         requestedUserIdStream: String,
         renderer: KmeSurfaceRendererView
     )
 
     /**
-     * Remove renderer for publisher connection
+     * Remove specific renderer for viewer's peer connection
+     *
+     * @param requestedUserIdStream id of a user (stream)
+     * @param renderer video renderer
      */
-    fun removePublisherRenderer()
+    fun removeViewerRenderer(
+        requestedUserIdStream: String,
+        renderer: KmeSurfaceRendererView
+    )
 
     /**
-     * Remove renderer for viewer connection
+     * Remove all renderers for viewer's connection
      *
      * @param requestedUserIdStream id of a user (stream)
      */
-    fun removeViewerRenderer(
+    fun removeViewerRenderers(
         requestedUserIdStream: String
     )
 
@@ -154,7 +177,7 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
      *
      * @param renderer view for video rendering
      */
-    fun setScreenShareRenderer(renderer: KmeSurfaceRendererView)
+    fun addScreenShareRenderer(renderer: KmeSurfaceRendererView)
 
     /**
      * Toggle publisher's camera
@@ -184,6 +207,14 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
      * @param isEnable flag to enable/disable audio
      */
     fun enableViewersAudio(isEnable: Boolean)
+
+    /**
+     * Update audio state
+     *
+     * @param state for audio state
+     * @param type for content
+     */
+    fun playerAudioState(state: KmePlayerState, type: KmeContentType)
 
     /**
      * Switch between publisher's existing cameras
@@ -223,9 +254,8 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
          * Callback fired to indicate current talking user
          *
          * @param id id of a user (stream)
-         * @param isSpeaking indicates is user currently speaking
          */
-        fun onUserSpeaking(id: String, isSpeaking: Boolean)
+        fun onUserSpeaking(id: Long)
 
         /**
          * Callback fired once peer connection removed
@@ -244,6 +274,17 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
     }
 
     /**
+     * Audio event
+     */
+    interface KmePlayerAudioEvents {
+        /**
+         * Callback fired once when player audio state changed
+         * @param state
+         */
+        fun onPlayerAudioStateChanged(state: KmePlayerState, type: KmeContentType)
+    }
+
+        /**
      * Screen share event
      */
     interface KmeScreenShareEvents {

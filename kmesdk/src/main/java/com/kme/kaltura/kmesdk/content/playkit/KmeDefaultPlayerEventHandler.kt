@@ -46,7 +46,9 @@ class KmeDefaultPlayerEventHandler : KmeKoinComponent {
                             KmePlayerState.STOP,
                             KmePlayerState.PAUSE,
                             KmePlayerState.ENDED,
-                            KmePlayerState.PAUSED -> enableViewersAudio(true)
+                            KmePlayerState.PAUSED -> {
+                                enableViewersAudio(true)
+                            }
                             else -> enableViewersAudio(false)
                         }
                     }

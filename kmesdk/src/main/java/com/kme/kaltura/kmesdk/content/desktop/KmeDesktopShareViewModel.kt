@@ -8,6 +8,9 @@ import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
 import com.kme.kaltura.kmesdk.di.scopedInject
+import com.kme.kaltura.kmesdk.module.IKmeSettingsModule
+import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
+import com.kme.kaltura.kmesdk.rest.response.user.KmeUserSetting
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
@@ -127,7 +130,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
 
     fun setViewerRenderer(renderer: KmeSurfaceRendererView) {
         requestedUserIdStream?.let {
-            roomController.peerConnectionModule.setViewerRenderer(it, renderer)
+            roomController.peerConnectionModule.addViewerRenderer(it, renderer)
         }
     }
 
@@ -149,14 +152,14 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
     }
 
     fun setScreenShareRenderer(renderer: KmeSurfaceRendererView) {
-        roomController.peerConnectionModule.setScreenShareRenderer(renderer)
+        roomController.peerConnectionModule.addScreenShareRenderer(renderer)
     }
 
     fun stopScreenShare() {
         roomController.peerConnectionModule.stopScreenShare()
     }
 
-    fun updateModeratorState(isModerator: Boolean): Boolean {
+    private fun updateModeratorState(isModerator: Boolean): Boolean {
         if (isAdmin.value != isModerator) {
             isAdmin.value = isModerator
             return true

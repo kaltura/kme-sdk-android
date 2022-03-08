@@ -21,7 +21,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageModule
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomModuleSettingsChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeBreakoutRoomStatusType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaStateType
@@ -77,7 +77,7 @@ class KmeBreakoutModuleImpl : KmeController(), IKmeBreakoutModule {
     /**
      * Handle breakout room setting changes from main room
      */
-    override fun onSettingChanged(payload: RoomModuleSettingsChangedPayload) {
+    override fun onSettingChanged(payload: KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload) {
 
     }
 

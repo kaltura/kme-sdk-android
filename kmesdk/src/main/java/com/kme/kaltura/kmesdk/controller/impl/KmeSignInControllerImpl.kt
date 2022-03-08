@@ -10,6 +10,7 @@ import com.kme.kaltura.kmesdk.prefs.IKmePreferences
 import com.kme.kaltura.kmesdk.prefs.KmePrefsKeys
 import com.kme.kaltura.kmesdk.removeCookies
 import com.kme.kaltura.kmesdk.rest.KmeApiException
+import com.kme.kaltura.kmesdk.rest.response.room.KmeJoinRoomResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.*
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeSignInApiService
@@ -95,7 +96,7 @@ class KmeSignInControllerImpl(
     /**
      * Login user by token
      */
-    override fun login(
+    override fun loginByToken(
         token: String,
         success: () -> Unit,
         error: (exception: KmeApiException) -> Unit
@@ -115,6 +116,32 @@ class KmeSignInControllerImpl(
                         "Invalid token",
                         null
                     )
+                )
+            }
+        }
+    }
+
+    /**
+     * Login by deep linking hash
+     */
+    override fun loginByHash(
+        hash: String,
+        success: (response: KmeJoinRoomResponse) -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    ) {
+        removeCookies {
+            uiScope.launch {
+                safeApiCall(
+                    { signInApiService.login(hash, 1) },
+                    { loginResponse ->
+                        metadataController.fetchMetadata(
+                            success = {
+                                success.invoke(loginResponse)
+                            },
+                            error = { error(it) }
+                        )
+                    },
+                    error
                 )
             }
         }

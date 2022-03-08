@@ -3,11 +3,13 @@ package com.kme.kaltura.kmesdk.content.slides
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.AppCompatTextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.glide
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.ActiveContentPayload.Slide
-import kotlinx.android.synthetic.main.item_slide_layout.view.*
 
 class SlidesAdapter(
     val cookie: String?,
@@ -39,6 +41,10 @@ class SlidesAdapter(
     inner class SlideHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(slide: Slide) {
             with(itemView) {
+                val root = findViewById<ConstraintLayout>(R.id.root)
+                val tvSlideNumber = findViewById<AppCompatTextView>(R.id.tvSlideNumber)
+                val ivSlide = findViewById<AppCompatImageView>(R.id.ivSlide)
+
                 root.isSelected = slide.isSelected
                 tvSlideNumber.text = slide.slideNumber ?: adapterPosition.toString()
                 ivSlide.glide(slide.url, cookie, filesUrl)

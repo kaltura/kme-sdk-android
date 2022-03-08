@@ -38,7 +38,9 @@ internal class KmeWebSocketHandler(
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
         Log.e(TAG, "${webSocket.hashCode()} onMessage: <== $text")
-        handleMessage(webSocket, text)
+        if (text.isNotEmpty()) {
+            handleMessage(webSocket, text)
+        }
     }
 
     /**
