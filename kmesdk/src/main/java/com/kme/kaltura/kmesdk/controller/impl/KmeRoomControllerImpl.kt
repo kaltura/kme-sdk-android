@@ -164,6 +164,11 @@ class KmeRoomControllerImpl(
                             startService(wssUrl, isReconnect, token)
                         }
                     }
+
+                    settingsModule.updateSettings(
+                        webRTCServer?.roomInfo?.settingsV2,
+                        userController.getCurrentUserSetting()
+                    )
                 },
                 error = {
                     webRTCServer = null
