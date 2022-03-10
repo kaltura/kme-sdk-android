@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:cardBackgroundColor="@color/grayScale7"
-    app:cardCornerRadius="8dp"
-    app:cardPreventCornerOverlap="false"
-    app:rippleColor="@android:color/transparent">
+    android:background="@color/transparentColor">
 
     <com.kme.kaltura.kmesdk.content.playkit.KmeMediaView
         android:id="@+id/mediaView"
@@ -18,4 +14,4 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-</com.google.android.material.card.MaterialCardView>
+</FrameLayout>

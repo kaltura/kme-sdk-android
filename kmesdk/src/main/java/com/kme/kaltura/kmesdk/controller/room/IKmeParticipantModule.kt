@@ -138,21 +138,25 @@ interface IKmeParticipantModule : IKmeModule {
         fun onParticipantChanged(participant: KmeParticipant)
 
         /**
-         * Callback fired when media state payload of Participant changed
-         *
-         * @param payload
-         */
-        fun onParticipantMediaStatePayLoadChanged(payload: UserMediaStateChangedPayload)
-
-        /**
          * Callback fired when medea state changed
          *
-         * @param userId for detect who is muted
+         * @param participant for detect who is muted
          * @param mediaStateType for change media state
          * @param stateValue for detect media device state
          */
         fun onParticipantMediaStateChanged(
-            userId: Long,
+            participant: KmeParticipant,
+            mediaStateType: KmeMediaStateType,
+            stateValue: KmeMediaDeviceState
+        )
+
+        /**
+         * Callback fired when publishers medea state changed by admin
+         *
+         * @param mediaStateType for change media state
+         * @param stateValue for detect media device state
+         */
+        fun onPublisherMediaStateChanged(
             mediaStateType: KmeMediaStateType,
             stateValue: KmeMediaDeviceState
         )

@@ -6,7 +6,7 @@ import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 open class KmeBaseRoom : KmeResponseData(){
 
     @SerializedName("id")
-    val id: Long? = null
+    val id: Long = 0
     @SerializedName("name")
     val name: String? = null
     @SerializedName("is_ondemand")
@@ -20,7 +20,7 @@ open class KmeBaseRoom : KmeResponseData(){
     @SerializedName("company_avatar")
     val companyAvatar: String? = null
     @SerializedName("company_id")
-    val companyId: Long? = null
+    val companyId: Long = 0
     @SerializedName("company_name")
     val companyName: String? = null
     @SerializedName("app_version")

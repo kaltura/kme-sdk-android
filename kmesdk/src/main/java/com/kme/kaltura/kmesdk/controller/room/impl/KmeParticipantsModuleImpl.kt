@@ -141,12 +141,13 @@ class KmeParticipantsModuleImpl : KmeController(), IKmeParticipantsInternalModul
                             payload.stateValue
                         ) { stateType, stateValue ->
                             if (payload.userId == publisherId && stateValue != KmeMediaDeviceState.LIVE)
-                                listener?.onParticipantMediaStateChanged(
-                                    payload.userId!!,
-                                    stateType,
-                                    stateValue
-                                )
-
+                                getParticipant(payload.userId)?.let { participant ->
+                                    listener?.onParticipantMediaStateChanged(
+                                        participant,
+                                        stateType,
+                                        stateValue
+                                    )
+                                }
                             updateUserMediaState(payload)
                         }
                     }
@@ -155,17 +156,7 @@ class KmeParticipantsModuleImpl : KmeController(), IKmeParticipantsInternalModul
                     val msg: KmeParticipantsModuleMessage<AllParticipantsMutedPayload>? =
                         message.toType()
                     msg?.payload?.let { payload ->
-                        ifNonNull(
-                            payload.mediaStateType,
-                            payload.stateValue
-                        ) { stateType, stateValue ->
-                            listener?.onParticipantMediaStateChanged(
-                                payload.userId,
-                                stateType,
-                                stateValue
-                            )
-                            updateAllMute(payload.userId, stateType)
-                        }
+                        updateAllMute(payload)
                     }
                 }
                 KmeMessageEvent.USER_STARTED_TO_PUBLISH -> {
@@ -363,55 +354,91 @@ class KmeParticipantsModuleImpl : KmeController(), IKmeParticipantsInternalModul
      * Update user media state
      */
     private fun updateUserMediaState(payload: UserMediaStateChangedPayload) {
-        getParticipant(payload.userId)?.let { participant ->
-            when (payload.mediaStateType) {
-                KmeMediaStateType.MIC -> {
-                    participant.micState = payload.stateValue
-                }
-                KmeMediaStateType.WEBCAM -> {
-                    participant.webcamState = payload.stateValue
-                }
-                KmeMediaStateType.LIVE_MEDIA -> {
-                    participant.liveMediaState = payload.stateValue
-                }
-                null -> {
-                }
-            }
+        ifNonNull(
+            payload.mediaStateType,
+            payload.stateValue
+        ) { stateType, stateValue ->
 
-            listener?.onParticipantMediaStatePayLoadChanged(payload)
-            listener?.onParticipantChanged(participant)
+            getParticipant(payload.userId)?.let { participant ->
+                when (stateType) {
+                    KmeMediaStateType.MIC -> {
+                        participant.micState = stateValue
+                        if (stateValue != KmeMediaDeviceState.LIVE) {
+                            participant.isSpeaking = false
+                        }
+                    }
+                    KmeMediaStateType.WEBCAM -> {
+                        participant.webcamState = stateValue
+                    }
+                    KmeMediaStateType.LIVE_MEDIA -> {
+                        participant.liveMediaState = stateValue
+                    }
+                }
+
+//                if (payload.userId == publisherId) {
+//                    if (stateValue != KmeMediaDeviceState.LIVE) {
+//                        listener?.onPublisherMediaStateChanged(
+//                            stateType,
+//                            stateValue
+//                        )
+//                    }
+//                } else {
+//                    listener?.onParticipantMediaStateChanged(
+//                        participant,
+//                        stateType,
+//                        stateValue
+//                    )
+//                }
+
+                listener?.onParticipantMediaStateChanged(
+                    participant,
+                    stateType,
+                    stateValue
+                )
+                listener?.onParticipantChanged(participant)
+            }
         }
     }
 
     /**
      * Mute all participant
      */
-    private fun updateAllMute(
-        initiatorId: Long,
-        stateType: KmeMediaStateType
-    ) {
-        participants.forEach { participant ->
-            if (initiatorId == participant.userId) {
-                return@forEach
-            }
-            when (stateType) {
-                KmeMediaStateType.MIC -> {
-                    participant.micState = KmeMediaDeviceState.DISABLED_LIVE
+    private fun updateAllMute(payload: AllParticipantsMutedPayload) {
+        ifNonNull(
+            payload.mediaStateType,
+            payload.stateValue
+        ) { stateType, stateValue ->
+            participants.forEach { participant ->
+                if (payload.userId == participant.userId) {
+                    return@forEach
                 }
-                KmeMediaStateType.WEBCAM -> {
-                    participant.webcamState = KmeMediaDeviceState.DISABLED_LIVE
+                when (stateType) {
+                    KmeMediaStateType.MIC -> {
+                        participant.micState = stateValue
+                    }
+                    KmeMediaStateType.WEBCAM -> {
+                        participant.webcamState = stateValue
+                    }
+                    else -> {
+                    }
                 }
-                else -> {
-                }
-            }
 
-            val mediaChangePayload = UserMediaStateChangedPayload()
-            mediaChangePayload.userId = participant.userId
-            mediaChangePayload.mediaStateType = stateType
-            mediaChangePayload.stateValue = KmeMediaDeviceState.DISABLED_LIVE
-
-            listener?.onParticipantMediaStatePayLoadChanged(mediaChangePayload)
-            listener?.onParticipantChanged(participant)
+                if (payload.userId == publisherId) {
+                    if (stateValue != KmeMediaDeviceState.LIVE) {
+                        listener?.onPublisherMediaStateChanged(
+                            stateType,
+                            stateValue
+                        )
+                    }
+                } else {
+                    listener?.onParticipantMediaStateChanged(
+                        participant,
+                        stateType,
+                        stateValue
+                    )
+                }
+                listener?.onParticipantChanged(participant)
+            }
         }
     }
 

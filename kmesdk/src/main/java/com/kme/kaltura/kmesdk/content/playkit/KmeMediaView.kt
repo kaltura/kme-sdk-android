@@ -123,7 +123,7 @@ class KmeMediaView @JvmOverloads constructor(
     }
 
     private fun setupYoutubePlayerView() {
-        addView(youtubePlayerView)
+        addView(youtubePlayerView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
     }
 
     private fun setupKalturaPlayer() {
@@ -166,7 +166,7 @@ class KmeMediaView @JvmOverloads constructor(
     }
 
     private fun setupKalturaPlayerView() {
-        kalturaPlayer?.setPlayerView(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        kalturaPlayer?.setPlayerView(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         addView(kalturaPlayer?.playerView)
     }
 

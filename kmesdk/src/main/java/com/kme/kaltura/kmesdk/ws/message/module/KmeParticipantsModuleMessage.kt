@@ -18,7 +18,7 @@ class KmeParticipantsModuleMessage<T : KmeParticipantsModuleMessage.Participants
     ) : ParticipantsPayload()
 
     data class UserMediaStateChangedPayload(
-        @SerializedName("user_id") var userId: Long? = null,
+        @SerializedName("user_id") var userId: Long,
         @SerializedName("room_id") var roomId: Long? = null,
         @SerializedName("company_id") var companyId: Long? = null,
         @SerializedName("media_state_type") var mediaStateType: KmeMediaStateType? = null,
