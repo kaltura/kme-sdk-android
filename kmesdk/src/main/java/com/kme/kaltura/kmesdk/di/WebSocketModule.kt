@@ -29,6 +29,6 @@ val webSocketModule = module {
 
     single { KmeMessageManager() }
 
-    single { KmeWebSocketHandler(get(), get()) }
+    single { KmeWebSocketHandler(get(), get(), get()) }
 
 }
