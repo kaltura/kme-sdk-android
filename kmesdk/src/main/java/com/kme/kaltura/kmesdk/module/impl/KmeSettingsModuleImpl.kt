@@ -3,7 +3,7 @@ package com.kme.kaltura.kmesdk.module.impl
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
-import com.kme.kaltura.kmesdk.controller.room.internal.IKmeSettingsInternalModule
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalSettingsModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ifNonNull
 import com.kme.kaltura.kmesdk.module.IKmeSettingsModule
@@ -32,7 +32,7 @@ import org.koin.core.inject
 /**
  * An implementation for room settings handling
  */
-internal class KmeSettingsModuleImpl : KmeController(), IKmeSettingsInternalModule {
+internal class KmeSettingsModuleImpl : KmeController(), IKmeInternalSettingsModule {
 
     private val messageManager: KmeMessageManager by inject()
     private val userController: IKmeUserController by inject()

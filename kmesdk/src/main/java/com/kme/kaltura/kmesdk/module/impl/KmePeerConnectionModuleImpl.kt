@@ -6,7 +6,6 @@ import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
-import com.kme.kaltura.kmesdk.controller.room.internal.IKmeParticipantsInternalModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.module.IKmeContentModule
 import com.kme.kaltura.kmesdk.module.IKmePeerConnectionModule
@@ -39,9 +38,7 @@ import kotlin.properties.Delegates
 class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionModule {
 
     private val userController: IKmeUserController by inject()
-    private val internalDataModule: IKmeInternalDataModule by inject()
     private val participantModule: IKmeInternalParticipantModule by scopedInject()
-    private val participantsInternalModule: IKmeParticipantsInternalModule by scopedInject()
     private val roomController: IKmeRoomController by scopedInject()
     private val contentModule: IKmeContentModule by scopedInject()
 
@@ -536,7 +533,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
                         val isSpeaking = volumeData[0].toDouble().toInt() == 1
                         if (!viewersAudioEnabledBySdk && isSpeaking) return
 
-                        participantsInternalModule.participantSpeaking(userId, isSpeaking)
+                        participantModule.participantSpeaking(userId, isSpeaking)
                         listener.onUserSpeaking(userId)
                     }
                 }
@@ -681,7 +678,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
         }
 
         requestedUserIdStream.toLongOrNull()?.let { id ->
-            participantsInternalModule.participantSpeaking(id, bringToFront == 1)
+            participantModule.participantSpeaking(id, bringToFront == 1)
             listener.onUserSpeaking(id)
         }
     }

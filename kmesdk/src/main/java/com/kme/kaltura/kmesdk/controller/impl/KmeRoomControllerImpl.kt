@@ -9,6 +9,7 @@ import android.os.IBinder
 import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalSettingsModule
 import com.kme.kaltura.kmesdk.di.KmeKoinScope
 import com.kme.kaltura.kmesdk.di.getScope
 import com.kme.kaltura.kmesdk.di.scopedInject
@@ -56,12 +57,13 @@ class KmeRoomControllerImpl(
         }
 
     private val internalParticipantModule: IKmeInternalParticipantModule by scopedInject()
+    private val settingsInternalModule: IKmeInternalSettingsModule by scopedInject()
 
     private val mainRoomSocketModule: IKmeWebSocketModule by scopedInject()
     private val contentModule: IKmeContentModule by scopedInject()
     private val internalDataModule: IKmeInternalDataModule by inject()
-    override val roomModule: IKmeRoomModule by scopedInject()
 
+    override val roomModule: IKmeRoomModule by scopedInject()
     override val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
     override val participantModule = internalParticipantModule as IKmeParticipantModule
     override val chatModule: IKmeChatModule by scopedInject()
@@ -479,7 +481,7 @@ class KmeRoomControllerImpl(
     private fun subscribeInternalModules() {
         roomModule.subscribe()
         internalParticipantModule.subscribe()
-        settingsModule.subscribe()
+        settingsInternalModule.subscribe()
         breakoutModule.subscribe()
     }
 

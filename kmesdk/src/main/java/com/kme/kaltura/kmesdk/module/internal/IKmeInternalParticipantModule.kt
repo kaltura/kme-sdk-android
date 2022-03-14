@@ -19,4 +19,15 @@ internal interface IKmeInternalParticipantModule : IKmeParticipantModule, IKmeMo
      */
     fun updateParticipantsRoomId(notify: Boolean = true)
 
+    /**
+     * Setting initialization data to the module
+     *
+     * @param listener
+     * @param listener
+     */
+    fun participantSpeaking(
+        id: Long,
+        isSpeaking: Boolean
+    )
+
 }

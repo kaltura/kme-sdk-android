@@ -24,11 +24,13 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import org.koin.core.inject
 
-internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
+internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel,
+    IKmeSettingsModule.KmeSettingsListener {
 
     private val userController: IKmeUserController by inject()
     private val roomController: IKmeRoomController by scopedInject()
     private val internalDataModule: IKmeInternalDataModule by inject()
+    private val settingsModule: IKmeSettingsModule by scopedInject()
 
     private val isAdmin = LiveEvent<Boolean>()
     val isAdminLiveData get() = isAdmin
@@ -51,6 +53,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
     init {
         isAdmin.value = userController.isModerator()
                 || userController.isAdminFor(internalDataModule.companyId)
+        settingsModule.subscribe(this)
     }
 
     /**
@@ -165,6 +168,16 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel {
             return true
         }
         return false
+    }
+
+    override fun onSettingsChanged(roomSetting: KmeSettingsV2?, userSetting: KmeUserSetting) {
+
+    }
+
+    override fun onModeratorStateChanged(isModerator: Boolean) {
+        if (updateModeratorState(isModerator) && !isModerator) {
+            stopScreenShare()
+        }
     }
 
     override fun onCleared() {

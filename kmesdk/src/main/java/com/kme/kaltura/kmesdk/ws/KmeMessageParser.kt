@@ -97,24 +97,6 @@ internal class KmeMessageParser(
             KmeMessageEvent.ROOM_PARTICIPANT_LIMIT_REACHED.toString() -> {
                 text.jsonToObject<KmeRoomInitModuleMessage<RoomParticipantLimitReachedPayload>>()
             }
-            KmeMessageEvent.MODULE_STATE.toString() -> {
-                val jsonObject = jsonParser.parse(text).asJsonObject
-                if (jsonObject.has(KEY_MODULE)) {
-                    when (jsonObject.get(KEY_MODULE).asString.lowercase()) {
-                        KmeMessageModule.QUICK_POLL.moduleName.lowercase() -> {
-                            text.jsonToObject<KmeQuickPollModuleMessage<QuickPollGetStatePayload>>()
-                        }
-                        KmeMessageModule.XL_ROOM.moduleName.lowercase() -> {
-                            text.jsonToObject<KmeXLRoomModuleMessage<XLRoomStatePayload>>()
-                        }
-                        else -> {
-                            null
-                        }
-                    }
-                } else {
-                    null
-                }
-            }
             KmeMessageEvent.AWAIT_INSTRUCTOR_APPROVAL.toString(),
             KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR.toString(),
             KmeMessageEvent.USER_APPROVED_BY_INSTRUCTOR.toString() -> {
@@ -391,6 +373,9 @@ internal class KmeMessageParser(
                         text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
                     KmeMessageModule.QUICK_POLL.moduleName ->
                         text.jsonToObject<KmeQuickPollModuleMessage<QuickPollGetStatePayload>>()
+                    KmeMessageModule.XL_ROOM.moduleName -> {
+                        text.jsonToObject<KmeXLRoomModuleMessage<XLRoomStatePayload>>()
+                    }
                     else -> null
                 }
             }

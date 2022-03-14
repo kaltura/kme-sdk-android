@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import com.kme.kaltura.kmesdk.content.KmeContentView
-import com.kme.kaltura.kmesdk.module.IKmeSettingsModule
 import com.kme.kaltura.kmesdk.databinding.FragmentDesktopShareContentBinding
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.gone
@@ -18,7 +17,6 @@ import com.kme.kaltura.kmesdk.visible
  */
 internal class KmeDesktopShareFragment : KmeContentView() {
 
-    private val settingsModule: IKmeSettingsModule by scopedInject()
     private val viewModel: KmeDesktopShareViewModel by scopedInject()
 
     private var _binding: FragmentDesktopShareContentBinding? = null
@@ -73,11 +71,6 @@ internal class KmeDesktopShareFragment : KmeContentView() {
         viewModel.desktopShareHDQualityLiveData.observe(
             viewLifecycleOwner,
             desktopShareHDQualityObserver
-        )
-
-        settingsModule.moderatorStateLiveData.observe(
-            viewLifecycleOwner,
-            moderatorStateObserver
         )
     }
 
@@ -154,19 +147,6 @@ internal class KmeDesktopShareFragment : KmeContentView() {
 
     }
 
-    private val moderatorStateObserver = Observer<Boolean> { isModerator ->
-//        if (viewModel.updateModeratorState(isModerator)) {
-//            val state = viewModel.isDesktopShareActiveLiveData.value
-//            val isActive = state?.first ?: false
-//            val isYour = state?.second ?: false
-//            updateRoleDependUI(isModerator, isActive, isYour)
-//
-//            if (!isModerator) {
-//                viewModel.stopScreenShare()
-//            }
-//        }
-    }
-
     fun onScreenSharePermission(approved: Boolean) = with(binding) {
         stopShare.setVisibility(approved)
         desktopShareRenderer.setVisibility(approved)
@@ -175,7 +155,6 @@ internal class KmeDesktopShareFragment : KmeContentView() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        settingsModule.moderatorStateLiveData.removeObserver(moderatorStateObserver)
         _binding = null
     }
 
