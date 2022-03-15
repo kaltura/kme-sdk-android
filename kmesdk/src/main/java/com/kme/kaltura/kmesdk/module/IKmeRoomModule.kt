@@ -203,6 +203,8 @@ interface IKmeRoomModule : IKmeModule {
             message: KmeMessage<KmeMessage.Payload>
         )
 
+        fun onRoomTerms(type: IKmeTermsModule.KmeTermsType, message: String? = null)
+
         fun onRoomExit(reason: KmeRoomExitReason)
 
         fun onRoomUnavailable(throwable: Throwable?)

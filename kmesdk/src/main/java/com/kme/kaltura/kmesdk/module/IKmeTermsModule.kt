@@ -9,11 +9,6 @@ import com.kme.kaltura.kmesdk.rest.response.terms.KmeGetTermsResponse
 interface IKmeTermsModule : IKmeModule {
 
     /**
-     * Subscribing for the room events related to terms & conditions
-     */
-    fun subscribe(listener: KmeTermsListener)
-
-    /**
      * Set terms condition  agreed or rejected
      *
      * @param agree  parameter for agreed or rejected
@@ -41,25 +36,11 @@ interface IKmeTermsModule : IKmeModule {
     )
 
     /**
-     *  Terms listener
+     *  Terms type
      */
-    interface KmeTermsListener {
-
-        /**
-         * Callback fired once when terms needed
-         */
-        fun onTermsNeeded()
-
-        /**
-         * Callback fired once when terms accepted
-         */
-        fun onTermsAccepted()
-
-        /**
-         * Callback fired once when terms rejected
-         */
-        fun onTermsRejected()
-
+    enum class KmeTermsType{
+        NEEDED,
+        ACCEPTED,
+        REJECTED
     }
-
 }
