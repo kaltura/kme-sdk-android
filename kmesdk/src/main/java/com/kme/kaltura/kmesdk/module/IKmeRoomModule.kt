@@ -2,7 +2,7 @@ package com.kme.kaltura.kmesdk.module
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.*
-import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
 import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
@@ -200,11 +200,8 @@ interface IKmeRoomModule : IKmeModule {
         fun onRoomAvailable(room: KmeRoomMetaData)
 
         fun onRoomBanner(
-            event: KmeMessageEvent,
-//            payload: KmeRoomInitModuleMessage.RoomInitPayload
+            message: KmeMessage<KmeMessage.Payload>
         )
-
-        fun onRoomTermsNeeded()
 
         fun onRoomExit(reason: KmeRoomExitReason)
 

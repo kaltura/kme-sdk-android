@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.ws
 
-import android.util.Log
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +27,6 @@ internal class KmeMessageManager : IKmeMessageManager {
         event: KmeMessageEvent,
         message: KmeMessage<KmeMessage.Payload>
     ) {
-        Log.e("KmeMessageManager", "post event: ${event.moduleName}", )
         val postListeners = PriorityQueue<Entry>()
         val eventListeners = listeners[event]
         val allEventListeners = listeners[null]
@@ -39,7 +37,6 @@ internal class KmeMessageManager : IKmeMessageManager {
         if (postListeners.isNotEmpty()) {
             uiScope.launch {
                 for (postListener in postListeners) {
-                    Log.e("KmeMessageManager", "post: ${postListener?.listener}", )
                     postListener?.listener?.onMessageReceived(message)
                 }
             }
@@ -106,10 +103,6 @@ internal class KmeMessageManager : IKmeMessageManager {
         listener: IKmeMessageListener,
         priority: KmeMessagePriority
     ) {
-///FIXME remove duplicates
-//        Log.e("KmeMessageManager", "addToMap: ${key?.moduleName}", )
-//        Log.e("KmeMessageManager", "addToMap: $listener", )
-
         var priorityQueue = listeners[key]
 
         if (priorityQueue == null) {
