@@ -31,6 +31,9 @@ enum class KmeMessageModule(
     @SerializedName("Video", alternate = ["video"])
     VIDEO("Video"),
 
+    @SerializedName("Audio", alternate = ["audio"])
+    AUDIO("Audio"),
+
     @SerializedName("SlidesPlayer", alternate = ["slidesplayer"])
     SLIDES_PLAYER("SlidesPlayer"),
 
@@ -50,11 +53,14 @@ enum class KmeMessageModule(
     DESKTOP_SHARE("DesktopShare"),
 
     @SerializedName("breakout", alternate = ["breakout"])
-    BREAKOUT("breakout");
+    BREAKOUT("breakout"),
+
+    @SerializedName("xl-room", alternate = ["xl-room"])
+    XL_ROOM("xl-room");
 
     @SuppressLint("DefaultLocale")
     override fun toString(): String {
-        return moduleName.toLowerCase()
+        return moduleName.lowercase()
     }
 
 }

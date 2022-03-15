@@ -19,6 +19,8 @@ interface IKmeRoomController : IKmeWebSocketModule, IKmeMessageManager {
     val audioModule: IKmeAudioModule
     val termsModule: IKmeTermsModule
     val breakoutModule: IKmeBreakoutModule
+    val settingsModule: IKmeSettingsModule
+
 
     /**
      * Getting WebRTC server data
@@ -43,6 +45,7 @@ interface IKmeRoomController : IKmeWebSocketModule, IKmeMessageManager {
         roomId: Long,
         roomAlias: String,
         companyId: Long,
+        appVersion: String,
         isReconnect: Boolean = true,
         roomStateListener: IKmeRoomModule.IKmeRoomStateListener
     )
@@ -50,6 +53,7 @@ interface IKmeRoomController : IKmeWebSocketModule, IKmeMessageManager {
     fun connectToBreakout(
         roomId: Long,
         roomAlias: String,
+        appVersion: String,
         roomStateListener: IKmeRoomModule.IKmeRoomStateListener
     )
 

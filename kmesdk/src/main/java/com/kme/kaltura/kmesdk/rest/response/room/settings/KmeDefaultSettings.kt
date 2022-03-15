@@ -3,8 +3,9 @@ package com.kme.kaltura.kmesdk.rest.response.room.settings
 import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmeAudioNotificationValue
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class KmeDefaultSettings(
@@ -42,6 +43,10 @@ data class KmeDefaultSettings(
 
     @SerializedName("self_assign")
     @Expose
-    var selfAssign: KmePermissionValue? = null
+    var selfAssign: KmePermissionValue? = null,
+
+    @SerializedName("audio_notification")
+    @Expose
+    var audioNotification: KmeAudioNotificationValue? = null
 
 ) : Parcelable

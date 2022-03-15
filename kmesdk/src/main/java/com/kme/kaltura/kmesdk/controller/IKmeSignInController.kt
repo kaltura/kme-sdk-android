@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.controller
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
+import com.kme.kaltura.kmesdk.rest.response.room.KmeJoinRoomResponse
 import com.kme.kaltura.kmesdk.rest.response.signin.*
 
 /**
@@ -51,9 +52,22 @@ interface IKmeSignInController {
      * @param success function to handle success result.
      * @param error function to handle error result.
      */
-    fun login(
+    fun loginByToken(
         token: String,
         success: () -> Unit,
+        error: (exception: KmeApiException) -> Unit
+    )
+
+    /**
+     * Login by deep linking hash
+     *
+     * @param hash identifier for a user
+     * @param success function to handle success result. Contains [KmeJoinRoomResponse] object
+     * @param error function to handle error result. Contains [KmeApiException] object
+     */
+    fun loginByHash(
+        hash: String,
+        success: (response: KmeJoinRoomResponse) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )
 

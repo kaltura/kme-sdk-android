@@ -23,6 +23,9 @@ class KmePreviewPeerConnectionImpl(
         isScreenShare = false
     }
 
+    /**
+     * Creates a local video preview
+     */
     override fun startPreview(
         videoCapturer: VideoCapturer?,
         rendererView: KmeSurfaceRendererView
@@ -37,12 +40,13 @@ class KmePreviewPeerConnectionImpl(
             }
         }
 
-        setRenderer(rendererView)
+        addRenderer(rendererView)
     }
 
-    override fun setRenderer(rendererView: KmeSurfaceRendererView) {
-        removeRenderer()
-
+    /**
+     * Add renderer for peer connection
+     */
+    override fun addRenderer(rendererView: KmeSurfaceRendererView) {
         with(rendererView) {
             if (!isInitialized) {
                 init(getRenderContext(), null)
@@ -50,18 +54,34 @@ class KmePreviewPeerConnectionImpl(
                 setEnableHardwareScaler(true)
                 setMirror(true)
             }
-        }
 
-        this.rendererView = rendererView
-        localVideoTrack?.addSink(rendererView)
+            renderers.add(this)
+            localVideoTrack?.addSink(this)
+        }
     }
 
-    override fun removeRenderer() {
-        this.rendererView?.let {
+    /**
+     * Remove specific renderer for peer connection
+     */
+    override fun removeRenderer(rendererView: KmeSurfaceRendererView) {
+        renderers.find {
+            it == rendererView
+        }?.let {
             localVideoTrack?.removeSink(it)
             it.release()
-            this.rendererView = null
+            renderers.remove(it)
         }
+    }
+
+    /**
+     * Remove all connection renderers
+     */
+    override fun removeRenderers() {
+        renderers.forEach {
+            localVideoTrack?.removeSink(it)
+            it.release()
+        }
+        renderers.clear()
     }
 
     /**
@@ -69,7 +89,30 @@ class KmePreviewPeerConnectionImpl(
      */
     @RequiresPermission(Manifest.permission.CAMERA)
     override fun setVideoEnabled(enable: Boolean) {
-        localVideoTrack?.setEnabled(enable)
+        enableVideoSource(enable)
+//        localVideoTrack?.setEnabled(enable)
+    }
+
+    /**
+     * Enable/Disable outgoing video stream
+     */
+    override fun enableVideoSource(enable: Boolean) {
+        if (enable) {
+            if (!videoCapturerEnabled) {
+                videoCapturer?.startCapture(
+                    VIDEO_WIDTH,
+                    VIDEO_HEIGHT,
+                    VIDEO_FPS
+                )
+                videoCapturerEnabled = true
+            }
+        } else if (videoCapturerEnabled) {
+            try {
+                videoCapturer?.stopCapture()
+            } catch (e: InterruptedException) {
+            }
+            videoCapturerEnabled = false
+        }
     }
 
     /**
@@ -77,7 +120,10 @@ class KmePreviewPeerConnectionImpl(
      */
     @RequiresPermission(Manifest.permission.CAMERA)
     override fun switchCamera(frontCamera: Boolean) {
-        rendererView?.setMirror(frontCamera)
+        renderers.forEach { rendererView ->
+            rendererView.setMirror(frontCamera)
+        }
+
         videoCapturer?.let {
             if (it is CameraVideoCapturer) {
                 it.switchCamera(null)

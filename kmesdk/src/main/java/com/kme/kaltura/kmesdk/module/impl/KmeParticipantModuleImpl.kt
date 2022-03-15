@@ -398,6 +398,16 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
         )
     }
 
+    override fun participantSpeaking(
+        id: Long,
+        isSpeaking: Boolean
+    ) {
+        getParticipant(id)?.let {
+            it.isSpeaking = isSpeaking
+            it.lastSpeakingTime = System.currentTimeMillis()
+        }
+    }
+
     /**
      * Add or update participants list
      */

@@ -19,6 +19,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPass
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 
 class RoomStateViewModel(
     private val kmeSdk: KME
@@ -100,13 +101,13 @@ class RoomStateViewModel(
         this.roomAlias = roomAlias
 
         isLoading.value = true
-        kmeSdk.roomController.connect(roomId, roomAlias, companyId, true, this)
+        kmeSdk.roomController.connect(roomId, roomAlias, companyId, "1.5", true, this)
         kmeSdk.roomController.subscribeForContent(object : IKmeContentModule.KmeContentListener {
             override fun onContentAvailable(view: KmeContentView) {
                 sharedContent.value = view
             }
 
-            override fun onContentNotAvailable() {
+            override fun onContentNotAvailable(type: KmeContentType) {
                 sharedContent.value = null
             }
         })
@@ -282,7 +283,7 @@ class RoomStateViewModel(
         closeConnection.value = reason
     }
 
-    override fun onRoomUnavailable() {
+    override fun onRoomUnavailable(throwable: Throwable?) {
 
     }
 

@@ -129,7 +129,7 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
             contentView?.let { view ->
                 listener?.onContentAvailable(view)
             } ?: run {
-                listener?.onContentNotAvailable()
+                listener?.onContentNotAvailable(type)
             }
         }
     }

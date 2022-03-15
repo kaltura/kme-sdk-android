@@ -9,6 +9,7 @@ import android.os.IBinder
 import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalSettingsModule
 import com.kme.kaltura.kmesdk.di.KmeKoinScope
 import com.kme.kaltura.kmesdk.di.getScope
 import com.kme.kaltura.kmesdk.di.scopedInject
@@ -56,9 +57,9 @@ class KmeRoomControllerImpl(
         }
 
     private val internalParticipantModule: IKmeInternalParticipantModule by scopedInject()
+    private val settingsInternalModule: IKmeInternalSettingsModule by scopedInject()
 
     private val mainRoomSocketModule: IKmeWebSocketModule by scopedInject()
-    private val settingsModule: IKmeSettingsModule by scopedInject()
     private val contentModule: IKmeContentModule by scopedInject()
     private val internalDataModule: IKmeInternalDataModule by inject()
 
@@ -71,6 +72,7 @@ class KmeRoomControllerImpl(
     override val audioModule: IKmeAudioModule by scopedInject()
     override val termsModule: IKmeTermsModule by scopedInject()
     override val breakoutModule: IKmeBreakoutModule by scopedInject()
+    override val settingsModule: IKmeSettingsModule by scopedInject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -120,6 +122,7 @@ class KmeRoomControllerImpl(
         roomId: Long,
         roomAlias: String,
         companyId: Long,
+        appVersion: String,
         isReconnect: Boolean,
         roomStateListener: IKmeRoomModule.IKmeRoomStateListener
     ) {
@@ -134,22 +137,23 @@ class KmeRoomControllerImpl(
             success = {
                 fetchWebRTCLiveServer(
                     roomAlias,
+                    appVersion,
                     isReconnect
                 )
             }, error = {
                 roomModule.getRoomStateListener()?.onRoomUnavailable(Throwable(it))
-//                listener.onFailure(Throwable(it))
             }
         )
     }
 
     private fun fetchWebRTCLiveServer(
         roomAlias: String,
+        appVersion: String,
         isReconnect: Boolean
     ) {
         uiScope.launch {
             safeApiCall(
-                { roomApiService.getWebRTCLiveServer(roomAlias) },
+                { roomApiService.getWebRTCLiveServer(roomAlias, appVersion) },
                 success = {
                     webRTCServer = it.data
                     if (webRTCServer?.roomInfo?.settingsV2?.general?.appAccess == KmeAppAccessValue.OFF) {
@@ -162,15 +166,30 @@ class KmeRoomControllerImpl(
                             startService(wssUrl, isReconnect, token)
                         }
                     }
+
+                    settingsModule.updateSettings(
+                        webRTCServer?.roomInfo?.settingsV2,
+                        userController.getCurrentUserSetting()
+                    )
                 },
                 error = {
                     webRTCServer = null
-                    Log.e("TAG", "fetchWebRTCLiveServer: webRTCServer = null", )
-                    roomModule.getRoomStateListener()?.onRoomUnavailable(Throwable(it))
+                    val throwable = if (it.code == 400) {
+                        Throwable(
+                            KmeApiException.AppVersionException(
+                                message = it.message
+                            )
+                        )
+                    } else {
+                        Throwable(it)
+                    }
+
+                    roomModule.getRoomStateListener()?.onRoomUnavailable(throwable)
                 }
             )
         }
     }
+
 
     /**
      * Start service
@@ -225,6 +244,7 @@ class KmeRoomControllerImpl(
             override fun onClosed(code: Int, reason: String) {
                 roomModule.getRoomStateListener()?.onRoomUnavailable(null)
                 stopService()
+//                listener.onClosed(code, reason)
             }
         }
 
@@ -280,13 +300,14 @@ class KmeRoomControllerImpl(
     override fun connectToBreakout(
         roomId: Long,
         roomAlias: String,
+        appVersion: String,
         roomStateListener: IKmeRoomModule.IKmeRoomStateListener
     ) {
         roomModule.setRoomStateListener(roomStateListener)
 
         uiScope.launch {
             safeApiCall(
-                { roomApiService.getWebRTCLiveServer(roomAlias) },
+                { roomApiService.getWebRTCLiveServer(roomAlias, appVersion) },
                 success = {
                     val wssUrl = it.data?.wssUrl
                     val token = it.data?.token
@@ -441,7 +462,7 @@ class KmeRoomControllerImpl(
     private fun subscribeInternalModules() {
         roomModule.subscribe()
         internalParticipantModule.subscribe()
-        settingsModule.subscribe()
+        settingsInternalModule.subscribe()
         breakoutModule.subscribe()
     }
 

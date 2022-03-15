@@ -31,6 +31,7 @@ class KmeDefaultPollEventHandler : KmeKoinComponent {
     fun subscribe() {
         roomController.listen(
             quickPollHandler,
+            KmeMessageEvent.MODULE_STATE,
             KmeMessageEvent.QUICK_POLL_STARTED,
             KmeMessageEvent.QUICK_POLL_ENDED,
             KmeMessageEvent.QUICK_POLL_ANSWERS,
@@ -42,6 +43,9 @@ class KmeDefaultPollEventHandler : KmeKoinComponent {
     private val quickPollHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
+                KmeMessageEvent.MODULE_STATE -> {
+                    val msg: KmeQuickPollModuleMessage<QuickPollGetStatePayload>? = message.toType()
+                }
                 KmeMessageEvent.QUICK_POLL_STARTED -> {
                     val msg: KmeQuickPollModuleMessage<QuickPollStartedPayload>? = message.toType()
                     msg?.payload?.let {

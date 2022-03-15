@@ -7,7 +7,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlatformType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserRole
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class KmeParticipant(
@@ -19,7 +19,7 @@ data class KmeParticipant(
     @SerializedName("user_role") var userRole: KmeUserRole? = null,
     @SerializedName("full_name") var fullName: String? = null,
     @SerializedName("region_name") var regionName: String? = null,
-    @SerializedName("join_time") var joinTime: Long? = null,
+    @SerializedName("join_time") var joinTime: Long = 0,
     @SerializedName("connection_state") var connectionState: String? = null,
     @SerializedName("live_media_state") var liveMediaState: KmeMediaDeviceState? = null,
     @SerializedName("webcam_state") var webcamState: KmeMediaDeviceState? = null,
@@ -40,7 +40,8 @@ data class KmeParticipant(
 
 //    Local
     var isSpeaking: Boolean = false,
-    var breakoutRoomId: Long? = null
+    var breakoutRoomId: Long? = null,
+    var lastSpeakingTime: Long = 0
 
 ) : Parcelable
 

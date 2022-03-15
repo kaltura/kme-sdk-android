@@ -41,7 +41,7 @@ class RoomSettingsViewModel(
     fun subscribe() {
         kmeSdk.roomController.listen(
             roomSettingsHandler,
-            KmeMessageEvent.ROOM_MODULE_SETTINGS_CHANGED,
+            KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED,
             KmeMessageEvent.SET_PARTICIPANT_MODERATOR,
             KmeMessageEvent.ROOM_SETTINGS_CHANGED
         )
@@ -50,17 +50,22 @@ class RoomSettingsViewModel(
     private val roomSettingsHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
-                KmeMessageEvent.ROOM_MODULE_SETTINGS_CHANGED -> {
-                    val settingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomModuleSettingsChangedPayload>? =
+                KmeMessageEvent.ROOM_DEFAULT_SETTINGS_CHANGED -> {
+                    val settingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload>? =
                         message.toType()
                     val settingsPayload = settingsMessage?.payload
 
                     when (settingsPayload?.moduleName) {
                         KmePermissionModule.CHAT_MODULE -> {
-                            chatSettingsChanged.value = Pair(
-                                settingsPayload.permissionsKey,
-                                settingsPayload.permissionsValue
+                            val chatSettingsMessage: KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomChatSettingsChangedPayload>? =
+                                message.toType()
+                            val chatSettingsPayload = chatSettingsMessage?.payload
+
+                            val pair = Pair(
+                                chatSettingsPayload?.permissionsKey,
+                                chatSettingsPayload?.permissionsValue
                             )
+                            chatSettingsChanged.value = pair
                         }
                         else -> {
                         }

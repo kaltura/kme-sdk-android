@@ -9,7 +9,7 @@ import java.io.Serializable
 class KmeQuickPollModuleMessage<T : KmeQuickPollModuleMessage.QuickPollPayload> :
     KmeMessage<T>() {
 
-    data class GetQuickPollStatePayload(
+    data class QuickPollGetStatePayload(
         @SerializedName("room_id") val roomId: Long,
         @SerializedName("company_id") val companyId: Long,
     ) : QuickPollPayload()

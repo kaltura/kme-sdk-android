@@ -1,19 +1,45 @@
 package com.kme.kaltura.kmesdk.module
 
-import androidx.lifecycle.LiveData
+import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
+import com.kme.kaltura.kmesdk.rest.response.user.KmeUserSetting
 
 /**
  * An interface for room settings
  */
 interface IKmeSettingsModule : IKmeModule {
 
-    val moderatorStateLiveData: LiveData<Boolean>
-    val settingsChangedLiveData: LiveData<Boolean>
+    /**
+     * Subscribing for the room settings changes
+     *
+     * @param listener callback with [KmeSettingsListener] for indicating main events
+     */
+    fun subscribe(listener: KmeSettingsListener)
 
     /**
-     * Subscribing for the room events related to change settings
+     * UpdateSettings for the room events related to change settings
      * for the users and for the room itself
+     *
+     * @param roomSetting
+     * @param userSetting
      */
-    fun subscribe()
+    fun updateSettings(roomSetting: KmeSettingsV2?, userSetting: KmeUserSetting)
 
+    /**
+     * Settings listener
+     */
+    interface KmeSettingsListener {
+
+        /**
+         * Callback fired always when room and user settings updated
+         *
+         * @param roomSetting
+         * @param userSetting
+         */
+        fun onSettingsChanged(roomSetting: KmeSettingsV2?, userSetting: KmeUserSetting)
+
+        /**
+         * Callback fired on moderator state changes. First time - on room state load
+         */
+        fun onModeratorStateChanged(isModerator: Boolean)
+    }
 }

@@ -44,16 +44,23 @@ interface IKmeBasePeerConnection {
     )
 
     /**
-     * Attach renderer for peerconnection peer connection
+     * Add renderer for peer connection
      *
      * @param rendererView video renderer
      */
-    fun setRenderer(rendererView: KmeSurfaceRendererView)
+    fun addRenderer(rendererView: KmeSurfaceRendererView)
 
     /**
-     * Remove connection renderer
+     * Remove specific renderer for peer connection
+     *
+     * @param rendererView video renderer
      */
-    fun removeRenderer()
+    fun removeRenderer(rendererView: KmeSurfaceRendererView)
+
+    /**
+     * Remove all connection renderers
+     */
+    fun removeRenderers()
 
     /**
      * Toggle audio from SDK
@@ -108,14 +115,9 @@ interface IKmeBasePeerConnection {
     fun removeRemoteIceCandidates(candidates: Array<IceCandidate>)
 
     /**
-     * Disable outgoing video stream
+     * Enable/Disable outgoing video stream
      */
-    fun stopVideoSource()
-
-    /**
-     * Enable outgoing video stream
-     */
-    fun startVideoSource()
+    fun enableVideoSource(enable: Boolean)
 
     /**
      * Switch between existing cameras

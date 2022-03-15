@@ -24,6 +24,9 @@ enum class KmeRoomExitReason(
     @SerializedName("host_ended_session")
     HOST_ENDED_SESSION("host_ended_session"),
 
+    @SerializedName("xl_room_active")
+    XL_ROOM_ACTIVE("xl_room_active"),
+
     @SerializedName("else")
     ELSE("else")
 

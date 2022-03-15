@@ -23,6 +23,9 @@ class KmePublisherPeerConnectionImpl(
         isScreenShare = false
     }
 
+    /**
+     * Set preferred settings for establish p2p connection
+     */
     override fun setPreferredSettings(
         preferredMicEnabled: Boolean,
         preferredCamEnabled: Boolean
@@ -31,6 +34,9 @@ class KmePublisherPeerConnectionImpl(
         this.preferredCamEnabled = preferredCamEnabled
     }
 
+    /**
+     * Creates peer connection
+     */
     override fun createPeerConnection(
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
@@ -61,9 +67,10 @@ class KmePublisherPeerConnectionImpl(
         events?.onPeerConnectionCreated()
     }
 
-    override fun setRenderer(rendererView: KmeSurfaceRendererView) {
-        removeRenderer()
-
+    /**
+     * Add renderer for peer connection
+     */
+    override fun addRenderer(rendererView: KmeSurfaceRendererView) {
         with(rendererView) {
             if (!isInitialized) {
                 init(getRenderContext(), null)
@@ -71,20 +78,39 @@ class KmePublisherPeerConnectionImpl(
                 setEnableHardwareScaler(true)
                 setMirror(true)
             }
-        }
 
-        this.rendererView = rendererView
-        localVideoTrack?.addSink(rendererView)
+            renderers.add(this)
+            localVideoTrack?.addSink(this)
+        }
     }
 
-    override fun removeRenderer() {
-        this.rendererView?.let {
+    /**
+     * Remove specific renderer for peer connection
+     */
+    override fun removeRenderer(rendererView: KmeSurfaceRendererView) {
+        renderers.find {
+            it == rendererView
+        }?.let {
             localVideoTrack?.removeSink(it)
             it.release()
-            this.rendererView = null
+            renderers.remove(it)
         }
     }
 
+    /**
+     * Remove all connection renderers
+     */
+    override fun removeRenderers() {
+        renderers.forEach {
+            localVideoTrack?.removeSink(it)
+            it.release()
+        }
+        renderers.clear()
+    }
+
+    /**
+     * Toggle audio from SDK
+     */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     override fun setAudioEnabledInternal(enable: Boolean) {
         if (enable) {
@@ -118,33 +144,28 @@ class KmePublisherPeerConnectionImpl(
     @RequiresPermission(Manifest.permission.CAMERA)
     override fun setVideoEnabled(enable: Boolean) {
         localVideoTrack?.setEnabled(enable)
+        enableVideoSource(enable)
     }
 
     /**
-     * Disable outgoing video stream
+     * Enable/Disable outgoing video stream
      */
-    override fun stopVideoSource() {
-        if (!videoCapturerStopped) {
+    override fun enableVideoSource(enable: Boolean) {
+        if (enable) {
+            if (!videoCapturerEnabled) {
+                videoCapturer?.startCapture(
+                    VIDEO_WIDTH,
+                    VIDEO_HEIGHT,
+                    VIDEO_FPS
+                )
+                videoCapturerEnabled = true
+            }
+        } else if (videoCapturerEnabled) {
             try {
                 videoCapturer?.stopCapture()
             } catch (e: InterruptedException) {
-
             }
-            videoCapturerStopped = true
-        }
-    }
-
-    /**
-     * Enable outgoing video stream
-     */
-    override fun startVideoSource() {
-        if (videoCapturerStopped) {
-            videoCapturer?.startCapture(
-                VIDEO_WIDTH,
-                VIDEO_HEIGHT,
-                VIDEO_FPS
-            )
-            videoCapturerStopped = false
+            videoCapturerEnabled = false
         }
     }
 
@@ -153,7 +174,10 @@ class KmePublisherPeerConnectionImpl(
      */
     @RequiresPermission(Manifest.permission.CAMERA)
     override fun switchCamera(frontCamera: Boolean) {
-        rendererView?.setMirror(frontCamera)
+        renderers.forEach { rendererView ->
+            rendererView.setMirror(frontCamera)
+        }
+
         videoCapturer?.let {
             if (it is CameraVideoCapturer) {
                 it.switchCamera(null)

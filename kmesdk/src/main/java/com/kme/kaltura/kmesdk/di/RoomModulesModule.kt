@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.di
 
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalSettingsModule
 import com.kme.kaltura.kmesdk.module.*
 import com.kme.kaltura.kmesdk.module.impl.*
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
@@ -35,7 +36,9 @@ val roomModules = module {
         scoped<IKmeChatModule> { KmeChatModuleImpl() }
         scoped<IKmeNoteModule> { KmeNoteModuleImpl(androidContext()) }
         scoped<IKmeRecordingModule> { KmeRecordingModuleImpl() }
-        scoped<IKmeSettingsModule> { KmeSettingsModuleImpl() }
+        scoped<IKmeSettingsModule> {
+            KmeSettingsModuleImpl()
+        } bind IKmeInternalSettingsModule::class
         scoped<IKmeAudioModule> { KmeAudioModuleImpl() }
         scoped<IKmeContentModule> { KmeContentModuleImpl() }
         scoped<IKmeTermsModule> { KmeTermsModuleImpl() }
