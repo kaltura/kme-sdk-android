@@ -149,8 +149,6 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                             )
                         )
 
-                        // TODO: TC ?
-
                         if (internalDataModule.mainRoomId == roomId) {
                             roomController.send(
                                 buildGetBreakoutStateMessage(
@@ -257,6 +255,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                 }
                 KmeMessageEvent.CLOSE_WEB_SOCKET -> {
                     val msg: KmeRoomInitModuleMessage<CloseWebSocketPayload>? = message.toType()
+                    roomController.disconnect()
                     msg?.payload?.reason?.let { reason ->
                         stateListener?.onRoomExit(reason)
                     }
