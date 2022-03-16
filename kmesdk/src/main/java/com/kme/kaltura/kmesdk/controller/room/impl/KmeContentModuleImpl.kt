@@ -68,12 +68,20 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
         }
     }
 
-    /**KmeCookieJar
+    /**
      * Mute/Un-mute presented audio
      */
     override fun muteActiveContent(isMute: Boolean) {
         isMuted = isMute
         (contentView as? KmeMediaContentFragment)?.mute(isMute)
+    }
+
+    /**
+     * Destroy active content
+     */
+    override fun destroy() {
+        contentView = null
+        listener?.onContentNotAvailable(null)
     }
 
     private val activeContentHandler = object : IKmeMessageListener {
@@ -96,7 +104,7 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
     /**
      * Setting actual shared content
      */
-    fun setActiveContent(payload: SetActiveContentPayload) {
+    private fun setActiveContent(payload: SetActiveContentPayload) {
         payload.contentType?.let { type ->
             when (type) {
                 VIDEO, AUDIO, YOUTUBE, KALTURA -> {

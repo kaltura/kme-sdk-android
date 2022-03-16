@@ -3,8 +3,8 @@ package com.kme.kaltura.kmesdk.controller.room.impl
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeContentModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomModule
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.controller.room.internal.IKmeRoomInternalModule
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.request.xlroom.XlRoomLaunchRequest
@@ -26,7 +26,7 @@ import org.koin.core.inject
 /**
  * An implementation for room actions
  */
-class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
+class KmeRoomModuleImpl : KmeController(), IKmeRoomInternalModule {
 
     private val roomApiService: KmeRoomApiService by inject()
     private val messageManager: KmeMessageManager by inject()
@@ -233,6 +233,13 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                 error
             )
         }
+    }
+
+    /**
+     * Destroy room data
+     */
+    override fun destroy() {
+        contentModule.destroy()
     }
 
 }
