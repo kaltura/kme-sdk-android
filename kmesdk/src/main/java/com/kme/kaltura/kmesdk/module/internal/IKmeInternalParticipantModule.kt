@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.module.internal
 
 import com.kme.kaltura.kmesdk.module.IKmeModule
 import com.kme.kaltura.kmesdk.module.IKmeParticipantModule
+import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 
 /**
  * An interface for wrap actions with [IKmeParticipantModule]
@@ -16,17 +17,19 @@ internal interface IKmeInternalParticipantModule : IKmeParticipantModule, IKmeMo
 
     /**
      * Update participants roomId in case breakout assignments
+     *
+     * @param notify indicates application level update
      */
     fun updateParticipantsRoomId(notify: Boolean = true)
 
     /**
      * Setting initialization data to the module
      *
-     * @param listener
-     * @param listener
+     * @param participant to update
+     * @param isSpeaking speaking state
      */
     fun participantSpeaking(
-        id: Long,
+        participant: KmeParticipant,
         isSpeaking: Boolean
     )
 

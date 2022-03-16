@@ -277,8 +277,16 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
     /**
      * Get participant with userId
      */
-    override fun getParticipant(userId: Long?) = participants.find {
-        it.userId == userId
+    override fun getParticipant(userId: Long?): KmeParticipant? {
+        val activeRoomId = if (internalModule.breakoutRoomId != 0L) {
+            internalModule.breakoutRoomId
+        } else {
+            internalModule.mainRoomId
+        }
+
+        return getParticipants(activeRoomId).find {
+            it.userId == userId
+        }
     }
 
     /**
@@ -398,14 +406,15 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
         )
     }
 
+    /**
+     * Setting initialization data to the module
+     */
     override fun participantSpeaking(
-        id: Long,
+        participant: KmeParticipant,
         isSpeaking: Boolean
     ) {
-        getParticipant(id)?.let {
-            it.isSpeaking = isSpeaking
-            it.lastSpeakingTime = System.currentTimeMillis()
-        }
+        participant.isSpeaking = isSpeaking
+        participant.lastSpeakingTime = System.currentTimeMillis()
     }
 
     /**
