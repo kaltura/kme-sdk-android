@@ -533,8 +533,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
                         val isSpeaking = volumeData[0].toDouble().toInt() == 1
                         if (!viewersAudioEnabledBySdk && isSpeaking) return
 
-                        participantModule.participantSpeaking(userId, isSpeaking)
-                        listener.onUserSpeaking(userId)
+                        participantModule.getParticipant(userId)?.let { participant ->
+                            participantModule.participantSpeaking(participant, isSpeaking)
+                            listener.onUserSpeaking(userId)
+                        }
                     }
                 }
                 KmeMessageEvent.USER_MEDIA_STATE_CHANGED -> {
@@ -678,8 +680,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
         }
 
         requestedUserIdStream.toLongOrNull()?.let { id ->
-            participantModule.participantSpeaking(id, bringToFront == 1)
-            listener.onUserSpeaking(id)
+            participantModule.getParticipant(id)?.let { participant ->
+                participantModule.participantSpeaking(participant, bringToFront == 1)
+                listener.onUserSpeaking(id)
+            }
         }
     }
 
