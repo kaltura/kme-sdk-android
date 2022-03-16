@@ -83,14 +83,14 @@ interface IKmeRoomModule : IKmeModule {
         password: String
     )
 
-    /*
-    * Getting main room id
-    * */
+    /**
+     * Getting main room id
+     */
     fun getMainRoomId() : Long
 
-    /*
+    /**
     * Getting main room alias
-    * */
+     */
     fun getMainRoomAlias() : String
 
     /**
@@ -202,6 +202,8 @@ interface IKmeRoomModule : IKmeModule {
         fun onRoomBanner(
             message: KmeMessage<KmeMessage.Payload>
         )
+
+        fun onRoomTerms(type: IKmeTermsModule.KmeTermsType, message: String? = null)
 
         fun onRoomExit(reason: KmeRoomExitReason)
 

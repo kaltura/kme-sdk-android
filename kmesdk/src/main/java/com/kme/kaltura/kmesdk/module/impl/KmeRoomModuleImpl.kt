@@ -8,6 +8,7 @@ import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.module.IKmeContentModule
 import com.kme.kaltura.kmesdk.module.IKmeRoomModule
 import com.kme.kaltura.kmesdk.module.IKmeRoomModule.IKmeRoomStateListener
+import com.kme.kaltura.kmesdk.module.IKmeTermsModule
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.request.xlroom.XlRoomLaunchRequest
@@ -49,6 +50,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
     private val roomApiService: KmeRoomApiService by inject()
     private val userController: IKmeUserController by inject()
     private val contentModule: IKmeContentModule by scopedInject()
+    private val termsModule: IKmeTermsModule by scopedInject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -83,6 +85,15 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
             KmeMessageEvent.JOINED_ROOM,
             KmeMessageEvent.ROOM_PASSWORD_STATUS_RECEIVED,
             KmeMessageEvent.INSTRUCTOR_IS_OFFLINE,
+            priority = KmeMessagePriority.HIGH
+        )
+
+        roomController.listen(
+            termsHandler,
+            KmeMessageEvent.TERMS_NEEDED,
+            KmeMessageEvent.TERMS_AGREED,
+            KmeMessageEvent.TERMS_REJECTED,
+            KmeMessageEvent.SET_TERMS_AGREEMENT,
             priority = KmeMessagePriority.HIGH
         )
 
@@ -138,8 +149,6 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                             )
                         )
 
-                        // TODO: TC ?
-
                         if (internalDataModule.mainRoomId == roomId) {
                             roomController.send(
                                 buildGetBreakoutStateMessage(
@@ -148,7 +157,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                                 )
                             )
                         } else {
-                            Log.e("TAG", "roomStateHandler: onRoomAvailable", )
+                            Log.e("TAG", "roomStateHandler: onRoomAvailable")
                             roomData?.let { stateListener?.onRoomAvailable(it) }
                         }
                     }
@@ -196,6 +205,31 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         }
     }
 
+    private val termsHandler = object : IKmeMessageListener {
+        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
+            when (message.name) {
+                KmeMessageEvent.TERMS_NEEDED -> {
+                    termsModule.getTermsMessage(roomId = internalDataModule.mainRoomId,
+                        companyId = internalDataModule.companyId,
+                        success = {
+                            stateListener?.onRoomTerms(IKmeTermsModule.KmeTermsType.NEEDED, it.data?.terms)
+                        },
+                        error = {
+                            stateListener?.onRoomTerms(IKmeTermsModule.KmeTermsType.NEEDED)
+                        })
+                }
+                KmeMessageEvent.TERMS_AGREED -> {
+                    stateListener?.onRoomTerms(IKmeTermsModule.KmeTermsType.ACCEPTED)
+                }
+                KmeMessageEvent.TERMS_REJECTED -> {
+                    stateListener?.onRoomTerms(IKmeTermsModule.KmeTermsType.REJECTED)
+                }
+                KmeMessageEvent.SET_TERMS_AGREEMENT -> {
+                }
+            }
+        }
+    }
+
     /**
      * Listen for exit events
      */
@@ -221,6 +255,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                 }
                 KmeMessageEvent.CLOSE_WEB_SOCKET -> {
                     val msg: KmeRoomInitModuleMessage<CloseWebSocketPayload>? = message.toType()
+                    roomController.disconnect()
                     msg?.payload?.reason?.let { reason ->
                         stateListener?.onRoomExit(reason)
                     }

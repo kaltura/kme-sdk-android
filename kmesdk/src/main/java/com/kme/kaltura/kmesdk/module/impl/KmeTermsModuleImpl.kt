@@ -1,19 +1,14 @@
 package com.kme.kaltura.kmesdk.module.impl
 
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
-import com.kme.kaltura.kmesdk.controller.IKmeRoomController
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.module.IKmeTermsModule
 import com.kme.kaltura.kmesdk.module.IKmeWebSocketModule
-import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.terms.KmeGetTermsResponse
 import com.kme.kaltura.kmesdk.rest.safeApiCall
 import com.kme.kaltura.kmesdk.rest.service.KmeTermsApiService
 import com.kme.kaltura.kmesdk.util.messages.buildTermsAgreementMessage
-import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
-import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
-import com.kme.kaltura.kmesdk.ws.message.KmeMessage
-import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,28 +21,9 @@ class KmeTermsModuleImpl : KmeController(), IKmeTermsModule {
 
     private val termsApiService: KmeTermsApiService by inject()
 
-    private val roomController: IKmeRoomController by scopedInject()
     private val webSocketModule: IKmeWebSocketModule by scopedInject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
-
-    private var listener: IKmeTermsModule.KmeTermsListener? = null
-
-    /**
-     * Subscribing for the room events related to terms & conditions
-     */
-    override fun subscribe(listener: IKmeTermsModule.KmeTermsListener) {
-        this.listener = listener
-
-        roomController.listen(
-            bannersHandler,
-            KmeMessageEvent.TERMS_NEEDED,
-            KmeMessageEvent.TERMS_AGREED,
-            KmeMessageEvent.TERMS_REJECTED,
-            KmeMessageEvent.SET_TERMS_AGREEMENT,
-            priority = KmeMessagePriority.HIGH
-        )
-    }
 
     /**
      * Set terms condition  agreed or rejected
@@ -77,24 +53,4 @@ class KmeTermsModuleImpl : KmeController(), IKmeTermsModule {
             )
         }
     }
-
-
-    private val bannersHandler = object : IKmeMessageListener {
-        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-            when (message.name) {
-                KmeMessageEvent.TERMS_NEEDED -> {
-                    listener?.onTermsNeeded()
-                }
-                KmeMessageEvent.TERMS_AGREED -> {
-                    listener?.onTermsAccepted()
-                }
-                KmeMessageEvent.TERMS_REJECTED -> {
-                    listener?.onTermsRejected()
-                }
-                KmeMessageEvent.SET_TERMS_AGREEMENT -> {
-                }
-            }
-        }
-    }
-
 }
