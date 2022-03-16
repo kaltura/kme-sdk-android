@@ -127,6 +127,7 @@ class KmeQuickPollView @JvmOverloads constructor(
         visibility = VISIBLE
         removeAllViews()
         startPollPayload = payload
+        endPollPayload = null
 
         val isModerator = userController.isModerator()
         if (payload.targetAudience == KmeQuickPollAudienceType.NON_MODERATORS && isModerator) {
