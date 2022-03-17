@@ -107,7 +107,7 @@ class RoomStateViewModel(
                 sharedContent.value = view
             }
 
-            override fun onContentNotAvailable(type: KmeContentType) {
+            override fun onContentNotAvailable(type: KmeContentType?) {
                 sharedContent.value = null
             }
         })
