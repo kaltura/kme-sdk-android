@@ -1,9 +1,9 @@
 package com.kme.kaltura.kmesdk.controller.room.impl
 
-import android.util.Log
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.logger.IKmeLogger
 import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
 import com.kme.kaltura.kmesdk.ws.IKmeWSListener
 import com.kme.kaltura.kmesdk.ws.KmeMessageManager
@@ -23,12 +23,13 @@ import org.koin.core.qualifier.named
 internal class KmeWebSocketModuleImpl : KmeController(),
     IKmeWebSocketModule, IKmeWSListener {
 
-    private val TAG = KmeWebSocketModuleImpl::class.java.canonicalName
+    private val TAG = KmeWebSocketModuleImpl::class.simpleName.toString()
 
     private val okHttpClient: OkHttpClient by inject(named("wsOkHttpClient"))
     private val gson: Gson by inject()
     private val webSocketHandler: KmeWebSocketHandler by inject()
     private val messageManager: KmeMessageManager by inject()
+    private val logger: IKmeLogger by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
     private val reconnectionScope = CoroutineScope(Dispatchers.IO)
@@ -163,7 +164,7 @@ internal class KmeWebSocketModuleImpl : KmeController(),
      */
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
         val strMessage = gson.toJson(message)
-        Log.e(TAG, "send: $strMessage")
+        logger.e(TAG, "send: $strMessage")
         webSocket?.send(strMessage)
     }
 
