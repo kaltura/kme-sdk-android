@@ -1,13 +1,13 @@
 package com.kme.kaltura.kmesdk.module.impl
 
+import android.util.Log
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.logger.IKmeLogger
 import com.kme.kaltura.kmesdk.module.IKmeWebSocketModule
-import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
+import com.kme.kaltura.kmesdk.ws.*
 import com.kme.kaltura.kmesdk.ws.IKmeWSListener
-import com.kme.kaltura.kmesdk.ws.KmeWebSocketCode
+import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.KmeWebSocketHandler
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import kotlinx.coroutines.*
@@ -27,12 +27,7 @@ internal class KmeWebSocketModuleImpl(
     private val isMainSocket: Boolean = false
 ) : KmeController(), IKmeWebSocketModule, IKmeWSListener {
 
-    private val TAG = KmeWebSocketModuleImpl::class.java.canonicalName
-
-    private val okHttpClient: OkHttpClient by inject(named("wsOkHttpClient"))
     private val gson: Gson by inject()
-    private val webSocketHandler: KmeWebSocketHandler by inject()
-    private val messageManager: KmeMessageManager by inject()
     private val logger: IKmeLogger by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
@@ -225,7 +220,7 @@ internal class KmeWebSocketModuleImpl(
     }
 
     companion object {
-        private val TAG = KmeWebSocketModuleImpl::class.simpleName.toString()
+        private val TAG = KmeWebSocketModuleImpl::class.java.canonicalName
         private const val RECONNECTION_ATTEMPTS = 5
     }
 

@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.module.impl
 
-import android.util.Log
 import com.kme.kaltura.kmesdk.content.KmeContentView
 import com.kme.kaltura.kmesdk.content.desktop.KmeDesktopShareFragment
 import com.kme.kaltura.kmesdk.content.desktop.KmeDesktopShareViewModel
@@ -41,7 +40,6 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
      * Subscribing for the room events related to content sharing
      */
     override fun subscribe(listener: IKmeContentModule.KmeContentListener) {
-        Log.e("TAG", "subscribe: IKmeContentModule", )
         this.listener = listener
 
         slidesContentViewModel.subscribe()

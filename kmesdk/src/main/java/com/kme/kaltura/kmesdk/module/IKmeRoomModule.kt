@@ -6,6 +6,7 @@ import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
 import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
+import com.kme.kaltura.kmesdk.ws.message.type.KmeXlRoomStatus
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 
@@ -204,6 +205,8 @@ interface IKmeRoomModule : IKmeModule {
         )
 
         fun onRoomTerms(type: IKmeTermsModule.KmeTermsType, message: String? = null)
+
+        fun onXLRoom(status: KmeXlRoomStatus)
 
         fun onRoomExit(reason: KmeRoomExitReason)
 

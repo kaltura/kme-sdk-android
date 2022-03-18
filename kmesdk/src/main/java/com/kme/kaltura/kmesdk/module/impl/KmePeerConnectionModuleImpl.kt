@@ -9,7 +9,6 @@ import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.module.IKmeContentModule
 import com.kme.kaltura.kmesdk.module.IKmePeerConnectionModule
-import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalParticipantModule
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalPeerConnectionModule
 import com.kme.kaltura.kmesdk.toType
@@ -35,7 +34,7 @@ import kotlin.properties.Delegates
 /**
  * An implementation for wrap actions with [IKmePeerConnection]
  */
-class KmePeerConnectionModuleImpl : KmeController(), IKmePeerConnectionInternalModule {
+class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionModule {
 
     private val userController: IKmeUserController by inject()
     private val participantModule: IKmeInternalParticipantModule by scopedInject()
