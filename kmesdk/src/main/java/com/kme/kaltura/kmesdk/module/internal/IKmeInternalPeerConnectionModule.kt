@@ -7,7 +7,7 @@ import com.kme.kaltura.kmesdk.module.IKmePeerConnectionModule
  * An interface for wrap actions with [IKmePeerConnectionModule]
  * Only for internal SDK usage. This API not visible to the app level.
  */
-internal interface IKmeInternalPeerConnectionModule : IKmePeerConnectionModule, IKmeModule {
+internal interface IKmeInternalPeerConnectionModule : IKmePeerConnectionModule {
 
     /**
      * Mute viewers when media content presented in the room

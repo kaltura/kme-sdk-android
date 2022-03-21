@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.module.impl
 
-import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
@@ -11,6 +10,7 @@ import com.kme.kaltura.kmesdk.module.IKmeRoomModule
 import com.kme.kaltura.kmesdk.module.IKmeRoomModule.IKmeRoomStateListener
 import com.kme.kaltura.kmesdk.module.IKmeTermsModule
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalRoomModule
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.request.xlroom.XlRoomLaunchRequest
 import com.kme.kaltura.kmesdk.rest.request.xlroom.XlRoomPrepareRequest
@@ -32,19 +32,22 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeParticipantsModuleMessage.Par
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.ApprovalPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.CloseWebSocketPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeXLRoomModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
+import com.kme.kaltura.kmesdk.ws.message.type.KmeXlRoomStatus
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.core.inject
 
 /**
  * An implementation for room actions
  */
-class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
+class KmeRoomModuleImpl : KmeController(), IKmeInternalRoomModule {
 
     private val roomController: IKmeRoomController by scopedInject()
     private val internalDataModule: IKmeInternalDataModule by inject()
@@ -98,6 +101,15 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
             KmeMessageEvent.TERMS_AGREED,
             KmeMessageEvent.TERMS_REJECTED,
             KmeMessageEvent.SET_TERMS_AGREEMENT,
+            priority = KmeMessagePriority.HIGH
+        )
+
+        roomController.listen(
+            xlRoomHandler,
+            KmeMessageEvent.MODULE_STATE,
+            KmeMessageEvent.XL_ROOM_MODE_INIT,
+            KmeMessageEvent.XL_ROOM_MODE_READY,
+            KmeMessageEvent.XL_ROOM_MODE_FINISHED,
             priority = KmeMessagePriority.HIGH
         )
 
@@ -161,7 +173,6 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                                 )
                             )
                         } else {
-                            Log.e("TAG", "roomStateHandler: onRoomAvailable")
                             roomData?.let { stateListener?.onRoomAvailable(it) }
                         }
                     }
@@ -216,7 +227,10 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                     termsModule.getTermsMessage(roomId = internalDataModule.mainRoomId,
                         companyId = internalDataModule.companyId,
                         success = {
-                            stateListener?.onRoomTerms(IKmeTermsModule.KmeTermsType.NEEDED, it.data?.terms)
+                            stateListener?.onRoomTerms(
+                                IKmeTermsModule.KmeTermsType.NEEDED,
+                                it.data?.terms
+                            )
                         },
                         error = {
                             stateListener?.onRoomTerms(IKmeTermsModule.KmeTermsType.NEEDED)
@@ -234,9 +248,42 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         }
     }
 
-    /**
-     * Listen for exit events
-     */
+    private val xlRoomHandler = object : IKmeMessageListener {
+        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
+            when (message.name) {
+                KmeMessageEvent.MODULE_STATE -> {
+                    val msg: KmeXLRoomModuleMessage<KmeXLRoomModuleMessage.XLRoomStatePayload>? =
+                        message.toType()
+                    when (val status = msg?.payload?.status) {
+                        KmeXlRoomStatus.INITIATING,
+                        KmeXlRoomStatus.READY -> {
+                            stateListener?.onXLRoom(status)
+                        }
+                        else -> {
+                        }
+                    }
+                }
+                KmeMessageEvent.XL_ROOM_MODE_INIT -> {
+                    stateListener?.onXLRoom(KmeXlRoomStatus.INITIATING)
+                }
+                KmeMessageEvent.XL_ROOM_MODE_READY -> {
+                    stateListener?.onXLRoom(KmeXlRoomStatus.READY)
+                }
+                KmeMessageEvent.XL_ROOM_MODE_ABORTED -> {
+                    stateListener?.onXLRoom(KmeXlRoomStatus.ABORTED)
+                }
+                KmeMessageEvent.XL_ROOM_MODE_FAILED -> {
+                    stateListener?.onXLRoom(KmeXlRoomStatus.FAILED)
+                }
+                KmeMessageEvent.XL_ROOM_MODE_FINISHED -> {
+                    stateListener?.onXLRoom(KmeXlRoomStatus.FINISHED)
+                }
+                else -> {
+                }
+            }
+        }
+    }
+
     private val roomExitHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
             when (message.name) {
@@ -259,9 +306,16 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
                 }
                 KmeMessageEvent.CLOSE_WEB_SOCKET -> {
                     val msg: KmeRoomInitModuleMessage<CloseWebSocketPayload>? = message.toType()
+                    destroy()
                     roomController.disconnect()
+
                     msg?.payload?.reason?.let { reason ->
-                        stateListener?.onRoomExit(reason)
+                        when(reason) {
+                            KmeRoomExitReason.XL_ROOM_ACTIVE -> {
+                                stateListener?.onXLRoom(KmeXlRoomStatus.RESTART)
+                            }
+                            else -> stateListener?.onRoomExit(reason)
+                        }
                     }
                 }
                 else -> {
@@ -317,10 +371,16 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         getXlRoomState(roomId, companyId)
     }
 
+    /**
+     * Getting main room id
+     */
     override fun getMainRoomId(): Long {
         return internalDataModule.mainRoomId
     }
 
+    /**
+     * Getting main room alias
+     */
     override fun getMainRoomAlias(): String {
         return internalDataModule.mainRoomAlias
     }
@@ -361,6 +421,9 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         contentModule.subscribe(listener)
     }
 
+    /**
+     * Mute/Un-mute presented audio
+     */
     override fun muteActiveContent(isMute: Boolean) {
         contentModule.muteActiveContent(isMute)
     }
@@ -383,6 +446,9 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
         roomController.removeListeners()
     }
 
+    /**
+     * Getting actual state for xl room
+     */
     override fun getXlRoomState(roomId: Long, companyId: Long) {
         if (userController.isModerator()) {
             roomController.send(buildXlRoomGetStateMessage(roomId, companyId))
@@ -465,4 +531,12 @@ class KmeRoomModuleImpl : KmeController(), IKmeRoomModule {
             )
         }
     }
+
+    /**
+     * Destroy room data
+     */
+    override fun destroy() {
+        contentModule.destroy()
+    }
+
 }

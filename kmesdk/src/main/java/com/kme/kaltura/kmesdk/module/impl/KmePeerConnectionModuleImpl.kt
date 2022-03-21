@@ -9,7 +9,6 @@ import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.module.IKmeContentModule
 import com.kme.kaltura.kmesdk.module.IKmePeerConnectionModule
-import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalParticipantModule
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalPeerConnectionModule
 import com.kme.kaltura.kmesdk.toType
@@ -60,7 +59,6 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
     private lateinit var listener: IKmePeerConnectionModule.KmePeerConnectionEvents
     private var screenShareEvents: IKmePeerConnectionModule.KmeScreenShareEvents? = null
     private var playerAudioEvent: IKmePeerConnectionModule.KmePlayerAudioEvents? = null
-
 
     private var viewersAudioEnabledByApp = true
     private var viewersAudioEnabledBySdk = true

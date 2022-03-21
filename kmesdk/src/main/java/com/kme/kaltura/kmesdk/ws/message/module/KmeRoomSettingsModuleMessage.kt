@@ -18,6 +18,10 @@ class KmeRoomSettingsModuleMessage<T : KmeRoomSettingsModuleMessage.SettingsPayl
         @SerializedName("permissionsKey") var permissionsKey: KmePermissionKey? = null
     ) : SettingsPayload()
 
+    data class RoomBreakoutSettingsChangedPayload(
+        @SerializedName("permissionsValue") var permissionsValue: KmePermissionValue? = null,
+    ) : RoomDefaultSettingsChangedPayload()
+
     data class RoomChatSettingsChangedPayload(
         @SerializedName("permissionsValue") var permissionsValue: KmePermissionValue? = null,
     ) : RoomDefaultSettingsChangedPayload()

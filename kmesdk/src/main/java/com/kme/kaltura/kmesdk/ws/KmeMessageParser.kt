@@ -265,6 +265,9 @@ internal class KmeMessageParser(
                     KmePermissionModule.CHAT_MODULE -> {
                         text.jsonToObject<KmeRoomSettingsModuleMessage<RoomChatSettingsChangedPayload>>()
                     }
+                    KmePermissionModule.BREAKOUT_MODULE -> {
+                        text.jsonToObject<KmeRoomSettingsModuleMessage<RoomBreakoutSettingsChangedPayload>>()
+                    }
                     KmePermissionModule.PARTICIPANTS_MODULE -> {
                         text.jsonToObject<KmeRoomSettingsModuleMessage<RoomParticipantSettingsChangedPayload>>()
                     }
