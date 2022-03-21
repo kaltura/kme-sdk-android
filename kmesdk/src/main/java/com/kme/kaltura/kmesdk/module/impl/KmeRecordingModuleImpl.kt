@@ -38,6 +38,9 @@ class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     private var listener: KmeRecordingListener? = null
+
+    private var savedMessageEvent: KmeMessage<KmeMessage.Payload>? = null
+
     /**
      * Subscribing for the room events related to recording
      * for the users and for the room itself
@@ -62,6 +65,10 @@ class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
      */
     override fun subscribeListener(listener: KmeRecordingListener) {
         this.listener = listener
+        savedMessageEvent?.let {
+            onMessageReceived(it)
+            savedMessageEvent == null
+        }
     }
 
     /**
@@ -117,56 +124,65 @@ class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
 
     private val recordingHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-            when (message.name) {
-                KmeMessageEvent.RECORDING_RECEIVED_START -> {
-                    listener?.onRecordingStatusChanged(KmeRecordStatus.STARTED)
-                }
-                KmeMessageEvent.RECORDING_INITIATED -> {
-                    listener?.onRecordingStatusChanged(KmeRecordStatus.INITIATED)
-                }
-                KmeMessageEvent.RECORDING_STARTED -> {
-                    listener?.onRecordingStatusChanged(KmeRecordStatus.RECORDING_STARTED)
-                }
-                KmeMessageEvent.RECORDING_RECEIVED_STOP -> {
-                    listener?.onRecordingStatusChanged(KmeRecordStatus.STOPPED)
-                }
-                KmeMessageEvent.RECORDING_COMPLETED -> {
-                    listener?.onRecordingStatusChanged(KmeRecordStatus.COMPLETED)
-                }
-                KmeMessageEvent.RECORDING_CONVERSION_COMPLETED -> {
-                    if (userController.isModerator()) {
-                        listener?.onRecordingStatusChanged(KmeRecordStatus.CONVERSION_COMPLETED)
-                    }
-                }
-                KmeMessageEvent.RECORDING_UPLOAD_COMPLETED -> {
-                    if (userController.isModerator()) {
-                        listener?.onRecordingStatusChanged(KmeRecordStatus.UPLOAD_COMPLETED)
-                    }
-                }
-                KmeMessageEvent.RECORDING_STATUS -> {
-                    val msg: KmeRoomRecordingMessage<KmeRoomRecordingMessage.RecordingStatusPayload>? = message.toType()
-                    msg?.payload?.status?.let { status ->
-                        when (status) {
-                            KmeRecordStatus.RECORDING_IN_PROGRESS -> {
-                                listener?.onRecordingStatusChanged(KmeRecordStatus.RECORDING_IN_PROGRESS)
 
-                                ifNonNull(
-                                    msg.payload?.timestamp,
-                                    msg.payload?.userJoinTimestamp
-                                ) { startedAt, joinedAt ->
-                                    listener?.onRecordingTime(joinedAt - startedAt)
-                                }
+            if (listener != null){
+                onMessageReceived(message)
+            }else{
+                savedMessageEvent = message
+            }
+        }
+    }
+
+    private fun onMessageReceived(message: KmeMessage<KmeMessage.Payload){
+        when (message.name) {
+            KmeMessageEvent.RECORDING_RECEIVED_START -> {
+                listener?.onRecordingStatusChanged(KmeRecordStatus.STARTED)
+            }
+            KmeMessageEvent.RECORDING_INITIATED -> {
+                listener?.onRecordingStatusChanged(KmeRecordStatus.INITIATED)
+            }
+            KmeMessageEvent.RECORDING_STARTED -> {
+                listener?.onRecordingStatusChanged(KmeRecordStatus.RECORDING_STARTED)
+            }
+            KmeMessageEvent.RECORDING_RECEIVED_STOP -> {
+                listener?.onRecordingStatusChanged(KmeRecordStatus.STOPPED)
+            }
+            KmeMessageEvent.RECORDING_COMPLETED -> {
+                listener?.onRecordingStatusChanged(KmeRecordStatus.COMPLETED)
+            }
+            KmeMessageEvent.RECORDING_CONVERSION_COMPLETED -> {
+                if (userController.isModerator()) {
+                    listener?.onRecordingStatusChanged(KmeRecordStatus.CONVERSION_COMPLETED)
+                }
+            }
+            KmeMessageEvent.RECORDING_UPLOAD_COMPLETED -> {
+                if (userController.isModerator()) {
+                    listener?.onRecordingStatusChanged(KmeRecordStatus.UPLOAD_COMPLETED)
+                }
+            }
+            KmeMessageEvent.RECORDING_STATUS -> {
+                val msg: KmeRoomRecordingMessage<KmeRoomRecordingMessage.RecordingStatusPayload>? = message.toType()
+                msg?.payload?.status?.let { status ->
+                    when (status) {
+                        KmeRecordStatus.RECORDING_IN_PROGRESS -> {
+                            listener?.onRecordingStatusChanged(KmeRecordStatus.RECORDING_IN_PROGRESS)
+
+                            ifNonNull(
+                                msg.payload?.timestamp,
+                                msg.payload?.userJoinTimestamp
+                            ) { startedAt, joinedAt ->
+                                listener?.onRecordingTime(joinedAt - startedAt)
                             }
-                            else -> {
-                            }
+                        }
+                        else -> {
                         }
                     }
                 }
-                KmeMessageEvent.RECORDING_FAILED -> {
-                    listener?.onRecordingStatusChanged(KmeRecordStatus.RECORDING_FAILED)
-                }
-                else -> {
-                }
+            }
+            KmeMessageEvent.RECORDING_FAILED -> {
+                listener?.onRecordingStatusChanged(KmeRecordStatus.RECORDING_FAILED)
+            }
+            else -> {
             }
         }
     }
