@@ -1,9 +1,8 @@
 package com.kme.kaltura.kmesdk.di
 
-import com.kme.kaltura.kmesdk.module.internal.IKmeInternalSettingsModule
 import com.kme.kaltura.kmesdk.module.*
 import com.kme.kaltura.kmesdk.module.impl.*
-import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
+import com.kme.kaltura.kmesdk.module.internal.*
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalParticipantModule
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalPeerConnectionModule
 import org.koin.android.ext.koin.androidContext
@@ -19,7 +18,22 @@ val roomModules = module {
     single<IKmeInternalDataModule> { KmeInternalDataModuleImpl() }
 
     scope(named(KmeKoinScope.MODULES)) {
-        scoped<IKmeRoomModule> { KmeRoomModuleImpl() }
+        scoped<IKmeRoomModule> {
+            KmeRoomModuleImpl()
+        } bind IKmeInternalRoomModule::class
+
+        scoped<IKmePeerConnectionModule> {
+            KmePeerConnectionModuleImpl()
+        } bind IKmeInternalPeerConnectionModule::class
+
+        scoped<IKmeParticipantModule> {
+            KmeParticipantModuleImpl()
+        } bind IKmeInternalParticipantModule::class
+
+        scoped<IKmeSettingsModule> {
+            KmeSettingsModuleImpl()
+        } bind IKmeInternalSettingsModule::class
+
         scoped<IKmeWebSocketModule> {
             KmeWebSocketModuleImpl(
                 get(named("wsOkHttpClient")),
@@ -27,18 +41,10 @@ val roomModules = module {
                 isMainSocket = true
             )
         }
-        scoped<IKmePeerConnectionModule> {
-            KmePeerConnectionModuleImpl()
-        } bind IKmeInternalPeerConnectionModule::class
-        scoped<IKmeParticipantModule> {
-            KmeParticipantModuleImpl()
-        } bind IKmeInternalParticipantModule::class
+
         scoped<IKmeChatModule> { KmeChatModuleImpl() }
         scoped<IKmeNoteModule> { KmeNoteModuleImpl(androidContext()) }
         scoped<IKmeRecordingModule> { KmeRecordingModuleImpl() }
-        scoped<IKmeSettingsModule> {
-            KmeSettingsModuleImpl()
-        } bind IKmeInternalSettingsModule::class
         scoped<IKmeAudioModule> { KmeAudioModuleImpl() }
         scoped<IKmeContentModule> { KmeContentModuleImpl() }
         scoped<IKmeTermsModule> { KmeTermsModuleImpl() }

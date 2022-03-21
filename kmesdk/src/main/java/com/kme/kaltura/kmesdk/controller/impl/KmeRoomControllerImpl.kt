@@ -248,8 +248,6 @@ class KmeRoomControllerImpl(
             }
         }
 
-        Log.e("TAG", "startService: new ws listener = $roomWSListener", )
-
         context.startService(intent)
         context.bindService(intent, serviceConnection, BIND_ADJUST_WITH_ACTIVITY)
     }
@@ -347,8 +345,6 @@ class KmeRoomControllerImpl(
                             }
                         }
 
-                        Log.e("TAG", "connectToBor: new ws listener = $listener", )
-
                         getActiveSocket().connect(
                             wssUrl,
                             internalDataModule.companyId,
@@ -380,7 +376,6 @@ class KmeRoomControllerImpl(
      * Send message via socket
      */
     override fun send(message: KmeMessage<out KmeMessage.Payload>) {
-        Log.e("TAG", "send: ${message.module} socket = ${getActiveSocket().hashCode()}", )
         getActiveSocket().send(message)
     }
 

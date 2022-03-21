@@ -8,6 +8,7 @@ import com.kme.kaltura.kmesdk.KME
 import com.kme.kaltura.kmesdk.content.KmeContentView
 import com.kme.kaltura.kmesdk.module.IKmeContentModule
 import com.kme.kaltura.kmesdk.module.IKmeRoomModule
+import com.kme.kaltura.kmesdk.module.IKmeTermsModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
@@ -20,6 +21,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
+import com.kme.kaltura.kmesdk.ws.message.type.KmeXlRoomStatus
 
 class RoomStateViewModel(
     private val kmeSdk: KME
@@ -107,7 +109,7 @@ class RoomStateViewModel(
                 sharedContent.value = view
             }
 
-            override fun onContentNotAvailable(type: KmeContentType) {
+            override fun onContentNotAvailable(type: KmeContentType?) {
                 sharedContent.value = null
             }
         })
@@ -234,7 +236,6 @@ class RoomStateViewModel(
                     val msg: KmeRoomInitModuleMessage<ApprovalPayload>? = message.toType()
                     if (msg?.payload?.userId == getCurrentUserId()) {
                         userRejected.value = null
-                        disconnect()
                     }
                 }
                 KmeMessageEvent.JOINED_ROOM -> {
@@ -268,14 +269,15 @@ class RoomStateViewModel(
 
     }
 
-    override fun onRoomBanner(
-        event: KmeMessageEvent,
-//        payload: KmeRoomInitModuleMessage.RoomInitPayload
-    ) {
+    override fun onRoomBanner(message: KmeMessage<KmeMessage.Payload>) {
 
     }
 
-    override fun onRoomTermsNeeded() {
+    override fun onRoomTerms(type: IKmeTermsModule.KmeTermsType, message: String?) {
+
+    }
+
+    override fun onXLRoom(status: KmeXlRoomStatus) {
 
     }
 
@@ -285,15 +287,6 @@ class RoomStateViewModel(
 
     override fun onRoomUnavailable(throwable: Throwable?) {
 
-    }
-
-    private fun disconnect() {
-//        kmeSdk.roomController.disconnect()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        disconnect()
     }
 
 }

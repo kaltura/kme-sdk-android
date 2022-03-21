@@ -98,7 +98,10 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeInternalSettingsModu
                                 chatSettingsPayload?.permissionsKey,
                                 chatSettingsPayload?.permissionsValue
                             )
-                            updateSettings(userController.getCurrentParticipant()?.userPermissions, userController.getCurrentUserSetting())
+                            updateSettings(
+                                userController.getCurrentParticipant()?.userPermissions,
+                                userController.getCurrentUserSetting()
+                            )
                         }
                         KmePermissionModule.PARTICIPANTS_MODULE -> {
                             val participantSettingsMessage: KmeRoomSettingsModuleMessage<RoomParticipantSettingsChangedPayload>? =
@@ -108,7 +111,10 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeInternalSettingsModu
                                 participantSettingsPayload?.permissionsKey,
                                 participantSettingsPayload?.permissionsValue
                             )
-                            updateSettings(userController.getCurrentParticipant()?.userPermissions, userController.getCurrentUserSetting())
+                            updateSettings(
+                                userController.getCurrentParticipant()?.userPermissions,
+                                userController.getCurrentUserSetting()
+                            )
                         }
                         else -> {
                         }
@@ -119,16 +125,19 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeInternalSettingsModu
                         message.toType()
                     val payload = settingsMessage?.payload
 
-                    when (payload?.changedPermissionsModule){
+                    when (payload?.changedPermissionsModule) {
                         KmePermissionModule.PARTICIPANTS_MODULE -> {
                             userController.getCurrentUserSetting().apply {
                                 participants = payload.changedPermissionValue
                             }
-                            updateSettings(userController.getCurrentParticipant()?.userPermissions, userController.getCurrentUserSetting())
+                            updateSettings(
+                                userController.getCurrentParticipant()?.userPermissions,
+                                userController.getCurrentUserSetting()
+                            )
                         }
                         KmePermissionModule.CHAT_MODULE -> {
                             userController.getCurrentUserSetting().apply {
-                                when(payload.changedPermissionKey){
+                                when (payload.changedPermissionKey) {
                                     KmePermissionKey.QNA_CHAT -> {
                                         qnaChat = payload.changedPermissionValue
                                     }
@@ -137,7 +146,10 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeInternalSettingsModu
                                     }
                                 }
                             }
-                            updateSettings(userController.getCurrentParticipant()?.userPermissions, userController.getCurrentUserSetting())
+                            updateSettings(
+                                userController.getCurrentParticipant()?.userPermissions,
+                                userController.getCurrentUserSetting()
+                            )
                         }
                     }
                 }

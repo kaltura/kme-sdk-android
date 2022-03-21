@@ -3,10 +3,11 @@ package com.kme.kaltura.kmesdk.module.impl
 import android.util.Log
 import com.google.gson.Gson
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
+import com.kme.kaltura.kmesdk.logger.IKmeLogger
 import com.kme.kaltura.kmesdk.module.IKmeWebSocketModule
-import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
+import com.kme.kaltura.kmesdk.ws.*
 import com.kme.kaltura.kmesdk.ws.IKmeWSListener
-import com.kme.kaltura.kmesdk.ws.KmeWebSocketCode
+import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.KmeWebSocketHandler
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import kotlinx.coroutines.*
@@ -27,6 +28,7 @@ internal class KmeWebSocketModuleImpl(
 ) : KmeController(), IKmeWebSocketModule, IKmeWSListener {
 
     private val gson: Gson by inject()
+    private val logger: IKmeLogger by inject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
     private val reconnectionScope = CoroutineScope(Dispatchers.IO)

@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.ws
 
 import android.util.Log
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
+import com.kme.kaltura.kmesdk.logger.IKmeLogger
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
@@ -14,10 +15,11 @@ import okhttp3.WebSocketListener
  */
 internal class KmeWebSocketHandler(
     private val messageParser: KmeMessageParser,
-    private val messageManager: KmeMessageManager
+    private val messageManager: KmeMessageManager,
+    private val logger: IKmeLogger
 ) : WebSocketListener(), IKmeMessageManager {
 
-    private val TAG = KmeWebSocketHandler::class.java.canonicalName
+    private val TAG = KmeWebSocketHandler::class.simpleName.toString()
 
     private val pingValue = 2
     private val pongValue = 3
@@ -30,14 +32,14 @@ internal class KmeWebSocketHandler(
      */
     override fun onOpen(webSocket: WebSocket, response: Response) {
         super.onOpen(webSocket, response)
-        Log.e(TAG, "onOpen ${webSocket.hashCode()}: $response")
+        logger.e(TAG, "onOpen ${webSocket.hashCode()}: $response")
         listener?.onOpen(response)
     }
 
     /** Invoked when a text (type `0x1`) message has been received. */
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
-        Log.e(TAG, "${webSocket.hashCode()} onMessage: <== $text")
+        logger.e(TAG, "${webSocket.hashCode()} onMessage: <== $text")
         if (text.isNotEmpty()) {
             handleMessage(webSocket, text)
         }
@@ -50,7 +52,7 @@ internal class KmeWebSocketHandler(
      */
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        Log.e(TAG, "onFailure ${webSocket.hashCode()}: $t, $response")
+        logger.e(TAG, "onFailure ${webSocket.hashCode()}: $t, $response")
         listener?.onFailure(t, response)
     }
 
@@ -59,7 +61,7 @@ internal class KmeWebSocketHandler(
      */
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosing(webSocket, code, reason)
-        Log.e(TAG, "onClosing ${webSocket.hashCode()}: $code, $reason")
+        logger.e(TAG, "onClosing ${webSocket.hashCode()}: $code, $reason")
         listener?.onClosing(code, reason)
     }
 
@@ -69,7 +71,7 @@ internal class KmeWebSocketHandler(
      */
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
-        Log.e(TAG, "onClosed ${webSocket.hashCode()}: $code, $reason")
+        logger.e(TAG, "onClosed ${webSocket.hashCode()}: $code, $reason")
         listener?.onClosed(code, reason)
     }
 

@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.module.impl
 
-import android.util.Log
 import com.kme.kaltura.kmesdk.content.KmeContentView
 import com.kme.kaltura.kmesdk.content.desktop.KmeDesktopShareFragment
 import com.kme.kaltura.kmesdk.content.desktop.KmeDesktopShareViewModel
@@ -41,7 +40,6 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
      * Subscribing for the room events related to content sharing
      */
     override fun subscribe(listener: IKmeContentModule.KmeContentListener) {
-        Log.e("TAG", "subscribe: IKmeContentModule", )
         this.listener = listener
 
         slidesContentViewModel.subscribe()
@@ -72,12 +70,20 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
         }
     }
 
-    /**KmeCookieJar
+    /**
      * Mute/Un-mute presented audio
      */
     override fun muteActiveContent(isMute: Boolean) {
         isMuted = isMute
         (contentView as? KmeMediaContentFragment)?.mute(isMute)
+    }
+
+    /**
+     * Destroy active content
+     */
+    override fun destroy() {
+        contentView = null
+        listener?.onContentNotAvailable(null)
     }
 
     private val activeContentHandler = object : IKmeMessageListener {
@@ -100,7 +106,7 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
     /**
      * Setting actual shared content
      */
-    fun setActiveContent(payload: SetActiveContentPayload) {
+    private fun setActiveContent(payload: SetActiveContentPayload) {
         payload.contentType?.let { type ->
             when (type) {
                 VIDEO, AUDIO, YOUTUBE, KALTURA -> {
