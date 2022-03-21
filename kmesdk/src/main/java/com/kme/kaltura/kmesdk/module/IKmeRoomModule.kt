@@ -198,7 +198,7 @@ interface IKmeRoomModule : IKmeModule {
 
     interface IKmeRoomStateListener {
 
-        fun onRoomAvailable(room: KmeRoomMetaData)
+        fun onRoomAvailable(roomData: KmeRoomMetaData)
 
         fun onRoomBanner(
             message: KmeMessage<KmeMessage.Payload>
