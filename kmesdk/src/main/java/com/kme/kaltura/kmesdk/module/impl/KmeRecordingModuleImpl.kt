@@ -133,7 +133,7 @@ class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
         }
     }
 
-    private fun onMessageReceived(message: KmeMessage<KmeMessage.Payload){
+    private fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>){
         when (message.name) {
             KmeMessageEvent.RECORDING_RECEIVED_START -> {
                 listener?.onRecordingStatusChanged(KmeRecordStatus.STARTED)
