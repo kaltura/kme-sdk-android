@@ -66,7 +66,7 @@ class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
     override fun subscribeListener(listener: KmeRecordingListener) {
         this.listener = listener
         savedMessageEvent?.let {
-            onMessageReceived(it)
+            recordingMessages(it)
             savedMessageEvent == null
         }
     }
@@ -126,14 +126,14 @@ class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
 
             if (listener != null){
-                onMessageReceived(message)
+                recordingMessages(message)
             }else{
                 savedMessageEvent = message
             }
         }
     }
 
-    private fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>){
+    private fun recordingMessages(message: KmeMessage<KmeMessage.Payload>){
         when (message.name) {
             KmeMessageEvent.RECORDING_RECEIVED_START -> {
                 listener?.onRecordingStatusChanged(KmeRecordStatus.STARTED)
