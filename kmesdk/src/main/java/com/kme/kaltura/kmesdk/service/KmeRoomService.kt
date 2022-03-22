@@ -20,7 +20,6 @@ class KmeRoomService : Service(), KmeKoinComponent {
 
     override fun onCreate() {
         super.onCreate()
-        Log.e("TAG", "onCreate: KmeRoomService", )
         val notification: Notification = createRoomNotification(
             context = this,
             title = getString(R.string.app_name),
@@ -30,7 +29,6 @@ class KmeRoomService : Service(), KmeKoinComponent {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.e("TAG", "onStartCommand: KmeRoomService", )
         return START_NOT_STICKY
     }
 
@@ -47,7 +45,6 @@ class KmeRoomService : Service(), KmeKoinComponent {
     override fun onDestroy() {
         releaseScopes()
         stopService()
-        Log.e("TAG", "onDestroy: RoomService", )
         super.onDestroy()
     }
 

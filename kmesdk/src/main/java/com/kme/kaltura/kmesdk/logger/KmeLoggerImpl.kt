@@ -5,8 +5,9 @@ import timber.log.Timber
 
 class KmeLoggerImpl : IKmeLogger {
 
-    constructor() {
-        Timber.plant(Timber.DebugTree())
+    init {
+        if (Timber.treeCount == 0)
+            Timber.plant(Timber.DebugTree())
     }
 
     override fun d(tag: String, t: Throwable?) {
