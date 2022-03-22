@@ -78,13 +78,10 @@ class KmeRoomControllerImpl(
 
     override var webRTCServer: KmeWebRTCServer? = null
         private set
-
     override var roomMetadata: KmeRoomMetaData? = null
         private set
 
     private var roomService: KmeRoomService? = null
-
-    private val publisherId by lazy { userController.getCurrentUserInfo()?.getUserId() }
 
     private var isReconnect: Boolean = true
 
@@ -363,6 +360,9 @@ class KmeRoomControllerImpl(
 
     }
 
+    /**
+     * Subscribes to the shared content in the room
+     */
     override fun subscribeForContent(listener: IKmeContentModule.KmeContentListener) {
         contentModule.subscribe(listener)
     }
