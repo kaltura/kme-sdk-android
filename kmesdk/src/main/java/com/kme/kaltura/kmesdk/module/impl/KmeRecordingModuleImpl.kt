@@ -124,16 +124,15 @@ class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
 
     private val recordingHandler = object : IKmeMessageListener {
         override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-
-            if (listener != null){
+            if (listener != null) {
                 recordingMessages(message)
-            }else{
+            } else {
                 savedMessageEvent = message
             }
         }
     }
 
-    private fun recordingMessages(message: KmeMessage<KmeMessage.Payload>){
+    private fun recordingMessages(message: KmeMessage<KmeMessage.Payload>) {
         when (message.name) {
             KmeMessageEvent.RECORDING_RECEIVED_START -> {
                 listener?.onRecordingStatusChanged(KmeRecordStatus.STARTED)
@@ -161,7 +160,8 @@ class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
                 }
             }
             KmeMessageEvent.RECORDING_STATUS -> {
-                val msg: KmeRoomRecordingMessage<KmeRoomRecordingMessage.RecordingStatusPayload>? = message.toType()
+                val msg: KmeRoomRecordingMessage<KmeRoomRecordingMessage.RecordingStatusPayload>? =
+                    message.toType()
                 msg?.payload?.status?.let { status ->
                     when (status) {
                         KmeRecordStatus.RECORDING_IN_PROGRESS -> {

@@ -1,10 +1,7 @@
 package com.kme.kaltura.kmesdk.module
 
-import com.kme.kaltura.kmesdk.module.IKmePeerConnectionModule.KmePeerConnectionEvents
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeCheckRecordingLicenseResponse
-import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
-import com.kme.kaltura.kmesdk.rest.response.user.KmeUserSetting
 import com.kme.kaltura.kmesdk.ws.message.type.KmeRecordStatus
 
 /**
@@ -12,13 +9,11 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeRecordStatus
  */
 interface IKmeRecordingModule : IKmeModule {
 
-
     /**
      * Subscribing for the room events related to recording
      * for the users and for the room itself
      */
     fun subscribe()
-
 
     /**
      * Subscribing for the recording listener
