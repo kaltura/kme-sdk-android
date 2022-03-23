@@ -55,7 +55,7 @@ internal fun buildChangeFocusMessage(
 internal fun buildChangeMediaStateMessage(
     roomId: Long?,
     companyId: Long?,
-    userId: Long?,
+    userId: Long,
     mediaStateType: KmeMediaStateType?,
     stateValue: KmeMediaDeviceState?
 ): KmeParticipantsModuleMessage<UserMediaStateChangedPayload> {

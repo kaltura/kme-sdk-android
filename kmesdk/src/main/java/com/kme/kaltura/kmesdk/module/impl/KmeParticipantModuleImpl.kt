@@ -336,7 +336,7 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
                 KmeMediaStateType.MIC -> it.micState = stateValue
                 KmeMediaStateType.WEBCAM -> it.webcamState = stateValue
             }
-            listener?.onParticipantMediaStateChanged(userId, mediaStateType, stateValue)
+            listener?.onParticipantMediaStateChanged(it, mediaStateType, stateValue)
             listener?.onParticipantChanged(it)
         }
 
