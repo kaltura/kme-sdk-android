@@ -5,6 +5,8 @@ import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.module.IKmeContentModule
+import com.kme.kaltura.kmesdk.module.IKmeRecordingModule
+import com.kme.kaltura.kmesdk.module.IKmeRoomModule
 import com.kme.kaltura.kmesdk.module.IKmeRoomModule.IKmeRoomStateListener
 import com.kme.kaltura.kmesdk.module.IKmeTermsModule
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
@@ -53,6 +55,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeInternalRoomModule {
     private val userController: IKmeUserController by inject()
     private val contentModule: IKmeContentModule by scopedInject()
     private val termsModule: IKmeTermsModule by scopedInject()
+    private val recordingModule: IKmeRecordingModule by scopedInject()
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -64,6 +67,8 @@ class KmeRoomModuleImpl : KmeController(), IKmeInternalRoomModule {
      * Subscribing for the room events
      */
     override fun subscribe() {
+        recordingModule.subscribe()
+
         roomController.listen(
             roomStateHandler,
             KmeMessageEvent.ROOM_STATE,

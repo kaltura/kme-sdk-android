@@ -21,7 +21,6 @@ interface IKmeRoomController : IKmeWebSocketModule, IKmeMessageManager {
     val breakoutModule: IKmeBreakoutModule
     val settingsModule: IKmeSettingsModule
 
-
     /**
      * Getting WebRTC server data
      */

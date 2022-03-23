@@ -2,11 +2,27 @@ package com.kme.kaltura.kmesdk.module
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeCheckRecordingLicenseResponse
+import com.kme.kaltura.kmesdk.ws.message.type.KmeRecordStatus
 
 /**
  * An interface for recording in the room
  */
 interface IKmeRecordingModule : IKmeModule {
+
+    /**
+     * Subscribing for the room events related to recording
+     * for the users and for the room itself
+     */
+    fun subscribe()
+
+    /**
+     * Subscribing for the recording listener
+     *
+     * @param listener callback with [KmeRecordingListener] for indicating main events
+     */
+    fun subscribeListener(
+        listener: KmeRecordingListener
+    )
 
     /**
      * Checking recording license for the room
@@ -48,5 +64,21 @@ interface IKmeRecordingModule : IKmeModule {
         roomId: Long,
         companyId: Long
     )
+
+    /**
+     * Recording listener
+     */
+    interface KmeRecordingListener {
+
+        /**
+         * Callback fired always when recording status updated
+         */
+        fun onRecordingStatusChanged(status: KmeRecordStatus)
+
+        /**
+         * Callback fired when recording time updated
+         */
+        fun onRecordingTime(time: Long)
+    }
 
 }
