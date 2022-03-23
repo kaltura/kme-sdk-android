@@ -2,8 +2,8 @@ package com.kme.kaltura.kmesdk.di
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.kme.kaltura.kmesdk.controller.room.IKmeModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.module.IKmeModule
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinScope.*
 import com.kme.kaltura.kmesdk.util.ResetableLazy
 import org.koin.android.ext.koin.androidContext
@@ -37,6 +37,13 @@ object KmeKoinContext {
             sdkKoin.createScope(MODULES.id, named(MODULES.named))
         }
         sdkKoin.getScope(MODULES.id)
+    })
+
+    internal val borModulesScope: ResetableLazy<Scope> = ResetableLazy({
+        if (isScopeReleased(BOR_MODULES)) {
+            sdkKoin.createScope(BOR_MODULES.id, named(BOR_MODULES.named))
+        }
+        sdkKoin.getScope(BOR_MODULES.id)
     })
 
     internal val viewModelsScope: ResetableLazy<Scope> = ResetableLazy({
@@ -86,10 +93,13 @@ internal interface KmeKoinComponent : KoinComponent {
 
     fun releaseScopes() {
         for (scopeType in KmeKoinScope.values()) {
-            val scope = getScope(scopeType)
-            scope.value.close()
-            scope.invalidate()
+            releaseScope(getScope(scopeType))
         }
+    }
+
+    fun releaseScope(scope: ResetableLazy<Scope>) {
+        scope.value.close()
+        scope.invalidate()
     }
 
 }
@@ -97,6 +107,7 @@ internal interface KmeKoinComponent : KoinComponent {
 internal fun getScope(scope: KmeKoinScope) = when (scope) {
     ROOM_CONTROLLER -> KmeKoinContext.controllerScope
     MODULES -> KmeKoinContext.modulesScope
+    BOR_MODULES -> KmeKoinContext.borModulesScope
     VIEW_MODELS -> KmeKoinContext.viewModelsScope
 }
 

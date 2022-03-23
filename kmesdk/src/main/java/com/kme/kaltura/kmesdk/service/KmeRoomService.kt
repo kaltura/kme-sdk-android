@@ -5,21 +5,14 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import android.util.Log
 import com.kme.kaltura.kmesdk.R
-import com.kme.kaltura.kmesdk.controller.room.IKmePeerConnectionModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
-import com.kme.kaltura.kmesdk.di.scopedInject
-import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
-import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 
 /**
  * Service wrapper under the room actions
  */
-class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
-
-    private val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
-    private val webSocketModule: IKmeWebSocketModule by scopedInject()
+class KmeRoomService : Service(), KmeKoinComponent {
 
     private val binder: IBinder = RoomServiceBinder()
 
@@ -39,53 +32,17 @@ class KmeRoomService : Service(), KmeKoinComponent, IKmeWebSocketModule {
         return START_NOT_STICKY
     }
 
-    /**
-     * Establish socket connection
-     */
-    override fun connect(
-        url: String,
-        companyId: Long,
-        roomId: Long,
-        isReconnect: Boolean,
-        token: String,
-        listener: IKmeWSConnectionListener
-    ) {
-        webSocketModule.connect(url, companyId, roomId, isReconnect, token, listener)
-    }
-
-    /**
-     * Check is socket connected
-     */
-    override fun isConnected(): Boolean = webSocketModule.isConnected()
-
-    /**
-     * Send message via socket
-     */
-    override fun send(message: KmeMessage<out KmeMessage.Payload>) {
-        webSocketModule.send(message)
-    }
-
-    /**
-     * Disconnect from the room. Destroy all related connections
-     */
-    override fun disconnect() {
-        webSocketModule.disconnect()
-        peerConnectionModule.disconnectAll()
-    }
-
     private fun stopService() {
         stopForeground(true)
         stopSelf()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        disconnect()
         stopService()
         return super.onUnbind(intent)
     }
 
     override fun onDestroy() {
-        disconnect()
         releaseScopes()
         stopService()
         super.onDestroy()

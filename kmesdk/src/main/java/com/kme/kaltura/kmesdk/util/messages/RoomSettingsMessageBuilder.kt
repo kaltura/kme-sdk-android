@@ -3,7 +3,7 @@ package com.kme.kaltura.kmesdk.util.messages
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEventType
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageModule
-import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason
+import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.KmeConstraint
@@ -23,7 +23,7 @@ internal fun buildEndSessionMessage(
         payload = UserLeaveSessionPayload(
             roomId,
             companyId,
-            KmeMessageReason.USER_LEAVE_SESSION
+            KmeRoomExitReason.USER_LEAVE_SESSION
         )
     }
 }
@@ -81,7 +81,7 @@ internal fun buildEndSessionForEveryoneMessage(
         payload = HostEndSessionPayload(
             roomId,
             companyId,
-            KmeMessageReason.HOST_ENDED_SESSION
+            KmeRoomExitReason.HOST_ENDED_SESSION
         )
     }
 }

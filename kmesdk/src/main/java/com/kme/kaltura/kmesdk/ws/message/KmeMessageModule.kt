@@ -52,6 +52,9 @@ enum class KmeMessageModule(
     @SerializedName("DesktopShare", alternate = ["desktopshare"])
     DESKTOP_SHARE("DesktopShare"),
 
+    @SerializedName("breakout", alternate = ["breakout"])
+    BREAKOUT("breakout"),
+
     @SerializedName("xl-room", alternate = ["xl-room"])
     XL_ROOM("xl-room");
 

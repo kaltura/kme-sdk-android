@@ -10,8 +10,8 @@ class KmeQuickPollModuleMessage<T : KmeQuickPollModuleMessage.QuickPollPayload> 
     KmeMessage<T>() {
 
     data class QuickPollGetStatePayload(
-        @SerializedName("room_id") val roomId: Long?,
-        @SerializedName("company_id") val companyId: Long?,
+        @SerializedName("room_id") val roomId: Long,
+        @SerializedName("company_id") val companyId: Long,
     ) : QuickPollPayload()
 
     data class QuickPollAnswersStatePayload(

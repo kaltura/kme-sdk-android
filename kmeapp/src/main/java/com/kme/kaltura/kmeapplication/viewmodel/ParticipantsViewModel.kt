@@ -111,11 +111,11 @@ class ParticipantsViewModel(
 
     fun updateAdminPanelState() {
         allMicsState.value =
-            kmeSdk.roomController.roomSettings?.roomInfo?.settingsV2?.general?.muteAllMics
+            kmeSdk.roomController.webRTCServer?.roomInfo?.settingsV2?.general?.muteAllMics
         allCamsState.value =
-            kmeSdk.roomController.roomSettings?.roomInfo?.settingsV2?.general?.muteAllCams
+            kmeSdk.roomController.webRTCServer?.roomInfo?.settingsV2?.general?.muteAllCams
         publicChatState.value =
-            kmeSdk.roomController.roomSettings?.roomInfo?.settingsV2?.chatModule?.defaultSettings?.publicChat
+            kmeSdk.roomController.webRTCServer?.roomInfo?.settingsV2?.chatModule?.defaultSettings?.publicChat
     }
 
     fun putAllHandsDown() {
@@ -183,7 +183,7 @@ class ParticipantsViewModel(
         kmeSdk.roomController.chatModule.changePublicChatVisibility(roomId, value,
             success = {
                 if (it.data.chatModule?.defaultSettings?.publicChat == value) {
-                    kmeSdk.roomController.roomSettings?.roomInfo?.settingsV2?.chatModule
+                    kmeSdk.roomController.webRTCServer?.roomInfo?.settingsV2?.chatModule
                         ?.defaultSettings?.publicChat = value
                     publicChatState.value = value
                 }

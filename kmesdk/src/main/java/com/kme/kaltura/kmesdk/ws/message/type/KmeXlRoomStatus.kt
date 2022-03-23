@@ -21,6 +21,9 @@ enum class KmeXlRoomStatus(
     @SerializedName("failed", alternate = ["FAILED"])
     FAILED("failed"),
 
+    @SerializedName("restart", alternate = ["RESTART"])
+    RESTART("restart"),
+
     @SerializedName("finished", alternate = ["FINISHED"])
     FINISHED("finished")
 

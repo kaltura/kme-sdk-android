@@ -11,6 +11,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeChatModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.DesktopShareQualityUpdatedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage.DesktopShareStateUpdatedPayload
@@ -20,8 +21,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.CreateNotePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomNotesMessage.NotePayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomRecordingMessage.*
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomDefaultSettingsChangedPayload
-import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.RoomSettingsChangedPayload
+import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomSettingsModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.AnnotationStateChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeSlidesPlayerModuleMessage.SlideChangedPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeStreamingModuleMessage.*
@@ -32,6 +32,7 @@ import com.kme.kaltura.kmesdk.ws.message.module.KmeXLRoomModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionModule
 
 private const val KEY_NAME = "name"
+private const val KEY_MODULE = "module"
 
 /**
  * An implementation for parsing incoming messages
@@ -53,7 +54,8 @@ internal class KmeMessageParser(
             val jsonObject = jsonParser.parse(messageText).asJsonObject
             if (jsonObject.has(KEY_NAME)) {
                 val name = jsonObject.get(KEY_NAME).asString.lowercase()
-                parsedMessage = parseMessage(name, messageText)
+                val module = jsonObject.get(KEY_MODULE).asString.lowercase()
+                parsedMessage = parseMessage(name, module, messageText)
             }
         } catch (e: Exception) {
             parsedMessage = null
@@ -72,7 +74,7 @@ internal class KmeMessageParser(
      * @return [KmeMessage] object in case parsed correctly
      */
     @Suppress("UNCHECKED_CAST")
-    private fun parseMessage(name: String, text: String): KmeMessage<KmeMessage.Payload>? {
+    private fun parseMessage(name: String, module: String?, text: String): KmeMessage<KmeMessage.Payload>? {
         return when (name) {
             KmeMessageEvent.COMBINED_EVENT.toString() -> {
                 text.jsonToObject<KmeMessage<KmeMessage.Payload>>()
@@ -94,24 +96,6 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.ROOM_PARTICIPANT_LIMIT_REACHED.toString() -> {
                 text.jsonToObject<KmeRoomInitModuleMessage<RoomParticipantLimitReachedPayload>>()
-            }
-            KmeMessageEvent.MODULE_STATE.toString() -> {
-                val jsonObject = jsonParser.parse(text).asJsonObject
-                if (jsonObject.has(KEY_MODULE)) {
-                    when (jsonObject.get(KEY_MODULE).asString.lowercase()) {
-                        KmeMessageModule.QUICK_POLL.moduleName.lowercase() -> {
-                            text.jsonToObject<KmeQuickPollModuleMessage<QuickPollGetStatePayload>>()
-                        }
-                        KmeMessageModule.XL_ROOM.moduleName.lowercase() -> {
-                            text.jsonToObject<KmeXLRoomModuleMessage<XLRoomStatePayload>>()
-                        }
-                        else -> {
-                            null
-                        }
-                    }
-                } else {
-                    null
-                }
             }
             KmeMessageEvent.AWAIT_INSTRUCTOR_APPROVAL.toString(),
             KmeMessageEvent.USER_REJECTED_BY_INSTRUCTOR.toString(),
@@ -279,10 +263,13 @@ internal class KmeMessageParser(
                     )
                 when (defaultSettings.payload?.moduleName) {
                     KmePermissionModule.CHAT_MODULE -> {
-                        text.jsonToObject<KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomChatSettingsChangedPayload>>()
+                        text.jsonToObject<KmeRoomSettingsModuleMessage<RoomChatSettingsChangedPayload>>()
+                    }
+                    KmePermissionModule.BREAKOUT_MODULE -> {
+                        text.jsonToObject<KmeRoomSettingsModuleMessage<RoomBreakoutSettingsChangedPayload>>()
                     }
                     KmePermissionModule.PARTICIPANTS_MODULE -> {
-                        text.jsonToObject<KmeRoomSettingsModuleMessage<KmeRoomSettingsModuleMessage.RoomParticipantSettingsChangedPayload>>()
+                        text.jsonToObject<KmeRoomSettingsModuleMessage<RoomParticipantSettingsChangedPayload>>()
                     }
                     KmePermissionModule.NOTES_MODULE -> {
                         text.jsonToObject<KmeRoomSettingsModuleMessage<RoomDefaultSettingsChangedPayload>>()
@@ -382,6 +369,60 @@ internal class KmeMessageParser(
             }
             KmeMessageEvent.QUICK_POLL_USER_ANSWERED.toString() -> {
                 text.jsonToObject<KmeQuickPollModuleMessage<QuickPollUserAnsweredPayload>>()
+            }
+            KmeMessageEvent.MODULE_STATE.toString() -> {
+                return when (module) {
+                    KmeMessageModule.BREAKOUT.moduleName ->
+                        text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
+                    KmeMessageModule.QUICK_POLL.moduleName ->
+                        text.jsonToObject<KmeQuickPollModuleMessage<QuickPollGetStatePayload>>()
+                    KmeMessageModule.XL_ROOM.moduleName -> {
+                        text.jsonToObject<KmeXLRoomModuleMessage<XLRoomStatePayload>>()
+                    }
+                    else -> null
+                }
+            }
+            KmeMessageEvent.BREAKOUT_START_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
+            }
+            KmeMessageEvent.BREAKOUT_STOP_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
+            }
+            KmeMessageEvent.BREAKOUT_ADD_ROOM_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutAddRoomPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_DELETE_ROOM_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
+            }
+            KmeMessageEvent.BREAKOUT_CHANGE_ROOM_NAME_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutChangeNamePayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
+            }
+            KmeMessageEvent.BREAKOUT_MOVE_TO_NEXT_ROOM.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
+            }
+            KmeMessageEvent.BREAKOUT_RESHUFFLE_ASSIGNMENTS_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
+            }
+            KmeMessageEvent.BREAKOUT_CLEAR_ASSIGNMENTS_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutPayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_MODERATOR_JOINED_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
+            }
+            KmeMessageEvent.BREAKOUT_USER_JOINED_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
+            }
+            KmeMessageEvent.BREAKOUT_EXTEND_TIME_LIMIT_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutExtendTimePayload>>()
+            }
+            KmeMessageEvent.BREAKOUT_CALL_TO_INSTRUCTOR_SUCCESS.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutRoomState>>()
+            }
+            KmeMessageEvent.BREAKOUT_INSTRUCTOR_MESSAGE.toString() -> {
+                text.jsonToObject<KmeBreakoutModuleMessage<BreakoutMessagePayload>>()
             }
             KmeMessageEvent.XL_ROOM_MODE_INIT.toString() -> {
                 text.jsonToObject<KmeXLRoomModuleMessage<XLRoomInitPayload>>()

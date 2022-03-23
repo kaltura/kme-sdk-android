@@ -40,6 +40,12 @@ enum class KmeMessageEvent(
     @SerializedName("roomState", alternate = ["roomstate"])
     ROOM_STATE("roomState"),
 
+    @SerializedName("getModuleState", alternate = ["getmodulestate"])
+    GET_MODULE_STATE("getModuleState"),
+
+    @SerializedName("moduleState", alternate = ["modulestate"])
+    MODULE_STATE("moduleState"),
+
     @SerializedName("newUserJoined", alternate = ["newuserjoined"])
     NEW_USER_JOINED("newUserJoined"),
 
@@ -48,12 +54,6 @@ enum class KmeMessageEvent(
 
     @SerializedName("roomParticipantsLimitReached", alternate = ["roomparticipantslimitreached"])
     ROOM_PARTICIPANT_LIMIT_REACHED("roomParticipantsLimitReached"),
-
-    @SerializedName("getModuleState", alternate = ["getmodulestate"])
-    GET_MODULE_STATE("getModuleState"),
-
-    @SerializedName("moduleState", alternate = ["modulestate"])
-    MODULE_STATE("moduleState"),
 
     /*
     * Banners
@@ -376,6 +376,64 @@ enum class KmeMessageEvent(
 
     @SerializedName("stopDesktopShare", alternate = ["stopdesktopshare"])
     STOP_DESKTOP_SHARE("stopDesktopShare"),
+
+    /*
+    * Breakout
+    * */
+
+    @SerializedName("passEventToMs", alternate = ["passeventtoms"])
+    BREAKOUT_PASS_TO_MS("passEventToMs"),
+
+    @SerializedName("startBreakoutSucceeded", alternate = ["startbreakoutsucceeded"])
+    BREAKOUT_START_SUCCESS("startBreakoutSucceeded"),
+
+    @SerializedName("stopBreakoutSucceeded", alternate = ["stopbreakoutsucceeded"])
+    BREAKOUT_STOP_SUCCESS("stopBreakoutSucceeded"),
+
+    @SerializedName("addBreakoutRoomSucceeded", alternate = ["addbreakoutroomsucceeded"])
+    BREAKOUT_ADD_ROOM_SUCCESS("addBreakoutRoomSucceeded"),
+
+    @SerializedName("deleteBreakoutRoomSucceeded", alternate = ["deletebreakoutroomducceeded"])
+    BREAKOUT_DELETE_ROOM_SUCCESS("deleteBreakoutRoomSucceeded"),
+
+    @SerializedName("changeBreakoutRoomNameSucceeded", alternate = ["changebreakoutroomnamesucceeded"])
+    BREAKOUT_CHANGE_ROOM_NAME_SUCCESS("changeBreakoutRoomNameSucceeded"),
+
+    @SerializedName("assignParticipants", alternate = ["assignparticipants"])
+    BREAKOUT_ASSIGN_PARTICIPANTS("assignParticipants"),
+
+    @SerializedName("assignParticipantsSucceeded", alternate = ["assignparticipantssucceeded"])
+    BREAKOUT_ASSIGN_PARTICIPANTS_SUCCESS("assignParticipantsSucceeded"),
+
+    @SerializedName("moveParticipantsToNextRoomsSucceeded", alternate = ["moveparticipantstonextroomssucceeded"])
+    BREAKOUT_MOVE_TO_NEXT_ROOM("moveParticipantsToNextRoomsSucceeded"),
+
+    @SerializedName("reshuffleAssignmentsSucceeded", alternate = ["reshuffleassignmentssucceeded"])
+    BREAKOUT_RESHUFFLE_ASSIGNMENTS_SUCCESS("reshuffleAssignmentsSucceeded"),
+
+    @SerializedName("clearAssignmentsSucceeded", alternate = ["clearassignmentssucceeded"])
+    BREAKOUT_CLEAR_ASSIGNMENTS_SUCCESS("clearAssignmentsSucceeded"),
+
+    @SerializedName("moderatorJoinedBreakoutRoomSucceeded", alternate = ["moderatorjoinedbreakoutroomsucceeded"])
+    BREAKOUT_MODERATOR_JOINED_SUCCESS("moderatorJoinedBreakoutRoomSucceeded"),
+
+    @SerializedName("userJoinedBreakoutRoom", alternate = ["userjoinedbreakoutroom"])
+    BREAKOUT_USER_JOINED("userJoinedBreakoutRoom"),
+
+    @SerializedName("userJoinedBreakoutRoomSucceeded", alternate = ["userjoinedbreakoutroomsucceeded"])
+    BREAKOUT_USER_JOINED_SUCCESS("userJoinedBreakoutRoomSucceeded"),
+
+    @SerializedName("extendTimeLimitSucceeded", alternate = ["extendtimelimitsucceeded"])
+    BREAKOUT_EXTEND_TIME_LIMIT_SUCCESS("extendTimeLimitSucceeded"),
+
+    @SerializedName("callToInstructor", alternate = ["calltoinstructor"])
+    BREAKOUT_CALL_TO_INSTRUCTOR("callToInstructor"),
+
+    @SerializedName("callToInstructorSucceeded", alternate = ["calltoinstructorsucceeded"])
+    BREAKOUT_CALL_TO_INSTRUCTOR_SUCCESS("callToInstructorSucceeded"),
+
+    @SerializedName("breakoutMessage", alternate = ["breakoutmessage"])
+    BREAKOUT_INSTRUCTOR_MESSAGE("breakoutMessage"),
 
     /*
     * Large room
