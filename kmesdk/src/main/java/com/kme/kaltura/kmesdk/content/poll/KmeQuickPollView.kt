@@ -11,7 +11,7 @@ import androidx.viewbinding.ViewBinding
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollTypeView
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.util.messages.buildSendQuickPollAnswerMessage
@@ -111,8 +111,8 @@ class KmeQuickPollView @JvmOverloads constructor(
         roomController.send(
             buildSendQuickPollAnswerMessage(
                 answer,
-                roomController.roomSettings?.roomInfo?.id ?: 0L,
-                roomController.roomSettings?.roomInfo?.companyId ?: 0L,
+                roomController.webRTCServer?.roomInfo?.id ?: 0L,
+                roomController.webRTCServer?.roomInfo?.companyId ?: 0L,
             )
         )
         prevAnswerType = null
@@ -127,6 +127,7 @@ class KmeQuickPollView @JvmOverloads constructor(
         visibility = VISIBLE
         removeAllViews()
         startPollPayload = payload
+        endPollPayload = null
 
         val isModerator = userController.isModerator()
         if (payload.targetAudience == KmeQuickPollAudienceType.NON_MODERATORS && isModerator) {

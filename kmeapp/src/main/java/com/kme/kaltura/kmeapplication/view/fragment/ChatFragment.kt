@@ -23,7 +23,7 @@ import com.kme.kaltura.kmeapplication.view.adapter.viewholder.OnChatContextMenuL
 import com.kme.kaltura.kmeapplication.viewmodel.ChatViewModel
 import com.kme.kaltura.kmeapplication.viewmodel.ConversationsViewModel
 import com.kme.kaltura.kmeapplication.viewmodel.ParticipantsViewModel
-import com.kme.kaltura.kmeapplication.viewmodel.RoomViewModel
+import com.kme.kaltura.kmeapplication.viewmodel.RoomStateViewModel
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.stfalcon.chatkit.messages.MessageHolders
 import com.stfalcon.chatkit.messages.MessagesListAdapter
@@ -36,7 +36,7 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 class ChatFragment : KmeFragment(), MessagesListAdapter.OnLoadMoreListener,
     OnChatContextMenuListener, IBottomSheetCallback {
 
-    private val roomViewModel: RoomViewModel by sharedViewModel()
+    private val roomViewModel: RoomStateViewModel by sharedViewModel()
     private val participantsViewModel: ParticipantsViewModel by sharedViewModel()
     private val conversationViewModel: ConversationsViewModel by sharedViewModel()
     private val viewModel: ChatViewModel by sharedViewModel()

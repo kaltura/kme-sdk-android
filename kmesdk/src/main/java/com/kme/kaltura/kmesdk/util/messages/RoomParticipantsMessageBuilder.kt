@@ -53,11 +53,11 @@ internal fun buildChangeFocusMessage(
 }
 
 internal fun buildChangeMediaStateMessage(
-    roomId: Long,
-    companyId: Long,
-    userId: Long,
-    mediaStateType: KmeMediaStateType,
-    stateValue: KmeMediaDeviceState
+    roomId: Long?,
+    companyId: Long?,
+    userId: Long?,
+    mediaStateType: KmeMediaStateType?,
+    stateValue: KmeMediaDeviceState?
 ): KmeParticipantsModuleMessage<UserMediaStateChangedPayload> {
     return KmeParticipantsModuleMessage<UserMediaStateChangedPayload>().apply {
         constraint = listOf(KmeConstraint.INCLUDE_SELF)

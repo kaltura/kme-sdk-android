@@ -10,6 +10,7 @@ import com.kme.kaltura.kmesdk.rest.KmeTokenInterceptor
 import com.kme.kaltura.kmesdk.rest.adapter.*
 import com.kme.kaltura.kmesdk.rest.response.KmeResponseData
 import com.kme.kaltura.kmesdk.rest.response.room.KmeIntegrations
+import com.kme.kaltura.kmesdk.ws.message.module.KmeBreakoutModuleMessage.*
 import com.kme.kaltura.kmesdk.ws.message.whiteboard.KmeWhiteboardPath
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -37,6 +38,9 @@ val restModule = module {
             )
             .registerTypeAdapter(KmeWhiteboardPath::class.java, KmeWhiteboardPathTypeAdapter())
             .registerTypeAdapter(KmeIntegrations::class.java, KmeIntegrationsAdapter())
+            .registerTypeAdapter(BreakoutRoomState::class.java, KmeBreakoutRoomTypeAdapter())
+            .registerTypeAdapter(BreakoutAddRoomPayload::class.java, KmeBreakoutAddRoomTypeAdapter())
+            .registerTypeAdapter(BreakoutChangeNamePayload::class.java, KmeBreakoutChangeRoomNameTypeAdapter())
             .create()
     }
 

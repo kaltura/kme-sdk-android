@@ -28,4 +28,4 @@ data class KmeRoomMetaData(
     @SerializedName("sessionTimeoutTime") val sessionTimeoutTime: Long? = null,
     @SerializedName("roomSettingsRedisKey") val roomSettingsRedisKey: String? = null,
     @SerializedName("participants_order") val participantsOrder: String? = null
-        )
+)

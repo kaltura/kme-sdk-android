@@ -41,6 +41,10 @@ data class KmeDefaultSettings(
     @Expose
     var terms: KmePermissionValue? = null,
 
+    @SerializedName("self_assign")
+    @Expose
+    var selfAssign: KmePermissionValue? = null,
+
     @SerializedName("audio_notification")
     @Expose
     var audioNotification: KmeAudioNotificationValue? = null

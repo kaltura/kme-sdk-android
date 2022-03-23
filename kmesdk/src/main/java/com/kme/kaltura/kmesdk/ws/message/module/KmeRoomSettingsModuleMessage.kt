@@ -2,7 +2,7 @@ package com.kme.kaltura.kmesdk.ws.message.module
 
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
-import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason
+import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmeModuleVisibilityValue
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionKey
 import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionModule
@@ -18,6 +18,10 @@ class KmeRoomSettingsModuleMessage<T : KmeRoomSettingsModuleMessage.SettingsPayl
         @SerializedName("permissionsKey") var permissionsKey: KmePermissionKey? = null
     ) : SettingsPayload()
 
+    data class RoomBreakoutSettingsChangedPayload(
+        @SerializedName("permissionsValue") var permissionsValue: KmePermissionValue? = null,
+    ) : RoomDefaultSettingsChangedPayload()
+
     data class RoomChatSettingsChangedPayload(
         @SerializedName("permissionsValue") var permissionsValue: KmePermissionValue? = null,
     ) : RoomDefaultSettingsChangedPayload()
@@ -29,13 +33,13 @@ class KmeRoomSettingsModuleMessage<T : KmeRoomSettingsModuleMessage.SettingsPayl
     data class UserLeaveSessionPayload(
         @SerializedName("room_id") var roomId: Long? = null,
         @SerializedName("company_id") var companyId: Long? = null,
-        @SerializedName("reason") var reason: KmeMessageReason? = null
+        @SerializedName("reason") var reason: KmeRoomExitReason? = null
     ) : SettingsPayload()
 
     data class HostEndSessionPayload(
         @SerializedName("room_id") var roomId: Long? = null,
         @SerializedName("company_id") var companyId: Long? = null,
-        @SerializedName("reason") var reason: KmeMessageReason? = null
+        @SerializedName("reason") var reason: KmeRoomExitReason? = null
     ) : SettingsPayload()
 
     data class RoomSettingsChangedPayload(

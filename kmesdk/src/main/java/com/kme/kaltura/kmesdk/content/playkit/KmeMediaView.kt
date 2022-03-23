@@ -137,6 +137,7 @@ class KmeMediaView @JvmOverloads constructor(
         playerInitOptions.apply {
             autoplay = config.autoPlay
             useTextureView = true
+            vrPlayerEnabled = false
             contentRequestAdapter = object : PKRequestParams.Adapter {
                 override fun adapt(requestParams: PKRequestParams): PKRequestParams {
                     requestParams.headers["Cookie"] = config.cookie
@@ -261,6 +262,7 @@ class KmeMediaView @JvmOverloads constructor(
             this.id = config.metadata.entryId ?: ENTRY_ID
             this.mediaType = PKMediaEntry.MediaEntryType.Vod
             this.sources = createMediaSources()
+            this.setIsVRMediaType(false)
         }
     }
 

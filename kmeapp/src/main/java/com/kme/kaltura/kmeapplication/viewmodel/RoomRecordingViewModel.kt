@@ -86,7 +86,7 @@ class RoomRecordingViewModel(
     }
 
     fun isRecordingEnabled() = license &&
-            kmeSdk.roomController.roomSettings?.roomInfo?.settingsV2?.recordingModule?.isActive == KmePermissionValue.ON
+            kmeSdk.roomController.webRTCServer?.roomInfo?.settingsV2?.recordingModule?.isActive == KmePermissionValue.ON
 
     fun askForRecordingAction() {
         if (blockActionsForInit) {
