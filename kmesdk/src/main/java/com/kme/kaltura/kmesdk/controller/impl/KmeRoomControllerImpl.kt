@@ -207,7 +207,6 @@ class KmeRoomControllerImpl(
                 priority = KmeMessagePriority.NORMAL
             )
 
-            //TODO ???
             peerConnectionModule.disconnectAll()
 
             subscribeInternalModules()
@@ -241,7 +240,6 @@ class KmeRoomControllerImpl(
             override fun onClosed(code: Int, reason: String) {
                 roomModule.getRoomStateListener()?.onRoomUnavailable(null)
                 stopService()
-//                listener.onClosed(code, reason)
             }
         }
 
@@ -254,12 +252,19 @@ class KmeRoomControllerImpl(
      */
     private fun stopService() {
         val intent = Intent(context, KmeRoomService::class.java)
+
         try {
             context.unbindService(serviceConnection)
         } catch (ex: IllegalArgumentException) {
             //Service is not bound
         }
-        context.stopService(intent)
+
+        try {
+            context.stopService(intent)
+        } catch (ex: IllegalArgumentException) {
+            //Service is not registered
+        }
+
         roomService = null
     }
 
