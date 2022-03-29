@@ -144,6 +144,9 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeInternalSettingsModu
                                     KmePermissionKey.PUBLIC_CHAT -> {
                                         publicChat = payload.changedPermissionValue
                                     }
+                                    KmePermissionKey.START_PRIVATE_CHAT -> {
+                                        privateChat = payload.changedPermissionValue
+                                    }
                                 }
                             }
                             updateSettings(
