@@ -68,6 +68,7 @@ class KmeRoomModuleImpl : KmeController(), IKmeInternalRoomModule {
      */
     override fun subscribe() {
         recordingModule.subscribe()
+        contentModule.subscribe()
 
         roomController.listen(
             roomStateHandler,

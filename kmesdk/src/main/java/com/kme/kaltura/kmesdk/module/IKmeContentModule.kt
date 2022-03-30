@@ -8,6 +8,8 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
  */
 interface IKmeContentModule : IKmeModule {
 
+    fun subscribe()
+
     /**
      * Subscribing for the room events related to content sharing
      */

@@ -24,7 +24,7 @@ import java.net.UnknownHostException
 internal class KmeWebSocketModuleImpl(
     private val okHttpClient: OkHttpClient,
     private val webSocketHandler: KmeWebSocketHandler,
-    private val isMainSocket: Boolean = false
+    private val webSocketType: KmeWebSocketType
 ) : KmeController(), IKmeWebSocketModule, IKmeWSListener {
 
     private val gson: Gson by inject()
@@ -130,7 +130,7 @@ internal class KmeWebSocketModuleImpl(
         Log.e(TAG, "onFailure: $throwable, $response", )
         isSocketConnected = false
 
-        if (throwable !is UnknownHostException || isMainSocket) {
+        if (throwable !is UnknownHostException || webSocketType == KmeWebSocketType.MAIN) {
             reconnect()
         }
         uiScope.launch {
