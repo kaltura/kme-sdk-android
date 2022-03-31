@@ -8,5 +8,6 @@ import kotlinx.parcelize.Parcelize
 class KmeUserSetting(
     var qnaChat: KmePermissionValue? = KmePermissionValue.ON,
     var publicChat: KmePermissionValue? = KmePermissionValue.ON,
+    var privateChat: KmePermissionValue? = KmePermissionValue.ON,
     var participants: KmePermissionValue? = KmePermissionValue.ON,
 ) : Parcelable
