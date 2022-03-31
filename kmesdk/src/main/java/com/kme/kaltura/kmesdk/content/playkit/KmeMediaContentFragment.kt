@@ -17,9 +17,7 @@ import com.kme.kaltura.kmesdk.databinding.FragmentMediaContentBinding
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.concurrent.TimeUnit
-
 
 /**
  * Implementation for media files shared content
@@ -91,6 +89,7 @@ class KmeMediaContentFragment : KmeContentView() {
         }
         mediaView.addListener(this, PlayerEvent.canPlay) {
             controlsView.setProgressBarVisibility(false)
+//            mediaContentViewModel.getPlayerState(payload.contentType)
             // TODO uncomment for moderators
 //            controlsView.setControlsVisibility(true)
         }

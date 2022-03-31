@@ -8,9 +8,8 @@ import android.widget.FrameLayout
 import androidx.lifecycle.*
 import com.kaltura.playkit.*
 import com.kaltura.playkit.player.PKHttpClientManager
-import com.kaltura.tvplayer.KalturaPlayer
-import com.kaltura.tvplayer.OVPMediaOptions
-import com.kaltura.tvplayer.PlayerInitOptions
+import com.kaltura.playkit.providers.ovp.OVPMediaAsset
+import com.kaltura.tvplayer.*
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
@@ -127,6 +126,7 @@ class KmeMediaView @JvmOverloads constructor(
     }
 
     private fun setupKalturaPlayer() {
+        KalturaOvpPlayer.initialize(context, config.partnerId, "https://cdnapisec.kaltura.com")
         PKHttpClientManager.setHttpProvider(HTTP_PROVIDER_ID)
 
         val playerInitOptions = if (config.partnerId == 0)
@@ -154,14 +154,9 @@ class KmeMediaView @JvmOverloads constructor(
         }
 
         kalturaPlayer = if (config.contentType == KmeContentType.KALTURA) {
-            KalturaPlayer.initializeOVP(
-                context,
-                config.partnerId,
-                KalturaPlayer.DEFAULT_OVP_SERVER_URL
-            )
-            KalturaPlayer.createOVPPlayer(context, playerInitOptions)
+            KalturaOvpPlayer.create(context, playerInitOptions)
         } else {
-            KalturaPlayer.createBasicPlayer(context, playerInitOptions)
+            KalturaBasicPlayer.create(context, playerInitOptions)
         }
         updateMute()
     }
@@ -233,7 +228,8 @@ class KmeMediaView @JvmOverloads constructor(
                 super.onCurrentSecond(youTubePlayer, second)
                 val event = PlayerEvent.PlayheadUpdated(
                     TimeUnit.SECONDS.toMillis(second.toLong()),
-                    TimeUnit.SECONDS.toMillis(duration)
+                    TimeUnit.SECONDS.toMillis(duration),
+                    duration
                 )
                 messageBus?.post(event)
             }
@@ -245,11 +241,11 @@ class KmeMediaView @JvmOverloads constructor(
     private fun loadKalturaMedia() {
         val entryId = config.metadata.entryId
         if (entryId.isNullOrEmpty()) {
-            kalturaPlayer?.startPosition = syncPlayerPosition.toDouble()
+            kalturaPlayer?.startPosition = syncPlayerPosition.toLong()
             kalturaPlayer?.setMedia(createMediaEntry())
         } else {
             val ovpMediaOptions = buildOvpMediaOptions()
-            kalturaPlayer?.loadMedia(ovpMediaOptions) { entry, loadError ->
+            kalturaPlayer?.loadMedia(ovpMediaOptions) { ovpMediaOptions, entry, loadError ->
                 if (loadError != null) {
                     kalturaErrorListener?.onLoadKalturaMediaError(loadError)
                 }
@@ -278,10 +274,12 @@ class KmeMediaView @JvmOverloads constructor(
     }
 
     private fun buildOvpMediaOptions(): OVPMediaOptions {
-        val ovpMediaOptions = OVPMediaOptions()
-        ovpMediaOptions.entryId = config.metadata.entryId
-        ovpMediaOptions.ks = config.metadata.ks
-        ovpMediaOptions.startPosition = syncPlayerPosition.toDouble()
+        val ovpMediaAsset = OVPMediaAsset()
+        ovpMediaAsset.entryId = config.metadata.entryId
+        ovpMediaAsset.ks = config.metadata.ks
+
+        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
+        ovpMediaOptions.startPosition = syncPlayerPosition.toLong()
 
         return ovpMediaOptions
     }
@@ -389,7 +387,7 @@ class KmeMediaView @JvmOverloads constructor(
         if (isYoutube()) {
             if (currentPosition != seekTo) {
                 youtubePlayer?.seekTo(seekTo.toFloat())
-                messageBus?.post(PlayerEvent.Seeking(seekToMillis))
+                messageBus?.post(PlayerEvent.Seeking(currentPosition, seekToMillis))
             }
         } else {
             kalturaPlayer?.seekTo(seekToMillis)
