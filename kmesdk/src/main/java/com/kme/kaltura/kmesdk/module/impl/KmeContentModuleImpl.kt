@@ -14,6 +14,7 @@ import com.kme.kaltura.kmesdk.module.IKmeContentModule
 import com.kme.kaltura.kmesdk.module.IKmePeerConnectionModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessageFilter
 import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
@@ -34,14 +35,10 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
 
     private var contentView: KmeContentView? = null
     private var listener: IKmeContentModule.KmeContentListener? = null
+    private var savedMessage: KmeActiveContentModuleMessage<SetActiveContentPayload>? = null
     private var isMuted = false
 
-    /**
-     * Subscribing for the room events related to content sharing
-     */
-    override fun subscribe(listener: IKmeContentModule.KmeContentListener) {
-        this.listener = listener
-
+    override fun subscribe() {
         slidesContentViewModel.subscribe()
         whiteboardViewModel.subscribe()
 
@@ -49,8 +46,41 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
             activeContentHandler,
             KmeMessageEvent.INIT_ACTIVE_CONTENT,
             KmeMessageEvent.SET_ACTIVE_CONTENT,
-            priority = KmeMessagePriority.HIGH
+            priority = KmeMessagePriority.HIGH,
+            filter = KmeMessageFilter.BREAKOUT
         )
+    }
+
+    /**
+     * Subscribing for the room events related to content sharing
+     */
+    override fun subscribe(listener: IKmeContentModule.KmeContentListener) {
+        this.listener = listener
+        savedMessage?.payload?.let {
+            setActiveContent(it)
+            savedMessage = null
+        }
+    }
+
+    private val activeContentHandler = object : IKmeMessageListener {
+        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
+            when (message.name) {
+                KmeMessageEvent.INIT_ACTIVE_CONTENT,
+                KmeMessageEvent.SET_ACTIVE_CONTENT -> {
+                    val contentMessage: KmeActiveContentModuleMessage<SetActiveContentPayload>? =
+                        message.toType()
+                    if (listener == null) {
+                        savedMessage = contentMessage
+                    } else {
+                        contentMessage?.payload?.let {
+                            setActiveContent(it)
+                        }
+                    }
+                }
+                else -> {
+                }
+            }
+        }
     }
 
     /**
@@ -84,23 +114,6 @@ internal class KmeContentModuleImpl : KmeController(), IKmeContentModule {
     override fun destroy() {
         contentView = null
         listener?.onContentNotAvailable(null)
-    }
-
-    private val activeContentHandler = object : IKmeMessageListener {
-        override fun onMessageReceived(message: KmeMessage<KmeMessage.Payload>) {
-            when (message.name) {
-                KmeMessageEvent.INIT_ACTIVE_CONTENT,
-                KmeMessageEvent.SET_ACTIVE_CONTENT -> {
-                    val contentMessage: KmeActiveContentModuleMessage<SetActiveContentPayload>? =
-                        message.toType()
-                    contentMessage?.payload?.let {
-                        setActiveContent(it)
-                    }
-                }
-                else -> {
-                }
-            }
-        }
     }
 
     /**

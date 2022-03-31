@@ -16,6 +16,7 @@ import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.buildStartRoomRecordingMessage
 import com.kme.kaltura.kmesdk.util.messages.buildStopRoomRecordingMessage
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessageFilter
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomRecordingMessage
@@ -56,7 +57,8 @@ class KmeRecordingModuleImpl : KmeController(), IKmeRecordingModule {
             KmeMessageEvent.RECORDING_CONVERSION_COMPLETED,
             KmeMessageEvent.RECORDING_UPLOAD_COMPLETED,
             KmeMessageEvent.RECORDING_STATUS,
-            KmeMessageEvent.RECORDING_FAILED
+            KmeMessageEvent.RECORDING_FAILED,
+            filter = KmeMessageFilter.BREAKOUT
         )
     }
 

@@ -5,6 +5,7 @@ import com.kme.kaltura.kmesdk.module.impl.*
 import com.kme.kaltura.kmesdk.module.internal.*
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalParticipantModule
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalPeerConnectionModule
+import com.kme.kaltura.kmesdk.ws.KmeWebSocketType
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
@@ -35,10 +36,11 @@ val roomModules = module {
         } bind IKmeInternalSettingsModule::class
 
         scoped<IKmeWebSocketModule> {
+            val webSocketType = KmeWebSocketType.MAIN
             KmeWebSocketModuleImpl(
                 get(named("wsOkHttpClient")),
-                get(named("main")),
-                isMainSocket = true
+                get(named(webSocketType)),
+                webSocketType
             )
         }
 
@@ -53,9 +55,11 @@ val roomModules = module {
 
     scope(named(KmeKoinScope.BOR_MODULES)) {
         scoped<IKmeWebSocketModule> {
+            val webSocketType = KmeWebSocketType.BREAKOUT
             KmeWebSocketModuleImpl(
                 get(named("wsOkHttpClient")),
-                get(named("bor"))
+                get(named(webSocketType)),
+                webSocketType
             )
         }
     }

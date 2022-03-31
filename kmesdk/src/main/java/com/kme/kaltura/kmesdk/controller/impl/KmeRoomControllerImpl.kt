@@ -24,10 +24,8 @@ import com.kme.kaltura.kmesdk.service.KmeRoomService
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.buildJoinBorMessage
 import com.kme.kaltura.kmesdk.util.messages.buildJoinRoomMessage
-import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
-import com.kme.kaltura.kmesdk.ws.IKmeWSConnectionListener
+import com.kme.kaltura.kmesdk.ws.*
 import com.kme.kaltura.kmesdk.ws.KmeMessageManager
-import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
@@ -405,9 +403,10 @@ class KmeRoomControllerImpl(
      */
     override fun addListener(
         listener: IKmeMessageListener,
-        priority: KmeMessagePriority
+        priority: KmeMessagePriority,
+        filter: KmeMessageFilter
     ) {
-        messageManager.addListener(listener, priority)
+        messageManager.addListener(listener, priority, filter)
     }
 
     /**
@@ -416,9 +415,10 @@ class KmeRoomControllerImpl(
     override fun addListener(
         event: KmeMessageEvent,
         listener: IKmeMessageListener,
-        priority: KmeMessagePriority
+        priority: KmeMessagePriority,
+        filter: KmeMessageFilter
     ) {
-        messageManager.addListener(event, listener, priority)
+        messageManager.addListener(event, listener, priority, filter)
     }
 
     /**
@@ -427,9 +427,10 @@ class KmeRoomControllerImpl(
     override fun listen(
         listener: IKmeMessageListener,
         vararg events: KmeMessageEvent,
-        priority: KmeMessagePriority
+        priority: KmeMessagePriority,
+        filter: KmeMessageFilter
     ): IKmeMessageListener {
-        return messageManager.listen(listener, *events, priority = priority)
+        return messageManager.listen(listener, *events, priority = priority, filter = filter)
     }
 
     /**
