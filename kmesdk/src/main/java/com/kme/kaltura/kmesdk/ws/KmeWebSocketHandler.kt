@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.ws
 
-import android.util.Log
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.logger.IKmeLogger
 import okhttp3.Response
@@ -16,6 +15,7 @@ import okhttp3.WebSocketListener
 internal class KmeWebSocketHandler(
     private val messageParser: KmeMessageParser,
     private val messageManager: KmeMessageManager,
+    private val webSocketType: KmeWebSocketType,
     private val logger: IKmeLogger
 ) : WebSocketListener(), IKmeMessageManager {
 
@@ -113,7 +113,7 @@ internal class KmeWebSocketHandler(
             } else {
                 val event = it.name
                 if (event != null) {
-                    messageManager.post(event, message)
+                    messageManager.post(webSocketType, event, message)
                 }
             }
         }
@@ -121,25 +121,28 @@ internal class KmeWebSocketHandler(
 
     override fun addListener(
         listener: IKmeMessageListener,
-        priority: KmeMessagePriority
+        priority: KmeMessagePriority,
+        filter: KmeMessageFilter
     ) {
-        messageManager.addListener(listener, priority)
+        messageManager.addListener(listener, priority, filter)
     }
 
     override fun addListener(
         event: KmeMessageEvent,
         listener: IKmeMessageListener,
-        priority: KmeMessagePriority
+        priority: KmeMessagePriority,
+        filter: KmeMessageFilter
     ) {
-        messageManager.addListener(event, listener, priority)
+        messageManager.addListener(event, listener, priority, filter)
     }
 
     override fun listen(
         listener: IKmeMessageListener,
         vararg events: KmeMessageEvent,
-        priority: KmeMessagePriority
+        priority: KmeMessagePriority,
+        filter: KmeMessageFilter
     ): IKmeMessageListener {
-        return messageManager.listen(listener, *events, priority = priority)
+        return messageManager.listen(listener, *events, priority = priority, filter = filter)
     }
 
     override fun remove(

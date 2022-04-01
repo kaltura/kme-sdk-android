@@ -188,22 +188,29 @@ class KmeSignInControllerImpl(
         name: String,
         email: String,
         roomAlias: String,
-        success: (response: KmeGuestLoginResponse) -> Unit,
+        removeCookies: Boolean,
+        success: (response: KmeGuestLoginResponse?) -> Unit,
         error: (exception: KmeApiException) -> Unit
     ) {
-        removeCookies {
-            uiScope.launch {
-                safeApiCall(
-                    { signInApiService.guest(name, email, roomAlias, roomAlias) },
-                    { response ->
-                        metadataController.fetchMetadata(
-                            success = { success(response) },
-                            error = { error(it) }
-                        )
-                    },
-                    error
-                )
+        fun fetchMetadata(response: KmeGuestLoginResponse? = null) {
+            metadataController.fetchMetadata(
+                success = { success(response) },
+                error = { error(it) }
+            )
+        }
+
+        if (removeCookies) {
+            removeCookies {
+                uiScope.launch {
+                    safeApiCall(
+                        { signInApiService.guest(name, email, roomAlias, roomAlias) },
+                        { response -> fetchMetadata(response) },
+                        error
+                    )
+                }
             }
+        } else {
+            fetchMetadata()
         }
     }
 

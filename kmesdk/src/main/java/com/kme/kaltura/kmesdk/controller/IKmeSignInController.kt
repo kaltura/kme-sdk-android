@@ -90,6 +90,7 @@ interface IKmeSignInController {
      * @param name name of a user
      * @param email email of a user
      * @param roomAlias alias of a room
+     * @param removeCookies clear cookies flag
      * @param success function to handle success result. Contains [KmeGuestLoginResponse] object
      * @param error function to handle error result. Contains [KmeApiException] object
      */
@@ -97,7 +98,8 @@ interface IKmeSignInController {
         name: String,
         email: String,
         roomAlias: String,
-        success: (response: KmeGuestLoginResponse) -> Unit,
+        removeCookies: Boolean,
+        success: (response: KmeGuestLoginResponse?) -> Unit,
         error: (exception: KmeApiException) -> Unit
     )
 

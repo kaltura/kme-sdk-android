@@ -6,6 +6,7 @@ import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessageFilter
 import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
@@ -36,7 +37,8 @@ class KmeDefaultPollEventHandler : KmeKoinComponent {
             KmeMessageEvent.QUICK_POLL_ENDED,
             KmeMessageEvent.QUICK_POLL_ANSWERS,
             KmeMessageEvent.QUICK_POLL_USER_ANSWERED,
-            priority = KmeMessagePriority.NORMAL
+            priority = KmeMessagePriority.NORMAL,
+            filter = KmeMessageFilter.BREAKOUT
         )
     }
 

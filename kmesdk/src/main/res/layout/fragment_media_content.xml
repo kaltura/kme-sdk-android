@@ -8,6 +8,12 @@
     app:cardPreventCornerOverlap="false"
     app:rippleColor="@android:color/transparent">
 
+    <ImageView
+        android:layout_width="60dp"
+        android:src="@color/redScale1"
+        android:layout_gravity="center"
+        android:layout_height="60dp"/>
+
     <com.kme.kaltura.kmesdk.content.playkit.KmeMediaView
         android:id="@+id/mediaView"
         android:layout_width="match_parent"
