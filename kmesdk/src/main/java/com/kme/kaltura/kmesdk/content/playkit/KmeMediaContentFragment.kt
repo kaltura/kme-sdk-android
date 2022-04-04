@@ -45,6 +45,7 @@ class KmeMediaContentFragment : KmeContentView() {
 
         payload?.let {
             setContentPayload(it)
+            mediaContentViewModel.getPlayerState(it.contentType)
         }
         setupUI()
         setupKeyEventListener()
