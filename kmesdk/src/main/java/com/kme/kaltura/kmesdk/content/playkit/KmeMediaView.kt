@@ -2,10 +2,15 @@ package com.kme.kaltura.kmesdk.content.playkit
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.lifecycle.*
+import com.kaltura.client.APIOkRequestsExecutor
+import com.kaltura.client.Client
+import com.kaltura.client.Configuration
+import com.kaltura.client.services.ExternalMediaService
 import com.kaltura.playkit.*
 import com.kaltura.playkit.player.PKHttpClientManager
 import com.kaltura.playkit.providers.ovp.OVPMediaAsset
@@ -20,6 +25,9 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTubePlayerTracker
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.core.inject
 import java.util.concurrent.TimeUnit
 
@@ -60,6 +68,17 @@ class KmeMediaView @JvmOverloads constructor(
         removeAllViews()
 
         this.config = config
+
+        val client = Client(Configuration())
+        client.ks = "djJ8MTg3MDIzMXwfmDoIRLicqSS6IZKHSPUze-ChicznR7PABREBzC345RYzYhwwzZVAzsWsPaIV7fT5mLnYg1fmQrhtLmB7zCFsNvlb9OGpqdy4_44vEBRsBkqawkYergBJeDJYA8AQkyd0iS66KdphwE8IZH2EamcEAKvG6jbMQZkrlttyFz2yMZTUrowfqnEI2GPza23JIETlQKhAypUmmHofGBrjtrfwC76UJvA8HMQgdfKPmMk8UEPqKO2noZORASEw9OkCoDHMyDqx-knbyb8O3icALymC"
+
+        val getExternalMediaService = ExternalMediaService.GetExternalMediaBuilder("1_icndymes")
+        val request = getExternalMediaService.build(client)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val response = APIOkRequestsExecutor().execute(request)
+            val test = ""
+        }
 
         if (isYoutube()) {
             releaseKalturaPlayer()
