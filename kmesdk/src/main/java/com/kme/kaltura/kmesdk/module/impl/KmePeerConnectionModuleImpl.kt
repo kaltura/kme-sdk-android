@@ -2,7 +2,6 @@ package com.kme.kaltura.kmesdk.module.impl
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.impl.KmeController
@@ -429,8 +428,6 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
      * Disconnect publisher/viewer connection by id
      */
     override fun disconnect(requestedUserIdStream: String) {
-        Log.e("TAG", "disconnect peerconnection: $requestedUserIdStream", )
-
         if (!isInitialized) return
 
         if (publisherId.toString() == requestedUserIdStream) {

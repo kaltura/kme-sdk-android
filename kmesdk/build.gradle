@@ -96,7 +96,7 @@ dependencies {
 
     implementation 'com.jakewharton.timber:timber:5.0.1'
 
-    api 'com.kaltura.player:tvplayer:4.0.0'
+    api 'com.kaltura.player:tvplayer:4.22.0'
     api 'org.webrtc:google-webrtc:1.0.32006'
 
     api 'com.github.bumptech.glide:glide:4.11.0'

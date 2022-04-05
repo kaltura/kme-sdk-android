@@ -28,11 +28,14 @@ enum class KmeMessageModule(
     @SerializedName("ActiveContent", alternate = ["activecontent"])
     ACTIVE_CONTENT("ActiveContent"),
 
-    @SerializedName("Video", alternate = ["video"])
-    VIDEO("Video"),
+    @SerializedName("video", alternate = ["Video"])
+    VIDEO("video"),
 
-    @SerializedName("Audio", alternate = ["audio"])
-    AUDIO("Audio"),
+    @SerializedName("audio", alternate = ["Audio"])
+    AUDIO("audio"),
+
+    @SerializedName("youtube", alternate = ["Youtube"])
+    YOUTUBE("youtube"),
 
     @SerializedName("SlidesPlayer", alternate = ["slidesplayer"])
     SLIDES_PLAYER("SlidesPlayer"),

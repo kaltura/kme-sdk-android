@@ -262,6 +262,9 @@ enum class KmeMessageEvent(
     @SerializedName("playerShouldSeekTo", alternate = ["playershouldseekto"])
     PLAYER_SEEK_TO("playerShouldSeekTo"),
 
+    @SerializedName("getInnerPlayerState", alternate = ["getinnerplayerstate"])
+    GET_PLAYER_STATE("getInnerPlayerState"),
+
     @SerializedName("syncPlayerState", alternate = ["syncplayerstate"])
     SYNC_PLAYER_STATE("syncPlayerState"),
 
