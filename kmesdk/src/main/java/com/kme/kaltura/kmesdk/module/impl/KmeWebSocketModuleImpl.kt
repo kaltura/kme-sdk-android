@@ -85,7 +85,10 @@ internal class KmeWebSocketModuleImpl(
      * Trying to connect socket again if need
      */
     private fun reconnect() {
-        Log.e("TAG", "reconnect: allowReconnection = $allowReconnection, reconnectionAttempts = $reconnectionAttempts", )
+        Log.e(
+            "TAG",
+            "reconnect: allowReconnection = $allowReconnection, reconnectionAttempts = $reconnectionAttempts",
+        )
         if (allowReconnection && reconnectionAttempts < RECONNECTION_ATTEMPTS) {
             reconnectionJob?.cancel()
             reconnectionJob = reconnectionScope.launch {
@@ -112,7 +115,7 @@ internal class KmeWebSocketModuleImpl(
      * messages.
      */
     override fun onOpen(response: Response) {
-        Log.e("TAG", "onOpen: wsListener = $listener", )
+        Log.e("TAG", "onOpen: wsListener = $listener")
         isSocketConnected = true
         reconnectionJob?.cancel()
         reconnectionAttempts = 0
@@ -127,7 +130,7 @@ internal class KmeWebSocketModuleImpl(
      * listener will be made.
      */
     override fun onFailure(throwable: Throwable, response: Response?) {
-        Log.e(TAG, "onFailure: $throwable, $response", )
+        Log.e(TAG, "onFailure: $throwable, $response")
         isSocketConnected = false
 
         if (throwable !is UnknownHostException || webSocketType == KmeWebSocketType.MAIN) {
@@ -135,11 +138,15 @@ internal class KmeWebSocketModuleImpl(
         }
         uiScope.launch {
             if (allowReconnection) {
-                listener?.onFailure(throwable)
+                listener?.onFailure(throwable, reconnectionAttempts < RECONNECTION_ATTEMPTS)
             }
         }
         if (!allowReconnection) {
-            onClosed(KmeWebSocketCode.CLOSE_NORMAL.code, "")
+            if (throwable is UnknownHostException) {
+                listener?.onFailure(throwable, false)
+            } else {
+                onClosed(KmeWebSocketCode.CLOSE_NORMAL.code, "")
+            }
         }
     }
 
@@ -188,7 +195,7 @@ internal class KmeWebSocketModuleImpl(
      * Disconnect socket connection
      */
     override fun disconnect() {
-        Log.e(TAG, "disconnect module: ${this.hashCode()}",)
+        Log.e(TAG, "disconnect module: ${this.hashCode()}")
 
         if (isSocketConnected) {
             isSocketConnected = false
@@ -197,7 +204,7 @@ internal class KmeWebSocketModuleImpl(
             reconnectionJob = null
             webSocket?.cancel()
             webSocket = null
-            Log.e(TAG, "disconnect handler: ${webSocketHandler.hashCode()}",)
+            Log.e(TAG, "disconnect handler: ${webSocketHandler.hashCode()}")
             webSocketHandler.removeListeners()
         }
     }

@@ -15,7 +15,7 @@ interface IKmeWSConnectionListener {
      *
      * @param throwable failure reason
      */
-    fun onFailure(throwable: Throwable)
+    fun onFailure(throwable: Throwable, isReconnect: Boolean)
 
     /**
      * Event about socket connection closing
