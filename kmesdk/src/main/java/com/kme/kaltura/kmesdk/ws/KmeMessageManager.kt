@@ -1,5 +1,6 @@
 package com.kme.kaltura.kmesdk.ws
 
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import kotlinx.coroutines.CoroutineScope
@@ -10,7 +11,9 @@ import java.util.*
 /**
  * An implementation for transferring messages to appropriate listeners
  */
-internal class KmeMessageManager : IKmeMessageManager {
+internal class KmeMessageManager(
+    private val internalDataModule: IKmeInternalDataModule
+) : IKmeMessageManager {
 
     private val listeners: MutableMap<KmeMessageEvent?, PriorityQueue<Entry>?> =
         Collections.synchronizedMap(mutableMapOf())
@@ -24,6 +27,7 @@ internal class KmeMessageManager : IKmeMessageManager {
      * @param message message to send
      */
     fun post(
+        postFrom: KmeWebSocketType,
         event: KmeMessageEvent,
         message: KmeMessage<KmeMessage.Payload>
     ) {
@@ -37,7 +41,12 @@ internal class KmeMessageManager : IKmeMessageManager {
         if (postListeners.isNotEmpty()) {
             uiScope.launch {
                 for (postListener in postListeners) {
-                    postListener?.listener?.onMessageReceived(message)
+                    if (internalDataModule.breakoutRoomId == 0L ||
+                        postListener.filter == KmeMessageFilter.MAIN ||
+                        postFrom == KmeWebSocketType.BREAKOUT
+                    ) {
+                        postListener?.listener?.onMessageReceived(message)
+                    }
                 }
             }
         }
@@ -45,26 +54,29 @@ internal class KmeMessageManager : IKmeMessageManager {
 
     override fun addListener(
         listener: IKmeMessageListener,
-        priority: KmeMessagePriority
+        priority: KmeMessagePriority,
+        filter: KmeMessageFilter
     ) {
-        addToMap(null, listener, priority)
+        addToMap(null, listener, priority, filter)
     }
 
     override fun addListener(
         event: KmeMessageEvent,
         listener: IKmeMessageListener,
-        priority: KmeMessagePriority
+        priority: KmeMessagePriority,
+        filter: KmeMessageFilter
     ) {
-        addToMap(event, listener, priority)
+        addToMap(event, listener, priority, filter)
     }
 
     override fun listen(
         listener: IKmeMessageListener,
         vararg events: KmeMessageEvent,
-        priority: KmeMessagePriority
+        priority: KmeMessagePriority,
+        filter: KmeMessageFilter
     ): IKmeMessageListener {
         for (eventType in events) {
-            addListener(eventType, listener, priority)
+            addListener(eventType, listener, priority, filter)
         }
         return listener
     }
@@ -101,17 +113,18 @@ internal class KmeMessageManager : IKmeMessageManager {
     private fun addToMap(
         key: KmeMessageEvent?,
         listener: IKmeMessageListener,
-        priority: KmeMessagePriority
+        priority: KmeMessagePriority,
+        filter: KmeMessageFilter
     ) {
         var priorityQueue = listeners[key]
 
         if (priorityQueue == null) {
             priorityQueue = PriorityQueue()
-            val entry = Entry(listener, priority)
+            val entry = Entry(listener, priority, filter)
             priorityQueue.offer(entry)
             listeners[key] = priorityQueue
         } else {
-            val entry = Entry(listener, priority)
+            val entry = Entry(listener, priority, filter)
             if (!priorityQueue.contains(entry)) {
                 priorityQueue.offer(entry)
             }
@@ -120,7 +133,8 @@ internal class KmeMessageManager : IKmeMessageManager {
 
     inner class Entry(
         val listener: IKmeMessageListener,
-        val priority: KmeMessagePriority
+        val priority: KmeMessagePriority,
+        val filter: KmeMessageFilter
     ) : Comparable<Entry> {
 
         override fun compareTo(other: Entry): Int {
@@ -134,6 +148,7 @@ internal class KmeMessageManager : IKmeMessageManager {
 
             if (listener != other.listener) return false
             if (priority != other.priority) return false
+            if (filter != other.filter) return false
 
             return true
         }

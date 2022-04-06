@@ -7,6 +7,7 @@ import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessageFilter
 import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
@@ -31,7 +32,8 @@ class KmeDefaultPlayerEventHandler : KmeKoinComponent {
             KmeMessageEvent.PLAYER_PLAYING,
             KmeMessageEvent.PLAYER_PAUSED,
             KmeMessageEvent.PLAYER_SEEK_TO,
-            priority = KmeMessagePriority.NORMAL
+            priority = KmeMessagePriority.NORMAL,
+            filter = KmeMessageFilter.BREAKOUT
         )
     }
 

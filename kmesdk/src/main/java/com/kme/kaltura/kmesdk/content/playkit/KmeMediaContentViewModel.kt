@@ -52,13 +52,13 @@ class KmeMediaContentViewModel : ViewModel(), KmeKoinViewModel {
         audioManager.adjustStreamVolumeLow()
     }
 
-    fun getPlayerState(contentType: KmeContentType) {
+    fun getPlayerState(contentType: KmeContentType?) {
         val module: KmeMessageModule = when (contentType) {
             KmeContentType.VIDEO -> KmeMessageModule.VIDEO
             KmeContentType.AUDIO -> KmeMessageModule.AUDIO
-            KmeContentType.YOUTUBE -> KmeMessageModule.VIDEO
-            else -> KmeMessageModule.SLIDES_PLAYER
-        }
+            KmeContentType.YOUTUBE -> KmeMessageModule.YOUTUBE
+            else -> null
+        } ?: return
 
         val roomId = internalDataModule.breakoutRoomId.takeIf {
             it != 0L
