@@ -24,7 +24,7 @@ class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveCont
             @SerializedName("caller") val caller: String? = null,
             @SerializedName("activeItem") val activeItem: String? = null,
             @SerializedName("src") val src: String? = null,
-            @SerializedName("file_id") val fileId: String? = null,
+            @SerializedName("file_id") var fileId: String? = null,
             @SerializedName("current_slide") val currentSlide: Int? = null,
             @SerializedName("file_type") val fileType: KmeFileType? = null,
             @SerializedName("slides") val slides: List<Slide>? = null,
@@ -33,8 +33,8 @@ class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveCont
             @SerializedName("boards") val boards: List<Board>? = null,
             @SerializedName("pages") val pages: List<Page>? = null,
             @SerializedName("board_id") val boardId: String? = null,
-            @SerializedName("entryId") val entryId: String? = null,
-            @SerializedName("ks") val ks: String? = null,
+            @SerializedName("entryId") var entryId: String? = null,
+            @SerializedName("ks") var ks: String? = null,
             @SerializedName("active_page") val activePageId: String? = null,
             @SerializedName("user_id") val userId: Long? = null
         ) : Parcelable

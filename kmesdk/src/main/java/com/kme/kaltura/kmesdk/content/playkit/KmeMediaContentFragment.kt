@@ -163,10 +163,9 @@ class KmeMediaContentFragment : KmeContentView() {
                 }
                 binding?.apply {
                     mediaView.lifecycleOwner = viewLifecycleOwner
-                    mediaView.init(config)
+                    mediaView.init(config) { subscribePlayerEvents() }
                     mediaView.mute(mediaContentViewModel.isMute)
                 }
-                subscribePlayerEvents()
             }
         }
     }

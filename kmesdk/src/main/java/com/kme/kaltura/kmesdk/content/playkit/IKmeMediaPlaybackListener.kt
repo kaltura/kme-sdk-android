@@ -11,8 +11,12 @@ interface IKmeMediaPlaybackListener {
      * Init media view
      *
      * @param config basic config
+     * @param onViewInit initiation callback
      */
-    fun init(config: KmeMediaView.Config)
+    fun init(
+        config: KmeMediaView.Config,
+        onViewInit: () -> Unit
+    )
 
     /**
      * Getting current playing position
