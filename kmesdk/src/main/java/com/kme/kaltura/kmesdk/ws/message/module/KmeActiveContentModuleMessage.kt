@@ -64,7 +64,7 @@ class KmeActiveContentModuleMessage<T : KmeActiveContentModuleMessage.ActiveCont
         ) : Parcelable
 
         @SerializedName("content_type")
-        val contentType: KmeContentType? = null
+        var contentType: KmeContentType? = null
     }
 
 }

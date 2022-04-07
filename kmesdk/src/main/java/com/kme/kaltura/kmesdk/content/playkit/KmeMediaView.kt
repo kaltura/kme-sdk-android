@@ -56,7 +56,7 @@ class KmeMediaView @JvmOverloads constructor(
      */
     override fun init(
         config: Config,
-        onViewInit: () -> Unit
+        onViewInit: (contentType: KmeContentType?) -> Unit
     ) {
         lifecycleOwner?.lifecycle?.addObserver(this)
 
@@ -85,7 +85,7 @@ class KmeMediaView @JvmOverloads constructor(
         }
     }
 
-    private fun postInit(onViewInit: () -> Unit) {
+    private fun postInit(onViewInit: (contentType: KmeContentType?) -> Unit) {
         if (isYoutube()) {
             releaseKalturaPlayer()
             setupYoutubePlayer()
@@ -100,7 +100,7 @@ class KmeMediaView @JvmOverloads constructor(
             setupDefaultPlayerEventHandler()
         }
 
-        onViewInit.invoke()
+        onViewInit.invoke(config.contentType)
         setupMedia()
     }
 
