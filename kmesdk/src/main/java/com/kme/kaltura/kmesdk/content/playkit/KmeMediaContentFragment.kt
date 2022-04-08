@@ -15,7 +15,10 @@ import com.kme.kaltura.kmesdk.content.playkit.controls.PlayerControlsEvent
 import com.kme.kaltura.kmesdk.content.playkit.controls.PlayerControlsEvent.*
 import com.kme.kaltura.kmesdk.databinding.FragmentMediaContentBinding
 import com.kme.kaltura.kmesdk.di.scopedInject
+import com.kme.kaltura.kmesdk.gone
+import com.kme.kaltura.kmesdk.visible
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.concurrent.TimeUnit
@@ -168,9 +171,23 @@ class KmeMediaContentFragment : KmeContentView() {
                     mediaView.mute(mediaContentViewModel.isMute)
                 }
                 subscribePlayerEvents()
+                setContentDefaultImage(contentType)
             }
         }
     }
+
+    private fun setContentDefaultImage(contentType: KmeContentType) {
+        binding?.contentDefaultImageView.visible()
+        when (contentType) {
+            KmeContentType.AUDIO -> {
+                binding?.contentDefaultImageView?.setImageResource(R.drawable.ic_sound_file)
+            }
+            else -> {
+                binding?.contentDefaultImageView.gone()
+            }
+        }
+    }
+
 
     private fun setupKeyEventListener() {
         view?.isFocusableInTouchMode = true
