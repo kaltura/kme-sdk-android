@@ -45,14 +45,14 @@ class SignInViewModel(
         if (!validateGuestLogin(name, email)) {
             return
         }
-        isLoading.value = true
-        kmeSdk.signInController.guest(name, email, roomAlias, success = {
-            isLoading.value = false
-            guestLoginResponse.value = it.data
-        }, error = {
-            isLoading.value = false
-            loginError.value = it.message
-        })
+//        isLoading.value = true
+//        kmeSdk.signInController.guest(name, email, roomAlias, success = {
+//            isLoading.value = false
+//            guestLoginResponse.value = it?.data
+//        }, error = {
+//            isLoading.value = false
+//            loginError.value = it.message
+//        })
     }
 
     private fun validateLogin(email: String, password: String): Boolean {
