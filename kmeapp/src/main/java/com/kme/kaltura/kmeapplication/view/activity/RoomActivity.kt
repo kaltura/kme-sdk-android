@@ -30,7 +30,7 @@ import com.kme.kaltura.kmesdk.content.KmeContentView
 import com.kme.kaltura.kmesdk.content.poll.KmeQuickPollView
 import com.kme.kaltura.kmesdk.rest.response.room.KmeBaseRoom
 import com.kme.kaltura.kmesdk.rest.response.room.notes.KmeRoomNote
-import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason
+import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.BannersPayload
 import com.kme.kaltura.kmesdk.ws.message.module.KmeBannersModuleMessage.RoomPasswordStatusReceivedPayload
@@ -48,7 +48,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RoomActivity : KmeActivity(), PreviewListener {
 
-    private val viewModel: RoomViewModel by viewModel()
+    private val viewModel: RoomStateViewModel by viewModel()
     private val recordingViewModel: RoomRecordingViewModel by viewModel()
     private val participantsViewModel: ParticipantsViewModel by viewModel()
     private val chatViewModel: ChatViewModel by viewModel()
@@ -579,13 +579,12 @@ class RoomActivity : KmeActivity(), PreviewListener {
         Snackbar.make(root, it ?: getString(R.string.error), Snackbar.LENGTH_SHORT).show()
     }
 
-    private val closeConnectionObserver =
-        Observer<KmeRoomInitModuleMessage<CloseWebSocketPayload>?> { message ->
+    private val closeConnectionObserver = Observer<KmeRoomExitReason> { reason ->
             previewDialog?.dismiss()
             closePreviewSettings()
             alertDialog.hideIfExist()
-            alertDialog = when (message?.payload?.reason) {
-                KmeMessageReason.DUPLICATED_TAB -> {
+            alertDialog = when (reason) {
+                KmeRoomExitReason.DUPLICATED_TAB -> {
                     alert(R.string.disconnected, R.string.duplicated_tab) {
                         positiveButton(R.string.leave) {
                             finish()
@@ -593,7 +592,7 @@ class RoomActivity : KmeActivity(), PreviewListener {
                         cancelable = false
                     }
                 }
-                KmeMessageReason.REMOVED_USER -> {
+                KmeRoomExitReason.REMOVED_USER -> {
                     alert(R.string.disconnected, R.string.removed_from_the_room) {
                         positiveButton(R.string.leave) {
                             finish()
@@ -601,7 +600,7 @@ class RoomActivity : KmeActivity(), PreviewListener {
                         cancelable = false
                     }
                 }
-                KmeMessageReason.USER_LEAVE_SESSION -> {
+                KmeRoomExitReason.USER_LEAVE_SESSION -> {
                     alert(R.string.session_ended, R.string.left_session) {
                         negativeButton(R.string.leave) {
                             finish()
@@ -611,7 +610,7 @@ class RoomActivity : KmeActivity(), PreviewListener {
                         }
                     }
                 }
-                KmeMessageReason.INSTRUCTOR_ENDED_SESSION -> {
+                KmeRoomExitReason.INSTRUCTOR_ENDED_SESSION -> {
                     alert(R.string.session_ended, R.string.instructor_ended_session) {
                         positiveButton(R.string.leave) {
                             finish()
@@ -628,12 +627,13 @@ class RoomActivity : KmeActivity(), PreviewListener {
 //        btnToggleCamera.isEnabled = it
 //    }
 
-    private val currentlySpeakingObserver = Observer<Pair<Long, Boolean>> {
-        participantsViewModel.participants.find { tmp -> tmp.userId == it.first }
-            ?.let { participant ->
-                val speaker = if (it.second) participant.fullName else ""
-                tvSpeaker.text = speaker
-            }
+    private val currentlySpeakingObserver = Observer<Long> {
+        participantsViewModel.participants.find { tmp ->
+            tmp.userId == it
+        }?.let { participant ->
+            val speaker = if (participant.isSpeaking) participant.fullName else ""
+            tvSpeaker.text = speaker
+        }
     }
 
     private val toggleMicByAdminObserver = Observer<Boolean> {

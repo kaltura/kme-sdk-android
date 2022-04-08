@@ -16,8 +16,9 @@ import com.kme.kaltura.kmesdk.content.playkit.controls.PlayerControlsEvent.*
 import com.kme.kaltura.kmesdk.databinding.FragmentMediaContentBinding
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
+import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
 import java.util.concurrent.TimeUnit
-
 
 /**
  * Implementation for media files shared content
@@ -107,9 +108,15 @@ class KmeMediaContentFragment : KmeContentView() {
             controlsView.setSeekBarVisibility(true)
             controlsView.setTimeVisibility(true)
             controlsView.updateUI(PLAY)
+            payload?.contentType?.let {
+                mediaContentViewModel.updatePlayerAudioState(KmePlayerState.PLAY, it)
+            }
         }
         mediaView.addListener(this, PlayerEvent.playing) {
             controlsView.updateUI(PLAYING)
+            payload?.contentType?.let {
+                mediaContentViewModel.updatePlayerAudioState(KmePlayerState.PLAYING, it)
+            }
         }
         mediaView.addListener(this, PlayerEvent.pause) {
             if (mediaView.isYoutube()) {
@@ -117,12 +124,21 @@ class KmeMediaContentFragment : KmeContentView() {
                 controlsView.setTimeVisibility(false)
             }
             controlsView.updateUI(PAUSE)
+            payload?.contentType?.let {
+                mediaContentViewModel.updatePlayerAudioState(KmePlayerState.PAUSED, it)
+            }
         }
         mediaView.addListener(this, PlayerEvent.stopped) {
             controlsView.updateUI(STOPPED)
+            payload?.contentType?.let {
+                mediaContentViewModel.updatePlayerAudioState(KmePlayerState.STOP, it)
+            }
         }
         mediaView.addListener(this, PlayerEvent.ended) {
             controlsView.updateUI(STOPPED)
+            payload?.contentType?.let {
+                mediaContentViewModel.updatePlayerAudioState(KmePlayerState.ENDED, it)
+            }
         }
         mediaView.addListener(this, PlayerEvent.playheadUpdated) {
             controlsView.setTimePosition(
@@ -147,10 +163,19 @@ class KmeMediaContentFragment : KmeContentView() {
                 }
                 binding?.apply {
                     mediaView.lifecycleOwner = viewLifecycleOwner
-                    mediaView.init(config)
+                    mediaView.init(config) {
+                        // Only for KMS case
+                        val prevContentType = if (payload?.contentType == KmeContentType.KALTURA) {
+                            KmeContentType.KALTURA
+                        } else {
+                            it
+                        }
+                        payload?.contentType = it
+                        mediaContentViewModel.getPlayerState(prevContentType)
+                        subscribePlayerEvents()
+                    }
                     mediaView.mute(mediaContentViewModel.isMute)
                 }
-                subscribePlayerEvents()
             }
         }
     }

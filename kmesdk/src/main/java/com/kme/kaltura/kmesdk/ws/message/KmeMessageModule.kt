@@ -28,8 +28,17 @@ enum class KmeMessageModule(
     @SerializedName("ActiveContent", alternate = ["activecontent"])
     ACTIVE_CONTENT("ActiveContent"),
 
-    @SerializedName("Video", alternate = ["video"])
-    VIDEO("Video"),
+    @SerializedName("kaltura")
+    KALTURA("kaltura"),
+
+    @SerializedName("video", alternate = ["Video"])
+    VIDEO("video"),
+
+    @SerializedName("audio", alternate = ["Audio"])
+    AUDIO("audio"),
+
+    @SerializedName("youtube", alternate = ["Youtube"])
+    YOUTUBE("youtube"),
 
     @SerializedName("SlidesPlayer", alternate = ["slidesplayer"])
     SLIDES_PLAYER("SlidesPlayer"),
@@ -48,6 +57,9 @@ enum class KmeMessageModule(
 
     @SerializedName("DesktopShare", alternate = ["desktopshare"])
     DESKTOP_SHARE("DesktopShare"),
+
+    @SerializedName("breakout", alternate = ["breakout"])
+    BREAKOUT("breakout"),
 
     @SerializedName("xl-room", alternate = ["xl-room"])
     XL_ROOM("xl-room");

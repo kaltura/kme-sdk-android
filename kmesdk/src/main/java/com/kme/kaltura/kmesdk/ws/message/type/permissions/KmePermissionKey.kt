@@ -28,6 +28,9 @@ enum class KmePermissionKey(value: String) {
     @SerializedName("mute_all_cams")
     MUTE_ALL_CAMS("mute_all_cams"),
 
+    @SerializedName("self_assign")
+    SELF_ASSIGN("self_assign"),
+
     @SerializedName("mute_all_mics")
     MUTE_ALL_MICS("mute_all_mics"),
 

@@ -20,6 +20,9 @@ class KmeScreenSharePeerConnectionImpl(
         isScreenShare = true
     }
 
+    /**
+     * Creates peer connection
+     */
     override fun createPeerConnection(
         videoCapturer: VideoCapturer?,
         useDataChannel: Boolean,
@@ -41,27 +44,45 @@ class KmeScreenSharePeerConnectionImpl(
         events?.onPeerConnectionCreated()
     }
 
-    override fun setRenderer(rendererView: KmeSurfaceRendererView) {
-        removeRenderer()
-
+    /**
+     * Add renderer for peer connection
+     */
+    override fun addRenderer(rendererView: KmeSurfaceRendererView) {
         with(rendererView) {
             if (!isInitialized) {
                 init(getRenderContext(), null)
                 setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
                 setEnableHardwareScaler(true)
+                setMirror(true)
             }
-        }
 
-        this.rendererView = rendererView
-        localVideoTrack?.addSink(rendererView)
+            renderers.add(this)
+            localVideoTrack?.addSink(this)
+        }
     }
 
-    override fun removeRenderer() {
-        this.rendererView?.let {
+    /**
+     * Remove specific renderer for peer connection
+     */
+    override fun removeRenderer(rendererView: KmeSurfaceRendererView) {
+        renderers.find {
+            it == rendererView
+        }?.let {
             localVideoTrack?.removeSink(it)
             it.release()
-            this.rendererView = null
+            renderers.remove(it)
         }
+    }
+
+    /**
+     * Remove all connection renderers
+     */
+    override fun removeRenderers() {
+        renderers.forEach {
+            localVideoTrack?.removeSink(it)
+            it.release()
+        }
+        renderers.clear()
     }
 
 }

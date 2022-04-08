@@ -4,6 +4,7 @@ import com.google.gson.JsonParser
 import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.KmeMessageParser
 import com.kme.kaltura.kmesdk.ws.KmeWebSocketHandler
+import com.kme.kaltura.kmesdk.ws.KmeWebSocketType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.core.qualifier.named
@@ -24,11 +25,24 @@ val webSocketModule = module {
     }
 
     single { JsonParser() }
-
     single { KmeMessageParser(get(), get()) }
+    single { KmeMessageManager(get()) }
 
-    single { KmeMessageManager() }
-
-    single { KmeWebSocketHandler(get(), get()) }
+    single(named(KmeWebSocketType.MAIN)) {
+        KmeWebSocketHandler(
+            get(),
+            get(),
+            KmeWebSocketType.MAIN,
+            get()
+        )
+    }
+    single(named(KmeWebSocketType.BREAKOUT)) {
+        KmeWebSocketHandler(
+            get(),
+            get(),
+            KmeWebSocketType.BREAKOUT,
+            get()
+        )
+    }
 
 }

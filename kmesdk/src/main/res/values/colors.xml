@@ -19,6 +19,7 @@
     <color name="blackTransparent2">#F5000000</color>
 
     <color name="grayDarkTransparent">#ae858585</color>
+    <color name="grayDarkTransparent1">#33FFFFFF</color>
     <color name="grayScale1">#696969</color>
     <color name="grayScale2">#a7a7a7</color>
     <color name="grayScale3">#EBEBEB</color>

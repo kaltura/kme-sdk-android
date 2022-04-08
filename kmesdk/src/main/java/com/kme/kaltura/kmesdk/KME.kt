@@ -2,9 +2,9 @@ package com.kme.kaltura.kmesdk
 
 import android.content.Context
 import com.kme.kaltura.kmesdk.controller.IKmeMetadataController
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeSignInController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.KmeKoinContext
 import com.kme.kaltura.kmesdk.di.scopedInject
@@ -30,7 +30,7 @@ class KME : KmeKoinComponent {
             return controller
         }
 
-    val csrfUpdater: CsrfUpdater by inject()
+    private val csrfUpdater: CsrfUpdater by inject()
 
     private val metadataController: IKmeMetadataController by inject()
     private val urlInterceptor: KmeChangeableBaseUrlInterceptor by inject()

@@ -11,7 +11,7 @@ import androidx.viewbinding.ViewBinding
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollTypeView
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.util.messages.buildSendQuickPollAnswerMessage
@@ -48,6 +48,7 @@ class KmeQuickPollView @JvmOverloads constructor(
     private var pollResultsView: KmeQuickPollResultsView? = null
     private var startPollPayload: QuickPollStartedPayload? = null
     private var endPollPayload: QuickPollEndedPayload? = null
+    private var prevAnswerType: Int? = null
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
@@ -64,6 +65,7 @@ class KmeQuickPollView @JvmOverloads constructor(
             this.endPollPayload =
                 state.getSerializable(SAVE_END_PAYLOAD_KEY) as QuickPollEndedPayload?
             this.state = state.getSerializable(SAVE_STATE_KEY) as State
+            this.prevAnswerType = state.getInt(SAVE_PREV_ANSWER_TYPE_KEY, -1)
 
             restoreState()
 
@@ -109,11 +111,11 @@ class KmeQuickPollView @JvmOverloads constructor(
         roomController.send(
             buildSendQuickPollAnswerMessage(
                 answer,
-                roomController.roomSettings?.roomInfo?.id ?: 0L,
-                roomController.roomSettings?.roomInfo?.companyId ?: 0L,
+                roomController.webRTCServer?.roomInfo?.id ?: 0L,
+                roomController.webRTCServer?.roomInfo?.companyId ?: 0L,
             )
         )
-
+        prevAnswerType = null
         visibility = GONE
         removeAllViews()
         state = State.WAITING_FOR_RESULT
@@ -125,6 +127,7 @@ class KmeQuickPollView @JvmOverloads constructor(
         visibility = VISIBLE
         removeAllViews()
         startPollPayload = payload
+        endPollPayload = null
 
         val isModerator = userController.isModerator()
         if (payload.targetAudience == KmeQuickPollAudienceType.NON_MODERATORS && isModerator) {
@@ -135,6 +138,7 @@ class KmeQuickPollView @JvmOverloads constructor(
             pollView = KmeQuickPollTypeView.getView(context, payload.type)?.apply {
                 isAnonymousPoll = payload.isAnonymous == true
                 listener = this@KmeQuickPollView
+                savedAnswerType = this@KmeQuickPollView.prevAnswerType
             }
 
             pollView?.let { addView(it) }
@@ -237,6 +241,7 @@ class KmeQuickPollView @JvmOverloads constructor(
             putSerializable(SAVE_STATE_KEY, state)
             putSerializable(SAVE_START_PAYLOAD_KEY, startPollPayload)
             putSerializable(SAVE_END_PAYLOAD_KEY, endPollPayload)
+            putInt(SAVE_PREV_ANSWER_TYPE_KEY, pollView?.prevAnswerType ?: -1)
             putParcelable(SAVE_SUPER_STATE_KEY, super.onSaveInstanceState())
         }
     }
@@ -272,6 +277,7 @@ class KmeQuickPollView @JvmOverloads constructor(
         private const val SAVE_START_PAYLOAD_KEY = "SAVE_START_PAYLOAD_KEY"
         private const val SAVE_END_PAYLOAD_KEY = "SAVE_END_PAYLOAD_KEY"
         private const val SAVE_STATE_KEY = "SAVE_STATE_KEY"
+        private const val SAVE_PREV_ANSWER_TYPE_KEY = "SAVE_PREV_ANSWER_TYPE_KEY"
         private const val SAVE_SUPER_STATE_KEY = "SAVE_SUPER_STATE_KEY"
     }
 

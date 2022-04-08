@@ -19,7 +19,7 @@ data class KmeParticipant(
     @SerializedName("user_role") var userRole: KmeUserRole? = null,
     @SerializedName("full_name") var fullName: String? = null,
     @SerializedName("region_name") var regionName: String? = null,
-    @SerializedName("join_time") var joinTime: Long? = null,
+    @SerializedName("join_time") var joinTime: Long = 0,
     @SerializedName("connection_state") var connectionState: String? = null,
     @SerializedName("live_media_state") var liveMediaState: KmeMediaDeviceState? = null,
     @SerializedName("webcam_state") var webcamState: KmeMediaDeviceState? = null,
@@ -39,10 +39,10 @@ data class KmeParticipant(
     @SerializedName("long") var long: Double? = null,
 
 //    Local
-    var isSpeaking: Boolean = false
+    var isSpeaking: Boolean = false,
+    var breakoutRoomId: Long? = null,
+    var lastSpeakingTime: Long = 0
 
-) : Parcelable {
+) : Parcelable
 
-    fun isDynamicAvatar() = avatar?.startsWith("Users/d/userAvatars") ?: false
-
-}
+fun KmeParticipant.isDynamicAvatar() = avatar?.startsWith("Users/d/userAvatars") ?: false

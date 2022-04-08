@@ -1,12 +1,14 @@
 package com.kme.kaltura.kmesdk.content.playkit
 
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.room.internal.IKmePeerConnectionInternalModule
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalPeerConnectionModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessageFilter
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeVideoModuleMessage
@@ -18,7 +20,7 @@ import com.kme.kaltura.kmesdk.ws.message.type.permissions.KmePermissionValue
 class KmeDefaultPlayerEventHandler : KmeKoinComponent {
 
     private val roomController: IKmeRoomController by scopedInject()
-    private val peerConnectionModule: IKmePeerConnectionInternalModule by scopedInject()
+    private val peerConnectionModule: IKmeInternalPeerConnectionModule by scopedInject()
 
     private val syncPlayerState = LiveEvent<Pair<KmePlayerState?, Float>>()
     val syncPlayerStateLiveData get() = syncPlayerState
@@ -29,7 +31,9 @@ class KmeDefaultPlayerEventHandler : KmeKoinComponent {
             KmeMessageEvent.SYNC_PLAYER_STATE,
             KmeMessageEvent.PLAYER_PLAYING,
             KmeMessageEvent.PLAYER_PAUSED,
-            KmeMessageEvent.PLAYER_SEEK_TO
+            KmeMessageEvent.PLAYER_SEEK_TO,
+            priority = KmeMessagePriority.NORMAL,
+            filter = KmeMessageFilter.BREAKOUT
         )
     }
 
@@ -44,7 +48,9 @@ class KmeDefaultPlayerEventHandler : KmeKoinComponent {
                             KmePlayerState.STOP,
                             KmePlayerState.PAUSE,
                             KmePlayerState.ENDED,
-                            KmePlayerState.PAUSED -> enableViewersAudio(true)
+                            KmePlayerState.PAUSED -> {
+                                enableViewersAudio(true)
+                            }
                             else -> enableViewersAudio(false)
                         }
                     }
@@ -75,7 +81,7 @@ class KmeDefaultPlayerEventHandler : KmeKoinComponent {
     }
 
     private fun enableViewersAudio(isEnable: Boolean) =
-        roomController.roomSettings?.roomInfo?.settingsV2?.general?.muteOnPlay?.let {
+        roomController.webRTCServer?.roomInfo?.settingsV2?.general?.muteOnPlay?.let {
             val enabled = if (it == KmePermissionValue.ON) isEnable else true
             peerConnectionModule.enableViewersAudioInternal(enabled)
         }

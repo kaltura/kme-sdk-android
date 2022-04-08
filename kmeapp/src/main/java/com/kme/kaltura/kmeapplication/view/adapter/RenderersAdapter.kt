@@ -19,6 +19,7 @@ import com.kme.kaltura.kmesdk.isLandscape
 import com.kme.kaltura.kmesdk.setVisibility
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
+import com.kme.kaltura.kmesdk.ws.message.participant.isDynamicAvatar
 import com.kme.kaltura.kmesdk.ws.message.type.KmeMediaDeviceState
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlatformType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType

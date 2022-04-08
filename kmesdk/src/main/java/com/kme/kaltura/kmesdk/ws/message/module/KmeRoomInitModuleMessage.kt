@@ -3,7 +3,7 @@ package com.kme.kaltura.kmesdk.ws.message.module
 import com.google.gson.annotations.SerializedName
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
-import com.kme.kaltura.kmesdk.ws.message.KmeMessageReason
+import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
 import com.kme.kaltura.kmesdk.ws.message.participant.KmeParticipant
 import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
 import com.kme.kaltura.kmesdk.ws.message.type.KmeUserType
@@ -103,7 +103,7 @@ class KmeRoomInitModuleMessage<T : KmeRoomInitModuleMessage.RoomInitPayload> : K
     data class CloseWebSocketPayload(
         @SerializedName("room_id") val roomId: Long?,
         @SerializedName("is_instructor") val isInstructor: Boolean,
-        @SerializedName("reason") val reason: KmeMessageReason?
+        @SerializedName("reason") val reason: KmeRoomExitReason?
     ) : RoomInitPayload()
 
     open class RoomInitPayload : Payload()

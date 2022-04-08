@@ -1,11 +1,13 @@
 package com.kme.kaltura.kmesdk.content.poll
 
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessageFilter
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage
@@ -34,7 +36,9 @@ class KmeDefaultPollEventHandler : KmeKoinComponent {
             KmeMessageEvent.QUICK_POLL_STARTED,
             KmeMessageEvent.QUICK_POLL_ENDED,
             KmeMessageEvent.QUICK_POLL_ANSWERS,
-            KmeMessageEvent.QUICK_POLL_USER_ANSWERED
+            KmeMessageEvent.QUICK_POLL_USER_ANSWERED,
+            priority = KmeMessagePriority.NORMAL,
+            filter = KmeMessageFilter.BREAKOUT
         )
     }
 

@@ -4,17 +4,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
-import com.kme.kaltura.kmesdk.controller.room.IKmeRoomController
-import com.kme.kaltura.kmesdk.controller.room.IKmeSettingsModule
-import com.kme.kaltura.kmesdk.controller.room.IKmeWebSocketModule
+import com.kme.kaltura.kmesdk.controller.IKmeRoomController
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.di.KmeKoinViewModel
 import com.kme.kaltura.kmesdk.di.scopedInject
+import com.kme.kaltura.kmesdk.module.IKmeSettingsModule
 import com.kme.kaltura.kmesdk.rest.response.room.settings.KmeSettingsV2
+import com.kme.kaltura.kmesdk.rest.response.user.KmeUserSetting
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.util.messages.buildDesktopShareInitOnRoomInitMessage
 import com.kme.kaltura.kmesdk.webrtc.view.KmeSurfaceRendererView
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeMessageFilter
+import com.kme.kaltura.kmesdk.ws.KmeMessagePriority
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeDesktopShareModuleMessage
@@ -27,7 +30,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel,
 
     private val userController: IKmeUserController by inject()
     private val roomController: IKmeRoomController by scopedInject()
-    private val webSocketModule: IKmeWebSocketModule by scopedInject()
+    private val internalDataModule: IKmeInternalDataModule by inject()
     private val settingsModule: IKmeSettingsModule by scopedInject()
 
     private val isAdmin = LiveEvent<Boolean>()
@@ -50,7 +53,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel,
 
     init {
         isAdmin.value = userController.isModerator()
-                || userController.isAdminFor(roomController.getCompanyId())
+                || userController.isAdminFor(internalDataModule.companyId)
         settingsModule.subscribe(this)
     }
 
@@ -63,9 +66,11 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel,
             KmeMessageEvent.DESKTOP_SHARE_STATE_UPDATED,
             KmeMessageEvent.USER_STARTED_TO_PUBLISH,
             KmeMessageEvent.SDP_OFFER_FOR_VIEWER,
-            KmeMessageEvent.DESKTOP_SHARE_QUALITY_UPDATED
+            KmeMessageEvent.DESKTOP_SHARE_QUALITY_UPDATED,
+            priority = KmeMessagePriority.NORMAL,
+            filter = KmeMessageFilter.BREAKOUT
         )
-        webSocketModule.send(buildDesktopShareInitOnRoomInitMessage())
+        roomController.send(buildDesktopShareInitOnRoomInitMessage())
     }
 
     /**
@@ -130,7 +135,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel,
 
     fun setViewerRenderer(renderer: KmeSurfaceRendererView) {
         requestedUserIdStream?.let {
-            roomController.peerConnectionModule.setViewerRenderer(it, renderer)
+            roomController.peerConnectionModule.addViewerRenderer(it, renderer)
         }
     }
 
@@ -152,7 +157,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel,
     }
 
     fun setScreenShareRenderer(renderer: KmeSurfaceRendererView) {
-        roomController.peerConnectionModule.setScreenShareRenderer(renderer)
+        roomController.peerConnectionModule.addScreenShareRenderer(renderer)
     }
 
     fun stopScreenShare() {
@@ -167,7 +172,7 @@ internal class KmeDesktopShareViewModel : ViewModel(), KmeKoinViewModel,
         return false
     }
 
-    override fun onSettingsChanged(settings: KmeSettingsV2?) {
+    override fun onSettingsChanged(roomSetting: KmeSettingsV2?, userSetting: KmeUserSetting) {
 
     }
 

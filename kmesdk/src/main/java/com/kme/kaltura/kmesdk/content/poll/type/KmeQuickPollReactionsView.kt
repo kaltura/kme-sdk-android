@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.content.poll.type
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.databinding.LayoutPollBtnBinding
 import com.kme.kaltura.kmesdk.databinding.LayoutPollReactionsBinding
@@ -28,6 +29,15 @@ class KmeQuickPollReactionsView @JvmOverloads constructor(
             btnReaction2.resizableContainer.setOnClickListener {
                 it.performAnswerJob(2)
             }
+        }
+    }
+
+    override fun getAnswerView(type: Int): View? {
+        return when (type) {
+            0 -> binding?.btnReaction0?.resizableContainer
+            1 -> binding?.btnReaction1?.resizableContainer
+            2 -> binding?.btnReaction2?.resizableContainer
+            else -> null
         }
     }
 
