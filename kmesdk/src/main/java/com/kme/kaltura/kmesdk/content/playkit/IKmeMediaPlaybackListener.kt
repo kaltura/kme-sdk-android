@@ -1,6 +1,7 @@
 package com.kme.kaltura.kmesdk.content.playkit
 
 import com.kaltura.playkit.PKEvent
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 
 /**
  * An interface for media files playback
@@ -11,8 +12,12 @@ interface IKmeMediaPlaybackListener {
      * Init media view
      *
      * @param config basic config
+     * @param onViewInit initiation callback
      */
-    fun init(config: KmeMediaView.Config)
+    fun init(
+        config: KmeMediaView.Config,
+        onViewInit: (contentType: KmeContentType?) -> Unit
+    )
 
     /**
      * Getting current playing position

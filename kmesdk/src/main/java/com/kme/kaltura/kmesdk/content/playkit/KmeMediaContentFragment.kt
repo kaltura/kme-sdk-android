@@ -20,9 +20,7 @@ import com.kme.kaltura.kmesdk.visible
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.concurrent.TimeUnit
-
 
 /**
  * Implementation for media files shared content
@@ -167,27 +165,22 @@ class KmeMediaContentFragment : KmeContentView() {
                 }
                 binding?.apply {
                     mediaView.lifecycleOwner = viewLifecycleOwner
-                    mediaView.init(config)
+                    mediaView.init(config) {
+                        // Only for KMS case
+                        val prevContentType = if (payload?.contentType == KmeContentType.KALTURA) {
+                            KmeContentType.KALTURA
+                        } else {
+                            it
+                        }
+                        payload?.contentType = it
+                        mediaContentViewModel.getPlayerState(prevContentType)
+                        subscribePlayerEvents()
+                    }
                     mediaView.mute(mediaContentViewModel.isMute)
                 }
-                subscribePlayerEvents()
-                setContentDefaultImage(contentType)
             }
         }
     }
-
-    private fun setContentDefaultImage(contentType: KmeContentType) {
-        binding?.contentDefaultImageView.visible()
-        when (contentType) {
-            KmeContentType.AUDIO -> {
-                binding?.contentDefaultImageView?.setImageResource(R.drawable.ic_sound_file)
-            }
-            else -> {
-                binding?.contentDefaultImageView.gone()
-            }
-        }
-    }
-
 
     private fun setupKeyEventListener() {
         view?.isFocusableInTouchMode = true

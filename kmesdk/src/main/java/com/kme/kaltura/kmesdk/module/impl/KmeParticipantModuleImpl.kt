@@ -278,11 +278,9 @@ class KmeParticipantModuleImpl : KmeController(), IKmeInternalParticipantModule 
      * Get participant with userId
      */
     override fun getParticipant(userId: Long?): KmeParticipant? {
-        val activeRoomId = if (internalModule.breakoutRoomId != 0L) {
-            internalModule.breakoutRoomId
-        } else {
-            internalModule.mainRoomId
-        }
+        val activeRoomId = internalModule.breakoutRoomId.takeIf {
+            it != 0L
+        } ?: internalModule.mainRoomId
 
         return getParticipants(activeRoomId).find {
             it.userId == userId
