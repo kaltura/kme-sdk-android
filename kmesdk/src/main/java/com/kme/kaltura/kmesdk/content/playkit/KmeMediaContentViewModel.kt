@@ -54,6 +54,7 @@ class KmeMediaContentViewModel : ViewModel(), KmeKoinViewModel {
 
     fun getPlayerState(contentType: KmeContentType?) {
         val module: KmeMessageModule = when (contentType) {
+            KmeContentType.KALTURA -> KmeMessageModule.KALTURA
             KmeContentType.VIDEO -> KmeMessageModule.VIDEO
             KmeContentType.AUDIO -> KmeMessageModule.AUDIO
             KmeContentType.YOUTUBE -> KmeMessageModule.YOUTUBE

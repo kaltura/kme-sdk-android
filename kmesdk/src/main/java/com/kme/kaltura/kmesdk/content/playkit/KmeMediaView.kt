@@ -54,13 +54,38 @@ class KmeMediaView @JvmOverloads constructor(
     /**
      * Init media view
      */
-    override fun init(config: Config) {
+    override fun init(
+        config: Config,
+        onViewInit: (contentType: KmeContentType?) -> Unit
+    ) {
         lifecycleOwner?.lifecycle?.addObserver(this)
 
         removeAllViews()
 
         this.config = config
 
+        if (config.contentType == KmeContentType.KALTURA) {
+            setupKalturaPlayer()
+            kalturaPlayer?.loadMedia(buildOvpMediaOptions()) { _, entry, _ ->
+                entry.metadata["externalSourceType"]?.let { sourceType ->
+                    if (sourceType == "YouTube") {
+                        this.config.contentType = KmeContentType.YOUTUBE
+                        val referenceId = entry.metadata["referenceId"]
+                        this.config.metadata.apply {
+                            fileId = referenceId
+                            entryId = null
+                            ks = null
+                        }
+                    }
+                }
+                postInit(onViewInit)
+            }
+        } else {
+            postInit(onViewInit)
+        }
+    }
+
+    private fun postInit(onViewInit: (contentType: KmeContentType?) -> Unit) {
         if (isYoutube()) {
             releaseKalturaPlayer()
             setupYoutubePlayer()
@@ -75,6 +100,7 @@ class KmeMediaView @JvmOverloads constructor(
             setupDefaultPlayerEventHandler()
         }
 
+        onViewInit.invoke(config.contentType)
         setupMedia()
     }
 
@@ -245,7 +271,8 @@ class KmeMediaView @JvmOverloads constructor(
             kalturaPlayer?.setMedia(createMediaEntry())
         } else {
             val ovpMediaOptions = buildOvpMediaOptions()
-            kalturaPlayer?.loadMedia(ovpMediaOptions) { ovpMediaOptions, entry, loadError ->
+            kalturaPlayer?.loadMedia(ovpMediaOptions) { _, entry, loadError ->
+                kalturaPlayer?.setMedia(entry)
                 if (loadError != null) {
                     kalturaErrorListener?.onLoadKalturaMediaError(loadError)
                 }
@@ -274,14 +301,14 @@ class KmeMediaView @JvmOverloads constructor(
     }
 
     private fun buildOvpMediaOptions(): OVPMediaOptions {
-        val ovpMediaAsset = OVPMediaAsset()
-        ovpMediaAsset.entryId = config.metadata.entryId
-        ovpMediaAsset.ks = config.metadata.ks
+        val ovpMediaAsset = OVPMediaAsset().apply {
+            entryId = config.metadata.entryId
+            ks = config.metadata.ks
+        }
 
-        val ovpMediaOptions = OVPMediaOptions(ovpMediaAsset)
-        ovpMediaOptions.startPosition = syncPlayerPosition.toLong()
-
-        return ovpMediaOptions
+        return OVPMediaOptions(ovpMediaAsset).also {
+            it.startPosition = syncPlayerPosition.toLong()
+        }
     }
 
     private fun syncPlayerState() {
@@ -516,7 +543,7 @@ class KmeMediaView @JvmOverloads constructor(
     }
 
     class Config(
-        val contentType: KmeContentType,
+        var contentType: KmeContentType,
         val metadata: KmeActiveContentModuleMessage.ActiveContentPayload.Metadata,
         val cookie: String,
     ) {

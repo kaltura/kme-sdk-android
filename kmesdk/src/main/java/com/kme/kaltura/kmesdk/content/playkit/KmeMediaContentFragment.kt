@@ -16,6 +16,7 @@ import com.kme.kaltura.kmesdk.content.playkit.controls.PlayerControlsEvent.*
 import com.kme.kaltura.kmesdk.databinding.FragmentMediaContentBinding
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
+import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
 import java.util.concurrent.TimeUnit
 
@@ -45,7 +46,6 @@ class KmeMediaContentFragment : KmeContentView() {
 
         payload?.let {
             setContentPayload(it)
-            mediaContentViewModel.getPlayerState(it.contentType)
         }
         setupUI()
         setupKeyEventListener()
@@ -90,7 +90,6 @@ class KmeMediaContentFragment : KmeContentView() {
         }
         mediaView.addListener(this, PlayerEvent.canPlay) {
             controlsView.setProgressBarVisibility(false)
-//            mediaContentViewModel.getPlayerState(payload.contentType)
             // TODO uncomment for moderators
 //            controlsView.setControlsVisibility(true)
         }
@@ -164,10 +163,19 @@ class KmeMediaContentFragment : KmeContentView() {
                 }
                 binding?.apply {
                     mediaView.lifecycleOwner = viewLifecycleOwner
-                    mediaView.init(config)
+                    mediaView.init(config) {
+                        // Only for KMS case
+                        val prevContentType = if (payload?.contentType == KmeContentType.KALTURA) {
+                            KmeContentType.KALTURA
+                        } else {
+                            it
+                        }
+                        payload?.contentType = it
+                        mediaContentViewModel.getPlayerState(prevContentType)
+                        subscribePlayerEvents()
+                    }
                     mediaView.mute(mediaContentViewModel.isMute)
                 }
-                subscribePlayerEvents()
             }
         }
     }

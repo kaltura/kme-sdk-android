@@ -28,6 +28,9 @@ enum class KmeMessageModule(
     @SerializedName("ActiveContent", alternate = ["activecontent"])
     ACTIVE_CONTENT("ActiveContent"),
 
+    @SerializedName("kaltura")
+    KALTURA("kaltura"),
+
     @SerializedName("video", alternate = ["Video"])
     VIDEO("video"),
 
