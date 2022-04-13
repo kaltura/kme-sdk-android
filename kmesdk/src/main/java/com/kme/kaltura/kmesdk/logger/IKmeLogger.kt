@@ -7,21 +7,15 @@ import android.util.Log
  */
 interface IKmeLogger {
 
-    /** Log a debug exception. */
-    fun d(tag: String, t: Throwable?)
+    /** Log a debug message */
+    fun d(tag: String, message: String)
 
-    /** Log a debug message with optional format args. */
-    fun d(tag: String, message: String?, vararg args: Any?)
-
-    /** Log an error exception. */
-    fun e(tag: String, t: Throwable?)
-
-    /** Log an error message with optional format args. */
-    fun e(tag: String, message: String?, vararg args: Any?)
+    /** Log an error message */
+    fun e(tag: String, message: String, t: Throwable)
 
     /** Log an info exception. */
-    fun i(tag: String, t: Throwable?)
+    fun i(tag: String, message: String, t: Throwable)
 
     /** Log an info message with optional format args. */
-    fun i(tag: String, message: String?, vararg args: Any?)
+    fun i(tag: String, message: String)
 }
