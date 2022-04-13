@@ -6,7 +6,6 @@ import android.content.Context.BIND_ADJUST_WITH_ACTIVITY
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import android.util.Log
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalSettingsModule
@@ -36,6 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.inject
+import java.net.UnknownHostException
 
 /**
  * An implementation for room data
@@ -136,7 +136,13 @@ class KmeRoomControllerImpl(
                     isReconnect
                 )
             }, error = {
-                roomModule.getRoomStateListener()?.onRoomUnavailable(Throwable(it))
+                val reason = if (it is KmeApiException.NetworkException) {
+                    KmeRoomUnavailableReason.NO_CONNECTION
+                } else {
+                    KmeRoomUnavailableReason.SERVER_ERROR
+                }
+
+                roomModule.getRoomStateListener()?.onRoomUnavailable(reason, Throwable(it))
             }
         )
     }
@@ -153,7 +159,10 @@ class KmeRoomControllerImpl(
                     webRTCServer = it.data
                     if (webRTCServer?.roomInfo?.settingsV2?.general?.appAccess == KmeAppAccessValue.OFF) {
                         val appAccessException = KmeApiException.AppAccessException()
-                        roomModule.getRoomStateListener()?.onRoomUnavailable(Throwable(appAccessException))
+                        roomModule.getRoomStateListener()?.onRoomUnavailable(
+                            KmeRoomUnavailableReason.APP_ACCESS_ERROR,
+                            Throwable(appAccessException)
+                        )
                     } else {
                         val wssUrl = it.data?.wssUrl
                         val token = it.data?.token
@@ -169,17 +178,28 @@ class KmeRoomControllerImpl(
                 },
                 error = {
                     webRTCServer = null
-                    val throwable = if (it.code == 400) {
-                        Throwable(
+                    if (it.code == 400) {
+                        val throwable = Throwable(
                             KmeApiException.AppVersionException(
                                 message = it.message
                             )
                         )
+
+                        roomModule.getRoomStateListener()?.onRoomUnavailable(
+                            KmeRoomUnavailableReason.APP_VERSION_ERROR,
+                            throwable
+                        )
                     } else {
-                        Throwable(it)
+                        val reason = if (it is KmeApiException.NetworkException) {
+                            KmeRoomUnavailableReason.NO_CONNECTION
+                        } else {
+                            KmeRoomUnavailableReason.SERVER_ERROR
+                        }
+
+                        roomModule.getRoomStateListener()?.onRoomUnavailable(reason, Throwable(it))
                     }
 
-                    roomModule.getRoomStateListener()?.onRoomUnavailable(throwable)
+
                 }
             )
         }
@@ -208,10 +228,12 @@ class KmeRoomControllerImpl(
             peerConnectionModule.disconnectAll()
 
             subscribeInternalModules()
-            send(buildJoinRoomMessage(
-                internalDataModule.mainRoomId,
-                internalDataModule.companyId
-            ))
+            send(
+                buildJoinRoomMessage(
+                    internalDataModule.mainRoomId,
+                    internalDataModule.companyId
+                )
+            )
             return
         }
 
@@ -220,23 +242,40 @@ class KmeRoomControllerImpl(
         roomWSListener = object : IKmeWSConnectionListener {
             override fun onOpen() {
                 subscribeInternalModules()
-                send(buildJoinRoomMessage(
-                    internalDataModule.mainRoomId,
-                    internalDataModule.companyId
-                ))
+                send(
+                    buildJoinRoomMessage(
+                        internalDataModule.mainRoomId,
+                        internalDataModule.companyId
+                    )
+                )
             }
 
-            override fun onFailure(throwable: Throwable) {
-                roomModule.getRoomStateListener()?.onRoomUnavailable(throwable)
+            override fun onFailure(throwable: Throwable, isReconnect: Boolean) {
+                val reason = when {
+                    isReconnect -> {
+                        KmeRoomUnavailableReason.SOCKET_RECONNECTION_FAILURE
+                    }
+                    throwable is UnknownHostException -> {
+                        KmeRoomUnavailableReason.NO_CONNECTION
+                    }
+                    else -> {
+                        KmeRoomUnavailableReason.SOCKET_FAILURE
+                    }
+                }
+
+                roomModule.getRoomStateListener()
+                    ?.onRoomUnavailable(reason, throwable)
             }
 
             override fun onClosing(code: Int, reason: String) {
                 stopService()
-                roomModule.getRoomStateListener()?.onRoomUnavailable(null)
+                roomModule.getRoomStateListener()
+                    ?.onRoomUnavailable(KmeRoomUnavailableReason.SOCKET_CLOSING, null)
             }
 
             override fun onClosed(code: Int, reason: String) {
-                roomModule.getRoomStateListener()?.onRoomUnavailable(null)
+                roomModule.getRoomStateListener()
+                    ?.onRoomUnavailable(KmeRoomUnavailableReason.SOCKET_CLOSED, null)
                 stopService()
             }
         }
@@ -310,14 +349,16 @@ class KmeRoomControllerImpl(
                     val wssUrl = it.data?.wssUrl
                     val token = it.data?.token
                     if (wssUrl != null && token != null) {
-                       val listener = object : IKmeWSConnectionListener {
+                        val listener = object : IKmeWSConnectionListener {
                             override fun onOpen() {
                                 subscribeInternalModules()
 
-                                send(buildJoinRoomMessage(
-                                    internalDataModule.breakoutRoomId,
-                                    internalDataModule.companyId
-                                ))
+                                send(
+                                    buildJoinRoomMessage(
+                                        internalDataModule.breakoutRoomId,
+                                        internalDataModule.companyId
+                                    )
+                                )
 
                                 peerConnectionModule.disconnectAll()
 
@@ -331,16 +372,35 @@ class KmeRoomControllerImpl(
                                 )
                             }
 
-                            override fun onFailure(throwable: Throwable) {
-                                roomModule.getRoomStateListener()?.onRoomUnavailable(throwable)
+                            override fun onFailure(throwable: Throwable, isReconnect: Boolean) {
+                                val reason = when {
+                                    isReconnect -> {
+                                        KmeRoomUnavailableReason.SOCKET_RECONNECTION_FAILURE
+                                    }
+                                    throwable is UnknownHostException -> {
+                                        KmeRoomUnavailableReason.NO_CONNECTION
+                                    }
+                                    else -> {
+                                        KmeRoomUnavailableReason.SOCKET_FAILURE
+                                    }
+                                }
+
+                                roomModule.getRoomStateListener()
+                                    ?.onRoomUnavailable(reason, throwable)
                             }
 
                             override fun onClosing(code: Int, reason: String) {
-                                roomModule.getRoomStateListener()?.onRoomUnavailable(null)
+                                roomModule.getRoomStateListener()?.onRoomUnavailable(
+                                    KmeRoomUnavailableReason.SOCKET_CLOSING,
+                                    null
+                                )
                             }
 
                             override fun onClosed(code: Int, reason: String) {
-                                roomModule.getRoomStateListener()?.onRoomUnavailable(null)
+                                roomModule.getRoomStateListener()?.onRoomUnavailable(
+                                    KmeRoomUnavailableReason.SOCKET_CLOSED,
+                                    null
+                                )
                                 releaseScope(getScope(KmeKoinScope.BOR_MODULES))
                             }
                         }
@@ -356,7 +416,13 @@ class KmeRoomControllerImpl(
                     }
                 },
                 error = {
-                    roomModule.getRoomStateListener()?.onRoomUnavailable(Throwable(it))
+                    val reason = if(it is KmeApiException.NetworkException) {
+                        KmeRoomUnavailableReason.NO_CONNECTION
+                    } else {
+                        KmeRoomUnavailableReason.SERVER_ERROR
+                    }
+
+                    roomModule.getRoomStateListener()?.onRoomUnavailable(reason, Throwable(it))
                 }
             )
         }

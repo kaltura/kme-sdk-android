@@ -1,37 +1,32 @@
 package com.kme.kaltura.kmesdk.logger
 
-import timber.log.Timber
+import android.annotation.SuppressLint
+import android.util.Log
 
+class KmeLoggerImpl(val debug: Boolean) : IKmeLogger {
 
-class KmeLoggerImpl : IKmeLogger {
-
-    init {
-        if (Timber.treeCount == 0)
-            Timber.plant(Timber.DebugTree())
+    override fun d(tag: String, message: String) {
+        if (debug) {
+            Log.d("$LOGGER $tag", message)
+        }
     }
 
-    override fun d(tag: String, t: Throwable?) {
-        Timber.tag("$LOGGER $tag").d(t)
+    override fun e(tag: String, message: String, t: Throwable) {
+        if (debug) {
+            Log.e("$LOGGER $tag", message, t)
+        }
     }
 
-    override fun d(tag: String, message: String?, vararg args: Any?) {
-        Timber.tag("$LOGGER $tag").d(message, args)
+    override fun i(tag: String, message: String, t: Throwable) {
+        if (debug) {
+            Log.i("$LOGGER $tag", message, t)
+        }
     }
 
-    override fun e(tag: String, t: Throwable?) {
-        Timber.tag("$LOGGER $tag").e(t)
-    }
-
-    override fun e(tag: String, message: String?, vararg args: Any?) {
-        Timber.tag("$LOGGER $tag").e(message, args)
-    }
-
-    override fun i(tag: String, t: Throwable?) {
-        Timber.tag("$LOGGER $tag").i(t)
-    }
-
-    override fun i(tag: String, message: String?, vararg args: Any?) {
-        Timber.tag("$LOGGER $tag").i(message, args)
+    override fun i(tag: String, message: String) {
+        if (debug) {
+            Log.i("$LOGGER $tag", message)
+        }
     }
 
     companion object {

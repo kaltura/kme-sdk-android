@@ -15,6 +15,8 @@ import com.kme.kaltura.kmesdk.content.playkit.controls.PlayerControlsEvent
 import com.kme.kaltura.kmesdk.content.playkit.controls.PlayerControlsEvent.*
 import com.kme.kaltura.kmesdk.databinding.FragmentMediaContentBinding
 import com.kme.kaltura.kmesdk.di.scopedInject
+import com.kme.kaltura.kmesdk.gone
+import com.kme.kaltura.kmesdk.visible
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.SetActiveContentPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
@@ -151,7 +153,6 @@ class KmeMediaContentFragment : KmeContentView() {
     private fun setContentPayload(contentPayload: SetActiveContentPayload) {
         contentPayload.metadata.let { metadata ->
             val contentType = contentPayload.contentType
-
             if (contentType != null) {
                 val config = KmeMediaView.Config(
                     contentType,
@@ -161,6 +162,7 @@ class KmeMediaContentFragment : KmeContentView() {
                     partnerId = mediaContentViewModel.getKalturaPartnerId()
                     autoPlay = false
                 }
+                setContentDefaultImage(contentType)
                 binding?.apply {
                     mediaView.lifecycleOwner = viewLifecycleOwner
                     mediaView.init(config) {
@@ -176,6 +178,18 @@ class KmeMediaContentFragment : KmeContentView() {
                     }
                     mediaView.mute(mediaContentViewModel.isMute)
                 }
+            }
+        }
+    }
+
+    private fun setContentDefaultImage(contentType: KmeContentType) {
+        binding?.contentDefaultImageView.visible()
+        when (contentType) {
+            KmeContentType.AUDIO -> {
+                binding?.contentDefaultImageView?.setImageResource(R.drawable.ic_sound_file)
+            }
+            else -> {
+                binding?.contentDefaultImageView.gone()
             }
         }
     }
