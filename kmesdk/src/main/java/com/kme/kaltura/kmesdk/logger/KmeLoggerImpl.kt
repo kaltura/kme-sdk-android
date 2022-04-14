@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.logger
 
-import android.annotation.SuppressLint
 import android.util.Log
 
 class KmeLoggerImpl(val debug: Boolean) : IKmeLogger {
@@ -8,6 +7,12 @@ class KmeLoggerImpl(val debug: Boolean) : IKmeLogger {
     override fun d(tag: String, message: String) {
         if (debug) {
             Log.d("$LOGGER $tag", message)
+        }
+    }
+
+    override fun e(tag: String, message: String) {
+        if (debug) {
+            Log.e("$LOGGER $tag", message)
         }
     }
 

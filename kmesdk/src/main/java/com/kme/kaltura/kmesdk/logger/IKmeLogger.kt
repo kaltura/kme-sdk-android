@@ -11,6 +11,9 @@ interface IKmeLogger {
     fun d(tag: String, message: String)
 
     /** Log an error message */
+    fun e(tag: String, message: String)
+
+    /** Log an error message with exception*/
     fun e(tag: String, message: String, t: Throwable)
 
     /** Log an info exception. */
