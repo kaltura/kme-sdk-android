@@ -35,8 +35,8 @@ class KmeWhiteboardView @JvmOverloads constructor(
 
     var changeListener: IKmeWhiteboardChangeListener? = null
 
-    private val paint: Paint = Paint()
-    private val canvasPaint: Paint = Paint(Paint.DITHER_FLAG)
+    private val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val canvasPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var backgroundPaint: Paint? = null
 
     private var drawCanvas: Canvas? = null
@@ -493,6 +493,11 @@ class KmeWhiteboardView @JvmOverloads constructor(
             )
 
             childMatrix.postConcat(parentMatrix)
+
+            val layoutWidth = staticLayout.width
+            val layoutHeight = staticLayout.height
+
+            if (layoutWidth <= 0 || layoutHeight <= 0) return null
 
             val bitmap = Bitmap.createBitmap(
                 staticLayout.width,

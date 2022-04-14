@@ -6,20 +6,21 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.Size
 import android.view.LayoutInflater
-import android.view.ViewTreeObserver
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.doOnPreDraw
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.content.whiteboard.IKmeWhiteboardChangeListener
 import com.kme.kaltura.kmesdk.content.whiteboard.KmeWhiteboardView
 import com.kme.kaltura.kmesdk.databinding.LayoutSlidesViewBinding
-import com.kme.kaltura.kmesdk.getBitmapFromView
 import com.kme.kaltura.kmesdk.glide
+import com.kme.kaltura.kmesdk.glideAsGif
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.ActiveContentPayload.Page
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage.ActiveContentPayload.Slide
 import com.kme.kaltura.kmesdk.ws.message.module.KmeWhiteboardModuleMessage.WhiteboardPayload
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
+import com.kme.kaltura.kmesdk.ws.message.type.KmeFileType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeWhiteboardBackgroundType
 
 /**
@@ -53,8 +54,10 @@ class KmeSlidesView @JvmOverloads constructor(
 
             whiteboardLayout.changeListener = object : IKmeWhiteboardChangeListener {
                 override fun onChanged() {
-                    val bitmapFromView = whiteboardContainer.getBitmapFromView()
-                    zoomLayout.setImageBitmap(bitmapFromView)
+//                    val bitmapFromView = whiteboardContainer.getBitmapFromView()
+//                    zoomLayout.setImageBitmap(bitmapFromView)
+
+//                    zoomLayout.setImageDrawable(binding.ivSlide.drawable)
                 }
             }
         }
@@ -106,7 +109,12 @@ class KmeSlidesView @JvmOverloads constructor(
 
             selectedSlide = getSlideByNumber(config.currentSlide)
 
-            setupSlideContentView()
+            if (payload.metadata.fileType == KmeFileType.GIF) {
+                setupGifSlideContentView()
+            } else {
+                setupSlideContentView()
+            }
+
             setupSlidesPreview()
 
             selectedSlide?.let { selectedSlide ->
@@ -135,32 +143,38 @@ class KmeSlidesView @JvmOverloads constructor(
         }
     }
 
+    private fun setupGifSlideContentView() {
+        originalImageSize = null
+
+        selectedSlide?.let {
+            binding.ivSlide.glideAsGif(it.url, config.cookie, config.fileUrl) { originalSize ->
+                originalImageSize = originalSize
+                setupWhiteboardView()
+            }
+        }
+    }
+
     private fun setupWhiteboardView() {
         with(binding) {
-            ivSlide.viewTreeObserver.addOnPreDrawListener(object :
-                ViewTreeObserver.OnPreDrawListener {
-                override fun onPreDraw(): Boolean {
-                    val imageBounds = getSlideDrawableBounds()
-                    if (imageBounds != null) {
-                        originalImageSize?.let { imageSize ->
-                            val whiteboardConfig =
-                                KmeWhiteboardView.Config(imageSize, imageBounds).apply {
-                                    cookie = config.cookie
-                                    fileUrl = config.fileUrl
-                                    backgroundType =
-                                        if (KmeContentType.WHITEBOARD == config.payload.contentType) {
-                                            selectedPage?.backgroundMetadata
-                                        } else {
-                                            null
-                                        }
-                                }
-                            init(whiteboardConfig)
-                        }
-                        ivSlide.viewTreeObserver.removeOnPreDrawListener(this)
+            zoomLayout.doOnPreDraw {
+                val imageBounds = getSlideDrawableBounds()
+                if (imageBounds != null && !imageBounds.isEmpty) {
+                    originalImageSize?.let { imageSize ->
+                        val whiteboardConfig =
+                            KmeWhiteboardView.Config(imageSize, imageBounds).apply {
+                                cookie = config.cookie
+                                fileUrl = config.fileUrl
+                                backgroundType =
+                                    if (KmeContentType.WHITEBOARD == config.payload.contentType) {
+                                        selectedPage?.backgroundMetadata
+                                    } else {
+                                        null
+                                    }
+                            }
+                        init(whiteboardConfig)
                     }
-                    return true
                 }
-            })
+            }
         }
 
         setupWhiteboardSizeChangeListener()
@@ -384,13 +398,7 @@ class KmeSlidesView @JvmOverloads constructor(
     }
 
     override fun setZoomEnabled(zoomEnabled: Boolean) {
-        binding.zoomLayout.apply {
-            setZoomEnabled(zoomEnabled)
-            setOverPinchable(zoomEnabled)
-            setOverScrollHorizontal(zoomEnabled)
-            setOverScrollVertical(zoomEnabled)
-            setMinZoom(1.0F)
-        }
+        binding.zoomLayout.isEnabled = zoomEnabled
     }
 
     class Config(

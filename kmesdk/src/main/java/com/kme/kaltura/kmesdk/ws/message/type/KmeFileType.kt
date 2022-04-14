@@ -27,6 +27,9 @@ enum class KmeFileType(
     @SerializedName("slide")
     SLIDE("slide"),
 
+    @SerializedName("gif")
+    GIF("gif"),
+
     @SerializedName("quizResult")
     QUIZ_RESULT("quizResult")
 

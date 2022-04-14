@@ -167,6 +167,36 @@ internal fun ImageView?.glide(
         })
 }
 
+internal fun ImageView?.glideAsGif(
+    imageUrl: String?,
+    cookie: String?,
+    fileUrl: String?,
+    func: (RequestBuilder<GifDrawable>.() -> RequestBuilder<GifDrawable>)? = null,
+    onSizeReady: ((Size) -> Unit)? = null
+) {
+    if (this == null) return
+    Glide.with(this)
+        .asGif()
+        .load(generateGlideUrl(imageUrl, cookie, fileUrl))
+        .skipMemoryCache(true)
+        .apply {
+            func?.let { it() }
+        }
+        .into(object : CustomTarget<GifDrawable>() {
+            override fun onResourceReady(
+                resource: GifDrawable,
+                transition: Transition<in GifDrawable>?
+            ) {
+                this@glideAsGif.setImageDrawable(resource)
+                resource.start()
+                onSizeReady?.invoke(Size(resource.intrinsicWidth, resource.intrinsicHeight))
+            }
+
+            override fun onLoadCleared(placeholder: Drawable?) {
+            }
+        })
+}
+
 internal fun Bitmap.resize(maxSize: Int): Bitmap? {
     var width = width
     var height = height
