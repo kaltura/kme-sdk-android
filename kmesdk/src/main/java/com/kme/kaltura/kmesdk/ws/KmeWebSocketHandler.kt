@@ -39,7 +39,17 @@ internal class KmeWebSocketHandler(
     /** Invoked when a text (type `0x1`) message has been received. */
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
-        logger.e(TAG, "${webSocket.hashCode()} onMessage: <== $text")
+        //FIXME UnknownFormatConversionException
+        // text = {"constraint":["INTERNAL_FORWARD","INCLUDE_SELF"],"name":"setActiveContent",
+        // "module":"activecontent","type":"BROADCAST",
+        // "payload":{"controllingUser":33808585, "content_type":"slides",
+        // "metadata":{"playlistFileId":null,"progress":null,"caller":"playlist",
+        // "activeItem":"529073","file_name":"giphy (1).gif","file_id":158825,"file_type":"gif",
+        // "current_slide":1,"active_clip":null,"play_state":null,
+        // "slides":[{"slide_number":1,"audio_clips":null,
+        // "url":"https://stg-ctn-cf.newrow.com/companyFiles/39247/1765105/1649669144_260199709/37312466_1649669144.gif",
+        // "thumbnail":"https://stg-ctn-cf.newrow.com/companyFiles/39247/1765105/1649669144_260199709/converted%2F37312466_1649669144-thumbnail.jpg"}]}}}
+//        logger.e(TAG, "${webSocket.hashCode()} onMessage: <== $text")
         if (text.isNotEmpty()) {
             handleMessage(webSocket, text)
         }
