@@ -2,6 +2,7 @@ package com.kme.kaltura.kmesdk.module
 
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.*
+import com.kme.kaltura.kmesdk.ws.KmeRoomUnavailableReason
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
 import com.kme.kaltura.kmesdk.ws.message.room.KmeRoomMetaData
@@ -210,7 +211,7 @@ interface IKmeRoomModule : IKmeModule {
 
         fun onRoomExit(reason: KmeRoomExitReason)
 
-        fun onRoomUnavailable(throwable: Throwable?)
+        fun onRoomUnavailable(reason: KmeRoomUnavailableReason, throwable: Throwable?)
 
     }
 
