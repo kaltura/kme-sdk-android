@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="bottom">
+    android:layout_gravity="bottom"
+    android:gravity="bottom|center"
+    android:orientation="vertical">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabClose"
@@ -16,10 +18,6 @@
         app:borderWidth="1dp"
         app:elevation="0dp"
         app:fabCustomSize="@dimen/quick_poll_fab_size"
-        app:layout_constraintBottom_toTopOf="@id/borders"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:pressedTranslationZ="0dp"
         app:srcCompat="@drawable/ic_poll_close"
         app:tint="@color/white"
@@ -28,144 +26,140 @@
     <FrameLayout
         android:id="@+id/borders"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fabClose" />
+        android:layout_marginBottom="20dp">
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scrollContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="1dp"
-        android:padding="18dp"
-        app:layout_constraintBottom_toBottomOf="@id/borders"
-        app:layout_constraintEnd_toEndOf="@id/borders"
-        app:layout_constraintStart_toStartOf="@id/borders"
-        app:layout_constraintTop_toTopOf="@id/borders">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/resultsContainer"
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollContainer"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            android:padding="18dp">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toTopOf="@id/progressContainer"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_chainStyle="packed"
-                tools:text="Quick poll title" />
-
-            <LinearLayout
-                android:id="@+id/progressContainer"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/resultsContainer"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toTopOf="@id/tvAnonymousPoll"
-                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+                android:layout_height="match_parent">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvAnonymousPoll"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:gravity="start"
-                android:text="@string/quick_poll_anonymous_poll"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toTopOf="@id/tvAverageResult"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/progressContainer" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toTopOf="@id/progressContainer"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_chainStyle="packed"
+                    tools:text="Quick poll title" />
 
-            <androidx.constraintlayout.widget.Group
-                android:id="@+id/groupAverageResult"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:constraint_referenced_ids="tvAverageResult, ivAverageIcon, tvAverageResultNumber, tvResultsCount, tvResults" />
+                <LinearLayout
+                    android:id="@+id/progressContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toTopOf="@id/tvAnonymousPoll"
+                    app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvAverageResult"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:gravity="start"
-                android:text="@string/quick_poll_average_vote"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toTopOf="@id/tvResultsCount"
-                app:layout_constraintEnd_toStartOf="@id/tvAverageResultNumber"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvAnonymousPoll" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvAnonymousPoll"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:gravity="start"
+                    android:text="@string/quick_poll_anonymous_poll"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toTopOf="@id/tvAverageResult"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/progressContainer" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvAverageResultNumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:fontFamily="sans-serif"
-                android:gravity="start"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@id/tvAverageResult"
-                app:layout_constraintEnd_toStartOf="@id/ivAverageIcon"
-                app:layout_constraintStart_toEndOf="@id/tvAverageResult"
-                app:layout_constraintTop_toTopOf="@id/tvAverageResult"
-                tools:text="21" />
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/groupAverageResult"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="tvAverageResult, ivAverageIcon, tvAverageResultNumber, tvResultsCount, tvResults" />
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/ivAverageIcon"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="4dp"
-                android:src="@drawable/ic_poll_star"
-                android:tint="@color/orange"
-                app:layout_constraintBottom_toBottomOf="@id/tvAverageResultNumber"
-                app:layout_constraintStart_toEndOf="@id/tvAverageResultNumber"
-                app:layout_constraintTop_toTopOf="@id/tvAverageResultNumber" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvAverageResult"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:gravity="start"
+                    android:text="@string/quick_poll_average_vote"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toTopOf="@id/tvResultsCount"
+                    app:layout_constraintEnd_toStartOf="@id/tvAverageResultNumber"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvAnonymousPoll" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvResultsCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:gravity="start"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/tvResults"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvAverageResult"
-                tools:text="28" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvAverageResultNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:fontFamily="sans-serif"
+                    android:gravity="start"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/tvAverageResult"
+                    app:layout_constraintEnd_toStartOf="@id/ivAverageIcon"
+                    app:layout_constraintStart_toEndOf="@id/tvAverageResult"
+                    app:layout_constraintTop_toTopOf="@id/tvAverageResult"
+                    tools:text="21" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvResults"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:gravity="start"
-                android:text="@string/quick_poll_average_result"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@id/tvResultsCount"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/tvResultsCount"
-                app:layout_constraintTop_toTopOf="@id/tvResultsCount" />
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivAverageIcon"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/ic_poll_star"
+                    android:tint="@color/orange"
+                    app:layout_constraintBottom_toBottomOf="@id/tvAverageResultNumber"
+                    app:layout_constraintStart_toEndOf="@id/tvAverageResultNumber"
+                    app:layout_constraintTop_toTopOf="@id/tvAverageResultNumber" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvResultsCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:gravity="start"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/tvResults"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvAverageResult"
+                    tools:text="28" />
 
-    </androidx.core.widget.NestedScrollView>
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvResults"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:gravity="start"
+                    android:text="@string/quick_poll_average_result"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="@id/tvResultsCount"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/tvResultsCount"
+                    app:layout_constraintTop_toTopOf="@id/tvResultsCount" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </FrameLayout>
+
+</androidx.appcompat.widget.LinearLayoutCompat>
