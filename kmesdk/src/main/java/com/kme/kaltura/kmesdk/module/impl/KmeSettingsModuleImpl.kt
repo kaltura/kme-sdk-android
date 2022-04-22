@@ -116,7 +116,26 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeInternalSettingsModu
                                 userController.getCurrentUserSetting()
                             )
                         }
-                        else -> {
+                        KmePermissionModule.BREAKOUT_MODULE -> {
+                            val borSettingsMessage: KmeRoomSettingsModuleMessage<RoomBreakoutSettingsChangedPayload>? =
+                                message.toType()
+
+                            ifNonNull(
+                                borSettingsMessage?.payload?.permissionsKey,
+                                borSettingsMessage?.payload?.permissionsValue
+                            ) { key: KmePermissionKey, value: KmePermissionValue ->
+                                when (key) {
+                                    KmePermissionKey.SELF_ASSIGN -> {
+                                        roomController
+                                            .webRTCServer
+                                            ?.roomInfo
+                                            ?.settingsV2
+                                            ?.breakoutModule
+                                            ?.defaultSettings
+                                            ?.selfAssign = value
+                                    }
+                                }
+                            }
                         }
                     }
                 }
