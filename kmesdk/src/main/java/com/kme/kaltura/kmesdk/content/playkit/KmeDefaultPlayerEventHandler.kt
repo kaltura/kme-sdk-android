@@ -1,9 +1,9 @@
 package com.kme.kaltura.kmesdk.content.playkit
 
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
-import com.kme.kaltura.kmesdk.module.internal.IKmeInternalPeerConnectionModule
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
 import com.kme.kaltura.kmesdk.di.scopedInject
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalPeerConnectionModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.livedata.LiveEvent
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
@@ -92,6 +92,7 @@ class KmeDefaultPlayerEventHandler : KmeKoinComponent {
 
     fun release() {
         roomController.remove(playerStateHandler)
+        enableViewersAudio(true)
     }
 
 }
