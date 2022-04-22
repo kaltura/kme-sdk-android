@@ -125,6 +125,10 @@ internal class KmeSettingsModuleImpl : KmeController(), IKmeInternalSettingsModu
                         message.toType()
                     val payload = settingsMessage?.payload
 
+                    if (payload?.targetUserId != userController.getCurrentParticipant()?.userId) {
+                        return
+                    }
+
                     when (payload?.changedPermissionsModule) {
                         KmePermissionModule.PARTICIPANTS_MODULE -> {
                             userController.getCurrentUserSetting().apply {
