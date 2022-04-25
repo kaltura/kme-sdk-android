@@ -10,9 +10,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.viewbinding.ViewBinding
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.content.poll.type.KmeQuickPollTypeView
-import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
+import com.kme.kaltura.kmesdk.controller.IKmeUserController
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
+import com.kme.kaltura.kmesdk.di.KmeKoinScope
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.util.messages.buildSendQuickPollAnswerMessage
 import com.kme.kaltura.kmesdk.ws.message.module.KmeQuickPollModuleMessage.*
@@ -20,7 +21,6 @@ import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollAudienceType
 import com.kme.kaltura.kmesdk.ws.message.type.KmeQuickPollType
 import kotlinx.coroutines.*
 import org.koin.core.inject
-import java.util.*
 
 class KmeQuickPollView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -38,7 +38,7 @@ class KmeQuickPollView @JvmOverloads constructor(
     private lateinit var config: Config
     private lateinit var lifecycleOwner: LifecycleOwner
 
-    private val defaultEventHandler: KmeDefaultPollEventHandler by inject()
+    private val defaultEventHandler: KmeDefaultPollEventHandler by scopedInject(KmeKoinScope.HELPERS)
     private val userController: IKmeUserController by inject()
     private val roomController: IKmeRoomController by scopedInject()
 

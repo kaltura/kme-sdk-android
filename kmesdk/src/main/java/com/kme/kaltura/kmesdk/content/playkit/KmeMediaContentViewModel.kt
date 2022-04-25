@@ -40,17 +40,14 @@ class KmeMediaContentViewModel : ViewModel(), KmeKoinViewModel {
         return partnerId?.toInt() ?: 0
     }
 
-    fun updatePlayerAudioState(state: KmePlayerState, type: KmeContentType) {
-        roomController.peerConnectionModule.playerAudioState(state, type)
-    }
+    fun reportPlayerStateChange(
+        state: KmePlayerState,
+        type: KmeContentType
+    ) = roomController.peerConnectionModule.reportPlayerStateChange(state, type)
 
-    fun videoVolumeIncrease() {
-        audioManager.adjustStreamVolumeRise()
-    }
+    fun videoVolumeIncrease() = audioManager.adjustStreamVolumeRise()
 
-    fun videoVolumeDecrease() {
-        audioManager.adjustStreamVolumeLow()
-    }
+    fun videoVolumeDecrease() = audioManager.adjustStreamVolumeLow()
 
     fun getPlayerState(contentType: KmeContentType?) {
         val module: KmeMessageModule = when (contentType) {
@@ -64,7 +61,13 @@ class KmeMediaContentViewModel : ViewModel(), KmeKoinViewModel {
         val roomId = internalDataModule.breakoutRoomId.takeIf {
             it != 0L
         } ?: internalDataModule.mainRoomId
-        roomController.send(buildGetPlayerStateMessage(roomId, internalDataModule.companyId, module))
+        roomController.send(
+            buildGetPlayerStateMessage(
+                roomId,
+                internalDataModule.companyId,
+                module
+            )
+        )
     }
 
     override fun onClosed() {

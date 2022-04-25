@@ -8,13 +8,14 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import com.kme.kaltura.kmesdk.controller.IKmeRoomController
 import com.kme.kaltura.kmesdk.controller.IKmeUserController
-import com.kme.kaltura.kmesdk.module.internal.IKmeInternalSettingsModule
 import com.kme.kaltura.kmesdk.di.KmeKoinScope
 import com.kme.kaltura.kmesdk.di.getScope
 import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.module.*
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalDataModule
 import com.kme.kaltura.kmesdk.module.internal.IKmeInternalParticipantModule
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalPeerConnectionModule
+import com.kme.kaltura.kmesdk.module.internal.IKmeInternalSettingsModule
 import com.kme.kaltura.kmesdk.rest.KmeApiException
 import com.kme.kaltura.kmesdk.rest.response.room.KmeWebRTCServer
 import com.kme.kaltura.kmesdk.rest.safeApiCall
@@ -24,7 +25,6 @@ import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.util.messages.buildJoinBorMessage
 import com.kme.kaltura.kmesdk.util.messages.buildJoinRoomMessage
 import com.kme.kaltura.kmesdk.ws.*
-import com.kme.kaltura.kmesdk.ws.KmeMessageManager
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.module.KmeRoomInitModuleMessage
@@ -54,15 +54,16 @@ class KmeRoomControllerImpl(
             return module
         }
 
+    private val internalPeerConnectionModule: IKmeInternalPeerConnectionModule by scopedInject()
     private val internalParticipantModule: IKmeInternalParticipantModule by scopedInject()
     private val settingsInternalModule: IKmeInternalSettingsModule by scopedInject()
+    private val internalDataModule: IKmeInternalDataModule by inject()
 
     private val mainRoomSocketModule: IKmeWebSocketModule by scopedInject()
     private val contentModule: IKmeContentModule by scopedInject()
-    private val internalDataModule: IKmeInternalDataModule by inject()
 
     override val roomModule: IKmeRoomModule by scopedInject()
-    override val peerConnectionModule: IKmePeerConnectionModule by scopedInject()
+    override val peerConnectionModule = internalPeerConnectionModule as IKmePeerConnectionModule
     override val participantModule = internalParticipantModule as IKmeParticipantModule
     override val chatModule: IKmeChatModule by scopedInject()
     override val noteModule: IKmeNoteModule by scopedInject()

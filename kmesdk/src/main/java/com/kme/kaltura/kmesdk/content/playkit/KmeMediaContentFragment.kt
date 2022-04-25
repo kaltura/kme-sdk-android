@@ -86,17 +86,21 @@ class KmeMediaContentFragment : KmeContentView() {
         mediaView.kalturaErrorListener = object : OnLoadKalturaErrorListener {
             override fun onLoadKalturaMediaError(error: ErrorElement) {
                 controlsView.setProgressBarVisibility(false)
+                reportPlayerStateChange(KmePlayerState.ENDED)
                 Snackbar.make(mediaView, R.string.error_cant_load_media, Snackbar.LENGTH_SHORT)
                     .show()
             }
         }
+
         mediaView.addListener(this, PlayerEvent.canPlay) {
             controlsView.setProgressBarVisibility(false)
+            reportPlayerStateChange(KmePlayerState.PAUSED)
             // TODO uncomment for moderators
 //            controlsView.setControlsVisibility(true)
         }
         mediaView.addListener(this, PlayerEvent.error) {
             controlsView.setProgressBarVisibility(false)
+            reportPlayerStateChange(KmePlayerState.ENDED)
             Snackbar.make(mediaView, R.string.error_cant_load_media, Snackbar.LENGTH_SHORT)
                 .show()
         }
@@ -110,15 +114,11 @@ class KmeMediaContentFragment : KmeContentView() {
             controlsView.setSeekBarVisibility(true)
             controlsView.setTimeVisibility(true)
             controlsView.updateUI(PLAY)
-            payload?.contentType?.let {
-                mediaContentViewModel.updatePlayerAudioState(KmePlayerState.PLAY, it)
-            }
+            reportPlayerStateChange(KmePlayerState.PLAY)
         }
         mediaView.addListener(this, PlayerEvent.playing) {
             controlsView.updateUI(PLAYING)
-            payload?.contentType?.let {
-                mediaContentViewModel.updatePlayerAudioState(KmePlayerState.PLAYING, it)
-            }
+            reportPlayerStateChange(KmePlayerState.PLAYING)
         }
         mediaView.addListener(this, PlayerEvent.pause) {
             if (mediaView.isYoutube()) {
@@ -126,21 +126,15 @@ class KmeMediaContentFragment : KmeContentView() {
                 controlsView.setTimeVisibility(false)
             }
             controlsView.updateUI(PAUSE)
-            payload?.contentType?.let {
-                mediaContentViewModel.updatePlayerAudioState(KmePlayerState.PAUSED, it)
-            }
+            reportPlayerStateChange(KmePlayerState.PAUSED)
         }
         mediaView.addListener(this, PlayerEvent.stopped) {
             controlsView.updateUI(STOPPED)
-            payload?.contentType?.let {
-                mediaContentViewModel.updatePlayerAudioState(KmePlayerState.STOP, it)
-            }
+            reportPlayerStateChange(KmePlayerState.STOP)
         }
         mediaView.addListener(this, PlayerEvent.ended) {
             controlsView.updateUI(STOPPED)
-            payload?.contentType?.let {
-                mediaContentViewModel.updatePlayerAudioState(KmePlayerState.ENDED, it)
-            }
+            reportPlayerStateChange(KmePlayerState.ENDED)
         }
         mediaView.addListener(this, PlayerEvent.playheadUpdated) {
             controlsView.setTimePosition(
@@ -148,6 +142,10 @@ class KmeMediaContentFragment : KmeContentView() {
                 TimeUnit.MILLISECONDS.toSeconds(it.duration)
             )
         }
+    }
+
+    private fun reportPlayerStateChange(state: KmePlayerState) = payload?.contentType?.let {
+        mediaContentViewModel.reportPlayerStateChange(state, it)
     }
 
     private fun setContentPayload(contentPayload: SetActiveContentPayload) {
