@@ -57,7 +57,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
     private lateinit var turnCred: String
     private lateinit var listener: IKmePeerConnectionModule.KmePeerConnectionEvents
     private var screenShareEvents: IKmePeerConnectionModule.KmeScreenShareEvents? = null
-    private var playerAudioEvent: IKmePeerConnectionModule.KmePlayerAudioEvents? = null
+    private var playerAudioEvent: IKmePeerConnectionModule.KmePlayerEvents? = null
 
     private var viewersAudioEnabledByApp = true
     private var viewersAudioEnabledBySdk = true
@@ -110,7 +110,7 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
         companyId: Long,
         listener: IKmePeerConnectionModule.KmePeerConnectionEvents,
         screenShareEvents: IKmePeerConnectionModule.KmeScreenShareEvents,
-        audioEvent: IKmePeerConnectionModule.KmePlayerAudioEvents
+        audioEvent: IKmePeerConnectionModule.KmePlayerEvents
     ) {
         this.screenShareEvents = screenShareEvents
         this.playerAudioEvent = audioEvent
@@ -412,9 +412,10 @@ class KmePeerConnectionModuleImpl : KmeController(), IKmeInternalPeerConnectionM
         }
     }
 
-    override fun playerAudioState(state: KmePlayerState, type: KmeContentType) {
-        playerAudioEvent?.onPlayerAudioStateChanged(state, type)
-    }
+    override fun reportPlayerStateChange(
+        state: KmePlayerState,
+        type: KmeContentType
+    ) = playerAudioEvent?.onPlayerStateChanged(state, type)
 
     /**
      * Switch between publisher's existing cameras

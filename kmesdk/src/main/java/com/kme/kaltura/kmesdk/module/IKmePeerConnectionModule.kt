@@ -40,7 +40,7 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
         companyId: Long,
         listener: KmePeerConnectionEvents,
         screenShareEvents: KmeScreenShareEvents,
-        audioEvent: KmePlayerAudioEvents
+        audioEvent: KmePlayerEvents
     )
 
     /**
@@ -214,7 +214,10 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
      * @param state for audio state
      * @param type for content
      */
-    fun playerAudioState(state: KmePlayerState, type: KmeContentType)
+    fun reportPlayerStateChange(
+        state: KmePlayerState,
+        type: KmeContentType
+    ): Unit?
 
     /**
      * Switch between publisher's existing cameras
@@ -276,12 +279,15 @@ interface IKmePeerConnectionModule : IKmePeerConnectionClientEvents, IKmeModule 
     /**
      * Audio event
      */
-    interface KmePlayerAudioEvents {
+    interface KmePlayerEvents {
         /**
          * Callback fired once when player audio state changed
          * @param state
          */
-        fun onPlayerAudioStateChanged(state: KmePlayerState, type: KmeContentType)
+        fun onPlayerStateChanged(
+            state: KmePlayerState,
+            type: KmeContentType
+        )
     }
 
         /**

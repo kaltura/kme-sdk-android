@@ -12,6 +12,8 @@ import com.kaltura.playkit.providers.ovp.OVPMediaAsset
 import com.kaltura.tvplayer.*
 import com.kme.kaltura.kmesdk.R
 import com.kme.kaltura.kmesdk.di.KmeKoinComponent
+import com.kme.kaltura.kmesdk.di.KmeKoinScope
+import com.kme.kaltura.kmesdk.di.scopedInject
 import com.kme.kaltura.kmesdk.ws.message.module.KmeActiveContentModuleMessage
 import com.kme.kaltura.kmesdk.ws.message.type.KmeContentType
 import com.kme.kaltura.kmesdk.ws.message.type.KmePlayerState
@@ -20,7 +22,6 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTubePlayerTracker
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
-import org.koin.core.inject
 import java.util.concurrent.TimeUnit
 
 /**
@@ -34,7 +35,7 @@ class KmeMediaView @JvmOverloads constructor(
     var lifecycleOwner: LifecycleOwner? = null
     var kalturaErrorListener: OnLoadKalturaErrorListener? = null
 
-    private val defaultPlayerEventHandler: KmeDefaultPlayerEventHandler by inject()
+    private val defaultPlayerEventHandler: KmeDefaultPlayerEventHandler by scopedInject(KmeKoinScope.HELPERS)
 
     private lateinit var config: Config
 
