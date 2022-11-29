@@ -32,13 +32,14 @@ internal class KmeWebSocketHandler(
      */
     override fun onOpen(webSocket: WebSocket, response: Response) {
         super.onOpen(webSocket, response)
-        logger.e(TAG, "onOpen ${webSocket.hashCode()}: $response")
+        logger.d(TAG, "onOpen ${webSocket.hashCode()}: $response")
         listener?.onOpen(response)
     }
 
     /** Invoked when a text (type `0x1`) message has been received. */
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
+
         //FIXME UnknownFormatConversionException
         // text = {"constraint":["INTERNAL_FORWARD","INCLUDE_SELF"],"name":"setActiveContent",
         // "module":"activecontent","type":"BROADCAST",
@@ -49,7 +50,9 @@ internal class KmeWebSocketHandler(
         // "slides":[{"slide_number":1,"audio_clips":null,
         // "url":"https://stg-ctn-cf.newrow.com/companyFiles/39247/1765105/1649669144_260199709/37312466_1649669144.gif",
         // "thumbnail":"https://stg-ctn-cf.newrow.com/companyFiles/39247/1765105/1649669144_260199709/converted%2F37312466_1649669144-thumbnail.jpg"}]}}}
-//        logger.e(TAG, "${webSocket.hashCode()} onMessage: <== $text")
+        // logger.e(TAG, "${webSocket.hashCode()} onMessage: <== $text")
+
+        logger.d(TAG, "${webSocket.hashCode()} onMessage: <== $text")
         if (text.isNotEmpty()) {
             handleMessage(webSocket, text)
         }
@@ -62,7 +65,7 @@ internal class KmeWebSocketHandler(
      */
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        logger.e(TAG, "onFailure ${webSocket.hashCode()}: $t, $response")
+        logger.d(TAG, "onFailure ${webSocket.hashCode()}: $t, $response")
         listener?.onFailure(t, response)
     }
 
@@ -71,7 +74,7 @@ internal class KmeWebSocketHandler(
      */
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosing(webSocket, code, reason)
-        logger.e(TAG, "onClosing ${webSocket.hashCode()}: $code, $reason")
+        logger.d(TAG, "onClosing ${webSocket.hashCode()}: $code, $reason")
         listener?.onClosing(code, reason)
     }
 
@@ -81,7 +84,7 @@ internal class KmeWebSocketHandler(
      */
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
-        logger.e(TAG, "onClosed ${webSocket.hashCode()}: $code, $reason")
+        logger.d(TAG, "onClosed ${webSocket.hashCode()}: $code, $reason")
         listener?.onClosed(code, reason)
     }
 

@@ -3,8 +3,6 @@ package com.kme.kaltura.kmesdk.di
 import com.kme.kaltura.kmesdk.module.*
 import com.kme.kaltura.kmesdk.module.impl.*
 import com.kme.kaltura.kmesdk.module.internal.*
-import com.kme.kaltura.kmesdk.module.internal.IKmeInternalParticipantModule
-import com.kme.kaltura.kmesdk.module.internal.IKmeInternalPeerConnectionModule
 import com.kme.kaltura.kmesdk.ws.KmeWebSocketType
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named

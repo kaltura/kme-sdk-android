@@ -4,6 +4,7 @@ import com.kme.kaltura.kmesdk.content.playkit.KmeDefaultPlayerEventHandler
 import com.kme.kaltura.kmesdk.content.poll.KmeDefaultPollEventHandler
 import com.kme.kaltura.kmesdk.service.CsrfUpdater
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 /**
@@ -11,8 +12,11 @@ import org.koin.dsl.module
  */
 val helpersModule = module {
 
-    single { KmeDefaultPlayerEventHandler() }
-    single { KmeDefaultPollEventHandler() }
+    scope(named(KmeKoinScope.HELPERS)) {
+        scoped { KmeDefaultPlayerEventHandler() }
+        scoped { KmeDefaultPollEventHandler() }
+    }
+
     single { CsrfUpdater(androidContext()) }
 
 }

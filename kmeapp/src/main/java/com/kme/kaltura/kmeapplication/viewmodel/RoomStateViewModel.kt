@@ -11,6 +11,7 @@ import com.kme.kaltura.kmesdk.module.IKmeRoomModule
 import com.kme.kaltura.kmesdk.module.IKmeTermsModule
 import com.kme.kaltura.kmesdk.toType
 import com.kme.kaltura.kmesdk.ws.IKmeMessageListener
+import com.kme.kaltura.kmesdk.ws.KmeRoomUnavailableReason
 import com.kme.kaltura.kmesdk.ws.message.KmeMessage
 import com.kme.kaltura.kmesdk.ws.message.KmeMessageEvent
 import com.kme.kaltura.kmesdk.ws.message.KmeRoomExitReason
@@ -285,7 +286,7 @@ class RoomStateViewModel(
         closeConnection.value = reason
     }
 
-    override fun onRoomUnavailable(throwable: Throwable?) {
+    override fun onRoomUnavailable(reason: KmeRoomUnavailableReason, throwable: Throwable?) {
 
     }
 

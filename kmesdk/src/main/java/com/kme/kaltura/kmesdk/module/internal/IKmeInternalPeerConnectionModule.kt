@@ -1,6 +1,5 @@
 package com.kme.kaltura.kmesdk.module.internal
 
-import com.kme.kaltura.kmesdk.module.IKmeModule
 import com.kme.kaltura.kmesdk.module.IKmePeerConnectionModule
 
 /**
